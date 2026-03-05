@@ -16,6 +16,11 @@ import Pricing from "@/pages/arc/Pricing";
 import Demo from "@/pages/Demo";
 import About from "@/pages/company/About";
 import BlogList from "@/pages/blog/BlogList";
+import BlogPost from "@/pages/blog/BlogPost";
+
+// Legal Pages
+import Privacy from "@/pages/legal/Privacy";
+import Terms from "@/pages/legal/Terms";
 
 function Router() {
   return (
@@ -36,6 +41,11 @@ function Router() {
           <Route path="/company/about" component={About} />
           
           <Route path="/blog" component={BlogList} />
+          <Route path="/blog/:id" component={BlogPost} />
+
+          <Route path="/privacy" component={Privacy} />
+          <Route path="/terms-of-service" component={Terms} />
+          <Route path="/msa" component={Terms} /> {/* Sharing terms layout for mockup */}
 
           <Route component={NotFound} />
         </Switch>
