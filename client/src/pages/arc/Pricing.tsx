@@ -1,13 +1,26 @@
 import { Check, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import SEOHead from "@/components/SEOHead";
 
 export default function Pricing() {
   return (
     <div className="min-h-screen bg-gray-50 selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="Growmax ARC Pricing | $199/month B2B Commerce Platform"
+        description="Growmax ARC starts at $199/month with 5 user seats, inventory engine, sales rep app, customer portal, and native Zoho integration. No hidden fees, 14-day free trial."
+        path="/arc/pricing"
+      />
       {/* Hero */}
       <section className="pt-32 pb-24 border-b border-gray-200 bg-grid-pattern relative">
          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-gray-50 pointer-events-none"></div>
         <div className="container mx-auto text-center max-w-3xl relative z-10 px-4">
+          <div className="mb-6 flex justify-center">
+            <Breadcrumbs items={[
+              { label: "ARC", href: "/arc" },
+              { label: "Pricing" },
+            ]} />
+          </div>
           <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6">
              Commercials // ARC
           </div>

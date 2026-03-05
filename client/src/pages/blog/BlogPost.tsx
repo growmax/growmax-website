@@ -2,6 +2,9 @@ import { Link, useParams } from "wouter";
 import { ArrowLeft, ArrowRight, Clock, Calendar, Share2, Copy, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPostBySlug, getRelatedPosts, type BlogPostData } from "@/data/blogPosts";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import SEOHead from "@/components/SEOHead";
+import { articleSchema } from "@/lib/structuredData";
 
 function ComingSoonPlaceholder({ post }: { post: BlogPostData }) {
   return (
@@ -209,9 +212,28 @@ export default function BlogPost() {
 
   return (
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white pt-16">
+      <SEOHead
+        title={`${post.title} | Growmax Intelligence`}
+        description={post.excerpt}
+        path={`/blog/${post.slug}`}
+        structuredData={articleSchema({
+          title: post.title,
+          description: post.excerpt,
+          slug: post.slug,
+          date: post.date,
+          author: post.author,
+        })}
+      />
       <article className="pt-20 pb-16 border-b-2 border-growmax-black bg-grid-blueprint relative">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         <div className="container mx-auto px-4 md:px-8 max-w-4xl relative z-10">
+          <div className="mb-8">
+            <Breadcrumbs items={[
+              { label: "Intelligence", href: "/blog" },
+              { label: post.title },
+            ]} />
+          </div>
+
           <Link
             href="/blog"
             className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-gray-500 hover:text-growmax-red transition-colors mb-12"

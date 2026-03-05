@@ -1,10 +1,18 @@
 import { Link } from "wouter";
 import { ArrowRight, Server, Box, GitMerge, Activity, CheckSquare, Maximize, AlertCircle, Fingerprint, Layers, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SEOHead from "@/components/SEOHead";
+import { organizationSchema } from "@/lib/structuredData";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen pt-16 selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="Growmax | Intelligent B2B Revenue Operations Platform"
+        description="The connected platform for B2B revenue operations. Customer self-ordering portals, sales quote & pricing, partner portals, and ERP integration for industrial distributors and manufacturers."
+        path="/"
+        structuredData={organizationSchema()}
+      />
       
       {/* SECTION 1: ARCHITECTURAL HERO */}
       <section className="relative min-h-[90vh] flex flex-col justify-center border-b-2 border-growmax-black overflow-hidden bg-growmax-white bg-grid-blueprint">
@@ -52,6 +60,61 @@ export default function Home() {
             </div>
           </div>
           
+        </div>
+      </section>
+
+      {/* TRUSTED BY / DEPLOYMENT PARTNERS */}
+      <section className="py-16 bg-growmax-white border-b-2 border-growmax-black" data-testid="section-trusted-by">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex items-center gap-6 mb-12">
+            <div className="font-mono text-xs font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">Trusted By</div>
+            <div className="h-px flex-1 bg-gray-300"></div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-12">
+            {[
+              { name: "Siemens", label: "Partner Commerce" },
+              { name: "Schwing Stetter", label: "Spares Portal" },
+              { name: "OBO Bettermann", label: "Dealer Portal" },
+            ].map((partner, i) => (
+              <div
+                key={i}
+                className="border-2 border-growmax-black p-6 md:p-8 flex flex-col items-center justify-center text-center hover:bg-growmax-black hover:text-white group transition-colors"
+                data-testid={`partner-logo-${i}`}
+              >
+                <span className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tighter uppercase leading-tight">
+                  {partner.name}
+                </span>
+                <span className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mt-2">
+                  {partner.label}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div className="overflow-hidden relative">
+            <div className="flex animate-marquee whitespace-nowrap gap-8 font-mono text-sm uppercase tracking-widest text-gray-400">
+              {[
+                "Electrical Distribution",
+                "Industrial Manufacturing",
+                "Building Materials",
+                "MRO Supplies",
+                "Construction Equipment",
+                "Spare Parts",
+                "Electrical Distribution",
+                "Industrial Manufacturing",
+                "Building Materials",
+                "MRO Supplies",
+                "Construction Equipment",
+                "Spare Parts",
+              ].map((vertical, i) => (
+                <span key={i} className="flex items-center gap-8">
+                  <span className="text-growmax-red">■</span>
+                  <span>{vertical}</span>
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

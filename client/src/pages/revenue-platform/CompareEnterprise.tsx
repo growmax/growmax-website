@@ -1,6 +1,9 @@
 import { Link } from "wouter";
 import { ArrowRight, Check, X, Minus, Clock, DollarSign, Server, Shield, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import SEOHead from "@/components/SEOHead";
+import { webPageSchema } from "@/lib/structuredData";
 
 const featureMatrix = [
   {
@@ -78,10 +81,27 @@ function FeatureCell({ value }: { value: boolean | string }) {
 export default function CompareEnterprise() {
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="Growmax vs Corevist vs SAP Commerce Cloud | Enterprise B2B Platform Comparison"
+        description="Compare Growmax Revenue Platform against Corevist and SAP Commerce Cloud. Feature-by-feature analysis of enterprise B2B commerce platforms with SAP integration."
+        path="/revenue-platform/compare"
+        structuredData={webPageSchema({
+          title: "Growmax vs Corevist vs SAP Commerce Cloud | Enterprise B2B Platform Comparison",
+          description: "Compare Growmax Revenue Platform against Corevist and SAP Commerce Cloud. Feature-by-feature analysis of enterprise B2B commerce platforms with SAP integration.",
+          path: "/revenue-platform/compare",
+          keywords: ["SAP Commerce Cloud alternative", "Corevist alternative", "B2B commerce platform comparison", "enterprise B2B ecommerce", "SAP integrated commerce"],
+        })}
+      />
       <section className="pt-24 pb-24 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="max-w-4xl">
+            <div className="mb-6">
+              <Breadcrumbs items={[
+                { label: "Revenue Platform", href: "/revenue-platform" },
+                { label: "Enterprise Comparison" },
+              ]} />
+            </div>
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3" data-testid="text-page-category">
               Competitive Analysis // Enterprise Commerce
             </div>
@@ -310,6 +330,66 @@ export default function CompareEnterprise() {
           <p className="font-mono text-sm uppercase tracking-widest text-gray-400">
             Target Keywords: SAP Integrated B2B Commerce Platform · Corevist Alternative · SAP Commerce Cloud Alternative for Manufacturers
           </p>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white border-t-4 border-growmax-black">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="mb-16">
+            <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Related Architecture</div>
+            <h2 className="text-4xl font-bold tracking-tighter text-growmax-black uppercase mb-4">See Also</h2>
+            <div className="w-16 h-2 bg-growmax-red"></div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
+            <Link href="/revenue-platform">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-revenue-platform">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Platform</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Revenue Platform</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Enterprise-grade, cloud-native B2B commerce with native SAP integration and multi-warehouse orchestration.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore Platform <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+
+            <Link href="/industries/electrical-distributors">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-electrical-industry">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Industry</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Electrical Distributors</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">How Growmax solves complex pricing, multi-warehouse inventory, and contractor portals for electrical wholesale.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">View Industry Page <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+
+            <Link href="/blog/partner-engagement-strategy-industrial-brands">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-blog-partner-engagement">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Intelligence</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Partner Engagement Strategy</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Why industrial brands need a connected partner ecosystem to drive channel revenue growth.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Article <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+          </div>
+
+          <div className="mt-8 grid md:grid-cols-2 gap-4">
+            <Link href="/arc">
+              <div className="border border-gray-200 p-6 flex items-center justify-between gap-4 hover:border-growmax-black transition-colors cursor-pointer" data-testid="link-arc-from-enterprise">
+                <div>
+                  <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">For Distributors</div>
+                  <p className="text-sm text-gray-700">Looking for a simpler solution? Explore Growmax ARC for mid-market distributors.</p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-growmax-red shrink-0" />
+              </div>
+            </Link>
+            <Link href="/blog/sap-integrated-b2b-commerce">
+              <div className="border border-gray-200 p-6 flex items-center justify-between gap-4 hover:border-growmax-black transition-colors cursor-pointer" data-testid="link-blog-sap">
+                <div>
+                  <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">Deep Dive</div>
+                  <p className="text-sm text-gray-700">Read our technical guide on SAP-integrated B2B commerce architecture.</p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-growmax-red shrink-0" />
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 

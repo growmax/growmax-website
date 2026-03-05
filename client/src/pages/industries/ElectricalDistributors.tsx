@@ -1,6 +1,8 @@
 import { Link } from "wouter";
 import { ArrowRight, Zap, Building2, Truck, DollarSign, Users, ShieldCheck, CheckSquare, MapPin, Factory } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import SEOHead from "@/components/SEOHead";
 
 const painPoints = [
   {
@@ -66,11 +68,22 @@ const electricalProducts = [
 export default function ElectricalDistributors() {
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="B2B eCommerce for Electrical Distributors | Texas & East Coast"
+        description="Revenue operations platform for electrical distributors. Multi-tier pricing, multi-warehouse inventory, contractor portals, and SAP integration for electrical wholesale."
+        path="/industries/electrical-distributors"
+      />
       <section className="pt-24 pb-24 border-b border-gray-200 bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div>
+              <div className="mb-6">
+                <Breadcrumbs items={[
+                  { label: "Industries" },
+                  { label: "Electrical Distributors" },
+                ]} />
+              </div>
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3" data-testid="text-industry-label">
                 Industry // Electrical Distribution
               </div>
@@ -272,6 +285,66 @@ export default function ElectricalDistributors() {
                 {keyword}
               </span>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white border-t-2 border-growmax-black">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="mb-16">
+            <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Related Architecture</div>
+            <h2 className="text-4xl font-bold tracking-tighter text-growmax-black uppercase mb-4" data-testid="text-related-title">See Also</h2>
+            <div className="w-16 h-2 bg-growmax-red"></div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
+            <Link href="/revenue-platform">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-revenue-platform">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Platform</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Revenue Platform</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Enterprise B2B commerce with native SAP integration, multi-warehouse orchestration, and CPQ engine.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore Platform <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+
+            <Link href="/revenue-platform/compare">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-compare-enterprise">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Comparison</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax vs Corevist vs SAP CC</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Enterprise B2B platform comparison — features, pricing, and implementation timelines side by side.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Comparison <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+
+            <Link href="/arc">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">For Distributors</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">The connected distributor platform with ordering portal, field sales app, and Zoho integration.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+          </div>
+
+          <div className="mt-8 grid md:grid-cols-2 gap-4">
+            <Link href="/blog/partner-engagement-strategy-industrial-brands">
+              <div className="border border-gray-200 p-6 flex items-center justify-between gap-4 hover:border-growmax-black transition-colors cursor-pointer" data-testid="link-blog-partner">
+                <div>
+                  <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">Intelligence</div>
+                  <p className="text-sm text-gray-700">Partner Engagement Strategy for Industrial Brands — read the full article.</p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-growmax-red shrink-0" />
+              </div>
+            </Link>
+            <Link href="/arc/compare/b2b-wave">
+              <div className="border border-gray-200 p-6 flex items-center justify-between gap-4 hover:border-growmax-black transition-colors cursor-pointer" data-testid="link-compare-b2bwave">
+                <div>
+                  <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">Comparison</div>
+                  <p className="text-sm text-gray-700">ARC vs B2B Wave — feature-by-feature distributor platform comparison.</p>
+                </div>
+                <ArrowRight className="w-5 h-5 text-growmax-red shrink-0" />
+              </div>
+            </Link>
           </div>
         </div>
       </section>

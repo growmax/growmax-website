@@ -1,8 +1,14 @@
 import { Link } from "wouter";
+import SEOHead from "@/components/SEOHead";
 
 export default function Privacy() {
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="Privacy Policy | Growmax"
+        description="Growmax privacy policy. Learn how we collect, use, and protect your data."
+        path="/privacy"
+      />
       
       {/* Header */}
       <section className="pt-24 pb-12 border-b border-gray-200 bg-grid-blueprint relative">

@@ -1,15 +1,28 @@
 import { Link } from "wouter";
 import { ArrowRight, Activity, ShieldCheck, Database, GitMerge, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import SEOHead from "@/components/SEOHead";
 
 export default function About() {
   return (
     <div className="min-h-screen bg-growmax-white pt-16 selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="About Growmax | B2B Commerce for Industrial Distributors"
+        description="Growmax delivers connected B2B commerce platforms for industrial distributors and manufacturers. Founded by ex-Siemens and ex-SAP leaders with 25+ years of industry experience."
+        path="/company/about"
+      />
       
       {/* Hero Section */}
       <section className="py-24 md:py-32 bg-growmax-black text-white bg-dots-dark border-b-4 border-growmax-red">
         <div className="container mx-auto px-4 md:px-8">
           <div className="max-w-4xl">
+            <div className="mb-6">
+              <Breadcrumbs items={[
+                { label: "Company" },
+                { label: "About" },
+              ]} />
+            </div>
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-8 border-l-2 border-growmax-red pl-4">
               Company Profile // 2026
             </div>

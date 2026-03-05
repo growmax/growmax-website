@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Cpu, Fingerprint, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import SEOHead from "@/components/SEOHead";
+import { contactPageSchema } from "@/lib/structuredData";
 
 export default function Demo() {
   const [firstName, setFirstName] = useState("");
@@ -62,6 +64,12 @@ export default function Demo() {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-32 pb-24 selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="Request a Demo | Growmax B2B Revenue Platform"
+        description="Schedule a technical consultation with the Growmax architecture team. Deploy pilot programs in 8-12 weeks. ERP integration, partner portals, and B2B commerce."
+        path="/demo"
+        structuredData={contactPageSchema()}
+      />
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="grid lg:grid-cols-12 gap-16 items-start">
           

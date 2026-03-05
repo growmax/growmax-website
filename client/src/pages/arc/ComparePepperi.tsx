@@ -1,6 +1,9 @@
 import { Link } from "wouter";
 import { Check, X, ArrowRight, Zap, Globe, Smartphone, Database, DollarSign, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import SEOHead from "@/components/SEOHead";
+import { webPageSchema } from "@/lib/structuredData";
 
 const features = [
   { category: "Ordering & Commerce", items: [
@@ -52,10 +55,27 @@ const pricingComparison = [
 export default function ComparePepperi() {
   return (
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="Growmax ARC vs Pepperi | SMB B2B Commerce Alternative"
+        description="Compare Growmax ARC and Pepperi for B2B distribution. Enterprise features at startup pricing — 10x lower cost, same-day deployment, native Zoho integration."
+        path="/arc/compare/pepperi"
+        structuredData={webPageSchema({
+          title: "Growmax ARC vs Pepperi | SMB B2B Commerce Alternative",
+          description: "Compare Growmax ARC and Pepperi for B2B distribution. Enterprise features at startup pricing — 10x lower cost, same-day deployment, native Zoho integration.",
+          path: "/arc/compare/pepperi",
+          keywords: ["Pepperi alternative", "SMB B2B commerce", "B2B distribution platform", "field sales app comparison"],
+        })}
+      />
       <section className="pt-32 pb-24 border-b border-gray-200 bg-grid-pattern relative">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="max-w-4xl">
+            <div className="mb-6">
+              <Breadcrumbs items={[
+                { label: "ARC", href: "/arc" },
+                { label: "ARC vs Pepperi" },
+              ]} />
+            </div>
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6" data-testid="text-page-label">
               Competitive Analysis // ARC vs Pepperi
             </div>
@@ -258,6 +278,57 @@ export default function ComparePepperi() {
                 <p className="text-gray-400 font-light text-sm leading-relaxed">{item.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+          <div className="mb-16">
+            <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Related Architecture</div>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Explore More</h2>
+            <div className="w-16 h-1 bg-growmax-black"></div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
+            <Link href="/arc/compare/b2b-wave">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-compare-b2bwave">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Comparison</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">ARC vs B2B Wave</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Feature-by-feature comparison against B2B Wave's QuickBooks-centric eCommerce platform.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Comparison <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+
+            <Link href="/arc">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Product</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC Platform</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">The connected distributor platform — ordering portal, field sales app, and real-time inventory.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+
+            <Link href="/blog/b2b-ecommerce-industrial-distributors">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-blog-b2b-ecommerce">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Intelligence</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">B2B eCommerce for Distributors</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">How industrial distributors are transforming their sales operations with digital commerce.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Article <ArrowRight className="w-3 h-3" /></div>
+              </div>
+            </Link>
+          </div>
+
+          <div className="mt-8 border border-gray-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4" data-testid="banner-industries">
+            <div>
+              <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">Industry Focus</div>
+              <p className="text-sm text-gray-700">See how electrical distributors use Growmax to modernize their ordering operations.</p>
+            </div>
+            <Link href="/industries/electrical-distributors">
+              <Button variant="outline" className="border-growmax-black text-growmax-black hover:bg-growmax-black hover:text-white rounded-none font-bold tracking-tight whitespace-nowrap" data-testid="button-industry-link">
+                Electrical Distributors <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

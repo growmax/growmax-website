@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Search, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import SEOHead from "@/components/SEOHead";
 
 const categories = [
   "All",
@@ -399,6 +400,11 @@ export default function BlogList() {
 
   return (
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white pt-16">
+      <SEOHead
+        title="Growmax Intelligence | B2B Commerce & Industrial Distribution Insights"
+        description="Technical papers, case studies, and insights on B2B eCommerce, industrial distribution, AI in commerce, partner engagement, and revenue operations."
+        path="/blog"
+      />
       {/* Hero */}
       <section className="pt-24 pb-16 border-b border-gray-200 bg-grid-blueprint relative">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>

@@ -1,8 +1,14 @@
 import { Link } from "wouter";
+import SEOHead from "@/components/SEOHead";
 
 export default function Terms() {
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
+      <SEOHead
+        title="Terms of Service | Growmax"
+        description="Growmax terms of service and conditions for using our B2B commerce platform."
+        path="/terms-of-service"
+      />
       
       {/* Header */}
       <section className="pt-24 pb-12 border-b border-gray-200 bg-grid-blueprint relative">
