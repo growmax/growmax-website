@@ -24,65 +24,40 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
 
-  /* Growmax Custom Palette */
-  --color-growmax-red: hsl(0 68% 50%);
-  --color-growmax-red-dark: hsl(0 74% 42%);
-  --color-growmax-red-light: hsl(0 100% 96%); /* #FEE2E2 equivalent */
-  --color-growmax-black: hsl(0 0% 10%);
-  --color-enterprise-bg: hsl(222 47% 11%);
-  --color-enterprise-surface: hsl(217 33% 17%);
-  --color-enterprise-text: hsl(210 40% 98%);
-  --color-arc-surface: hsl(28 100% 96%);
-  --color-arc-accent: hsl(25 95% 53%);
-  --color-success: hsl(160 84% 39%);
-
-  --font-sans: 'Inter', sans-serif;
-  --radius: .5rem;
+  /* Architectural & Brutalist Palette */
+  --color-growmax-red: hsl(0 80% 50%);
+  --color-growmax-red-dark: hsl(0 90% 40%);
+  --color-growmax-black: hsl(0 0% 5%);
+  --color-growmax-white: hsl(0 0% 98%);
+  --color-growmax-gray: hsl(0 0% 90%);
+  
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  
+  --radius: 0px; /* Absolute brutalist sharp edges */
 }
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 5%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 0 0% 5%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 0 68% 50%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 0 80% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 5%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 90%;
+    --accent-foreground: 0 0% 5%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 0 68% 50%;
-  }
-
-  .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 0 68% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 25%;
-    --input: 217 33% 25%;
-    --ring: 0 68% 50%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 80% 50%;
   }
 
   * {
@@ -90,6 +65,46 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased bg-background text-foreground selection:bg-growmax-red selection:text-white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans tracking-tight;
+  }
+}
+
+@layer utilities {
+  .bg-grid-blueprint {
+    background-image: 
+      linear-gradient(to right, hsl(var(--border) / 0.7) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.7) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+
+  .bg-grid-blueprint-dark {
+    background-image: 
+      linear-gradient(to right, hsl(0 0% 100% / 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(0 0% 100% / 0.1) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
+    background-size: 1rem 1rem;
+  }
+  
+  .bg-dots-dark {
+    background-image: radial-gradient(hsl(0 0% 100% / 0.15) 1px, transparent 1px);
+    background-size: 1rem 1rem;
+  }
+
+  .text-stroke {
+    -webkit-text-stroke: 1px hsl(0 0% 5%);
+    color: transparent;
+  }
+
+  .text-stroke-white {
+    -webkit-text-stroke: 1px hsl(0 0% 100%);
+    color: transparent;
   }
 }

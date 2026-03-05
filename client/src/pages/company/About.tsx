@@ -1,91 +1,166 @@
-import { CheckCircle2, ShieldCheck, MapPin } from "lucide-react";
+import { Link } from "wouter";
+import { ArrowRight, Activity, ShieldCheck, Database, GitMerge, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero */}
-      <section className="pt-32 pb-24 bg-enterprise-bg text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
-        <div className="container mx-auto px-4 relative z-10 max-w-4xl text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">Built for the realities of B2B commerce.</h1>
-          <p className="text-xl text-gray-300 leading-relaxed">
-            Growmax was founded in 2017 with a singular mission: to make digital commerce work for manufacturers and distributors, no matter how complex their operations.
-          </p>
+    <div className="min-h-screen bg-growmax-white pt-16 selection:bg-growmax-red selection:text-white">
+      
+      {/* Hero Section */}
+      <section className="py-24 md:py-32 bg-growmax-black text-white bg-dots-dark border-b-4 border-growmax-red">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="max-w-4xl">
+            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-8 border-l-2 border-growmax-red pl-4">
+              Company Profile // 2026
+            </div>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-8 uppercase">
+              Built by people <br/>
+              who know the <br/>
+              <span className="text-growmax-red">industry.</span>
+            </h1>
+            <p className="font-mono text-lg text-gray-400 max-w-2xl leading-relaxed">
+              We deliver the connected platform that replaces disconnected spreadsheets, manual quote workflows, and siloed ERPs. Trusted by manufacturers who chose depth over hype.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-24">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+      {/* ICP & Market validation */}
+      <section className="py-16 bg-white border-b-2 border-growmax-black">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 font-mono uppercase">
+            <div className="border-r border-gray-200 pr-8">
+              <h4 className="text-[10px] font-bold text-gray-400 mb-2">Ideal Customer</h4>
+              <p className="text-sm font-bold text-growmax-black">Distributors &<br/>Industrial Mfrs.</p>
+            </div>
+            <div className="border-r border-gray-200 pr-8">
+              <h4 className="text-[10px] font-bold text-gray-400 mb-2">Company Size</h4>
+              <p className="text-sm font-bold text-growmax-black">$100M - $1B<br/>Mid-Market Enterprise</p>
+            </div>
+            <div className="border-r border-gray-200 pr-8">
+              <h4 className="text-[10px] font-bold text-gray-400 mb-2">Geography</h4>
+              <p className="text-sm font-bold text-growmax-black">India, USA, Europe<br/>& Middle-East</p>
+            </div>
             <div>
-              <h2 className="text-3xl font-bold text-growmax-black mb-6">Deep Roots in Enterprise Technology</h2>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                We didn't start by building a generic shopping cart. Our founders spent years at industry giants like Siemens, SAP, and Mindtree, implementing complex ERP systems and seeing firsthand where standard B2C e-commerce platforms failed B2B companies.
+              <h4 className="text-[10px] font-bold text-gray-400 mb-2">Decision Makers</h4>
+              <p className="text-sm font-bold text-growmax-black">CEO, CRO, CMO</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Leadership */}
+      <section className="py-32 bg-growmax-gray bg-grid-blueprint border-b-2 border-growmax-black">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="mb-20">
+            <h2 className="text-5xl font-bold tracking-tighter uppercase mb-4">Leadership Logic</h2>
+            <div className="w-24 h-2 bg-growmax-black"></div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Sudhakar */}
+            <div className="bg-white border-2 border-growmax-black p-8 hover:-translate-y-2 transition-transform duration-300 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <h3 className="text-3xl font-bold tracking-tighter uppercase text-growmax-black">Sudhakar<br/>Varatharajan</h3>
+                  <p className="font-mono text-xs font-bold text-growmax-red mt-2 uppercase tracking-widest">Founder & CEO</p>
+                </div>
+                <div className="w-16 h-16 bg-gray-200 border border-gray-300 flex items-center justify-center font-mono text-xs text-gray-400">IMG</div>
+              </div>
+              
+              <p className="font-mono text-sm text-gray-600 mb-8 h-12">
+                25+ years in technology-led business transformation. Led 40%+ revenue growth at Siemens automation division.
               </p>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Growmax (Apptino Software Private Limited) was built from the ground up to handle custom pricing, complex catalogs, and direct ERP integrations without the massive timeline of traditional enterprise software.
+              
+              <ul className="space-y-4 font-mono text-xs uppercase text-growmax-black border-t border-gray-200 pt-6">
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-Siemens (Industrial Auto, IND & GER)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-SAP (Upper Mid-Market Enterprises)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-Mindtree (Home Depot US, Adidas GER)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-gray-400" /> MBA — Anna University, IIM Bangalore</li>
+              </ul>
+            </div>
+
+            {/* Aravindan */}
+            <div className="bg-white border-2 border-growmax-black p-8 hover:-translate-y-2 transition-transform duration-300 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <h3 className="text-3xl font-bold tracking-tighter uppercase text-growmax-black">Aravindan<br/>Varatharajan</h3>
+                  <p className="font-mono text-xs font-bold text-growmax-red mt-2 uppercase tracking-widest">Director & Business Growth</p>
+                </div>
+                <div className="w-16 h-16 bg-gray-200 border border-gray-300 flex items-center justify-center font-mono text-xs text-gray-400">IMG</div>
+              </div>
+              
+              <p className="font-mono text-sm text-gray-600 mb-8 h-12">
+                20+ years in business development & analytics. Data analytics & KPI optimization specialist.
               </p>
+              
+              <ul className="space-y-4 font-mono text-xs uppercase text-growmax-black border-t border-gray-200 pt-6">
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-Microsoft (Enterprise Solutions)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-Softura (QA & Process Transformation)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Partner Ecosystem Growth</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-gray-400" /> B.E (ECE) — Bharathidasan University</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Security */}
+      <section className="py-24 bg-white border-b-2 border-growmax-black">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="grid lg:grid-cols-12 gap-16 items-center">
+            <div className="lg:col-span-5">
+              <ShieldCheck className="w-16 h-16 text-growmax-red mb-6" />
+              <h2 className="text-4xl font-bold tracking-tighter uppercase mb-6">Security & Compliance Highlights</h2>
+              <div className="font-mono text-lg font-bold text-gray-400 uppercase tracking-widest border-l-4 border-growmax-red pl-4">
+                "Your data. Your Control. Always."
+              </div>
             </div>
             
-            <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
-              <div className="flex flex-col gap-6">
-                 <div className="flex items-start gap-4">
-                   <ShieldCheck className="w-8 h-8 text-growmax-red shrink-0" />
-                   <div>
-                     <h3 className="font-bold text-gray-900 text-lg">Trusted by Shell</h3>
-                     <p className="text-gray-600 mt-1">We've transformed operations for over 300 distributors across 50+ countries.</p>
-                   </div>
-                 </div>
-                 <div className="flex items-start gap-4">
-                   <MapPin className="w-8 h-8 text-growmax-red shrink-0" />
-                   <div>
-                     <h3 className="font-bold text-gray-900 text-lg">Global Presence</h3>
-                     <p className="text-gray-600 mt-1">Founded in Chennai, India, serving leading manufacturers worldwide.</p>
-                   </div>
-                 </div>
+            <div className="lg:col-span-7 grid sm:grid-cols-2 gap-8 font-mono">
+              <div className="border border-gray-200 p-6 bg-gray-50">
+                <div className="text-xs font-bold text-growmax-red mb-2 uppercase">01 // Protocol</div>
+                <h4 className="text-sm font-bold text-growmax-black uppercase mb-2">Penetration Testing</h4>
+                <p className="text-xs text-gray-600">Aligned with OWASP Top 10 standards. Zero Critical Vulnerabilities post-remediation.</p>
+              </div>
+              <div className="border border-gray-200 p-6 bg-gray-50">
+                <div className="text-xs font-bold text-growmax-red mb-2 uppercase">02 // Encryption</div>
+                <h4 className="text-sm font-bold text-growmax-black uppercase mb-2">Data Protection</h4>
+                <p className="text-xs text-gray-600">Data Encryption at Rest & In Transit ensuring protection of sensitive information.</p>
+              </div>
+              <div className="border border-gray-200 p-6 bg-gray-50">
+                <div className="text-xs font-bold text-growmax-red mb-2 uppercase">03 // Architecture</div>
+                <h4 className="text-sm font-bold text-growmax-black uppercase mb-2">Access Control</h4>
+                <p className="text-xs text-gray-600">Role-Based Access Control (RBAC) to limit exposure and maintain privacy.</p>
+              </div>
+              <div className="border border-gray-200 p-6 bg-gray-50 bg-growmax-black text-white">
+                <div className="text-xs font-bold text-growmax-red mb-2 uppercase">04 // Compliance</div>
+                <h4 className="text-sm font-bold uppercase mb-2">GDPR Ready</h4>
+                <p className="text-xs text-gray-400">Infrastructure built for global scale and regulatory compliance.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      {/* Values/Pillars */}
-      <section className="py-24 bg-gray-50 border-y border-gray-100">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-growmax-black">Why leading brands choose Growmax</h2>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-growmax-red/10 text-growmax-red rounded-lg flex items-center justify-center font-bold text-xl mb-6">1</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Time to Value</h3>
-              <p className="text-gray-600">Enterprise commerce shouldn't take 12 months. We get manufacturers live in weeks, not years.</p>
-            </div>
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-growmax-red/10 text-growmax-red rounded-lg flex items-center justify-center font-bold text-xl mb-6">2</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">True B2B DNA</h3>
-              <p className="text-gray-600">Quote-to-order, complex approvals, and custom pricing aren't add-ons for us; they're the core of our platform.</p>
-            </div>
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-growmax-red/10 text-growmax-red rounded-lg flex items-center justify-center font-bold text-xl mb-6">3</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Scalable Architecture</h3>
-              <p className="text-gray-600">From growing distributors on ARC to global manufacturers on Revenue Platform, we scale with you.</p>
-            </div>
-          </div>
+      
+      {/* Tech Stack */}
+      <section className="py-24 bg-growmax-black text-white text-center">
+        <div className="container mx-auto px-4 max-w-4xl">
+           <h2 className="text-3xl font-bold uppercase tracking-tighter mb-8">Technology Stack</h2>
+           <p className="font-mono text-sm leading-relaxed text-gray-400 mb-12">
+             Growmax commerce cloud is hosted on AWS with Microservice architecture on a K8s infrastructure. This ensures high scalability & security. PWA application covering both Mobile & Web users built on Next JS & React.
+           </p>
+           
+           <div className="flex flex-wrap justify-center gap-4 font-mono text-xs font-bold uppercase">
+             <span className="px-4 py-2 border border-white/20 bg-white/5">AWS Cloud</span>
+             <span className="px-4 py-2 border border-white/20 bg-white/5">Kubernetes</span>
+             <span className="px-4 py-2 border border-white/20 bg-white/5">Microservices</span>
+             <span className="px-4 py-2 border border-white/20 bg-white/5">Next.js / React</span>
+             <span className="px-4 py-2 border border-white/20 bg-growmax-red">SAP JCo</span>
+           </div>
         </div>
       </section>
 
-      <section className="py-24 text-center">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-growmax-black mb-6">Ready to see it for yourself?</h2>
-          <Button className="bg-growmax-red hover:bg-growmax-red-dark text-white border-0 h-14 px-8 text-lg">
-            Talk to our team
-          </Button>
-        </div>
-      </section>
     </div>
   );
 }

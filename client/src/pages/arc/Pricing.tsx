@@ -1,98 +1,114 @@
-import { CheckCircle2, HelpCircle } from "lucide-react";
+import { Check, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Pricing() {
   return (
-    <div className="min-h-screen bg-arc-surface">
+    <div className="min-h-screen bg-gray-50 selection:bg-growmax-red selection:text-white">
       {/* Hero */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto text-center max-w-3xl">
-          <h1 className="text-4xl md:text-6xl font-bold text-growmax-black mb-6">Simple, Transparent Pricing</h1>
-          <p className="text-xl text-gray-600">Everything you need to run your distribution business digitally. No hidden fees.</p>
+      <section className="pt-32 pb-24 border-b border-gray-200 bg-grid-pattern relative">
+         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-gray-50 pointer-events-none"></div>
+        <div className="container mx-auto text-center max-w-3xl relative z-10 px-4">
+          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6">
+             Commercials // ARC
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold text-growmax-black mb-6 tracking-tighter leading-[1.1]">
+            Transparent logic. <br/>No hidden fees.
+          </h1>
+          <p className="text-xl text-gray-600 font-light">
+            Everything you need to run your distribution digitally.
+          </p>
         </div>
       </section>
 
-      {/* Pricing Card */}
-      <section className="pb-24 px-4 -mt-8 relative z-10">
-        <div className="container mx-auto max-w-4xl">
-          <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col md:flex-row">
-            
-            {/* Left/Top Section */}
-            <div className="md:w-2/5 bg-gray-50 p-8 md:p-12 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 text-arc-accent text-sm font-bold mb-6 w-max">
-                GROWMAX ARC
-              </div>
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-5xl font-black text-growmax-black">$199</span>
-                <span className="text-gray-500 font-medium text-lg">/month</span>
-              </div>
-              <p className="text-gray-600 mb-8 font-medium">Billed monthly or annually.</p>
-              
-              <Button className="w-full bg-growmax-red hover:bg-growmax-red-dark text-white border-0 h-14 text-lg rounded-xl shadow-lg shadow-growmax-red/20 mb-4">
-                Start Free Trial
-              </Button>
-              <p className="text-sm text-center text-gray-500 font-medium">14-day free trial · No credit card required</p>
+      {/* Pricing Card - Brutalist */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <div className="border border-growmax-black bg-white flex flex-col md:flex-row shadow-2xl relative">
+            <div className="absolute -top-3 -right-3 bg-growmax-red text-white font-mono text-[10px] uppercase px-3 py-1 font-bold tracking-widest">
+              Standard License
             </div>
             
-            {/* Right/Bottom Section */}
-            <div className="md:w-3/5 p-8 md:p-12">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Everything you need to digitize:</h3>
+            {/* Left/Pricing Section */}
+            <div className="md:w-2/5 p-10 md:p-16 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50">
+              <h2 className="text-2xl font-bold tracking-tighter text-growmax-black mb-2">Growmax ARC</h2>
+              <p className="text-sm font-mono text-gray-500 uppercase mb-8 border-b border-gray-200 pb-4">Base Platform</p>
               
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-6xl font-bold tracking-tighter text-growmax-black">$199</span>
+                <span className="text-gray-500 font-mono text-sm uppercase">/mo</span>
+              </div>
+              <p className="text-xs text-gray-500 font-mono mb-10 uppercase tracking-wide">Billed monthly or annually</p>
+              
+              <Button className="w-full bg-growmax-red hover:bg-growmax-black text-white rounded-none h-14 font-bold text-lg transition-colors">
+                Initialize Trial
+              </Button>
+              <p className="text-[10px] text-center text-gray-400 font-mono uppercase mt-4">14-day validation · No CC required</p>
+            </div>
+            
+            {/* Right/Features Section */}
+            <div className="md:w-3/5 p-10 md:p-16">
+              <div className="font-mono text-xs text-growmax-red uppercase mb-6 tracking-widest font-bold">System Capabilities</div>
+              
+              <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4 font-mono text-sm text-gray-700">
                 {[
-                  "5 user seats included",
-                  "Inventory management",
-                  "Sales rep mobile app (iOS/Android)",
-                  "Customer self-ordering portal",
-                  "Product catalog management",
-                  "Order tracking & history",
-                  "Zoho integration",
-                  "Basic reporting & analytics",
-                  "Email support"
+                  "5 User Seats Included",
+                  "Inventory Engine",
+                  "Sales Rep App (iOS/Android)",
+                  "Customer Ordering Portal",
+                  "Catalog Management",
+                  "Order Tracking Logic",
+                  "Native Zoho Integration",
+                  "Reporting Dashboards",
+                  "Standard Support SLA"
                 ].map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-success shrink-0 mt-0.5" />
-                    <span className="text-gray-700 font-medium">{feature}</span>
+                  <div key={i} className="flex items-start gap-3 border-b border-gray-100 pb-2">
+                    <Check className="w-4 h-4 text-growmax-red shrink-0" />
+                    <span>{feature}</span>
                   </div>
                 ))}
               </div>
+              
+              <div className="mt-12 bg-gray-50 border border-gray-200 p-4 flex items-start gap-4">
+                 <Info className="w-5 h-5 text-gray-400 shrink-0"/>
+                 <div>
+                   <p className="text-sm font-bold text-growmax-black">Scale Variables</p>
+                   <p className="text-xs text-gray-600 mt-1">Additional user seats require $29/user/month.<br/>Require ERP/SAP integration? <a href="/revenue-platform" className="text-growmax-red font-bold hover:underline">Deploy Enterprise.</a></p>
+                 </div>
+              </div>
             </div>
-          </div>
-          
-          <div className="mt-12 text-center text-gray-600">
-             <p className="mb-2">Need more users? <span className="font-bold text-gray-900">$29/user/month</span> for additional seats.</p>
-             <p>Need enterprise features? <a href="/revenue-platform" className="text-growmax-red font-medium hover:underline">Check out Revenue Platform.</a></p>
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-24 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-growmax-black mb-4">Frequently Asked Questions</h2>
+      {/* Technical FAQ */}
+      <section className="py-24 bg-white border-t border-gray-200">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-12 border-l-2 border-growmax-red pl-4">
+             System FAQ
           </div>
           
-          <div className="space-y-6">
+          <div className="grid md:grid-cols-2 gap-12">
             {[
               {
-                q: "What happens after my 14-day trial?",
-                a: "If you love it, you can enter your credit card details to continue. If not, your account will be paused. You will not be charged automatically."
+                q: "Trial Termination Logic?",
+                a: "If validated, input payment details to continue. If rejected, the instance is paused. No auto-charges occur."
               },
               {
-                q: "Do I need technical skills to set it up?",
-                a: "Not at all. We designed ARC specifically for business owners. If you can use WhatsApp and Excel, you can use ARC."
+                q: "Deployment Prerequisites?",
+                a: "Zero technical overhead. The interface is engineered for business operators. If you map logic in Excel, you can operate ARC."
               },
               {
-                q: "How does the Zoho integration work?",
-                a: "We have a native, two-way sync with Zoho Inventory. Orders placed in ARC automatically push to Zoho, and inventory changes in Zoho reflect in ARC instantly."
+                q: "Zoho Architecture?",
+                a: "Direct API sync with Zoho Inventory. Orders inject to Zoho, and inventory states propagate to ARC continuously."
+              },
+              {
+                q: "Data Portability?",
+                a: "Full export capabilities. Your catalog, order history, and customer matrices remain under your ownership."
               }
             ].map((faq, i) => (
-              <div key={i} className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-                <h4 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5 text-gray-400" /> {faq.q}
-                </h4>
-                <p className="text-gray-600 ml-7">{faq.a}</p>
+              <div key={i} className="border-t border-gray-200 pt-6">
+                <h4 className="text-lg font-bold text-growmax-black mb-3 tracking-tight">{faq.q}</h4>
+                <p className="text-gray-600 font-light text-sm leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>
