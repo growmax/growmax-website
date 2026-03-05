@@ -1,0 +1,654 @@
+# GROWMAX WEBSITE — COMPLETE BUILD BRIEF FOR REPLIT
+
+## PROJECT OVERVIEW
+
+Build a modern, conversion-optimized marketing website for **Growmax** — a B2B commerce platform company with **two distinct product lines** that must be clearly separated on the website. The site must serve two very different buyer personas without confusing either audience.
+
+**Tech Stack:** Next.js 14 (App Router) + Tailwind CSS + Framer Motion + Shadcn/UI components. Deploy on Vercel.
+
+**Legal Entity:** Apptino Software Private Limited (for footer / legal pages)
+
+---
+
+## BRAND ASSETS & IDENTITY
+
+### Logo Files (provided)
+- `Growmax_240x240_px.png` — Full horizontal logo (red icon + black "growmax" text) — use in header/navbar on light backgrounds
+- `Growmax_Icon_Red_100x100.png` — Icon only (red interlocking knot on dark background) — use as favicon and app icon
+- `favicon.png` — Favicon (red knot icon on red square background)
+
+### Brand Colors (EXTRACTED FROM ACTUAL LOGO — USE THESE, NOT GENERIC BLUES)
+
+```
+PRIMARY BRAND COLORS:
+- Growmax Red:       #D42B2B  (the interlocking knot icon — THIS IS THE HERO BRAND COLOR)
+- Growmax Dark Red:  #B91C1C  (hover/active state for red elements)
+- Growmax Black:     #1A1A1A  (the "growmax" wordmark text color)
+- Growmax White:     #FFFFFF  (backgrounds)
+
+ENTERPRISE (Revenue Platform) PALETTE:
+- Primary bg:        #0F172A  (slate-900, deep navy — premium dark sections)
+- Secondary bg:      #1E293B  (slate-800 — cards on dark backgrounds)
+- Accent:            #D42B2B  (Growmax Red — CTAs, highlights)
+- Accent Hover:      #B91C1C  (darker red on hover)
+- Secondary Accent:  #F8FAFC  (near-white text on dark backgrounds)
+- Subtle highlight:  #FEE2E2  (red-50 — light red tint for callout boxes on light bg)
+- Text on dark:      #F8FAFC  (slate-50)
+- Text on light:     #0F172A  (slate-900)
+
+GROWMAX ARC (Distributor product) PALETTE:
+- Primary bg:        #FFFFFF  (clean white)
+- Secondary bg:      #FFF7ED  (orange-50 — warm, approachable tint)
+- Accent:            #D42B2B  (Growmax Red — primary CTAs)
+- Secondary Accent:  #F97316  (orange-500 — energy, growth, secondary CTAs)
+- Success/Growth:    #10B981  (emerald-500 — for "savings" and "growth" messaging)
+- Card bg:           #FFFFFF  with shadow-md
+- Text primary:      #1A1A1A  (Growmax Black)
+- Text secondary:    #6B7280  (gray-500)
+- Border:            #E5E7EB  (gray-200)
+
+SHARED / NEUTRAL:
+- Success:           #10B981  (emerald-500)
+- Warning:           #F59E0B  (amber-500)
+- Error:             #EF4444  (red-500 — distinct from brand red)
+- Info:              #3B82F6  (blue-500)
+- Divider/Border:    #E5E7EB  (gray-200)
+- Muted text:        #9CA3AF  (gray-400)
+```
+
+### Typography
+```
+Primary Font: Inter (Google Fonts)
+- Hero headline: 56px/64px bold (desktop), 36px/44px (mobile)
+- Section headline: 40px/48px semibold (desktop), 28px/36px (mobile)  
+- Subheadline: 20px/28px regular
+- Body: 16px/24px regular
+- Small: 14px/20px
+- Caption: 12px/16px
+
+The "growmax" wordmark in the logo uses a custom rounded sans-serif — do NOT try to replicate it in text. Always use the logo image file.
+```
+
+### Logo Usage Rules
+- On white/light backgrounds: Use full horizontal logo (red icon + black text)
+- On dark backgrounds (navy, black): Use white version of logo (you'll need to create a white SVG variant or use CSS filter to invert the text portion while keeping the red icon)
+- On Growmax Red backgrounds: Use white icon + white text
+- Minimum clear space around logo: equal to the height of the icon
+- NEVER change the red color of the icon
+
+---
+
+## THE TWO PRODUCTS
+
+### Product 1: Growmax Revenue Platform (Enterprise)
+- **Target:** Large manufacturers (like Siemens, Schwing Stetter, OBO Bettermann) who need dealer portals, partner commerce, spares portals, sales rep quoting, and customer self-service ordering
+- **Buyer persona:** VP of Sales, VP of Channel Operations, CTO, Digital Transformation Lead at industrial manufacturers with 500+ employees
+- **Sales motion:** Consultative, demo-driven, 2-6 month sales cycle
+- **Pricing:** Custom/enterprise (not displayed publicly — "Contact Sales")
+- **Key differentiators:** SAP/ERP integration, multi-tenant architecture, go-live in weeks not months, proven with global industrial brands
+- **CTA:** "Book a Demo" / "Talk to Sales"
+- **Existing reference:** Current growmax.io/b2b-commerce-cloud page
+
+### Product 2: Growmax ARC (SMB Distributors)
+- **Target:** Small-to-mid FMCG distributors and wholesalers globally (5-50 employees) — food & beverage, electrical, consumer goods
+- **Buyer persona:** Owner/founder, operations manager of a distribution company currently running on WhatsApp + Excel + phone calls
+- **Sales motion:** Product-led growth, self-serve signup, instant value
+- **Pricing:** $199/month for 5 users (displayed prominently)
+- **What's included:** Inventory management + Sales rep mobile app + B2B customer self-ordering portal
+- **Key differentiators:** Set up in minutes, no IT team needed, affordable, mobile-first, Zoho integrated
+- **CTA:** "Start Free Trial" / "Sign Up Now"
+- **Competitors being displaced:** B2B Wave, Pepperi, SimplyDepo, OrderCircle
+
+---
+
+## WEBSITE ARCHITECTURE (SITEMAP)
+
+```
+growmax.io/                          → Unified homepage with clear product split
+│
+├── /revenue-platform/               → Enterprise product hub
+│   ├── /revenue-platform/dealer-portal/
+│   ├── /revenue-platform/partner-commerce/
+│   ├── /revenue-platform/spares-portal/
+│   ├── /revenue-platform/sales-rep-app/
+│   ├── /revenue-platform/customer-self-service/
+│   └── /revenue-platform/integrations/    (SAP, Zoho, ERPs)
+│
+├── /arc/                            → Growmax ARC product hub
+│   ├── /arc/inventory-management/
+│   ├── /arc/sales-rep-app/
+│   ├── /arc/customer-ordering-portal/
+│   ├── /arc/pricing/                (public pricing page: $199/mo)
+│   └── /arc/compare/                (vs B2B Wave, vs Pepperi, vs SimplyDepo)
+│
+├── /customers/                      → Case studies / customer stories
+│   ├── /customers/enterprise/       (Siemens, OBO Bettermann, Schwing Stetter)
+│   └── /customers/distributors/     (ARC customer stories)
+│
+├── /industries/
+│   ├── /industries/electrical-manufacturers/
+│   ├── /industries/construction-equipment/
+│   ├── /industries/food-beverage-distribution/
+│   ├── /industries/fmcg-distribution/
+│   └── /industries/industrial-components/
+│
+├── /resources/
+│   ├── /blog/                       (migrated from existing growmax.io/blog)
+│   ├── /guides/
+│   └── /webinars/
+│
+├── /company/
+│   ├── /about/
+│   └── /contact/
+│
+├── /demo/                           → Demo request form (enterprise)
+├── /privacy/                        → Privacy Policy (migrate from existing)
+├── /terms-of-service/               → Terms (migrate from existing)
+└── /msa/                            → MSA (migrate from existing)
+```
+
+---
+
+## HOMEPAGE DESIGN — CRITICAL SPLIT PATTERN
+
+The homepage is the most important page. It must immediately route visitors to the right product.
+
+### Reference: How Intercom does dual-product homepage
+Study https://www.intercom.com — they prominently feature two major products (Fin AI Agent and Intercom Suite) on the homepage, allowing visitors to self-select which path to explore. **We need this exact pattern.**
+
+### Homepage Sections (in order):
+
+**1. Hero Section**
+- Background: Clean white or very subtle warm gradient
+- Headline: "Drive Revenue and Customer Loyalty with Digital Experience Solutions" (from current site — refine if needed)
+- Subheadline: "From enterprise manufacturers to growing distributors — Growmax powers your B2B commerce"
+- Two clear CTA cards side by side:
+
+```
+┌─────────────────────────────────────┐  ┌─────────────────────────────────────┐
+│  REVENUE PLATFORM                   │  │  GROWMAX ARC                        │
+│  (dark navy bg #0F172A, white text) │  │  (white bg, red accents)            │
+│                                     │  │                                     │
+│  For manufacturers &                │  │  For distributors &                 │
+│  enterprises that need              │  │  wholesalers ready to               │
+│  dealer portals, partner            │  │  ditch WhatsApp & Excel             │
+│  commerce & sales                   │  │                                     │
+│  automation                         │  │  Inventory + Sales App +            │
+│                                     │  │  Customer Portal                    │
+│  Trusted by Siemens,                │  │                                     │
+│  Schwing Stetter & more             │  │  Starting at $199/month             │
+│                                     │  │                                     │
+│  [Book a Demo →]  (red button)      │  │  [Start Free Trial →] (red button) │
+└─────────────────────────────────────┘  └─────────────────────────────────────┘
+```
+
+**2. Social Proof Bar**
+- Enterprise logos: Siemens, OBO Bettermann, Schwing Stetter, Shell (referenced on existing site)
+- Text: "Trusted by leading manufacturers across 5+ countries"
+
+**3. "One Platform, Two Solutions" Feature Section**
+- Tabbed interface or side-by-side cards
+- Revenue Platform tab: Dealer Portal, Partner Commerce, Spares Portal, Quote-to-Order, Customer Self-Service, SAP Integration
+- Growmax ARC tab: Inventory Management, Sales Rep Mobile App, Customer Self-Ordering, Zoho Integration
+
+**4. Key Metrics / Results**
+- "7+ Years in Production"
+- "50,000+ SKUs Managed"  
+- "5+ Countries"
+- "90%+ transactions done through platform" (from OBO Bettermann case)
+- "50% faster quote-to-order cycle"
+
+**5. Customer Testimonial / Case Study Cards**
+- OBO Bettermann quote: "Over 90% of transactions are done through this platform. By automating the customer quotation & approval process, quote to order process helped us achieve 50% more organizational speed & higher visibility."
+- Placeholder for 1-2 more
+
+**6. "How It Works" — Simple 3-step for each product**
+- Revenue Platform: Connect ERP → Configure Portals → Go Live in Weeks
+- Growmax ARC: Sign Up & Sync Zoho → Import Catalog → Start Selling
+
+**7. Blog/Resources Preview** (latest 3 posts)
+
+**8. Final CTA Section** (split CTA again)
+
+**9. Footer**
+
+---
+
+## REVENUE PLATFORM PAGES — DESIGN DIRECTION
+
+### Visual Style
+- Dark, premium feel — deep navy (#0F172A) backgrounds with white text and **Growmax Red (#D42B2B)** accents
+- Enterprise-grade aesthetic: clean, structured, authoritative
+- The red accent color against dark navy creates a distinctive, high-end look
+- Imagery: abstract geometric patterns, network visualizations, factory/industrial photography (subtle, desaturated)
+
+### Key Design References
+- **Stripe** (https://stripe.com) — clean modular layout, but use Growmax's red/navy instead of Stripe's purple/blue
+- **Salesforce B2B Commerce** (https://www.salesforce.com/products/commerce/) — enterprise positioning
+- **Corevist** (https://www.corevist.com) — dealer portal messaging for SAP-connected manufacturers
+- **Pepperi** (https://www.pepperi.com) — competitor, study but differentiate
+- **Linear** (https://linear.app) — for dark mode design execution
+
+### Revenue Platform Landing Page (/revenue-platform/)
+- Hero: "Digitize Your Dealer & Distribution Network in Weeks, Not Months"
+- Sub: "The Revenue Platform that manufacturers trust for dealer portals, partner commerce, spares management, and sales rep enablement"
+- Feature grid with 5 core modules (clickable, each links to sub-page):
+  1. Dealer Portal — Branded portals for your dealer network
+  2. Partner Commerce — Self-service ordering for channel partners  
+  3. Spares Portal — Spare parts catalog with smart search and reordering
+  4. Sales Rep App — Mobile quoting, order creation, customer visits
+  5. Customer Self-Service — Let customers check orders, invoices, payments
+- Integration logos section: SAP, Zoho, Microsoft Dynamics, custom ERPs
+- Case study preview cards (Siemens, OBO Bettermann, Schwing Stetter)
+- CTA: Red button "See it in action → Book a Demo"
+
+### Migrate existing feature pages (rewrite content, new design):
+- /quote-management → incorporate into /revenue-platform/ and sub-pages
+- /order-management → incorporate into /revenue-platform/
+- /sales-rep-app → /revenue-platform/sales-rep-app/
+- /product-catalog-management → incorporate into features
+- /storefront-management → incorporate into /revenue-platform/partner-commerce/
+- /customer-support → incorporate into /revenue-platform/customer-self-service/
+- /internal-collaboration → incorporate into revenue platform features
+- /integrations → /revenue-platform/integrations/
+
+### Migrate existing solution pages (rewrite, redirect):
+- /b2b-commerce-cloud → redirect to /revenue-platform/
+- /enterprise-ecommerce-platform → redirect to /revenue-platform/
+- /b2b-marketplace → redirect to /revenue-platform/partner-commerce/
+- /commerce-cloud → redirect to /revenue-platform/
+- /headless-commerce → redirect to /revenue-platform/
+- /wholesale-ecommerce → redirect to /arc/ (or /revenue-platform/ depending on context)
+- /spare-parts-ecommerce → redirect to /revenue-platform/spares-portal/
+- /b2b2b-commerce-cloud → redirect to /revenue-platform/partner-commerce/
+- /b2b-ecommerce-platform → redirect to /revenue-platform/
+
+---
+
+## GROWMAX ARC PAGES — DESIGN DIRECTION
+
+### Visual Style
+- Bright, energetic, approachable — white backgrounds with **Growmax Red (#D42B2B)** as primary CTA color and warm orange (#F97316) as secondary accent
+- SMB-friendly aesthetic: simple, inviting, zero intimidation
+- Rounded corners on cards and buttons (12px radius for friendlier feel)
+- Use the red sparingly for CTAs and key highlights — the majority of the page should feel airy and white
+
+### Key Design References
+- **B2B Wave** (https://www.b2bwave.com) — competitor, study simplicity but make ARC feel more modern
+- **SimplyDepo** (https://simplydepo.com) — competitor, study distributor messaging
+- **Notion** (https://www.notion.so) — clean, approachable SaaS design
+- **Shopify** (https://www.shopify.com) — making complex commerce feel simple
+
+### ARC Landing Page (/arc/)
+- Hero: "Stop Taking Orders on WhatsApp. Start Growing Your Distribution Business."
+- Sub: "Growmax ARC gives your distributors a branded ordering portal, your reps a mobile app, and you real-time inventory visibility — all for $199/month"
+- Animated product preview showing the 3 modules
+- "Set up in 5 minutes" step-by-step:
+  Step 1: Sign up & sync your Zoho account
+  Step 2: Import your product catalog & invite your team
+  Step 3: Start receiving orders digitally
+- Pricing callout: "$199/month · 5 users included · No setup fees · Cancel anytime"
+- "Who is ARC for?" persona cards
+- Comparison section mini-tables
+- CTA: Red button "Start Your Free Trial" with "No credit card required"
+
+### ARC Pricing Page (/arc/pricing/)
+```
+Single prominent plan:
+
+┌──────────────────────────────────────┐
+│         GROWMAX ARC                  │
+│         $199 /month                  │
+│                                      │
+│  Everything you need to digitize     │
+│  your distribution business          │
+│                                      │
+│  ✓ 5 user seats included            │
+│  ✓ Inventory management             │
+│  ✓ Sales rep mobile app (iOS/Android)│
+│  ✓ Customer self-ordering portal    │
+│  ✓ Product catalog management       │
+│  ✓ Order tracking & history         │
+│  ✓ Zoho integration                 │
+│  ✓ Basic reporting & analytics      │
+│  ✓ Email support                    │
+│                                      │
+│  [ Start Free Trial ] (red button)   │
+│  14-day free trial · No credit card  │
+└──────────────────────────────────────┘
+
+Below:
+- "Need more users?" → $29/user/month for additional seats
+- "Need enterprise features?" → Link to Revenue Platform
+- FAQ accordion
+```
+
+### ARC Comparison Pages (/arc/compare/)
+Create SEO-optimized comparison pages:
+- /arc/compare/b2b-wave/ — "Growmax ARC vs B2B Wave"
+- /arc/compare/pepperi/ — "Growmax ARC vs Pepperi"
+- /arc/compare/simplydepo/ — "Growmax ARC vs SimplyDepo"
+- /arc/compare/whatsapp-excel/ — "Still Running on WhatsApp & Excel?" (MOST IMPORTANT page)
+
+---
+
+## BLOG MIGRATION — COMPLETE CATALOG
+
+All existing blog posts from www.growmax.io/blog MUST be migrated to the new site. The blog should be built with a CMS-ready architecture (use MDX files or a headless CMS integration point). For Phase 1, create the blog listing page and migrate content as static MDX/markdown pages.
+
+### Blog Architecture
+- /blog/ — listing page with category filters, search, and pagination
+- /blog/[slug]/ — individual post pages
+- Categories: B2B eCommerce, Spare Parts, FMCG & Wholesale, Sales & Distribution, Guides, Product Updates, Industry Insights
+
+### EXISTING BLOG POSTS TO MIGRATE (organized by category):
+
+**Recent / Strategic Content (2024-2025):**
+1. "Bridging the Digital Gap: Why Industrial Brands Need a Partner Engagement Strategy" (2025)
+2. "Opportunity Pipeline Management for Industrial Businesses – Your Data-Driven Path to Predictable Revenue" (April 2025)
+3. "Why an Offline Order-Taking App is Essential for FMCG and Industrial B2B Sales" (May 2025)
+4. "Digital Enabled FMCG Wholesale: Benefits of Launching Self-Ordering Apps for B2B and HoReCa Customers" (June 2024)
+5. "A Comprehensive Sales Order Booking App for Zoho Inventory" (2024)
+6. "Boost Efficiency in FMCG Wholesale with a Zoho-Integrated Order Booking App" (June 2024)
+7. "Reduce Sales Costs in F&B Wholesale with a Zoho-Integrated Self-Order Booking App" (2024)
+8. "Why Product Categorization Matters in Sales & Self-Ordering Apps" (2024)
+9. "Transforming Your Digital Landscape: Integrating Third-Party Applications with SAP ECC Through SAP Connector" (2024)
+10. "The Quotation-to-Order Process: Converting Marketing Investments to Revenue" (2025)
+11. "An Independent Channel Portal Bridges the Visibility Gap in Industrial B2B Distribution" (2025)
+
+**Case Studies / Customer Stories:**
+12. "Reckitt PRO Solution India: Revolutionizing B2B with E-commerce"
+13. "Revamping the Order Process: OBO Bettermann's Digital Transformation"
+
+**Spare Parts Series:**
+14. "Ultimate Guide to Winning in the Aftermarket Sales"
+15. "Managing a Spare Parts Business Is a Big Deal for an Industrial OEM"
+16. "7 Tips for Managing and Optimizing Spare Parts Inventory"
+17. "How to Sell Machine Spare Parts Online"
+18. "How to Control Spare Parts Management"
+19. "How to Boost Spare Parts Sales"
+20. "Heavy Equipment Spare Parts - A Detailed Annotation"
+21. "How Can Textile Machinery Spare Parts Manufacturers Move Online?"
+22. "How Can You Grow Your Bike Spare Parts Business"
+
+**B2B eCommerce Guides:**
+23. "Everything You Need to Know About B2B eCommerce" (comprehensive guide)
+24. "B2B eCommerce: A New Sales Channel for B2B Manufacturers & Wholesalers"
+25. "How to Set Up a B2B eCommerce Website"
+26. "How to Increase B2B Sales"
+27. "B2B Wholesale - Everything You Need to Know"
+28. "Empower Your Business with Advantage of B2B eCommerce"
+29. "What is D2C?"
+30. "What is O2C (Order to Cash)?"
+31. "Empower Sales Rep with Digital Commerce"
+32. "Make 2x Faster Decisions in Your Sales Cycle"
+
+**Comparison / Platform Guides:**
+33. "Shopify vs WooCommerce vs Magento vs BigCommerce - A Detailed Comparison"
+34. "6 Best Pepperi Alternatives of 2024" (UPDATE THIS for new site — position Growmax ARC as the top alternative)
+35. "10 Best eCommerce Software of 2022" (refresh for 2026)
+36. "Shopify Plus Alternatives" (refresh)
+37. "Enterprise Marketplace Opportunities You Need to Explore"
+
+**Other:**
+38. "The Crucial Role of Manufacturers in the Supply Chain"
+39. "A Complete Blueprint for eCommerce Personalization"
+40. "Product Recommendation" guide
+41. "B2B Buying Process" guide
+42. "How to Sell Automotive Accessories Online"
+43. "B2B eCommerce Best Software for Manufacturers and Wholesalers"
+44. "Best Spare Parts eCommerce Solution"
+
+### Blog Post Template Design
+Each blog post page should include:
+- Breadcrumb: Blog > Category > Post Title
+- Post title (H1)
+- Author, date, reading time, category badge
+- Featured image (16:9 aspect ratio)
+- Table of contents sidebar (sticky on desktop, collapsible on mobile)
+- Body content area with proper typography
+- "Related Articles" section at bottom (3 cards)
+- CTA banner: "Ready to transform your B2B commerce?" with product-appropriate CTA
+- Social share buttons
+- Newsletter signup form
+
+### Blog Migration Instructions for Developer
+1. Scrape all blog content from www.growmax.io/blog/* and www.growmax.io/category/*
+2. Convert to MDX format preserving headings, images, links
+3. Set up proper URL redirects from old slugs to new slugs
+4. Preserve all images (download from cdn.prod.website-files.com and re-host)
+5. Update internal links to point to new site structure
+6. Re-tag each post to the new category taxonomy
+7. Add proper meta descriptions and OG images
+
+---
+
+## EXISTING PAGES TO MIGRATE / REDIRECT
+
+### Pages to fully migrate (rewrite content, new design):
+| Old URL | New URL | Notes |
+|---------|---------|-------|
+| / | / | Complete redesign with dual-product split |
+| /b2b-commerce-cloud | /revenue-platform/ | Reposition as Revenue Platform |
+| /about | /company/about/ | Update with new positioning |
+| /contact | /company/contact/ OR /demo/ | Split into demo form + general contact |
+| /integrations | /revenue-platform/integrations/ | |
+| /why-us | Distribute across product pages | |
+| /quote-management | /revenue-platform/ (feature section) | |
+| /order-management | /revenue-platform/ (feature section) | |
+| /sales-rep-app | Both /revenue-platform/sales-rep-app/ and /arc/sales-rep-app/ | |
+| /product-catalog-management | Feature sections on both products | |
+| /storefront-management | /revenue-platform/partner-commerce/ | |
+| /customer-support | /revenue-platform/customer-self-service/ | |
+| /internal-collaboration | Revenue Platform features | |
+| /blog | /blog/ | Full migration |
+| /blog/* | /blog/* | Preserve slugs where possible |
+| /privacy | /privacy/ | Direct migration |
+| /terms-of-service | /terms-of-service/ | Direct migration |
+| /msa | /msa/ | Direct migration |
+| /write-for-us | /blog/write-for-us/ | Move under blog |
+
+### Pages to redirect (old solution pages → new structure):
+| Old URL | Redirect To |
+|---------|-------------|
+| /enterprise-ecommerce-platform | /revenue-platform/ |
+| /b2b-marketplace | /revenue-platform/partner-commerce/ |
+| /commerce-cloud | /revenue-platform/ |
+| /headless-commerce | /revenue-platform/ |
+| /wholesale-ecommerce | /arc/ |
+| /spare-parts-ecommerce | /revenue-platform/spares-portal/ |
+| /b2b2b-commerce-cloud | /revenue-platform/partner-commerce/ |
+| /b2b-ecommerce-platform | /revenue-platform/ |
+
+### 301 Redirect Configuration
+Create a `next.config.js` redirects array mapping ALL old URLs to new URLs. This is critical for preserving SEO equity from the existing site.
+
+---
+
+## NAVIGATION DESIGN
+
+### Desktop Navigation
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│ [Growmax Logo - red icon + black text]                               │
+│                                                                      │
+│ Products ▼          Customers    Resources ▼     Pricing             │
+│                                                                      │
+│ [Book a Demo]           [Start Free Trial ↗]                         │
+│ (outlined/ghost btn)    (solid red #D42B2B btn)                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+Products Mega Menu:
+┌──────────────────────────────────────────────────────────────────┐
+│  REVENUE PLATFORM              │  GROWMAX ARC                    │
+│  For Enterprises               │  For Distributors               │
+│  ─────────────────             │  ─────────────────              │
+│  → Dealer Portal               │  → Inventory Management         │
+│  → Partner Commerce            │  → Sales Rep App                │
+│  → Spares Portal               │  → Customer Portal              │
+│  → Sales Rep App               │  → Pricing                      │
+│  → Customer Self-Service       │                                 │
+│  → Integrations (SAP, Zoho)    │  $199/mo · Start Free Trial →  │
+│                                │                                 │
+│  Enterprise? Book a Demo →     │                                 │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### Mobile Navigation
+- Hamburger menu with Growmax Red accent line
+- Products section expandable with clear Revenue Platform / ARC grouping
+- Sticky bottom CTA bar: "Start Free Trial" (ARC pages) or "Book a Demo" (enterprise pages)
+
+---
+
+## GLOBAL DESIGN SYSTEM
+
+### Spacing & Layout
+- Section padding: 80px vertical (desktop), 48px (mobile)
+- Max content width: 1280px
+- Card border radius: 8px (enterprise), 12px (ARC)
+- Button border radius: 6px (enterprise), 10px (ARC)
+
+### Buttons
+```
+PRIMARY CTA (both products):
+- bg: #D42B2B (Growmax Red)
+- text: white
+- hover: #B91C1C (darker red)
+- padding: 12px 24px
+- font-weight: 600
+
+SECONDARY (Enterprise):
+- bg: transparent
+- border: 1px solid #E5E7EB
+- text: #F8FAFC (on dark) or #1A1A1A (on light)
+- hover: bg #1E293B (on dark) or bg #F3F4F6 (on light)
+
+SECONDARY (ARC):
+- bg: #FFF7ED (warm tint)
+- text: #D42B2B
+- hover: bg #FFEDD5
+```
+
+### Animations (Framer Motion)
+- Page transitions: subtle fade-in-up (200ms)
+- Cards: hover scale 1.02 with shadow elevation
+- Number counters: count-up animation on scroll
+- Feature sections: staggered reveal
+- Keep subtle — B2B audience, not gaming
+
+---
+
+## SEO REQUIREMENTS
+
+### Target Keywords per Page
+| Page | Primary Keyword | Secondary Keywords |
+|------|----------------|-------------------|
+| / | B2B commerce platform | B2B sales platform, manufacturer commerce |
+| /revenue-platform/ | B2B commerce platform for manufacturers | dealer portal software, partner commerce |
+| /revenue-platform/dealer-portal/ | dealer portal for manufacturers | B2B dealer portal, distributor portal |
+| /revenue-platform/spares-portal/ | spare parts ordering portal | spares ecommerce, aftermarket portal |
+| /revenue-platform/integrations/ | SAP B2B commerce integration | SAP connector B2B, Zoho B2B commerce |
+| /arc/ | wholesale ordering platform | B2B ordering app, distributor management |
+| /arc/pricing/ | B2B ordering software pricing | wholesale platform pricing |
+| /arc/compare/b2b-wave/ | Growmax ARC vs B2B Wave | B2B Wave alternative |
+| /arc/compare/pepperi/ | Growmax ARC vs Pepperi | Pepperi alternative small distributors |
+| /arc/compare/whatsapp-excel/ | replace WhatsApp for B2B orders | wholesale ordering without WhatsApp |
+
+### Technical SEO
+- Auto-generated sitemap.xml
+- Structured data: Organization, Product, FAQ, BreadcrumbList, BlogPosting
+- Lazy load images with alt text
+- Core Web Vitals optimized
+- Dynamic OG images per page
+- 301 redirects for ALL old URLs (CRITICAL for preserving existing SEO)
+
+---
+
+## FORMS & CONVERSIONS
+
+### Demo Request Form (/demo/)
+Fields: Full Name, Work Email, Company Name, Job Title, Company Size (dropdown), What are you looking for? (checkboxes: Dealer Portal, Partner Commerce, Spares Portal, Sales Rep Tools, Other), Message (optional)
+
+### ARC Free Trial Signup
+Fields: Full Name, Email, Company Name, Phone (optional)
+→ "No credit card required · 14-day free trial · Cancel anytime"
+
+### Newsletter Signup (footer + blog)
+Fields: Email only, horizontal layout
+
+---
+
+## SOCIAL MEDIA LINKS (from existing site)
+- Facebook: https://www.facebook.com/growmax.io
+- Instagram: https://www.instagram.com/growmax_io/
+- Twitter/X: https://twitter.com/growmax_io
+- YouTube: https://www.youtube.com/channel/UCg3D8jWRA5OeCCJw00BJQ1w
+- LinkedIn: https://www.linkedin.com/company/growmax-io/
+
+---
+
+## PHASE 1 BUILD ORDER (start here)
+
+Build and deploy these pages first:
+1. **Homepage** (dual-product split hero)
+2. **/revenue-platform/** (landing page)
+3. **/arc/** (landing page)
+4. **/arc/pricing/**
+5. **/demo/** (form page)
+6. **/company/about/**
+7. **/blog/** (listing page with 5-10 migrated posts to start)
+8. **/privacy/**, **/terms-of-service/**, **/msa/** (migrate directly)
+
+Phase 2: Industry pages, comparison pages, all remaining blog posts, case study pages
+Phase 3: Interactive demos, video embeds, live chat integration
+
+---
+
+## REFERENCE WEBSITES (STUDY THESE)
+
+| Website | What to Learn |
+|---------|--------------|
+| https://www.intercom.com | Dual-product homepage split, mega menu |
+| https://stripe.com | Modular layout, animations, enterprise feel |
+| https://www.pepperi.com | B2B commerce positioning (COMPETITOR) |
+| https://www.b2bwave.com | SMB wholesale simplicity (COMPETITOR for ARC) |
+| https://simplydepo.com | Distributor messaging (COMPETITOR for ARC) |
+| https://linear.app | Dark mode enterprise aesthetic |
+| https://www.notion.so | Approachable SaaS design |
+| https://www.shopify.com | Making complex commerce feel simple |
+| https://www.corevist.com | Dealer portal messaging for manufacturers |
+| https://www.atlassian.com | Multi-product navigation architecture |
+| https://www.growmax.io | CURRENT SITE — study for content to migrate |
+
+---
+
+## CRITICAL DESIGN PRINCIPLES
+
+1. **Growmax Red (#D42B2B) is the hero brand color.** It must appear on EVERY page as the primary CTA button color. The red interlocking knot icon is the most recognizable brand element — use it consistently.
+
+2. **The two products must feel distinctly different.** Enterprise = dark navy backgrounds + red accents + authority. ARC = white/warm backgrounds + red CTAs + simplicity.
+
+3. **The homepage is a router.** Its #1 job is to get visitors to the right product within 5 seconds.
+
+4. **Preserve SEO equity.** The existing site has indexed blog posts and solution pages. Every old URL must have a working 301 redirect.
+
+5. **Mobile-first for ARC.** Desktop-first for Revenue Platform. Both must work on both.
+
+6. **The Shell reference is important.** The existing site mentions "Trusted by Shell, Growmax (Amshuhu) has transformed operations for over 300 distributors across 50+ countries." Use this proof point.
+
+7. **No stock photos of people in suits.** Prefer: warehouses, distribution centers, tablets/phones showing apps, product packaging on shelves, factory floors.
+
+8. **Every page loads fast.** No hero videos on initial load. Static images or CSS/SVG animations for visual interest. The site should work perfectly without JavaScript (SSR all critical content).
+
+---
+
+## NOTES FOR DEVELOPER
+
+- "Growmax" is the parent brand. "Revenue Platform" is the enterprise product. "ARC" is the distributor sub-brand.
+- ARC is NOT an acronym — don't try to expand it.
+- Legal entity: Apptino Software Private Limited (footer copyright)
+- Company founded: 2017, Chennai, India
+- All copy in American English
+- Founder background: Siemens (Germany), SAP, Mindtree — use this in About page for credibility
+- The existing site is built on Webflow (cdn.prod.website-files.com) — you'll need to download and re-host all images and assets during migration
