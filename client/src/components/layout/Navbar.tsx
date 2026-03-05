@@ -21,6 +21,9 @@ export default function Navbar() {
           <Link href="/company/about" className="flex items-center px-8 border-r border-growmax-gray hover:bg-growmax-black hover:text-white transition-colors">
             Thesis & Team
           </Link>
+          <Link href="/blog" className="flex items-center px-8 border-r border-growmax-gray hover:bg-growmax-black hover:text-white transition-colors">
+            Intelligence
+          </Link>
         </div>
 
         {/* Push to right */}

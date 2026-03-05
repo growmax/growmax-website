@@ -19,6 +19,7 @@ export default function Footer() {
             <div className="mt-12 space-y-2 text-gray-500">
               <p>Apptino Software Private Limited</p>
               <p>Founded 2017 // Chennai, India</p>
+              <p className="text-growmax-red mt-4 block">Target Operations: US East Coast & Texas</p>
             </div>
           </div>
           
@@ -46,7 +47,7 @@ export default function Footer() {
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Company</h4>
               <ul className="space-y-4">
                 <li><Link href="/company/about" className="hover:text-white transition-colors block">Profile & Team</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors block">Intelligence</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors block">Intelligence / Blog</Link></li>
                 <li><Link href="/demo" className="hover:text-white transition-colors block text-growmax-red font-bold">Contact Sales</Link></li>
               </ul>
             </div>
