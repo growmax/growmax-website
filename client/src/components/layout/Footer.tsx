@@ -23,7 +23,7 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-12">
+          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-12">
             <div>
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Solutions</h4>
               <ul className="space-y-4">
@@ -40,6 +40,13 @@ export default function Footer() {
                 <li><Link href="/revenue-platform/partner-commerce" className="hover:text-white transition-colors block">Partner Commerce</Link></li>
                 <li><Link href="/revenue-platform/spares-portal" className="hover:text-white transition-colors block">Spares Portals</Link></li>
                 <li><Link href="/revenue-platform" className="hover:text-white transition-colors block">SAP Integration</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Industries</h4>
+              <ul className="space-y-4 text-gray-400">
+                <li><Link href="/industries/electrical-distributors" className="hover:text-white transition-colors block">Electrical Distributors</Link></li>
               </ul>
             </div>
             

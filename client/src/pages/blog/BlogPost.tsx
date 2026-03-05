@@ -1,172 +1,286 @@
-import { Link } from "wouter";
-import { ArrowLeft, Clock, Calendar, Share2, Copy } from "lucide-react";
+import { Link, useParams } from "wouter";
+import { ArrowLeft, ArrowRight, Clock, Calendar, Share2, Copy, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getPostBySlug, getRelatedPosts, type BlogPostData } from "@/data/blogPosts";
+
+function ComingSoonPlaceholder({ post }: { post: BlogPostData }) {
+  return (
+    <div className="container mx-auto px-4 md:px-8 max-w-4xl py-16">
+      <div className="border-2 border-dashed border-gray-300 p-12 text-center bg-gray-50">
+        <FileText className="w-16 h-16 text-gray-300 mx-auto mb-6" />
+        <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4" data-testid="text-coming-soon-label">
+          Document In Progress
+        </div>
+        <h2 className="text-2xl font-bold tracking-tighter text-growmax-black mb-6">
+          Full Article Coming Soon
+        </h2>
+        <p className="text-gray-600 font-light leading-relaxed max-w-xl mx-auto mb-8" data-testid="text-excerpt">
+          {post.excerpt}
+        </p>
+        <Link href="/demo">
+          <Button
+            className="bg-growmax-black hover:bg-growmax-red text-white rounded-none font-bold uppercase tracking-widest text-xs h-12 px-8"
+            data-testid="button-cta-coming-soon"
+          >
+            Request Early Access
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function TableOfContents({ post }: { post: BlogPostData }) {
+  if (!post.sections) return null;
+  return (
+    <div className="border border-gray-200 p-6 bg-gray-50">
+      <div className="font-mono text-xs font-bold text-growmax-black uppercase tracking-widest border-b border-gray-200 pb-4 mb-4">
+        Index
+      </div>
+      <ul className="space-y-3 font-mono text-xs text-gray-600">
+        {post.sections.map((section, i) => (
+          <li key={section.headingId}>
+            <a
+              href={`#${section.headingId}`}
+              className="hover:text-growmax-red transition-colors"
+              data-testid={`link-toc-${i}`}
+            >
+              {i + 1}. {section.heading}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function RelatedPostsSidebar({ post }: { post: BlogPostData }) {
+  const related = getRelatedPosts(post);
+  if (related.length === 0) return null;
+  return (
+    <div className="border border-gray-200 p-6 bg-white mt-6">
+      <div className="font-mono text-xs font-bold text-growmax-black uppercase tracking-widest border-b border-gray-200 pb-4 mb-4">
+        Related
+      </div>
+      <ul className="space-y-4">
+        {related.map((rp) => (
+          <li key={rp.id}>
+            <Link
+              href={`/blog/${rp.slug}`}
+              className="block group"
+              data-testid={`link-related-${rp.id}`}
+            >
+              <div className="font-mono text-[10px] text-gray-400 mb-1 uppercase">
+                DOC.{rp.id} // {rp.category}
+              </div>
+              <div className="text-sm font-bold tracking-tight text-growmax-black group-hover:text-growmax-red transition-colors leading-snug">
+                {rp.title}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function SidebarCTA() {
+  return (
+    <div className="mt-6 border-2 border-growmax-black p-6 bg-growmax-black text-white">
+      <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-2">Deploy Now</div>
+      <h4 className="font-bold text-lg mb-4 leading-tight">Ready to connect your partner network?</h4>
+      <Link href="/demo">
+        <Button
+          className="w-full bg-growmax-red hover:bg-white hover:text-growmax-black text-white rounded-none font-bold uppercase tracking-widest text-xs transition-colors h-10"
+          data-testid="button-sidebar-cta"
+        >
+          Initiate Setup
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+function ArticleBody({ post }: { post: BlogPostData }) {
+  if (!post.sections) return <ComingSoonPlaceholder post={post} />;
+  return (
+    <div className="container mx-auto px-4 md:px-8 max-w-4xl py-16">
+      <div className="grid md:grid-cols-12 gap-12">
+        <div className="md:col-span-8 lg:col-span-9 prose max-w-none prose-headings:font-bold prose-headings:tracking-tighter prose-headings:text-growmax-black prose-p:text-gray-700 prose-p:font-light prose-p:leading-relaxed prose-a:text-growmax-red hover:prose-a:text-growmax-black prose-img:border prose-img:border-gray-200 prose-img:shadow-sm prose-li:text-gray-700 prose-li:font-light prose-strong:text-growmax-black">
+          {post.sections.map((section) => (
+            <div key={section.headingId}>
+              <h2 id={section.headingId}>{section.heading}</h2>
+              <div dangerouslySetInnerHTML={{ __html: section.content }} />
+            </div>
+          ))}
+        </div>
+
+        <div className="md:col-span-4 lg:col-span-3">
+          <div className="sticky top-24">
+            <TableOfContents post={post} />
+            <RelatedPostsSidebar post={post} />
+            <SidebarCTA />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RelatedPostsFooter({ post }: { post: BlogPostData }) {
+  const related = getRelatedPosts(post);
+  if (related.length === 0) return null;
+  return (
+    <section className="py-24 bg-gray-50 border-t border-gray-200">
+      <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+        <div className="flex items-center justify-between mb-12 border-b border-gray-200 pb-4">
+          <h3 className="text-2xl font-bold tracking-tighter uppercase">Related Architecture</h3>
+          <Link
+            href="/blog"
+            className="font-mono text-xs font-bold uppercase tracking-widest text-growmax-red hover:text-growmax-black flex items-center gap-1"
+            data-testid="link-view-all-blog"
+          >
+            View All <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+        <div className="grid md:grid-cols-2 gap-8">
+          {related.slice(0, 2).map((rp) => (
+            <Link
+              key={rp.id}
+              href={`/blog/${rp.slug}`}
+              className="group border border-gray-200 bg-white p-6 hover:border-growmax-red transition-colors block"
+              data-testid={`card-related-${rp.id}`}
+            >
+              <div className="font-mono text-[10px] text-gray-400 mb-4 uppercase">
+                DOC.{rp.id} // {rp.category}
+              </div>
+              <h4 className="text-xl font-bold tracking-tight mb-2 group-hover:text-growmax-red transition-colors">
+                {rp.title}
+              </h4>
+              <p className="font-mono text-xs text-gray-500 mt-4">Read Paper →</p>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function BlogPost() {
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug || "";
+  const post = getPostBySlug(slug);
+
+  if (!post) {
+    const formattedTitle = slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    return (
+      <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white pt-16">
+        <div className="pt-20 pb-16 border-b-2 border-growmax-black">
+          <div className="container mx-auto px-4 md:px-8 max-w-4xl">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-gray-500 hover:text-growmax-red transition-colors mb-12"
+              data-testid="link-back-to-blog"
+            >
+              <ArrowLeft className="w-4 h-4" /> Return to Index
+            </Link>
+            <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4" data-testid="text-coming-soon-label">
+              Content Deployment Pending
+            </div>
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tighter text-growmax-black mb-6" data-testid="text-coming-soon-title">
+              {formattedTitle}
+            </h1>
+            <p className="text-gray-600 font-light leading-relaxed max-w-xl mb-8">
+              This article is currently being prepared for deployment. Check back soon for the full content.
+            </p>
+            <Link href="/blog">
+              <Button
+                className="bg-growmax-black hover:bg-growmax-red text-white rounded-none font-bold uppercase tracking-widest text-xs h-12 px-8"
+                data-testid="button-back-to-blog"
+              >
+                Return to Index
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white pt-16">
-      
-      {/* Article Header */}
       <article className="pt-20 pb-16 border-b-2 border-growmax-black bg-grid-blueprint relative">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         <div className="container mx-auto px-4 md:px-8 max-w-4xl relative z-10">
-          
-          <Link href="/blog" className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-gray-500 hover:text-growmax-red transition-colors mb-12">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-gray-500 hover:text-growmax-red transition-colors mb-12"
+            data-testid="link-back-to-blog"
+          >
             <ArrowLeft className="w-4 h-4" /> Return to Index
           </Link>
-          
+
           <div className="flex flex-wrap items-center gap-4 font-mono text-xs uppercase tracking-widest mb-8">
-            <span className="bg-growmax-black text-white px-3 py-1 font-bold">Architecture</span>
-            <span className="text-gray-500 flex items-center gap-2"><Calendar className="w-3 h-3"/> Jan 15, 2026</span>
-            <span className="text-gray-500 flex items-center gap-2"><Clock className="w-3 h-3"/> 5 Min Read</span>
-            <span className="text-gray-400 border border-gray-300 px-2 py-0.5">DOC.001</span>
+            <span className="bg-growmax-black text-white px-3 py-1 font-bold" data-testid="text-category">
+              {post.category}
+            </span>
+            <span className="text-gray-500 flex items-center gap-2">
+              <Calendar className="w-3 h-3" /> {post.date}
+            </span>
+            <span className="text-gray-500 flex items-center gap-2">
+              <Clock className="w-3 h-3" /> {post.readTime}
+            </span>
+            <span className="text-gray-400 border border-gray-300 px-2 py-0.5">DOC.{post.id}</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8">
-            Bridging the Digital Gap: Why Industrial Brands Need a Partner Engagement Strategy
+          <h1
+            className="text-4xl md:text-6xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8"
+            data-testid="text-post-title"
+          >
+            {post.title}
           </h1>
-          
-          <p className="text-xl text-gray-600 font-light leading-relaxed border-l-4 border-growmax-red pl-6 mb-12">
-            Manufacturers are losing millions by treating their dealer networks as an afterthought. It's time to engineer a connected partner ecosystem.
+
+          <p className="text-xl text-gray-600 font-light leading-relaxed border-l-4 border-growmax-red pl-6 mb-12" data-testid="text-post-excerpt">
+            {post.excerpt}
           </p>
-          
-          {/* Author Block */}
+
           <div className="flex items-center justify-between border-t border-gray-200 pt-6">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-gray-200 border border-gray-300 flex items-center justify-center font-mono text-[10px] text-gray-500">
-                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80" alt="Author" className="w-full h-full object-cover grayscale" />
+                <img
+                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80"
+                  alt={post.author}
+                  className="w-full h-full object-cover grayscale"
+                />
               </div>
               <div>
-                <div className="font-bold text-growmax-black text-sm uppercase tracking-tight">System Architect</div>
-                <div className="font-mono text-xs text-gray-500">Growmax Core Team</div>
+                <div className="font-bold text-growmax-black text-sm uppercase tracking-tight" data-testid="text-author">
+                  {post.author}
+                </div>
+                <div className="font-mono text-xs text-gray-500">{post.authorTeam}</div>
               </div>
             </div>
-            
+
             <div className="flex gap-2">
-              <button className="w-8 h-8 border border-gray-300 flex items-center justify-center text-gray-500 hover:text-growmax-black hover:border-growmax-black transition-colors">
+              <button
+                className="w-8 h-8 border border-gray-300 flex items-center justify-center text-gray-500 hover:text-growmax-black hover:border-growmax-black transition-colors"
+                data-testid="button-share"
+              >
                 <Share2 className="w-4 h-4" />
               </button>
-              <button className="w-8 h-8 border border-gray-300 flex items-center justify-center text-gray-500 hover:text-growmax-black hover:border-growmax-black transition-colors">
+              <button
+                className="w-8 h-8 border border-gray-300 flex items-center justify-center text-gray-500 hover:text-growmax-black hover:border-growmax-black transition-colors"
+                data-testid="button-copy"
+              >
                 <Copy className="w-4 h-4" />
               </button>
             </div>
           </div>
-
         </div>
       </article>
 
-      {/* Article Body */}
-      <div className="container mx-auto px-4 md:px-8 max-w-4xl py-16">
-        <div className="grid md:grid-cols-12 gap-12">
-          
-          {/* Main Content */}
-          <div className="md:col-span-8 lg:col-span-9 prose max-w-none prose-headings:font-bold prose-headings:tracking-tighter prose-headings:text-growmax-black prose-p:text-gray-700 prose-p:font-light prose-p:leading-relaxed prose-a:text-growmax-red hover:prose-a:text-growmax-black prose-img:border prose-img:border-gray-200 prose-img:shadow-sm">
-            
-            <p>
-              In the industrial manufacturing sector, the traditional sales model is fundamentally broken. Sales teams disproportionately prioritize the top 20% of customers that drive 80% of revenue. This leaves a massive tail of smaller contractors, panel builders, and regional distributors chronically underserved.
-            </p>
-
-            <h2>The Cost of Disconnection</h2>
-            
-            <p>
-              When a manufacturer relies entirely on manual processes—emails, phone calls, and WhatsApp messages—to manage their partner network, they create an artificial ceiling on their growth. 
-            </p>
-
-            <div className="bg-gray-50 border-l-4 border-growmax-black p-6 my-8 font-mono text-sm">
-              <span className="font-bold uppercase block mb-2 text-growmax-red">Data Log:</span>
-              "Our research shows that mid-market manufacturers lose an average of 18% in potential recurring revenue simply because ordering processes are too high-friction for long-tail distributors."
-            </div>
-
-            <h2>Architecting the Solution</h2>
-
-            <p>
-              The solution isn't to hire more sales reps. Throwing headcount at a structural inefficiency ruins your margins. The solution is to deploy a connected <strong>Partner Commerce Platform</strong>.
-            </p>
-
-            <p>
-              A properly engineered partner platform acts as a digital sales rep. It provides:
-            </p>
-            
-            <ul>
-              <li><strong>Self-Service Autonomy:</strong> Partners can view their specific contracted pricing, check real-time stock levels, and place orders without human intervention.</li>
-              <li><strong>Quote Management:</strong> Complex RFQs can be initiated digitally, routed through proper approval matrices, and converted to orders automatically.</li>
-              <li><strong>ERP Synchronization:</strong> Every action on the portal reflects instantly in the central ERP (like SAP), ensuring data integrity across the organization.</li>
-            </ul>
-
-            <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80" alt="Industrial Facility" className="w-full grayscale hover:grayscale-0 transition-all duration-500" />
-            <div className="text-xs font-mono text-gray-400 mt-2 uppercase tracking-widest text-center">Fig 1. Modernized supply chain facility</div>
-
-            <h2>The Implementation Vector</h2>
-
-            <p>
-              Transitioning to this model requires a platform built for B2B reality, not a repurposed B2C shopping cart. Manufacturers need systems capable of handling multi-tier pricing, complex approval workflows, and multi-warehouse orchestrations right out of the box.
-            </p>
-            
-            <p>
-              By bridging the digital gap, brands don't just reduce overhead—they unlock entirely new revenue streams from partners who previously found them too difficult to do business with.
-            </p>
-            
-          </div>
-
-          {/* Sticky Sidebar */}
-          <div className="md:col-span-4 lg:col-span-3">
-            <div className="sticky top-24">
-              <div className="border border-gray-200 p-6 bg-gray-50">
-                <div className="font-mono text-xs font-bold text-growmax-black uppercase tracking-widest border-b border-gray-200 pb-4 mb-4">
-                  Index
-                </div>
-                <ul className="space-y-3 font-mono text-xs text-gray-600">
-                  <li><a href="#" className="hover:text-growmax-red">1. The Cost of Disconnection</a></li>
-                  <li><a href="#" className="hover:text-growmax-red">2. Architecting the Solution</a></li>
-                  <li><a href="#" className="hover:text-growmax-red">3. Implementation Vector</a></li>
-                </ul>
-              </div>
-
-              <div className="mt-8 border-2 border-growmax-black p-6 bg-growmax-black text-white">
-                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-2">Deploy Now</div>
-                <h4 className="font-bold text-lg mb-4 leading-tight">Ready to connect your partner network?</h4>
-                <Link href="/demo">
-                  <Button className="w-full bg-growmax-red hover:bg-white hover:text-growmax-black text-white rounded-none font-bold uppercase tracking-widest text-xs transition-colors h-10">
-                    Initiate Setup
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* Related Content */}
-      <section className="py-24 bg-gray-50 border-t border-gray-200">
-        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
-          <div className="flex items-center justify-between mb-12 border-b border-gray-200 pb-4">
-            <h3 className="text-2xl font-bold tracking-tighter uppercase">Related Architecture</h3>
-            <Link href="/blog" className="font-mono text-xs font-bold uppercase tracking-widest text-growmax-red hover:text-growmax-black flex items-center gap-1">
-              View All <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <Link href="/blog/2" className="group border border-gray-200 bg-white p-6 hover:border-growmax-red transition-colors block">
-              <div className="font-mono text-[10px] text-gray-400 mb-4 uppercase">DOC.002 // Data Logic</div>
-              <h4 className="text-xl font-bold tracking-tight mb-2 group-hover:text-growmax-red transition-colors">
-                Opportunity Pipeline Management – Your Data-Driven Path to Predictable Revenue
-              </h4>
-              <p className="font-mono text-xs text-gray-500 mt-4">Read Paper →</p>
-            </Link>
-            
-            <Link href="/blog/3" className="group border border-gray-200 bg-white p-6 hover:border-growmax-red transition-colors block">
-              <div className="font-mono text-[10px] text-gray-400 mb-4 uppercase">DOC.003 // System Design</div>
-              <h4 className="text-xl font-bold tracking-tight mb-2 group-hover:text-growmax-red transition-colors">
-                Why an Offline Order-Taking App is Essential for FMCG Industrial Sales
-              </h4>
-              <p className="font-mono text-xs text-gray-500 mt-4">Read Paper →</p>
-            </Link>
-          </div>
-        </div>
-      </section>
-
+      <ArticleBody post={post} />
+      <RelatedPostsFooter post={post} />
     </div>
   );
 }
