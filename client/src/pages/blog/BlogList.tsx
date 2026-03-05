@@ -1,9 +1,20 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ArrowRight } from "lucide-react";
+import { Search, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function BlogList() {
+  const [subEmail, setSubEmail] = useState("");
+  const subMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/newsletter", { email: subEmail });
+      return res.json();
+    },
+    onSuccess: () => setSubEmail(""),
+  });
   const posts = [
     {
       title: "Bridging the Digital Gap: Why Industrial Brands Need a Partner Engagement Strategy",
@@ -140,15 +151,31 @@ export default function BlogList() {
              <ArrowRight className="w-8 h-8 text-white -rotate-45" />
           </div>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tighter mb-6 uppercase">Stay synchronized with B2B commerce logic.</h2>
-          <form className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto mt-8" onSubmit={(e) => e.preventDefault()}>
-            <Input 
-              placeholder="ENTER WORK EMAIL" 
-              className="h-14 bg-white/5 border-gray-700 rounded-none text-white font-mono text-sm placeholder:text-gray-500 focus:border-growmax-red" 
-            />
-            <Button className="h-14 bg-growmax-red hover:bg-white hover:text-growmax-black text-white px-8 rounded-none font-bold uppercase tracking-widest text-xs transition-colors">
-              Subscribe
-            </Button>
-          </form>
+          {subMutation.isSuccess ? (
+            <div className="flex items-center justify-center gap-3 mt-8 font-mono text-sm text-growmax-red uppercase tracking-widest" data-testid="text-subscribed">
+              <CheckCircle className="w-5 h-5" /> Subscribed Successfully
+            </div>
+          ) : (
+            <form className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto mt-8" onSubmit={(e) => { e.preventDefault(); subMutation.mutate(); }}>
+              <Input 
+                placeholder="ENTER WORK EMAIL" 
+                type="email"
+                required
+                data-testid="input-newsletter-email"
+                value={subEmail}
+                onChange={(e) => setSubEmail(e.target.value)}
+                className="h-14 bg-white/5 border-gray-700 rounded-none text-white font-mono text-sm placeholder:text-gray-500 focus:border-growmax-red" 
+              />
+              <Button
+                type="submit"
+                data-testid="button-subscribe"
+                disabled={subMutation.isPending}
+                className="h-14 bg-growmax-red hover:bg-white hover:text-growmax-black text-white px-8 rounded-none font-bold uppercase tracking-widest text-xs transition-colors"
+              >
+                {subMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Subscribe"}
+              </Button>
+            </form>
+          )}
         </div>
       </section>
 
