@@ -237,7 +237,7 @@ export async function syncMissingPosts(): Promise<void> {
 
     let inserted = 0;
     let updated = 0;
-    const allSyncPosts = [...csvImportedPosts, ...competitorKeywordPosts];
+    const allSyncPosts = [...csvImportedPosts, ...competitorKeywordPosts, ...listiclePosts];
     for (const post of allSyncPosts) {
       try {
         const existing = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, post.slug));
@@ -267,6 +267,7 @@ export async function syncMissingPosts(): Promise<void> {
             .set({
               sections: post.sections,
               excerpt: post.excerpt,
+              date: post.date,
               relatedSlugs: post.relatedSlugs || [],
               createdAt,
             })
@@ -280,6 +281,25 @@ export async function syncMissingPosts(): Promise<void> {
       }
     }
     console.log(`[sync] Synced posts: ${inserted} inserted, ${updated} updated with enhanced content`);
+
+    let dateFixed = 0;
+    const entries = Object.values(blogPostsData);
+    for (const post of entries) {
+      try {
+        const dateVal = post.date ? new Date(post.date) : null;
+        if (!dateVal || isNaN(dateVal.getTime())) continue;
+        const existing = await db.select({ id: blogPosts.id, date: blogPosts.date }).from(blogPosts).where(eq(blogPosts.slug, post.slug));
+        if (existing.length > 0 && existing[0].date !== post.date) {
+          await db.update(blogPosts)
+            .set({ date: post.date, createdAt: dateVal })
+            .where(eq(blogPosts.id, existing[0].id));
+          dateFixed++;
+        }
+      } catch (err: any) {
+        // ignore
+      }
+    }
+    if (dateFixed > 0) console.log(`[sync] Fixed dates on ${dateFixed} posts from main data`);
   } catch (error) {
     console.error("[sync] Failed:", error);
   }
