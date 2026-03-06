@@ -4,29 +4,24 @@ interface ClientLogoProps {
 }
 
 export function SiemensLogo({ className = '', variant = 'dark' }: ClientLogoProps) {
-  const color = variant === 'light' ? '#ffffff' : '#009999';
   return (
-    <svg viewBox="0 0 280 50" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-label="Siemens">
-      <text x="0" y="40" fontFamily="'Georgia', 'Times New Roman', serif" fontWeight="400" fontSize="46" letterSpacing="4" fill={color}>
-        SIEMENS
-      </text>
-    </svg>
+    <img
+      src="/images/siemens-logo.svg"
+      alt="Siemens"
+      className={`${className} ${variant === 'light' ? 'brightness-0 invert' : ''}`}
+      data-testid="img-logo-siemens"
+    />
   );
 }
 
 export function SchwingSttetterLogo({ className = '', variant = 'dark' }: ClientLogoProps) {
-  const primaryColor = variant === 'light' ? '#ffffff' : '#E30613';
-  const secondaryColor = variant === 'light' ? '#cccccc' : '#333333';
   return (
-    <svg viewBox="0 0 320 60" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-label="Schwing Stetter">
-      <rect x="0" y="2" width="10" height="56" fill={primaryColor} rx="0" />
-      <text x="20" y="32" fontFamily="'Arial Black', 'Helvetica', sans-serif" fontWeight="900" fontSize="28" letterSpacing="3" fill={primaryColor}>
-        SCHWING
-      </text>
-      <text x="20" y="52" fontFamily="'Arial', 'Helvetica', sans-serif" fontWeight="600" fontSize="18" letterSpacing="5" fill={secondaryColor}>
-        STETTER
-      </text>
-    </svg>
+    <img
+      src="/images/schwing-stetter-logo.png"
+      alt="Schwing Stetter"
+      className={`${className} ${variant === 'light' ? 'brightness-0 invert' : ''}`}
+      data-testid="img-logo-schwing-stetter"
+    />
   );
 }
 
