@@ -7,12 +7,12 @@ Professional corporate website for Growmax LLC (Apptino Software Private Limited
 
 ## Architecture
 - **Frontend**: React + Vite + Wouter (routing) + Tailwind CSS v4 + shadcn/ui components + react-helmet-async (SEO)
-- **Backend**: Express.js API server
+- **Backend**: Express.js API server with express-session for admin auth
 - **Database**: PostgreSQL via Drizzle ORM (Neon serverless driver)
 - **Design System**: Digital Brutalism / Swiss Engineering — IBM Plex Sans + IBM Plex Mono, radius: 0, Growmax Red accent (hsl 0 80% 50%)
 
 ## Key Files
-- `client/src/App.tsx` — Router with all page routes, HelmetProvider wrapper
+- `client/src/App.tsx` — Router with all page routes (admin routes outside Navbar/Footer), HelmetProvider wrapper
 - `client/src/index.css` — Design system tokens, grid utilities, custom CSS, marquee animation
 - `client/src/components/SEOHead.tsx` — Reusable SEO meta tag component (title, description, OG, Twitter)
 - `client/src/components/Breadcrumbs.tsx` — Reusable breadcrumb navigation component
@@ -34,19 +34,24 @@ Professional corporate website for Growmax LLC (Apptino Software Private Limited
 - `client/src/pages/industries/AutomotiveAftermarket.tsx` — Automotive Aftermarket & Spare Parts industry landing page
 - `client/src/pages/Demo.tsx` — Demo request form (functional, saves to DB) + ContactPage schema
 - `client/src/pages/company/About.tsx` — About/Team page + AboutPage schema
-- `client/src/pages/blog/BlogList.tsx` — Blog index with 43 posts, category filters, search
-- `client/src/pages/blog/BlogPost.tsx` — Blog post detail page (slug-based routing) + Article schema
-- `client/src/data/blogPosts.ts` — Blog post full content data (43 entries, all with full article content)
+- `client/src/pages/blog/BlogList.tsx` — Blog index fetching from /api/blog, category filters, search
+- `client/src/pages/blog/BlogPost.tsx` — Blog post detail page fetching from /api/blog/:slug + Article schema
+- `client/src/pages/admin/AdminLogin.tsx` — Admin login (password-only, brutalist design)
+- `client/src/pages/admin/AdminDashboard.tsx` — Admin dashboard (post list, search, filter, delete, publish toggle)
+- `client/src/pages/admin/AdminPostEditor.tsx` — Admin post editor (create/edit, sections editor, preview modal)
+- `client/src/data/blogPosts.ts` — Legacy blog post data (43 entries, now seeded into DB)
 - `client/src/pages/legal/Privacy.tsx` — Privacy policy
 - `client/src/pages/legal/Terms.tsx` — Terms of service
 - `client/src/pages/not-found.tsx` — 404 page with SEOHead
 - `client/src/components/layout/Navbar.tsx` — Fixed navbar with dropdown menus (Platform, ARC, Industries, Intelligence)
 - `client/src/components/layout/Footer.tsx` — Footer with Solutions, Comparisons, Industries, Company sections
 - `client/src/components/ui/BrandLogo.tsx` — Brand logo component
-- `shared/schema.ts` — Database schema (demo_requests, newsletter_subscriptions)
-- `server/routes.ts` — API routes + sitemap.xml (63 URLs) + robots.txt endpoints
-- `server/storage.ts` — Database storage interface
+- `shared/schema.ts` — Database schema (demo_requests, newsletter_subscriptions, blog_posts, blog_redirects)
+- `server/routes.ts` — API routes + admin auth + blog CRUD + dynamic sitemap.xml + robots.txt + 301 redirects
+- `server/storage.ts` — Database storage interface with blog CRUD methods
+- `server/index.ts` — Express app with session middleware
 - `server/db.ts` — Database connection (Neon serverless)
+- `scripts/seed-blog.ts` — Seed script for migrating 43 posts + 95 redirects into DB
 
 ## Routes
 - `/` — Homepage
@@ -67,30 +72,54 @@ Professional corporate website for Growmax LLC (Apptino Software Private Limited
 - `/industries/automotive-aftermarket` — Automotive Aftermarket & Spare Parts landing
 - `/demo` — Demo request form
 - `/company/about` — About page
-- `/blog` — Blog index (43 posts, category filters)
-- `/blog/:slug` — Individual blog post (slug-based)
+- `/blog` — Blog index (43 posts from DB, category filters)
+- `/blog/:slug` — Individual blog post (slug-based, from DB)
 - `/privacy` — Privacy policy
 - `/terms-of-service` — Terms of service
-- `/sitemap.xml` — Dynamic XML sitemap (63 URLs, server-generated)
+- `/admin/login` — Admin login page
+- `/admin` — Admin dashboard (blog post management)
+- `/admin/posts/new` — Create new blog post
+- `/admin/posts/:id/edit` — Edit existing blog post
+- `/sitemap.xml` — Dynamic XML sitemap (63 URLs, pulls blog slugs from DB)
 - `/robots.txt` — Crawler directives (server-generated)
+
+## API Endpoints
+- `GET /api/blog` — Published blog posts (public)
+- `GET /api/blog/:slug` — Single published post by slug (public)
+- `POST /api/admin/login` — Admin login (password check)
+- `POST /api/admin/logout` — Admin logout
+- `GET /api/admin/session` — Check admin session status
+- `GET /api/admin/posts` — All posts (admin, requires auth)
+- `GET /api/admin/posts/:id` — Single post by ID (admin)
+- `POST /api/admin/posts` — Create post (admin)
+- `PUT /api/admin/posts/:id` — Update post (admin)
+- `DELETE /api/admin/posts/:id` — Delete post (admin)
+- `POST /api/demo-requests` — Submit demo request
+- `POST /api/newsletter` — Subscribe to newsletter
 
 ## Database Tables
 - `demo_requests` — Stores demo form submissions (firstName, lastName, email, company, companySize, modules[], message)
 - `newsletter_subscriptions` — Stores email subscriptions (email, unique constraint)
+- `blog_posts` — Blog posts (id serial, slug unique, title, category, date, author, authorTeam, readTime, excerpt, sections jsonb, relatedSlugs text[], published boolean, legacyUrl, createdAt, updatedAt)
+- `blog_redirects` — URL redirects for old blog paths (id serial, oldPath unique, newPath, createdAt)
 
-## Blog System
-- BlogList contains 43 posts with categories: B2B eCommerce, AI Insights, Partner Engagement, Spare Parts, Case Studies, Sales & Pipeline, Channel Management
-- blogPostsData has 43 entries keyed by numeric ID ("001"-"043"), with slug field for URL matching
-- All 43 posts have full article content with 3-4 sections each
-- Lookup: `getPostBySlug(slug)` finds posts in blogPostsData by slug field
-- Posts not found show a "Content Deployment Pending" placeholder
+## Blog Admin System
+- Password-based admin auth using ADMIN_PASSWORD env var
+- Session-based authentication (express-session, cookie-based, sameSite: lax)
+- Admin UI at /admin with brutalist design matching the site
+- Dashboard: search/filter posts, view published status, create/edit/delete
+- Post editor: title, slug (auto-generated), category dropdown, sections editor (add/remove), HTML content, preview modal, published toggle
+- 43 posts seeded from legacy data, 95 old URL redirects configured
+- Blog frontend reads from API with react-query (loading states, error handling)
+- Dynamic sitemap pulls published post slugs from DB
 
 ## SEO Infrastructure
 - **Meta Tags**: react-helmet-async with reusable SEOHead component on every page (including 404)
 - **Structured Data**: JSON-LD for Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage
-- **Sitemap**: Dynamic XML sitemap at /sitemap.xml covering 63 URLs
+- **Sitemap**: Dynamic XML sitemap at /sitemap.xml covering 63 URLs (DB-driven blog slugs)
 - **Robots.txt**: Allows all crawlers, points to sitemap at https://www.growmax.io/sitemap.xml
 - **Breadcrumbs**: Monospace uppercase breadcrumbs on all interior pages
+- **301 Redirects**: 95 old blog URLs mapped to new paths via blog_redirects table
 - **Base URL**: https://www.growmax.io (consistent across sitemap and meta tags)
 
 ## Navigation

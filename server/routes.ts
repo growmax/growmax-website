@@ -1,7 +1,7 @@
-import type { Express } from "express";
-import { createServer, type Server } from "http";
+import type { Express, Request, Response, NextFunction } from "express";
+import { type Server } from "http";
 import { storage } from "./storage";
-import { insertDemoRequestSchema, insertNewsletterSchema } from "@shared/schema";
+import { insertDemoRequestSchema, insertNewsletterSchema, insertBlogPostSchema } from "@shared/schema";
 
 const SITE_URL = "https://www.growmax.io";
 
@@ -28,58 +28,19 @@ const staticPages = [
   { path: "/terms-of-service", changefreq: "yearly", priority: "0.3" },
 ];
 
-const blogSlugs = [
-  "partner-engagement-strategy-industrial-brands",
-  "opportunity-pipeline-management-predictable-revenue",
-  "offline-order-taking-app-industrial-b2b-sales",
-  "obo-bettermann-digital-transformation-case-study",
-  "multi-tier-b2b-pricing-modeling",
-  "digital-enabled-fmcg-wholesale-self-ordering-apps",
-  "sales-order-booking-app-zoho-inventory",
-  "integrating-third-party-apps-sap-ecc",
-  "quotation-to-order-process-converting-revenue",
-  "digital-partner-engagement-revolution-manufacturing",
-  "cpq-software-guide-small-medium-industrial-businesses",
-  "bridging-partner-visibility-gap-quotation-order",
-  "ai-reshaping-b2b-ecommerce-industrial-distributors",
-  "ai-powered-product-recommendations-spare-parts",
-  "spare-parts-ecommerce-self-service-portal",
-  "manufacturers-dedicated-spare-parts-ordering-system",
-  "b2b-ecommerce-strategy-industrial-manufacturers",
-  "channel-partner-management-spreadsheets-to-digital",
-  "ai-predictive-inventory-management-distributors",
-  "multi-warehouse-b2b-ecommerce-platform-architecture",
-  "industrial-manufacturers-ai-sales-forecasting",
-  "complete-guide-b2b-customer-specific-pricing",
-  "dealer-portal-best-practices-industrial-equipment",
-  "chemical-distributor-increased-online-orders-case-study",
-  "automating-sales-pipeline-industrial-distributors",
-  "partner-onboarding-automation-time-to-revenue",
-  "spare-parts-identification-ai-visual-lookup",
-  "b2b-marketplace-industrial-mro-supplies",
-  "migrate-legacy-edi-modern-b2b-commerce",
-  "ai-chatbots-b2b-customer-service-industrial",
-  "roi-digital-channel-management-building-materials",
-  "electrical-distributor-order-processing-case-study",
-  "sales-territory-management-industrial-b2b",
-  "customer-specific-product-catalogs-b2b-commerce",
-  "partner-performance-analytics-channel-growth",
-  "spare-parts-pricing-strategy-margin-retention",
-  "implement-tiered-pricing-b2b-wholesale-distribution",
-  "ai-driven-lead-scoring-industrial-sales",
-  "channel-conflict-resolution-multi-channel-industrial",
-  "fastener-distributor-revenue-growth-case-study",
-  "integrating-zoho-crm-b2b-ecommerce-guide",
-  "future-b2b-commerce-headless-architecture-manufacturers",
-  "ai-transforms-after-sales-service-manufacturing",
-];
+function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (req.session && req.session.isAdmin) {
+    return next();
+  }
+  return res.status(401).json({ error: "Unauthorized" });
+}
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
 
-  app.get("/sitemap.xml", (_req, res) => {
+  app.get("/sitemap.xml", async (_req, res) => {
     const today = new Date().toISOString().split("T")[0];
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
@@ -93,13 +54,18 @@ export async function registerRoutes(
       xml += `  </url>\n`;
     }
 
-    for (const slug of blogSlugs) {
-      xml += `  <url>\n`;
-      xml += `    <loc>${SITE_URL}/blog/${slug}</loc>\n`;
-      xml += `    <lastmod>${today}</lastmod>\n`;
-      xml += `    <changefreq>monthly</changefreq>\n`;
-      xml += `    <priority>0.6</priority>\n`;
-      xml += `  </url>\n`;
+    try {
+      const posts = await storage.getPublishedBlogPosts();
+      for (const post of posts) {
+        xml += `  <url>\n`;
+        xml += `    <loc>${SITE_URL}/blog/${post.slug}</loc>\n`;
+        xml += `    <lastmod>${today}</lastmod>\n`;
+        xml += `    <changefreq>monthly</changefreq>\n`;
+        xml += `    <priority>0.6</priority>\n`;
+        xml += `  </url>\n`;
+      }
+    } catch {
+      // fallback if DB unavailable
     }
 
     xml += `</urlset>`;
@@ -113,6 +79,125 @@ export async function registerRoutes(
     res.send(robotsTxt);
   });
 
+  // 301 Redirects for old blog URLs
+  app.get("/blog/:slug", async (req, res, next) => {
+    try {
+      const redirect = await storage.getRedirect(`/blog/${req.params.slug}`);
+      if (redirect) {
+        return res.redirect(301, redirect.newPath);
+      }
+    } catch {}
+    next();
+  });
+
+  // === Public Blog API ===
+  app.get("/api/blog", async (_req, res) => {
+    try {
+      const posts = await storage.getPublishedBlogPosts();
+      return res.json(posts);
+    } catch (err: any) {
+      return res.status(500).json({ error: "Failed to fetch blog posts" });
+    }
+  });
+
+  app.get("/api/blog/:slug", async (req, res) => {
+    try {
+      const post = await storage.getBlogPostBySlug(req.params.slug);
+      if (!post || !post.published) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+      return res.json(post);
+    } catch (err: any) {
+      return res.status(500).json({ error: "Failed to fetch blog post" });
+    }
+  });
+
+  // === Admin Auth ===
+  app.post("/api/admin/login", (req, res) => {
+    const { password } = req.body;
+    if (password === process.env.ADMIN_PASSWORD) {
+      req.session.isAdmin = true;
+      return res.json({ success: true });
+    }
+    return res.status(401).json({ error: "Invalid password" });
+  });
+
+  app.post("/api/admin/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) return res.status(500).json({ error: "Failed to logout" });
+      res.clearCookie("connect.sid");
+      return res.json({ success: true });
+    });
+  });
+
+  app.get("/api/admin/session", (req, res) => {
+    return res.json({ isAdmin: !!req.session?.isAdmin });
+  });
+
+  // === Admin Blog CRUD ===
+  app.get("/api/admin/posts", requireAdmin, async (_req, res) => {
+    try {
+      const posts = await storage.getAllBlogPosts();
+      return res.json(posts);
+    } catch (err: any) {
+      return res.status(500).json({ error: "Failed to fetch posts" });
+    }
+  });
+
+  app.get("/api/admin/posts/:id", requireAdmin, async (req, res) => {
+    try {
+      const post = await storage.getBlogPostById(parseInt(req.params.id));
+      if (!post) return res.status(404).json({ error: "Post not found" });
+      return res.json(post);
+    } catch (err: any) {
+      return res.status(500).json({ error: "Failed to fetch post" });
+    }
+  });
+
+  app.post("/api/admin/posts", requireAdmin, async (req, res) => {
+    const parsed = insertBlogPostSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten() });
+    }
+    try {
+      const result = await storage.createBlogPost(parsed.data);
+      return res.status(201).json(result);
+    } catch (err: any) {
+      if (err.message?.includes("unique")) {
+        return res.status(409).json({ error: "A post with this slug already exists" });
+      }
+      return res.status(500).json({ error: "Failed to create post" });
+    }
+  });
+
+  app.put("/api/admin/posts/:id", requireAdmin, async (req, res) => {
+    const parsed = insertBlogPostSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten() });
+    }
+    try {
+      const result = await storage.updateBlogPost(parseInt(req.params.id), parsed.data);
+      if (!result) return res.status(404).json({ error: "Post not found" });
+      return res.json(result);
+    } catch (err: any) {
+      if (err.message?.includes("unique")) {
+        return res.status(409).json({ error: "A post with this slug already exists" });
+      }
+      return res.status(500).json({ error: "Failed to update post" });
+    }
+  });
+
+  app.delete("/api/admin/posts/:id", requireAdmin, async (req, res) => {
+    try {
+      const deleted = await storage.deleteBlogPost(parseInt(req.params.id));
+      if (!deleted) return res.status(404).json({ error: "Post not found" });
+      return res.json({ success: true });
+    } catch (err: any) {
+      return res.status(500).json({ error: "Failed to delete post" });
+    }
+  });
+
+  // === Demo Requests ===
   app.post("/api/demo-requests", async (req, res) => {
     const parsed = insertDemoRequestSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -126,6 +211,7 @@ export async function registerRoutes(
     }
   });
 
+  // === Newsletter ===
   app.post("/api/newsletter", async (req, res) => {
     const parsed = insertNewsletterSchema.safeParse(req.body);
     if (!parsed.success) {

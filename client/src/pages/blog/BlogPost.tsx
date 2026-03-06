@@ -1,12 +1,33 @@
 import { Link, useParams } from "wouter";
-import { ArrowLeft, ArrowRight, Clock, Calendar, Share2, Copy, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Calendar, Share2, Copy, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getPostBySlug, getRelatedPosts, type BlogPostData } from "@/data/blogPosts";
+import { useQuery } from "@tanstack/react-query";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import { articleSchema } from "@/lib/structuredData";
 
-function ComingSoonPlaceholder({ post }: { post: BlogPostData }) {
+interface BlogPostSection {
+  heading: string;
+  headingId: string;
+  content: string;
+}
+
+interface BlogPostData {
+  id: number;
+  slug: string;
+  title: string;
+  category: string;
+  date: string;
+  author: string;
+  authorTeam: string;
+  readTime: string;
+  excerpt: string;
+  sections: BlogPostSection[] | null;
+  relatedSlugs: string[];
+  published: boolean;
+}
+
+function ComingSoonPlaceholder({ title, excerpt }: { title: string; excerpt: string }) {
   return (
     <div className="container mx-auto px-4 md:px-8 max-w-4xl py-16">
       <div className="border-2 border-dashed border-gray-300 p-12 text-center bg-gray-50">
@@ -18,7 +39,7 @@ function ComingSoonPlaceholder({ post }: { post: BlogPostData }) {
           Full Article Coming Soon
         </h2>
         <p className="text-gray-600 font-light leading-relaxed max-w-xl mx-auto mb-8" data-testid="text-excerpt">
-          {post.excerpt}
+          {excerpt}
         </p>
         <Link href="/demo">
           <Button
@@ -33,15 +54,14 @@ function ComingSoonPlaceholder({ post }: { post: BlogPostData }) {
   );
 }
 
-function TableOfContents({ post }: { post: BlogPostData }) {
-  if (!post.sections) return null;
+function TableOfContents({ sections }: { sections: BlogPostSection[] }) {
   return (
     <div className="border border-gray-200 p-6 bg-gray-50">
       <div className="font-mono text-xs font-bold text-growmax-black uppercase tracking-widest border-b border-gray-200 pb-4 mb-4">
         Index
       </div>
       <ul className="space-y-3 font-mono text-xs text-gray-600">
-        {post.sections.map((section, i) => (
+        {sections.map((section, i) => (
           <li key={section.headingId}>
             <a
               href={`#${section.headingId}`}
@@ -50,36 +70,6 @@ function TableOfContents({ post }: { post: BlogPostData }) {
             >
               {i + 1}. {section.heading}
             </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function RelatedPostsSidebar({ post }: { post: BlogPostData }) {
-  const related = getRelatedPosts(post);
-  if (related.length === 0) return null;
-  return (
-    <div className="border border-gray-200 p-6 bg-white mt-6">
-      <div className="font-mono text-xs font-bold text-growmax-black uppercase tracking-widest border-b border-gray-200 pb-4 mb-4">
-        Related
-      </div>
-      <ul className="space-y-4">
-        {related.map((rp) => (
-          <li key={rp.id}>
-            <Link
-              href={`/blog/${rp.slug}`}
-              className="block group"
-              data-testid={`link-related-${rp.id}`}
-            >
-              <div className="font-mono text-[10px] text-gray-400 mb-1 uppercase">
-                DOC.{rp.id} // {rp.category}
-              </div>
-              <div className="text-sm font-bold tracking-tight text-growmax-black group-hover:text-growmax-red transition-colors leading-snug">
-                {rp.title}
-              </div>
-            </Link>
           </li>
         ))}
       </ul>
@@ -105,7 +95,9 @@ function SidebarCTA() {
 }
 
 function ArticleBody({ post }: { post: BlogPostData }) {
-  if (!post.sections) return <ComingSoonPlaceholder post={post} />;
+  if (!post.sections || post.sections.length === 0) {
+    return <ComingSoonPlaceholder title={post.title} excerpt={post.excerpt} />;
+  }
   return (
     <div className="container mx-auto px-4 md:px-8 max-w-4xl py-16">
       <div className="grid md:grid-cols-12 gap-12">
@@ -120,8 +112,7 @@ function ArticleBody({ post }: { post: BlogPostData }) {
 
         <div className="md:col-span-4 lg:col-span-3">
           <div className="sticky top-24">
-            <TableOfContents post={post} />
-            <RelatedPostsSidebar post={post} />
+            <TableOfContents sections={post.sections} />
             <SidebarCTA />
           </div>
         </div>
@@ -130,51 +121,27 @@ function ArticleBody({ post }: { post: BlogPostData }) {
   );
 }
 
-function RelatedPostsFooter({ post }: { post: BlogPostData }) {
-  const related = getRelatedPosts(post);
-  if (related.length === 0) return null;
-  return (
-    <section className="py-24 bg-gray-50 border-t border-gray-200">
-      <div className="container mx-auto px-4 md:px-8 max-w-5xl">
-        <div className="flex items-center justify-between mb-12 border-b border-gray-200 pb-4">
-          <h3 className="text-2xl font-bold tracking-tighter uppercase">Related Architecture</h3>
-          <Link
-            href="/blog"
-            className="font-mono text-xs font-bold uppercase tracking-widest text-growmax-red hover:text-growmax-black flex items-center gap-1"
-            data-testid="link-view-all-blog"
-          >
-            View All <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-        <div className="grid md:grid-cols-2 gap-8">
-          {related.slice(0, 2).map((rp) => (
-            <Link
-              key={rp.id}
-              href={`/blog/${rp.slug}`}
-              className="group border border-gray-200 bg-white p-6 hover:border-growmax-red transition-colors block"
-              data-testid={`card-related-${rp.id}`}
-            >
-              <div className="font-mono text-[10px] text-gray-400 mb-4 uppercase">
-                DOC.{rp.id} // {rp.category}
-              </div>
-              <h4 className="text-xl font-bold tracking-tight mb-2 group-hover:text-growmax-red transition-colors">
-                {rp.title}
-              </h4>
-              <p className="font-mono text-xs text-gray-500 mt-4">Read Paper →</p>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export default function BlogPost() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || "";
-  const post = getPostBySlug(slug);
 
-  if (!post) {
+  const { data: post, isLoading, error } = useQuery<BlogPostData>({
+    queryKey: [`/api/blog/${slug}`],
+    enabled: !!slug,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white pt-16 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-growmax-red mx-auto mb-4" />
+          <div className="font-mono text-sm text-gray-400 uppercase tracking-widest">Loading document...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !post) {
     const formattedTitle = slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
     return (
       <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white pt-16">
@@ -252,7 +219,6 @@ export default function BlogPost() {
             <span className="text-gray-500 flex items-center gap-2">
               <Clock className="w-3 h-3" /> {post.readTime}
             </span>
-            <span className="text-gray-400 border border-gray-300 px-2 py-0.5">DOC.{post.id}</span>
           </div>
 
           <h1
@@ -302,7 +268,6 @@ export default function BlogPost() {
       </article>
 
       <ArticleBody post={post} />
-      <RelatedPostsFooter post={post} />
     </div>
   );
 }

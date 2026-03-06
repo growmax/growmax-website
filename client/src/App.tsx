@@ -40,49 +40,63 @@ import SparePartsHub from "@/pages/solutions/SparePartsHub";
 import Privacy from "@/pages/legal/Privacy";
 import Terms from "@/pages/legal/Terms";
 
+// Admin Pages
+import AdminLogin from "@/pages/admin/AdminLogin";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminPostEditor from "@/pages/admin/AdminPostEditor";
+
 function Router() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-1">
-        <Switch>
-          <Route path="/" component={Home} />
-          
-          <Route path="/revenue-platform" component={RevenuePlatform} />
-          <Route path="/revenue-platform/compare" component={CompareEnterprise} />
-          <Route path="/revenue-platform/:feature" component={RevenuePlatform} />
-          
-          <Route path="/arc" component={Arc} />
-          <Route path="/arc/pricing" component={Pricing} />
-          <Route path="/arc/compare/b2b-wave" component={CompareB2BWave} />
-          <Route path="/arc/compare/pepperi" component={ComparePepperi} />
-          
-          <Route path="/comparisons/handshake-alternatives" component={HandshakeAlternatives} />
-          <Route path="/comparisons/tradegecko-alternatives" component={TradeGeckoAlternatives} />
-          
-          <Route path="/industries/electrical-distributors" component={ElectricalDistributors} />
-          <Route path="/industries/building-materials" component={BuildingMaterials} />
-          <Route path="/industries/industrial-manufacturing" component={IndustrialManufacturing} />
-          <Route path="/industries/food-beverage" component={FoodBeverage} />
-          <Route path="/industries/automotive-aftermarket" component={AutomotiveAftermarket} />
-          
-          <Route path="/solutions/spare-parts-ecommerce" component={SparePartsHub} />
-          
-          <Route path="/demo" component={Demo} />
-          <Route path="/company/about" component={About} />
-          
-          <Route path="/blog" component={BlogList} />
-          <Route path="/blog/:slug" component={BlogPost} />
+    <Switch>
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/posts/new" component={AdminPostEditor} />
+      <Route path="/admin/posts/:id/edit" component={AdminPostEditor} />
+      <Route path="/admin" component={AdminDashboard} />
 
-          <Route path="/privacy" component={Privacy} />
-          <Route path="/terms-of-service" component={Terms} />
-          <Route path="/msa" component={Terms} /> {/* Sharing terms layout for mockup */}
+      <Route>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-1">
+            <Switch>
+              <Route path="/" component={Home} />
+              
+              <Route path="/revenue-platform" component={RevenuePlatform} />
+              <Route path="/revenue-platform/compare" component={CompareEnterprise} />
+              <Route path="/revenue-platform/:feature" component={RevenuePlatform} />
+              
+              <Route path="/arc" component={Arc} />
+              <Route path="/arc/pricing" component={Pricing} />
+              <Route path="/arc/compare/b2b-wave" component={CompareB2BWave} />
+              <Route path="/arc/compare/pepperi" component={ComparePepperi} />
+              
+              <Route path="/comparisons/handshake-alternatives" component={HandshakeAlternatives} />
+              <Route path="/comparisons/tradegecko-alternatives" component={TradeGeckoAlternatives} />
+              
+              <Route path="/industries/electrical-distributors" component={ElectricalDistributors} />
+              <Route path="/industries/building-materials" component={BuildingMaterials} />
+              <Route path="/industries/industrial-manufacturing" component={IndustrialManufacturing} />
+              <Route path="/industries/food-beverage" component={FoodBeverage} />
+              <Route path="/industries/automotive-aftermarket" component={AutomotiveAftermarket} />
+              
+              <Route path="/solutions/spare-parts-ecommerce" component={SparePartsHub} />
+              
+              <Route path="/demo" component={Demo} />
+              <Route path="/company/about" component={About} />
+              
+              <Route path="/blog" component={BlogList} />
+              <Route path="/blog/:slug" component={BlogPost} />
 
-          <Route component={NotFound} />
-        </Switch>
-      </main>
-      <Footer />
-    </div>
+              <Route path="/privacy" component={Privacy} />
+              <Route path="/terms-of-service" component={Terms} />
+              <Route path="/msa" component={Terms} />
+
+              <Route component={NotFound} />
+            </Switch>
+          </main>
+          <Footer />
+        </div>
+      </Route>
+    </Switch>
   );
 }
 
