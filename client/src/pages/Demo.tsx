@@ -63,7 +63,7 @@ export default function Demo() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-32 pb-24 selection:bg-growmax-red selection:text-white">
+    <div className="min-h-screen bg-gray-50 pt-20 pb-12 md:pt-32 md:pb-24 selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Book a Demo | Growmax B2B Revenue Operations Platform"
         description="Schedule a technical consultation with the Growmax architecture team. Deploy pilot programs in 8-12 weeks. ERP integration, partner portals, and B2B commerce."
@@ -71,16 +71,16 @@ export default function Demo() {
         structuredData={contactPageSchema()}
       />
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="grid lg:grid-cols-12 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
           
           <div className="lg:col-span-5">
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3">
               Deployment Request
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-growmax-black mb-8 leading-[1.1] tracking-tighter">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-growmax-black mb-6 md:mb-8 leading-[1.1] tracking-tighter">
               Connect your revenue ecosystem.
             </h1>
-            <p className="text-xl text-gray-600 mb-12 font-light leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-600 mb-8 md:mb-12 font-light leading-relaxed">
               We deploy pilot programs in 8-12 weeks. Stop revenue leaks and connect your Sales, Partners, and ERP.
             </p>
             
@@ -108,9 +108,9 @@ export default function Demo() {
           </div>
           
           <div className="lg:col-span-7">
-            <div className="bg-white border border-gray-200 p-8 md:p-12 shadow-sm relative">
+            <div className="bg-white border border-gray-200 p-5 md:p-8 lg:p-12 shadow-sm relative">
               <div className="absolute top-0 right-0 p-4 font-mono text-[10px] text-gray-400">SECURE_FORM_V2</div>
-              <h2 className="text-2xl font-bold text-growmax-black mb-8 font-mono uppercase tracking-tight">Book a Demo</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-growmax-black mb-6 md:mb-8 font-mono uppercase tracking-tight">Book a Demo</h2>
               
               <form
                 className="space-y-6"
@@ -235,7 +235,7 @@ export default function Demo() {
                   type="submit"
                   data-testid="button-submit-demo"
                   disabled={mutation.isPending || !companySize}
-                  className="w-full bg-growmax-red hover:bg-growmax-black text-white h-16 text-lg mt-6 rounded-none font-bold tracking-tight transition-colors duration-300 disabled:opacity-50"
+                  className="w-full bg-growmax-red hover:bg-growmax-black text-white h-14 md:h-16 text-base md:text-lg mt-6 rounded-none font-bold tracking-tight transition-colors duration-300 disabled:opacity-50"
                 >
                   {mutation.isPending ? (
                     <><Loader2 className="mr-2 w-5 h-5 animate-spin" /> Processing...</>

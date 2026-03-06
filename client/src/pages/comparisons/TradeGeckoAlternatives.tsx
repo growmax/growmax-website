@@ -316,6 +316,7 @@ export default function TradeGeckoAlternatives() {
               <div className="font-mono text-xs text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">
                 {group.category}
               </div>
+              <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
               <div className="border border-gray-800 overflow-x-auto">
                 <div className="min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
@@ -355,6 +356,7 @@ export default function TradeGeckoAlternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="border border-growmax-black overflow-x-auto" data-testid="section-pricing-comparison">
             <div className="min-w-[800px]">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">

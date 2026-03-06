@@ -27,7 +27,7 @@ export default function Arc() {
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6">
                 Architecture // Distributors
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8">
                 Stop taking orders<br/>
                 on WhatsApp.<br/>
                 <span className="text-gray-400">Deploy ARC.</span>
@@ -96,8 +96,8 @@ export default function Arc() {
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
+            <div className="border border-gray-800 p-6 md:p-8 hover:border-growmax-red transition-colors group">
               <div className="font-mono text-xs text-growmax-red mb-4 uppercase">Mod.01</div>
               <Activity className="w-8 h-8 text-white mb-6 group-hover:text-growmax-red transition-colors" />
               <h3 className="text-xl font-bold mb-4 tracking-tight">Inventory Intelligence</h3>
@@ -111,7 +111,7 @@ export default function Arc() {
               </ul>
             </div>
             
-            <div className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group">
+            <div className="border border-gray-800 p-6 md:p-8 hover:border-growmax-red transition-colors group">
               <div className="font-mono text-xs text-growmax-red mb-4 uppercase">Mod.02</div>
               <Smartphone className="w-8 h-8 text-white mb-6 group-hover:text-growmax-red transition-colors" />
               <h3 className="text-xl font-bold mb-4 tracking-tight">Field Sales App</h3>
@@ -125,7 +125,7 @@ export default function Arc() {
               </ul>
             </div>
             
-            <div className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group">
+            <div className="border border-gray-800 p-6 md:p-8 hover:border-growmax-red transition-colors group">
               <div className="font-mono text-xs text-growmax-red mb-4 uppercase">Mod.03</div>
               <Database className="w-8 h-8 text-white mb-6 group-hover:text-growmax-red transition-colors" />
               <h3 className="text-xl font-bold mb-4 tracking-tight">Customer Portal</h3>
@@ -145,7 +145,7 @@ export default function Arc() {
       {/* Integration Highlight */}
       <section className="py-24 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 md:px-8">
-           <div className="bg-gray-50 border border-gray-200 p-12 md:p-16 flex flex-col md:flex-row items-center gap-12">
+           <div className="bg-gray-50 border border-gray-200 p-6 sm:p-12 md:p-16 flex flex-col md:flex-row items-center gap-8 md:gap-12">
              <div className="md:w-1/2">
                 <div className="font-mono text-xs text-growmax-red uppercase mb-4 tracking-widest font-bold">Native Integration</div>
                 <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-growmax-black">Zoho Inventory Connected.</h2>
@@ -173,7 +173,7 @@ export default function Arc() {
               <div className="font-mono text-xs uppercase tracking-widest font-bold mb-2 text-white/80">Compare Alternatives</div>
               <h3 className="text-2xl font-bold tracking-tight">See how ARC compares to B2B Wave & Pepperi</h3>
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
               <Link href="/arc/compare/b2b-wave">
                 <Button className="bg-white text-growmax-black hover:bg-growmax-black hover:text-white h-12 px-6 rounded-none transition-all duration-300 font-bold tracking-tight whitespace-nowrap" data-testid="button-compare-b2bwave">
                   ARC vs B2B Wave
@@ -197,7 +197,7 @@ export default function Arc() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8" data-testid="section-related-links">
             <Link href="/revenue-platform">
               <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-revenue-platform">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Enterprise</div>
@@ -230,7 +230,7 @@ export default function Arc() {
 
       <section className="py-32 text-center bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-6 tracking-tight text-growmax-black">Digitize your distribution. $199/mo.</h2>
+          <h2 className="text-2xl sm:text-4xl font-bold mb-6 tracking-tight text-growmax-black">Digitize your distribution. $199/mo.</h2>
           <Link href="/arc/pricing">
             <Button className="mt-8 bg-growmax-red hover:bg-growmax-black text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight">
               View Deployment Tiers

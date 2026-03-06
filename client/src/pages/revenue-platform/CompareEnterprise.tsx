@@ -131,7 +131,7 @@ export default function CompareEnterprise() {
 
       <section className="py-16 bg-growmax-black text-white">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid md:grid-cols-3 gap-0">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
             <div className="border border-white/20 p-8 text-center">
               <div className="font-mono text-growmax-red text-xs uppercase tracking-widest font-bold mb-4">Growmax</div>
               <div className="text-3xl font-bold font-mono mb-2" data-testid="text-growmax-timeline">8–12 Weeks</div>
@@ -163,7 +163,8 @@ export default function CompareEnterprise() {
               <h3 className="font-mono text-sm font-bold text-growmax-red uppercase tracking-widest mb-4 border-l-2 border-growmax-red pl-3">
                 {section.category}
               </h3>
-              <div className="overflow-x-auto">
+              <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
+            <div className="overflow-x-auto">
                 <table className="w-full border-2 border-growmax-black text-sm">
                   <thead>
                     <tr className="bg-growmax-black text-white">
@@ -197,7 +198,8 @@ export default function CompareEnterprise() {
             <div className="w-16 h-2 bg-growmax-red"></div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
+            <div className="overflow-x-auto">
             <table className="w-full border-2 border-white/30 text-sm">
               <thead>
                 <tr className="border-b-2 border-growmax-red">
@@ -235,7 +237,8 @@ export default function CompareEnterprise() {
             <div className="w-16 h-2 bg-growmax-red mt-4"></div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
+            <div className="overflow-x-auto">
             <table className="w-full border-2 border-growmax-black text-sm">
               <thead>
                 <tr className="bg-growmax-black text-white">

@@ -28,7 +28,7 @@ export default function About() {
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-8 border-l-2 border-growmax-red pl-4">
               Company Profile // 2026
             </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-8 uppercase">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-8 uppercase">
               Built by people <br/>
               who know the <br/>
               <span className="text-growmax-red">industry.</span>
@@ -43,16 +43,16 @@ export default function About() {
       {/* ICP & Market validation */}
       <section className="py-16 bg-white border-b-2 border-growmax-black">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 font-mono uppercase">
-            <div className="border-r border-gray-200 pr-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 font-mono uppercase">
+            <div className="sm:border-r border-gray-200 sm:pr-8">
               <h4 className="text-[10px] font-bold text-gray-400 mb-2">Ideal Customer</h4>
               <p className="text-sm font-bold text-growmax-black">Distributors &<br/>Industrial Mfrs.</p>
             </div>
-            <div className="border-r border-gray-200 pr-8">
+            <div className="md:border-r border-gray-200 md:pr-8">
               <h4 className="text-[10px] font-bold text-gray-400 mb-2">Company Size</h4>
               <p className="text-sm font-bold text-growmax-black">$100M - $1B<br/>Mid-Market Enterprise</p>
             </div>
-            <div className="border-r border-gray-200 pr-8">
+            <div className="sm:border-r border-gray-200 sm:pr-8">
               <h4 className="text-[10px] font-bold text-gray-400 mb-2">Geography</h4>
               <p className="text-sm font-bold text-growmax-black">India, USA, Europe<br/>& Middle-East</p>
             </div>
@@ -68,52 +68,52 @@ export default function About() {
       <section className="py-32 bg-growmax-gray bg-grid-blueprint border-b-2 border-growmax-black">
         <div className="container mx-auto px-4 md:px-8">
           <div className="mb-20">
-            <h2 className="text-5xl font-bold tracking-tighter uppercase mb-4">Leadership Logic</h2>
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter uppercase mb-4">Leadership Logic</h2>
             <div className="w-24 h-2 bg-growmax-black"></div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 pb-2 pr-2">
             {/* Sudhakar */}
-            <div className="bg-white border-2 border-growmax-black p-8 hover:-translate-y-2 transition-transform duration-300 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="bg-white border-2 border-growmax-black p-4 sm:p-8 hover:-translate-y-2 transition-transform duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <h3 className="text-3xl font-bold tracking-tighter uppercase text-growmax-black">Sudhakar<br/>Varatharajan</h3>
+                  <h3 className="text-2xl sm:text-3xl font-bold tracking-tighter uppercase text-growmax-black">Sudhakar<br/>Varatharajan</h3>
                   <p className="font-mono text-xs font-bold text-growmax-red mt-2 uppercase tracking-widest">Founder & CEO</p>
                 </div>
-                <div className="w-16 h-16 bg-gray-200 border border-gray-300 flex items-center justify-center font-mono text-xs text-gray-400">IMG</div>
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 border border-gray-300 flex items-center justify-center font-mono text-xs text-gray-400 shrink-0">IMG</div>
               </div>
               
-              <p className="font-mono text-sm text-gray-600 mb-8 h-12">
+              <p className="font-mono text-sm text-gray-600 mb-8 sm:h-12">
                 25+ years in technology-led business transformation. Led 40%+ revenue growth at Siemens automation division.
               </p>
               
               <ul className="space-y-4 font-mono text-xs uppercase text-growmax-black border-t border-gray-200 pt-6">
-                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-Siemens (Industrial Auto, IND & GER)</li>
-                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-SAP (Upper Mid-Market Enterprises)</li>
-                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-Mindtree (Home Depot US, Adidas GER)</li>
-                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-gray-400" /> MBA — Anna University, IIM Bangalore</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red shrink-0" /> Ex-Siemens (Industrial Auto, IND & GER)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red shrink-0" /> Ex-SAP (Upper Mid-Market Enterprises)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red shrink-0" /> Ex-Mindtree (Home Depot US, Adidas GER)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-gray-400 shrink-0" /> MBA — Anna University, IIM Bangalore</li>
               </ul>
             </div>
 
             {/* Aravindan */}
-            <div className="bg-white border-2 border-growmax-black p-8 hover:-translate-y-2 transition-transform duration-300 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <div className="bg-white border-2 border-growmax-black p-4 sm:p-8 hover:-translate-y-2 transition-transform duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <h3 className="text-3xl font-bold tracking-tighter uppercase text-growmax-black">Aravindan<br/>Varatharajan</h3>
+                  <h3 className="text-2xl sm:text-3xl font-bold tracking-tighter uppercase text-growmax-black">Aravindan<br/>Varatharajan</h3>
                   <p className="font-mono text-xs font-bold text-growmax-red mt-2 uppercase tracking-widest">Director & Business Growth</p>
                 </div>
-                <div className="w-16 h-16 bg-gray-200 border border-gray-300 flex items-center justify-center font-mono text-xs text-gray-400">IMG</div>
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 border border-gray-300 flex items-center justify-center font-mono text-xs text-gray-400 shrink-0">IMG</div>
               </div>
               
-              <p className="font-mono text-sm text-gray-600 mb-8 h-12">
+              <p className="font-mono text-sm text-gray-600 mb-8 sm:h-12">
                 20+ years in business development & analytics. Data analytics & KPI optimization specialist.
               </p>
               
               <ul className="space-y-4 font-mono text-xs uppercase text-growmax-black border-t border-gray-200 pt-6">
-                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-Microsoft (Enterprise Solutions)</li>
-                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Ex-Softura (QA & Process Transformation)</li>
-                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red" /> Partner Ecosystem Growth</li>
-                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-gray-400" /> B.E (ECE) — Bharathidasan University</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red shrink-0" /> Ex-Microsoft (Enterprise Solutions)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red shrink-0" /> Ex-Softura (QA & Process Transformation)</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-growmax-red shrink-0" /> Partner Ecosystem Growth</li>
+                <li className="flex items-center gap-3"><ArrowRight className="w-4 h-4 text-gray-400 shrink-0" /> B.E (ECE) — Bharathidasan University</li>
               </ul>
             </div>
           </div>

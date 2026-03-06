@@ -224,9 +224,9 @@ export default function Navbar() {
   return (
     <>
       <header className="fixed top-0 z-50 w-full bg-white/95 border-b-2 border-growmax-black font-mono text-sm uppercase tracking-widest backdrop-blur-sm">
-        <div className="flex items-stretch h-16 w-full">
-          <Link href="/" className="flex items-center px-6 border-r-2 border-growmax-black bg-growmax-black text-white hover:bg-growmax-red transition-colors duration-0 shrink-0">
-            <BrandLogo variant="horizontal" dark className="scale-90 origin-left" />
+        <div className="flex items-stretch h-16 w-full overflow-hidden">
+          <Link href="/" className="flex items-center px-3 sm:px-6 border-r-2 border-growmax-black bg-growmax-black text-white hover:bg-growmax-red transition-colors duration-0 shrink-0">
+            <BrandLogo variant="horizontal" dark className="scale-75 sm:scale-90 origin-left" />
           </Link>
 
           <div className="hidden lg:flex flex-1 items-stretch">
@@ -252,10 +252,11 @@ export default function Navbar() {
             </button>
             <Link
               href="/demo"
-              className="flex items-center px-8 bg-growmax-red text-white font-bold hover:bg-growmax-black transition-colors border-l-2 border-growmax-black"
+              className="flex items-center px-4 sm:px-8 bg-growmax-red text-white font-bold hover:bg-growmax-black transition-colors border-l-2 border-growmax-black whitespace-nowrap"
               data-testid="nav-link-demo"
             >
-              Book a Demo
+              <span className="hidden sm:inline">Book a Demo</span>
+              <span className="sm:hidden">Demo</span>
             </Link>
           </div>
         </div>

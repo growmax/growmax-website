@@ -233,7 +233,7 @@ export default function SparePartsHub() {
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3" data-testid="text-solution-label">
                 Pillar Guide // Spare Parts eCommerce
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8 uppercase" data-testid="text-hero-title">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8 uppercase" data-testid="text-hero-title">
                 The Complete Guide<br />
                 to Spare Parts<br />
                 <span className="text-growmax-red">eCommerce.</span>
@@ -285,11 +285,11 @@ export default function SparePartsHub() {
         </div>
       </section>
 
-      <section className="py-32 bg-growmax-white">
+      <section className="py-16 md:py-32 bg-growmax-white">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center mb-20 max-w-3xl mx-auto">
+          <div className="text-center mb-12 md:mb-20 max-w-3xl mx-auto">
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Types of Businesses</div>
-            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-types-title">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-types-title">
               Who Sells Spare Parts Online?
             </h2>
             <p className="text-xl text-gray-600 font-light border-b-2 border-growmax-black inline-block pb-4">
@@ -299,7 +299,7 @@ export default function SparePartsHub() {
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {sparePartsTypes.map((type, i) => (
-              <div key={i} className="bg-white border-2 border-growmax-black p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300" data-testid={`card-type-${i}`}>
+              <div key={i} className="bg-white border-2 border-growmax-black p-6 md:p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300" data-testid={`card-type-${i}`}>
                 <type.icon className="w-12 h-12 text-growmax-red mb-6" />
                 <h3 className="text-2xl font-bold mb-4 tracking-tight uppercase">{type.title}</h3>
                 <p className="text-gray-600 font-light mb-4">{type.description}</p>
@@ -310,11 +310,11 @@ export default function SparePartsHub() {
         </div>
       </section>
 
-      <section className="py-32 bg-white border-t-2 border-growmax-black">
+      <section className="py-16 md:py-32 bg-white border-t-2 border-growmax-black">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center mb-20 max-w-3xl mx-auto">
+          <div className="text-center mb-12 md:mb-20 max-w-3xl mx-auto">
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Challenges // Solutions</div>
-            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-challenges-title">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-challenges-title">
               How to Sell Spare Parts Online
             </h2>
             <p className="text-xl text-gray-600 font-light border-b-2 border-growmax-black inline-block pb-4">
@@ -324,7 +324,7 @@ export default function SparePartsHub() {
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {challenges.map((challenge, i) => (
-              <div key={i} className="bg-white border-2 border-growmax-black p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300" data-testid={`card-challenge-${i}`}>
+              <div key={i} className="bg-white border-2 border-growmax-black p-6 md:p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300" data-testid={`card-challenge-${i}`}>
                 <challenge.icon className="w-12 h-12 text-growmax-red mb-6" />
                 <h3 className="text-2xl font-bold mb-4 tracking-tight uppercase">{challenge.title}</h3>
                 <div className="space-y-4 text-gray-600 font-light">
@@ -337,12 +337,12 @@ export default function SparePartsHub() {
         </div>
       </section>
 
-      <section className="py-32 bg-growmax-black text-white bg-dots-dark">
+      <section className="py-16 md:py-32 bg-growmax-black text-white bg-dots-dark">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid lg:grid-cols-2 gap-16">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
             <div>
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Inventory Management</div>
-              <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-inventory-title">
+              <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-inventory-title">
                 Spare Parts Inventory Management
               </h2>
               <p className="text-xl text-gray-400 font-light leading-relaxed mb-10">
@@ -361,7 +361,7 @@ export default function SparePartsHub() {
 
             <div>
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Pricing Strategy</div>
-              <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-pricing-title">
+              <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-pricing-title">
                 Spare Parts Pricing Strategies
               </h2>
               <p className="text-xl text-gray-400 font-light leading-relaxed mb-10">
@@ -381,13 +381,13 @@ export default function SparePartsHub() {
         </div>
       </section>
 
-      <section className="py-32 bg-white border-t-2 border-growmax-black">
+      <section className="py-16 md:py-32 bg-white border-t-2 border-growmax-black">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid lg:grid-cols-12 gap-16 items-start">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
             <div className="lg:col-span-5">
               <div className="font-mono text-xs text-growmax-red font-bold uppercase mb-4 tracking-widest border-l-2 border-growmax-red pl-2">Case Study</div>
               <SchwingSttetterLogo size="lg" className="mb-4" />
-              <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-casestudy-title">Equipment Manufacturer Digitizes Spare Parts</h2>
+              <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-casestudy-title">Equipment Manufacturer Digitizes Spare Parts</h2>
               <p className="text-xl text-gray-600 mb-6 font-light leading-relaxed">
                 Schwing Stetter, a global leader in concrete technology, needed to transform how their 200+ dealers ordered spare parts for concrete pumps, batching plants, and transit mixers.
               </p>
@@ -434,11 +434,11 @@ export default function SparePartsHub() {
         </div>
       </section>
 
-      <section className="py-32 bg-growmax-white border-t-2 border-growmax-black">
+      <section className="py-16 md:py-32 bg-growmax-white border-t-2 border-growmax-black">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Content Hub</div>
-            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-blog-hub-title">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-blog-hub-title">
               Spare Parts Intelligence
             </h2>
             <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto">
@@ -446,7 +446,7 @@ export default function SparePartsHub() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {blogLinks.map((post, i) => (
               <Link key={i} href={`/blog/${post.slug}`}>
                 <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full flex flex-col" data-testid={`link-blog-${i}`}>
@@ -462,18 +462,18 @@ export default function SparePartsHub() {
         </div>
       </section>
 
-      <section className="py-32 bg-white border-t-2 border-growmax-black">
+      <section className="py-16 md:py-32 bg-white border-t-2 border-growmax-black">
         <div className="container mx-auto px-4 md:px-8 max-w-4xl">
           <div className="text-center mb-16">
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">FAQ</div>
-            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-faq-title">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-faq-title">
               Frequently Asked Questions
             </h2>
           </div>
 
           <div className="space-y-6">
             {faqItems.map((item, i) => (
-              <div key={i} className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300" data-testid={`card-faq-${i}`}>
+              <div key={i} className="border-2 border-growmax-black p-6 md:p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300" data-testid={`card-faq-${i}`}>
                 <h3 className="text-xl font-bold tracking-tight uppercase mb-4">{item.question}</h3>
                 <p className="text-gray-600 font-light leading-relaxed">{item.answer}</p>
               </div>
@@ -513,11 +513,11 @@ export default function SparePartsHub() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Related</div>
-            <h2 className="text-4xl font-bold tracking-tighter text-growmax-black uppercase mb-4" data-testid="text-related-title">See Also</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tighter text-growmax-black uppercase mb-4" data-testid="text-related-title">See Also</h2>
             <div className="w-16 h-2 bg-growmax-red"></div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8" data-testid="section-related-links">
             <Link href="/industries/industrial-manufacturing">
               <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-industrial-manufacturing">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Industry</div>
@@ -548,9 +548,9 @@ export default function SparePartsHub() {
         </div>
       </section>
 
-      <section className="py-32 bg-growmax-black text-white text-center bg-dots-dark">
+      <section className="py-16 md:py-32 bg-growmax-black text-white text-center bg-dots-dark">
         <div className="container mx-auto px-4">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tighter uppercase leading-[1.1]" data-testid="text-cta-title">
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tighter uppercase leading-[1.1]" data-testid="text-cta-title">
             Ready to capture your<br />spare parts revenue?
           </h2>
           <p className="text-xl text-gray-400 font-light mb-12 max-w-2xl mx-auto">

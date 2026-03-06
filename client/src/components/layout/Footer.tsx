@@ -3,10 +3,10 @@ import BrandLogo from "../ui/BrandLogo";
 
 export default function Footer() {
   return (
-    <footer className="bg-growmax-black text-white py-24 border-t-4 border-growmax-red font-mono text-xs uppercase tracking-widest selection:bg-growmax-red selection:text-white">
+    <footer className="bg-growmax-black text-white py-12 md:py-24 border-t-4 border-growmax-red font-mono text-xs uppercase tracking-widest selection:bg-growmax-red selection:text-white">
       <div className="container mx-auto px-4 md:px-8">
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16 mb-12 md:mb-20">
           
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
@@ -28,7 +28,7 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-12">
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
             <div>
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Solutions</h4>
               <ul className="space-y-4">
@@ -71,7 +71,7 @@ export default function Footer() {
               </ul>
             </div>
             
-            <div className="col-span-2 md:col-span-1">
+            <div className="sm:col-span-2 md:col-span-1">
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Company</h4>
               <ul className="space-y-4">
                 <li><Link href="/company/about" className="hover:text-white transition-colors block">About Us</Link></li>
@@ -84,15 +84,15 @@ export default function Footer() {
           
         </div>
         
-        <div className="pt-8 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] text-gray-500">
+        <div className="pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 text-[10px] text-gray-500">
           <div className="flex items-center gap-4">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-            SYSTEM OPERATIONAL // {new Date().getFullYear()}
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0"></div>
+            <span className="whitespace-nowrap">SYSTEM OPERATIONAL // {new Date().getFullYear()}</span>
           </div>
           
-          <div className="flex gap-8">
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
+          <div className="flex gap-6 sm:gap-8">
+            <Link href="/privacy" className="hover:text-white transition-colors whitespace-nowrap">Privacy Policy</Link>
+            <Link href="/terms-of-service" className="hover:text-white transition-colors whitespace-nowrap">Terms of Service</Link>
           </div>
         </div>
         

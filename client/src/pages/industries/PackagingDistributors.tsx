@@ -132,7 +132,7 @@ export default function PackagingDistributors() {
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6" data-testid="text-page-label">
               Industry Solution // Packaging Distribution
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8" data-testid="text-page-title">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8" data-testid="text-page-title">
               B2B Commerce for<br/>
               Packaging<br/>
               <span className="text-gray-400">Distributors.</span>
@@ -159,7 +159,7 @@ export default function PackagingDistributors() {
             <h2 className="text-3xl font-bold tracking-tight mb-4">Challenges Packaging Distributors Face Every Day</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8" data-testid="section-pain-points">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" data-testid="section-pain-points">
             {painPoints.map((point, i) => (
               <div key={i} className="border border-gray-800 p-8 hover:border-growmax-red transition-colors" data-testid={`card-pain-point-${i}`}>
                 <point.icon className="w-10 h-10 text-growmax-red mb-6" />
@@ -181,7 +181,7 @@ export default function PackagingDistributors() {
             <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Built for Packaging Distribution</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8" data-testid="section-features">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" data-testid="section-features">
             {features.map((feature, i) => (
               <div key={i} className="border-2 border-gray-200 p-8 hover:border-growmax-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all" data-testid={`card-feature-${i}`}>
                 <feature.icon className="w-10 h-10 text-growmax-red mb-6" />

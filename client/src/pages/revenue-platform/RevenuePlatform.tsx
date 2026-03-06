@@ -29,7 +29,7 @@ export default function RevenuePlatform() {
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3">
                 Growmax Enterprise
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8 uppercase" data-testid="text-enterprise-headline">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8 uppercase" data-testid="text-enterprise-headline">
                 Intelligent Revenue<br/>
                 Operations<br/>
                 <span className="text-gray-400">Platform.</span>
@@ -107,7 +107,7 @@ export default function RevenuePlatform() {
       {/* Target Industries & Company Profile */}
       <section className="py-16 bg-growmax-black text-white">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid md:grid-cols-4 gap-0">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-0">
             <div className="border border-white/20 p-6 text-center">
               <div className="font-mono text-growmax-red text-xs uppercase tracking-widest font-bold mb-3">Industries</div>
               <div className="font-mono text-sm">Industrial, Electrical, Construction, Building Materials</div>
@@ -133,12 +133,12 @@ export default function RevenuePlatform() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex flex-col md:flex-row gap-16">
             <div className="md:w-1/3">
-              <h2 className="text-4xl font-bold mb-6 tracking-tighter uppercase">Security & Compliance</h2>
+              <h2 className="text-2xl sm:text-4xl font-bold mb-6 tracking-tighter uppercase">Security & Compliance</h2>
               <p className="font-mono text-sm text-growmax-red uppercase tracking-widest border-l-2 border-growmax-red pl-4">
                 "Your data. Your Control. Always."
               </p>
             </div>
-            <div className="md:w-2/3 grid sm:grid-cols-2 gap-x-12 gap-y-10 border-l border-white/20 pl-8">
+            <div className="md:w-2/3 grid sm:grid-cols-2 gap-x-12 gap-y-10 border-t md:border-t-0 md:border-l border-white/20 pt-8 md:pt-0 md:pl-8">
               <div>
                 <h4 className="font-bold font-mono text-growmax-red mb-2 uppercase text-sm">01. Penetration Testing</h4>
                 <p className="text-gray-400 text-sm leading-relaxed">Aligned with OWASP Top 10 standards. Zero Critical Vulnerabilities post-remediation.</p>
@@ -161,15 +161,15 @@ export default function RevenuePlatform() {
       </section>
 
       {/* The Growmax Enterprise Advantage */}
-      <section className="py-32 bg-growmax-white">
+      <section className="py-16 md:py-32 bg-growmax-white">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center mb-20 max-w-3xl mx-auto">
-            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase">The Enterprise Advantage</h2>
+          <div className="text-center mb-12 md:mb-20 max-w-3xl mx-auto">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase">The Enterprise Advantage</h2>
             <p className="text-xl text-gray-600 font-light border-b-2 border-growmax-black inline-block pb-4">Built for the realities of multi-party revenue operations in manufacturing and distribution.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <div className="bg-white border-2 border-growmax-black p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">
+            <div className="bg-white border-2 border-growmax-black p-6 md:p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">
               <Fingerprint className="w-12 h-12 text-growmax-red mb-6" />
               <h3 className="text-2xl font-bold mb-4 tracking-tight uppercase">Multi-Tier Pricing Engine</h3>
               <div className="space-y-4 text-gray-600 font-light">
@@ -179,7 +179,7 @@ export default function RevenuePlatform() {
               </div>
             </div>
 
-            <div className="bg-white border-2 border-growmax-black p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">
+            <div className="bg-white border-2 border-growmax-black p-6 md:p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">
               <Activity className="w-12 h-12 text-growmax-red mb-6" />
               <h3 className="text-2xl font-bold mb-4 tracking-tight uppercase">Approval Engine</h3>
               <div className="space-y-4 text-gray-600 font-light">
@@ -188,7 +188,7 @@ export default function RevenuePlatform() {
               </div>
             </div>
 
-            <div className="bg-white border-2 border-growmax-black p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">
+            <div className="bg-white border-2 border-growmax-black p-6 md:p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300">
               <Layers className="w-12 h-12 text-growmax-red mb-6" />
               <h3 className="text-2xl font-bold mb-4 tracking-tight uppercase">Multi-warehouse Orchestration</h3>
               <div className="space-y-4 text-gray-600 font-light">
@@ -197,7 +197,7 @@ export default function RevenuePlatform() {
               </div>
             </div>
 
-            <div className="bg-white border-2 border-growmax-black p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 bg-grid-blueprint relative overflow-hidden">
+            <div className="bg-white border-2 border-growmax-black p-6 md:p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 bg-grid-blueprint relative overflow-hidden">
               <div className="absolute top-0 right-0 bg-growmax-red text-white font-mono text-[10px] px-2 py-1 uppercase tracking-widest font-bold">Critical</div>
               <Server className="w-12 h-12 text-growmax-red mb-6 relative z-10" />
               <h3 className="text-2xl font-bold mb-4 tracking-tight uppercase relative z-10 bg-white inline-block pr-2">ERP Grade Integrations</h3>
@@ -220,13 +220,13 @@ export default function RevenuePlatform() {
       </section>
 
       {/* Case Study */}
-      <section className="py-32 bg-white">
+      <section className="py-16 md:py-32 bg-white">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid lg:grid-cols-12 gap-16 items-start">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
             <div className="lg:col-span-5">
               <div className="font-mono text-xs text-growmax-red font-bold uppercase mb-4 tracking-widest border-l-2 border-growmax-red pl-2">Case Study</div>
               <SiemensLogo size="lg" className="mb-4" />
-              <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]">Partner Commerce Platform</h2>
+              <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]">Partner Commerce Platform</h2>
               <p className="text-xl text-gray-600 mb-6 font-light leading-relaxed">
                 Siemens' partner ecosystem prioritized the top 20% of customers driving 80% of revenue, leaving smaller contractors underserved.
               </p>
@@ -311,11 +311,11 @@ export default function RevenuePlatform() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Related</div>
-            <h2 className="text-4xl font-bold tracking-tighter text-growmax-black uppercase mb-4">Explore More</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tighter text-growmax-black uppercase mb-4">Explore More</h2>
             <div className="w-16 h-2 bg-growmax-red"></div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8" data-testid="section-related-links">
             <Link href="/industries/electrical-distributors">
               <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-electrical-industry">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Industry</div>
@@ -346,9 +346,9 @@ export default function RevenuePlatform() {
         </div>
       </section>
 
-      <section className="py-32 bg-growmax-black text-white text-center bg-dots-dark">
+      <section className="py-16 md:py-32 bg-growmax-black text-white text-center bg-dots-dark">
         <div className="container mx-auto px-4">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tighter uppercase leading-[1.1]">Connect your revenue ecosystem.<br/>Without the legacy timelines.</h2>
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold mb-6 tracking-tighter uppercase leading-[1.1]">Connect your revenue ecosystem.<br/>Without the legacy timelines.</h2>
           <Link href="/demo">
             <Button className="mt-12 bg-growmax-red hover:bg-white hover:text-growmax-black text-white h-16 px-12 text-lg rounded-none transition-all duration-300 font-bold tracking-widest uppercase border-2 border-transparent hover:border-growmax-black shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] hover:shadow-none hover:translate-x-2 hover:translate-y-2" data-testid="button-schedule-review">
               Book a Demo

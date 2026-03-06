@@ -367,6 +367,7 @@ export default function Dynamics365Alternatives() {
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             {featureComparison.map((group, gi) => (
               <div key={gi} className="mb-12" data-testid={`section-features-${gi}`}>
@@ -417,6 +418,7 @@ export default function Dynamics365Alternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
@@ -450,7 +452,7 @@ export default function Dynamics365Alternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { step: "01", title: "Audit & Plan", description: "We analyze your current Dynamics 365 Commerce setup, catalog structure, pricing rules, and integration points to create a migration roadmap." },
               { step: "02", title: "Data Migration", description: "Product catalogs, customer accounts, pricing matrices, and order history are migrated to Growmax Enterprise with full data integrity verification." },

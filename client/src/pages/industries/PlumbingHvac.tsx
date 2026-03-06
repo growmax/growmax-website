@@ -135,7 +135,7 @@ export default function PlumbingHvac() {
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3" data-testid="text-industry-label">
                 Industry // Plumbing & HVAC Distribution
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8 uppercase" data-testid="text-hero-title">
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8 uppercase" data-testid="text-hero-title">
                 Revenue Operations<br />
                 for Plumbing & HVAC<br />
                 <span className="text-growmax-red">Distributors.</span>
@@ -203,7 +203,7 @@ export default function PlumbingHvac() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-20 max-w-3xl mx-auto">
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Pain Points // Solutions</div>
-            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-painpoints-title">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase" data-testid="text-painpoints-title">
               We Know Plumbing & HVAC Distribution
             </h2>
             <p className="text-xl text-gray-600 font-light border-b-2 border-growmax-black inline-block pb-4">
@@ -212,7 +212,7 @@ export default function PlumbingHvac() {
           </div>
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {painPoints.map((point, i) => (
-              <div key={i} className="bg-white border-2 border-growmax-black p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300" data-testid={`card-painpoint-${i}`}>
+              <div key={i} className="bg-white border-2 border-growmax-black p-6 md:p-10 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300" data-testid={`card-painpoint-${i}`}>
                 <point.icon className="w-12 h-12 text-growmax-red mb-6" />
                 <h3 className="text-2xl font-bold mb-4 tracking-tight uppercase">{point.title}</h3>
                 <div className="space-y-4 text-gray-600 font-light">
@@ -230,7 +230,7 @@ export default function PlumbingHvac() {
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-5">
               <div className="font-mono text-xs text-growmax-red font-bold uppercase mb-4 tracking-widest border-l-2 border-growmax-red pl-2">Case Study // Regional Distributor</div>
-              <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-casestudy-title">Plumbing & HVAC Distributor Goes Digital</h2>
+              <h2 className="text-3xl sm:text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-casestudy-title">Plumbing & HVAC Distributor Goes Digital</h2>
               <p className="text-xl text-gray-600 mb-6 font-light leading-relaxed">
                 A multi-branch plumbing and HVAC distributor with 18 locations across the Sun Belt needed to digitize their contractor ordering process and streamline will-call operations across their pipe, fittings, and equipment divisions.
               </p>
@@ -239,7 +239,7 @@ export default function PlumbingHvac() {
                   Growmax deployed a connected contractor portal with will-call reservations, multi-branch inventory visibility, and project-based quoting. Contractors now self-serve 65% of repeat orders via the portal and mobile app.
                 </p>
               </div>
-              <div className="flex gap-8 border-t-2 border-growmax-black pt-6">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 border-t-2 border-growmax-black pt-6">
                 <div>
                   <div className="text-4xl font-bold font-mono text-growmax-black" data-testid="text-stat-orders">↑ 35%</div>
                   <div className="text-xs text-gray-500 uppercase tracking-widest mt-1 font-bold">Online Order Volume</div>
@@ -279,14 +279,14 @@ export default function PlumbingHvac() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
             <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Where Our Customers Operate</div>
-            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter mb-6 uppercase" data-testid="text-regional-title">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter mb-6 uppercase" data-testid="text-regional-title">
               Plumbing & HVAC<br/>Across America
             </h2>
             <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto">
               Purpose-built for the plumbing and HVAC distribution markets driving America's construction and retrofit boom.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {regions.map((region, i) => (
               <div key={i} className="border border-gray-700 bg-white/5 p-6 hover:border-growmax-red transition-colors duration-300" data-testid={`card-region-${i}`}>
                 <div className="flex items-center gap-3 mb-3">

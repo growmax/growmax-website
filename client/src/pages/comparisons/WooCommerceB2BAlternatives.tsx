@@ -366,6 +366,7 @@ export default function WooCommerceB2BAlternatives() {
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             {featureComparison.map((group, gi) => (
               <div key={gi} className="mb-12" data-testid={`section-features-${gi}`}>
@@ -416,6 +417,7 @@ export default function WooCommerceB2BAlternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
@@ -449,7 +451,7 @@ export default function WooCommerceB2BAlternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { step: "01", title: "Plugin Audit", description: "We map your WooCommerce plugins to native Growmax ARC features. Most distributors replace 10-15 plugins with built-in Growmax ARC functionality — eliminating complexity and conflicts." },
               { step: "02", title: "Data Migration", description: "Products, categories, images, customer accounts, pricing rules, and order history are migrated via our WooCommerce export tool. Full data validation included." },

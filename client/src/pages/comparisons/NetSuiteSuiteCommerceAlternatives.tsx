@@ -338,6 +338,7 @@ export default function NetSuiteSuiteCommerceAlternatives() {
             <h2 className="text-3xl font-bold tracking-tight mb-4">Feature-by-Feature Comparison</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             {featureComparison.map((group, gi) => (
               <div key={gi} className="mb-12" data-testid={`section-features-${gi}`}>
@@ -385,6 +386,7 @@ export default function NetSuiteSuiteCommerceAlternatives() {
             <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Pricing Comparison</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">

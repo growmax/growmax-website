@@ -343,6 +343,7 @@ export default function HandshakeAlternatives() {
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             {featureComparison.map((group, gi) => (
               <div key={gi} className="mb-12" data-testid={`section-features-${gi}`}>
@@ -393,6 +394,7 @@ export default function HandshakeAlternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
@@ -477,7 +479,7 @@ export default function HandshakeAlternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6" data-testid="section-migration-steps">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" data-testid="section-migration-steps">
             {[
               { step: "01", title: "Export Your Data", description: "Export your Handshake catalog, customer list, pricing, and order history. Our team provides migration templates." },
               { step: "02", title: "Connect Your Accounting", description: "Link Growmax ARC to your Zoho, QuickBooks, or Xero instance. Native connectors handle the heavy lifting — no middleware needed." },

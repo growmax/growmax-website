@@ -101,7 +101,9 @@ export default function CompareNowCommerce() {
               <div className="font-mono text-xs text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-800 pb-2">
                 {group.category}
               </div>
-              <div className="border border-gray-800">
+              <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
+              <div className="overflow-x-auto">
+              <div className="border border-gray-800 min-w-[600px]">
                 <div className="grid grid-cols-3 border-b border-gray-800 bg-gray-900">
                   <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
                   <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800">Growmax ARC</div>
@@ -127,6 +129,7 @@ export default function CompareNowCommerce() {
                   </div>
                 ))}
               </div>
+              </div>
             </div>
           ))}
         </div>
@@ -140,7 +143,9 @@ export default function CompareNowCommerce() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
-          <div className="border border-growmax-black" data-testid="section-pricing-comparison">
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
+          <div className="overflow-x-auto">
+          <div className="border border-growmax-black min-w-[600px]" data-testid="section-pricing-comparison">
             <div className="grid grid-cols-3 border-b border-growmax-black bg-gray-50">
               <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
               <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax ARC</div>
@@ -153,6 +158,7 @@ export default function CompareNowCommerce() {
                 <div className="p-4 font-mono text-sm text-center border-l border-gray-200 text-gray-600">{row.competitor}</div>
               </div>
             ))}
+          </div>
           </div>
         </div>
       </section>

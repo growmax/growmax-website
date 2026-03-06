@@ -26,7 +26,7 @@ export default function Home() {
               Intelligent Revenue Operations
             </div>
             
-            <h1 className="text-6xl md:text-8xl lg:text-[110px] font-bold tracking-tighter text-growmax-black leading-[0.9] mb-8 uppercase" data-testid="text-hero-headline">
+            <h1 className="text-4xl sm:text-6xl md:text-8xl lg:text-[110px] font-bold tracking-tighter text-growmax-black leading-[0.9] mb-8 uppercase" data-testid="text-hero-headline">
               Your Reps<span className="text-growmax-red">.</span> <br/>
               Your Partners<span className="text-growmax-red">.</span> <br/>
               Your Customers<span className="text-growmax-red">.</span>
@@ -298,9 +298,9 @@ export default function Home() {
 
             <div className="lg:col-span-8">
               <div className="border-2 border-white/20">
-                <div className="grid grid-cols-2 bg-white/5 border-b-2 border-white/20 font-mono text-xs font-bold uppercase tracking-widest">
+                <div className="grid grid-cols-1 sm:grid-cols-2 bg-white/5 border-b-2 border-white/20 font-mono text-xs font-bold uppercase tracking-widest">
                   <div className="p-4 text-gray-400">What B2C platforms assume</div>
-                  <div className="p-4 border-l-2 border-white/20 text-white bg-growmax-red/20">What your business needs</div>
+                  <div className="p-4 border-t sm:border-t-0 sm:border-l-2 border-white/20 text-white bg-growmax-red/20">What your business needs</div>
                 </div>
                 
                 {[
@@ -311,9 +311,9 @@ export default function Home() {
                   { b2c: "Simple cart", b2b: "100-line quotes with version control" },
                   { b2c: "Credit card / UPI", b2b: "Net 30/45/60 payment terms" }
                 ].map((row, i) => (
-                  <div key={i} className="grid grid-cols-2 border-b border-white/10 hover:bg-white/5 transition-colors">
+                  <div key={i} className="grid grid-cols-1 sm:grid-cols-2 border-b border-white/10 hover:bg-white/5 transition-colors">
                     <div className="p-4 font-mono text-sm text-gray-500 line-through decoration-gray-700">{row.b2c}</div>
-                    <div className="p-4 font-mono text-sm text-white border-l-2 border-white/20 flex items-center gap-3">
+                    <div className="p-4 font-mono text-sm text-white border-t sm:border-t-0 sm:border-l-2 border-white/20 flex items-center gap-3">
                       <CheckSquare className="w-4 h-4 text-growmax-red shrink-0" /> {row.b2b}
                     </div>
                   </div>
@@ -478,7 +478,7 @@ export default function Home() {
       <section className="py-0 bg-growmax-black text-white border-t-2 border-growmax-red" data-testid="section-architecture-split">
         <div className="flex flex-col md:flex-row">
           
-          <Link href="/revenue-platform" className="w-full md:w-1/2 p-12 md:p-16 border-b border-gray-800 md:border-b-0 md:border-r border-gray-800 hover:bg-growmax-red group transition-colors duration-300 flex flex-col justify-between min-h-[600px]" data-testid="link-enterprise-split">
+          <Link href="/revenue-platform" className="w-full md:w-1/2 p-12 md:p-16 border-b border-gray-800 md:border-b-0 md:border-r border-gray-800 hover:bg-growmax-red group transition-colors duration-300 flex flex-col justify-between min-h-[auto] md:min-h-[600px]" data-testid="link-enterprise-split">
             <div>
               <div className="font-mono text-xs font-bold uppercase tracking-widest mb-6 border border-white/20 inline-block px-3 py-1 group-hover:border-white">Growmax Enterprise</div>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 uppercase">Multi-Party<br/>Revenue Ecosystem</h2>
@@ -510,7 +510,7 @@ export default function Home() {
             </div>
           </Link>
 
-          <Link href="/arc" className="w-full md:w-1/2 p-12 md:p-16 hover:bg-white hover:text-growmax-black group transition-colors duration-300 flex flex-col justify-between min-h-[600px]" data-testid="link-arc-split">
+          <Link href="/arc" className="w-full md:w-1/2 p-12 md:p-16 hover:bg-white hover:text-growmax-black group transition-colors duration-300 flex flex-col justify-between min-h-[auto] md:min-h-[600px]" data-testid="link-arc-split">
             <div>
               <div className="font-mono text-xs font-bold uppercase tracking-widest mb-6 border border-gray-800 inline-block px-3 py-1 group-hover:border-growmax-black">Growmax ARC</div>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 uppercase">All-in-One<br/>Distributor Platform</h2>

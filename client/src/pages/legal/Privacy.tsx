@@ -11,13 +11,13 @@ export default function Privacy() {
       />
       
       {/* Header */}
-      <section className="pt-24 pb-12 border-b border-gray-200 bg-grid-blueprint relative">
+      <section className="pt-16 pb-8 md:pt-24 md:pb-12 border-b border-gray-200 bg-grid-blueprint relative">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         <div className="container mx-auto px-4 md:px-8 max-w-4xl relative z-10">
-          <div className="font-mono text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">
+          <div className="font-mono text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 md:mb-6">
              Legal & Compliance
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-4 uppercase">
+          <h1 className="text-3xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-4 uppercase">
             Privacy Policy
           </h1>
           <div className="font-mono text-sm text-growmax-red uppercase tracking-widest">
@@ -27,11 +27,11 @@ export default function Privacy() {
       </section>
 
       {/* Content */}
-      <section className="py-16">
+      <section className="py-10 md:py-16">
         <div className="container mx-auto px-4 md:px-8 max-w-4xl">
-          <div className="prose max-w-none prose-headings:font-bold prose-headings:tracking-tighter prose-headings:uppercase prose-headings:text-growmax-black prose-p:text-gray-600 prose-p:font-light prose-p:leading-relaxed prose-a:text-growmax-red">
+          <div className="prose prose-sm md:prose-base max-w-none prose-headings:font-bold prose-headings:tracking-tighter prose-headings:uppercase prose-headings:text-growmax-black prose-p:text-gray-600 prose-p:font-light prose-p:leading-relaxed prose-a:text-growmax-red">
             
-            <p className="font-mono text-sm uppercase bg-gray-50 p-4 border border-gray-200 mb-8">
+            <p className="font-mono text-xs md:text-sm uppercase bg-gray-50 p-3 md:p-4 border border-gray-200 mb-6 md:mb-8">
               Webspot Growmax Commerce Private Limited / Growmax LLC ("Growmax", "we", "us", or "our") respects your privacy and is committed to protecting it through our compliance with this policy.
             </p>
 

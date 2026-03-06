@@ -366,6 +366,7 @@ export default function SalesforceCommerceAlternatives() {
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             {featureComparison.map((group, gi) => (
               <div key={gi} className="mb-12" data-testid={`section-features-${gi}`}>
@@ -416,6 +417,7 @@ export default function SalesforceCommerceAlternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
+          <div className="md:hidden font-mono text-xs text-gray-500 mb-2">Scroll to compare →</div>
           <div className="overflow-x-auto">
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
@@ -449,7 +451,7 @@ export default function SalesforceCommerceAlternatives() {
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {[
               { step: "01", title: "Discovery & Audit", description: "We analyze your current Salesforce Commerce setup, catalog structure, pricing rules, customer segments, and integration points to build a complete migration plan." },
               { step: "02", title: "Data Migration", description: "Product catalogs, customer accounts, pricing matrices, order history, and custom fields are migrated to Growmax Enterprise with full data validation and integrity checks." },

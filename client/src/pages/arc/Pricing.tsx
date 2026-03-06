@@ -42,7 +42,7 @@ export default function Pricing() {
           <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6">
              Commercials // ARC
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-growmax-black mb-6 tracking-tighter leading-[1.1]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-growmax-black mb-6 tracking-tighter leading-[1.1]">
             Transparent logic. <br/>No hidden fees.
           </h1>
           <p className="text-xl text-gray-600 font-light">
@@ -60,12 +60,12 @@ export default function Pricing() {
             </div>
             
             {/* Left/Pricing Section */}
-            <div className="md:w-2/5 p-10 md:p-16 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50">
+            <div className="md:w-2/5 p-6 md:p-16 flex flex-col justify-center border-b md:border-b-0 md:border-r border-gray-200 bg-gray-50">
               <h2 className="text-2xl font-bold tracking-tighter text-growmax-black mb-2">Growmax ARC</h2>
               <p className="text-sm font-mono text-gray-500 uppercase mb-8 border-b border-gray-200 pb-4">Base Platform</p>
               
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-6xl font-bold tracking-tighter text-growmax-black">$199</span>
+                <span className="text-5xl sm:text-6xl font-bold tracking-tighter text-growmax-black">$199</span>
                 <span className="text-gray-500 font-mono text-sm uppercase">/mo</span>
               </div>
               <p className="text-xs text-gray-500 font-mono mb-10 uppercase tracking-wide">Billed monthly or annually</p>
@@ -77,7 +77,7 @@ export default function Pricing() {
             </div>
             
             {/* Right/Features Section */}
-            <div className="md:w-3/5 p-10 md:p-16">
+            <div className="md:w-3/5 p-6 md:p-16">
               <div className="font-mono text-xs text-growmax-red uppercase mb-6 tracking-widest font-bold">System Capabilities</div>
               
               <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4 font-mono text-sm text-gray-700">

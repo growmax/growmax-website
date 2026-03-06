@@ -41,18 +41,18 @@ export default function WriteForUs() {
         path="/write-for-us"
       />
 
-      <section className="pt-24 pb-16 border-b border-gray-200 bg-grid-blueprint relative">
+      <section className="pt-16 pb-10 md:pt-24 md:pb-16 border-b border-gray-200 bg-grid-blueprint relative">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         <div className="container mx-auto px-4 md:px-8 max-w-5xl relative z-10">
           <Breadcrumbs items={[{ label: "Write For Us" }]} />
-          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3 mt-8">
+          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4 md:mb-6 border-l-2 border-growmax-red pl-3 mt-6 md:mt-8">
             Contributors // Guest Authors
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8" data-testid="text-write-for-us-title">
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-6 md:mb-8" data-testid="text-write-for-us-title">
             Write for <br />
             <span className="text-gray-400">Growmax Intelligence.</span>
           </h1>
-          <p className="text-xl text-gray-600 font-light leading-relaxed max-w-2xl mb-12" data-testid="text-write-for-us-intro">
+          <p className="text-lg md:text-xl text-gray-600 font-light leading-relaxed max-w-2xl mb-8 md:mb-12" data-testid="text-write-for-us-intro">
             We publish technical papers, industry analyses, and practical guides for B2B commerce leaders.
             If you have expertise in industrial distribution, supply chain, or B2B technology — we want to hear from you.
           </p>
@@ -64,14 +64,14 @@ export default function WriteForUs() {
         </div>
       </section>
 
-      <section className="py-20 bg-white border-b border-gray-200">
+      <section className="py-12 md:py-20 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
-          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-8">
+          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 md:mb-8">
             Why Contribute
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {benefits.map((b, i) => (
-              <div key={i} className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all" data-testid={`card-benefit-${i}`}>
+              <div key={i} className="border-2 border-growmax-black p-6 md:p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all" data-testid={`card-benefit-${i}`}>
                 <div className="w-12 h-12 bg-growmax-red flex items-center justify-center mb-6">
                   <b.icon className="w-6 h-6 text-white" />
                 </div>
@@ -83,9 +83,9 @@ export default function WriteForUs() {
         </div>
       </section>
 
-      <section className="py-20 bg-gray-50 border-b border-gray-200">
+      <section className="py-12 md:py-20 bg-gray-50 border-b border-gray-200">
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
-          <div className="grid md:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
             <div>
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-8">
                 Topics We Cover
@@ -117,12 +117,12 @@ export default function WriteForUs() {
         </div>
       </section>
 
-      <section className="py-20 bg-white border-b border-gray-200">
+      <section className="py-12 md:py-20 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
-          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-8">
+          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 md:mb-8">
             How It Works
           </div>
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {[
               { step: "01", title: "Pitch", desc: "Email your topic idea with a brief outline and your background." },
               { step: "02", title: "Approval", desc: "Our editorial team reviews within 3 business days." },
@@ -139,12 +139,12 @@ export default function WriteForUs() {
         </div>
       </section>
 
-      <section className="py-24 bg-growmax-black text-white bg-dots-dark">
+      <section className="py-16 md:py-24 bg-growmax-black text-white bg-dots-dark">
         <div className="container mx-auto px-4 md:px-8 max-w-4xl text-center">
-          <div className="w-16 h-16 bg-growmax-red flex items-center justify-center mx-auto mb-8 border border-white/20">
-            <FileText className="w-8 h-8 text-white" />
+          <div className="w-14 h-14 md:w-16 md:h-16 bg-growmax-red flex items-center justify-center mx-auto mb-6 md:mb-8 border border-white/20">
+            <FileText className="w-7 h-7 md:w-8 md:h-8 text-white" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tighter mb-6 uppercase" data-testid="text-cta-heading">
+          <h2 className="text-2xl md:text-4xl font-bold tracking-tighter mb-4 md:mb-6 uppercase" data-testid="text-cta-heading">
             Ready to share your expertise?
           </h2>
           <p className="text-gray-400 font-light mb-10 max-w-lg mx-auto">
