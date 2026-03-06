@@ -72,7 +72,7 @@ async function prefetchData(
       }
     }
   } catch (error) {
-    console.error("SSR prefetch error:", error);
+    console.error("SSR prefetch error for", url, ":", error);
   }
   return undefined;
 }

@@ -65,6 +65,7 @@ export function render(url: string, initialData?: Record<string, any>): RenderRe
       queries: {
         retry: false,
         staleTime: Infinity,
+        queryFn: () => Promise.resolve(null),
       },
     },
   });
