@@ -36,6 +36,9 @@ import AutomotiveAftermarket from "@/pages/industries/AutomotiveAftermarket";
 // Solution Pages
 import SparePartsHub from "@/pages/solutions/SparePartsHub";
 
+// Content Pages
+import WriteForUs from "@/pages/WriteForUs";
+
 // Legal Pages
 import Privacy from "@/pages/legal/Privacy";
 import Terms from "@/pages/legal/Terms";
@@ -85,6 +88,7 @@ function Router() {
               
               <Route path="/blog" component={BlogList} />
               <Route path="/blog/:slug" component={BlogPost} />
+              <Route path="/write-for-us" component={WriteForUs} />
 
               <Route path="/privacy" component={Privacy} />
               <Route path="/terms-of-service" component={Terms} />

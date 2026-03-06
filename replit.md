@@ -35,7 +35,8 @@ Professional corporate website for Growmax LLC (Apptino Software Private Limited
 - `client/src/pages/Demo.tsx` — Demo request form (functional, saves to DB) + ContactPage schema
 - `client/src/pages/company/About.tsx` — About/Team page + AboutPage schema
 - `client/src/pages/blog/BlogList.tsx` — Blog index fetching from /api/blog, category filters, search
-- `client/src/pages/blog/BlogPost.tsx` — Blog post detail page fetching from /api/blog/:slug + Article schema
+- `client/src/pages/blog/BlogPost.tsx` — Blog post detail page fetching from /api/blog/:slug + Article schema + Related Articles component
+- `client/src/pages/WriteForUs.tsx` — Write For Us / guest contributor page
 - `client/src/pages/admin/AdminLogin.tsx` — Admin login (password-only, brutalist design)
 - `client/src/pages/admin/AdminDashboard.tsx` — Admin dashboard (post list, search, filter, delete, publish toggle)
 - `client/src/pages/admin/AdminPostEditor.tsx` — Admin post editor (create/edit, sections editor, preview modal)
@@ -80,7 +81,8 @@ Professional corporate website for Growmax LLC (Apptino Software Private Limited
 - `/admin` — Admin dashboard (blog post management)
 - `/admin/posts/new` — Create new blog post
 - `/admin/posts/:id/edit` — Edit existing blog post
-- `/sitemap.xml` — Dynamic XML sitemap (63 URLs, pulls blog slugs from DB)
+- `/write-for-us` — Guest contributor guidelines (636 clicks, 2nd highest traffic page)
+- `/sitemap.xml` — Dynamic XML sitemap (124 URLs, pulls blog slugs from DB)
 - `/robots.txt` — Crawler directives (server-generated)
 
 ## API Endpoints
@@ -109,17 +111,21 @@ Professional corporate website for Growmax LLC (Apptino Software Private Limited
 - Admin UI at /admin with brutalist design matching the site
 - Dashboard: search/filter posts, view published status, create/edit/delete
 - Post editor: title, slug (auto-generated), category dropdown, sections editor (add/remove), HTML content, preview modal, published toggle
-- 43 posts seeded from legacy data, 95 old URL redirects configured
+- 103 total posts: 43 new SEO-optimized posts + 60 restored high-traffic legacy posts
+- 35 remaining 301 redirects (thin/duplicate content only)
+- 60 old posts restored at original URLs with content answering original search intent + CTA linking to related new posts
 - Blog frontend reads from API with react-query (loading states, error handling)
 - Dynamic sitemap pulls published post slugs from DB
 
 ## SEO Infrastructure
 - **Meta Tags**: react-helmet-async with reusable SEOHead component on every page (including 404)
 - **Structured Data**: JSON-LD for Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage
-- **Sitemap**: Dynamic XML sitemap at /sitemap.xml covering 63 URLs (DB-driven blog slugs)
+- **Sitemap**: Dynamic XML sitemap at /sitemap.xml covering 124 URLs (22 static + 103 blog posts, DB-driven)
 - **Robots.txt**: Allows all crawlers, points to sitemap at https://www.growmax.io/sitemap.xml
 - **Breadcrumbs**: Monospace uppercase breadcrumbs on all interior pages
-- **301 Redirects**: 95 old blog URLs mapped to new paths via blog_redirects table
+- **301 Redirects**: 35 remaining old blog URLs mapped to new paths (thin/duplicate content only); 60 high-traffic URLs restored as real content
+- **Related Articles**: Automatic related article cards on every blog post (uses relatedSlugs or falls back to same-category posts)
+- **Topic Clusters**: Old informational posts (top-of-funnel) link to new commercial posts (bottom-of-funnel) via CTAs
 - **Base URL**: https://www.growmax.io (consistent across sitemap and meta tags)
 
 ## Navigation

@@ -6,6 +6,13 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import { articleSchema } from "@/lib/structuredData";
 
+interface RelatedPostSummary {
+  slug: string;
+  title: string;
+  category: string;
+  excerpt: string;
+}
+
 interface BlogPostSection {
   heading: string;
   headingId: string;
@@ -91,6 +98,60 @@ function SidebarCTA() {
         </Button>
       </Link>
     </div>
+  );
+}
+
+function RelatedArticles({ relatedSlugs, currentSlug }: { relatedSlugs: string[]; currentSlug: string }) {
+  const validSlugs = relatedSlugs.filter(s => !/^\d+$/.test(s) && s !== currentSlug);
+  
+  const { data: allPosts = [] } = useQuery<RelatedPostSummary[]>({
+    queryKey: ["/api/blog"],
+  });
+
+  if (validSlugs.length === 0 && allPosts.length === 0) return null;
+
+  let related = allPosts.filter(p => validSlugs.includes(p.slug));
+  
+  if (related.length === 0 && allPosts.length > 0) {
+    const currentPost = allPosts.find(p => p.slug === currentSlug);
+    if (currentPost) {
+      related = allPosts
+        .filter(p => p.slug !== currentSlug && p.category === currentPost.category)
+        .slice(0, 3);
+    }
+  }
+
+  if (related.length === 0) return null;
+
+  return (
+    <section className="py-16 border-t-2 border-growmax-black bg-gray-50">
+      <div className="container mx-auto px-4 md:px-8 max-w-4xl">
+        <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-8 border-l-2 border-growmax-red pl-3">
+          Related Documentation
+        </div>
+        <div className="grid md:grid-cols-3 gap-6">
+          {related.slice(0, 3).map((r) => (
+            <Link
+              key={r.slug}
+              href={`/blog/${r.slug}`}
+              className="group border-2 border-growmax-black p-6 bg-white hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all block"
+              data-testid={`link-related-${r.slug}`}
+            >
+              <span className="font-mono text-[10px] uppercase tracking-widest text-gray-400 bg-gray-100 px-2 py-0.5 border border-gray-200">
+                {r.category}
+              </span>
+              <h4 className="text-sm font-bold text-growmax-black mt-3 mb-2 leading-tight group-hover:text-growmax-red transition-colors line-clamp-2">
+                {r.title}
+              </h4>
+              <p className="text-xs text-gray-500 font-light line-clamp-2">{r.excerpt}</p>
+              <div className="flex items-center gap-1 mt-3 text-growmax-red font-mono text-[10px] uppercase tracking-widest">
+                Read <ArrowRight className="w-3 h-3" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -268,6 +329,7 @@ export default function BlogPost() {
       </article>
 
       <ArticleBody post={post} />
+      <RelatedArticles relatedSlugs={post.relatedSlugs || []} currentSlug={post.slug} />
     </div>
   );
 }
