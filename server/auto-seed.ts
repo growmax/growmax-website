@@ -234,31 +234,50 @@ export async function syncMissingPosts(): Promise<void> {
       }
     }
 
-    let synced = 0;
+    let inserted = 0;
+    let updated = 0;
     for (const post of csvImportedPosts) {
       try {
-        await db.insert(blogPosts).values({
-          slug: post.slug,
-          title: post.title,
-          category: post.category,
-          date: post.date,
-          author: post.author,
-          authorTeam: post.authorTeam,
-          readTime: post.readTime,
-          excerpt: post.excerpt,
-          sections: post.sections,
-          relatedSlugs: post.relatedSlugs || [],
-          published: true,
-          legacyUrl: null,
-        }).onConflictDoNothing();
-        synced++;
+        const existing = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, post.slug));
+
+        const dateVal = post.date ? new Date(post.date) : new Date();
+        const createdAt = isNaN(dateVal.getTime()) ? new Date() : dateVal;
+
+        if (existing.length === 0) {
+          await db.insert(blogPosts).values({
+            slug: post.slug,
+            title: post.title,
+            category: post.category,
+            date: post.date,
+            author: post.author,
+            authorTeam: post.authorTeam,
+            readTime: post.readTime,
+            excerpt: post.excerpt,
+            sections: post.sections,
+            relatedSlugs: post.relatedSlugs || [],
+            published: true,
+            legacyUrl: null,
+            createdAt,
+          });
+          inserted++;
+        } else {
+          await db.update(blogPosts)
+            .set({
+              sections: post.sections,
+              excerpt: post.excerpt,
+              relatedSlugs: post.relatedSlugs || [],
+              createdAt,
+            })
+            .where(eq(blogPosts.id, existing[0].id));
+          updated++;
+        }
       } catch (err: any) {
         if (!err.message?.includes("unique") && !err.message?.includes("duplicate")) {
           console.error(`[sync] Failed to sync "${post.slug}":`, err.message);
         }
       }
     }
-    console.log(`[sync] Synced ${synced} CSV-imported posts (new ones inserted, existing skipped)`);
+    console.log(`[sync] Synced posts: ${inserted} inserted, ${updated} updated with enhanced content`);
   } catch (error) {
     console.error("[sync] Failed:", error);
   }
