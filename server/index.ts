@@ -4,7 +4,7 @@ import connectPgSimple from "connect-pg-simple";
 import { pool } from "./db";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
-import { autoSeedIfEmpty } from "./auto-seed";
+import { autoSeedIfEmpty, syncMissingPosts } from "./auto-seed";
 import { createServer } from "http";
 
 declare module "express-session" {
@@ -111,6 +111,7 @@ app.use((req, res, next) => {
   });
 
   await autoSeedIfEmpty();
+  await syncMissingPosts();
 
   if (process.env.NODE_ENV === "production") {
     await serveStatic(app);

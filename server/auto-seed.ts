@@ -6,7 +6,8 @@ import { batch2Posts } from "../scripts/old-blog-batch-2";
 import { batch3Posts } from "../scripts/old-blog-batch-3";
 import { batch4Posts } from "../scripts/old-blog-batch-4";
 import { listiclePosts } from "../scripts/listicle-data";
-import { sql } from "drizzle-orm";
+import { csvImportedPosts } from "../scripts/csv-imported-posts";
+import { sql, eq, and, jsonb } from "drizzle-orm";
 
 const oldToNewRedirects: Record<string, string> = {
   "/blog/how-to-boost-spare-parts-sales": "/blog/spare-parts-ecommerce-self-service-portal",
@@ -211,5 +212,54 @@ export async function autoSeedIfEmpty(): Promise<void> {
     console.log(`[auto-seed] Inserted ${redirectsInserted} redirects`);
   } catch (error) {
     console.error("[auto-seed] Failed:", error);
+  }
+}
+
+const emptySlugsToRemove = [
+  "digital-enabled-fmcg-wholesale-self-ordering-apps",
+  "sales-order-booking-app-zoho-inventory",
+  "integrating-third-party-apps-sap-ecc",
+];
+
+export async function syncMissingPosts(): Promise<void> {
+  try {
+    for (const slug of emptySlugsToRemove) {
+      const existing = await db.select({ id: blogPosts.id, sections: blogPosts.sections }).from(blogPosts).where(eq(blogPosts.slug, slug));
+      if (existing.length > 0) {
+        const sections = existing[0].sections as any[] | null;
+        if (!sections || sections.length === 0) {
+          await db.delete(blogPosts).where(eq(blogPosts.slug, slug));
+          console.log(`[sync] Removed empty post: ${slug}`);
+        }
+      }
+    }
+
+    let synced = 0;
+    for (const post of csvImportedPosts) {
+      try {
+        await db.insert(blogPosts).values({
+          slug: post.slug,
+          title: post.title,
+          category: post.category,
+          date: post.date,
+          author: post.author,
+          authorTeam: post.authorTeam,
+          readTime: post.readTime,
+          excerpt: post.excerpt,
+          sections: post.sections,
+          relatedSlugs: post.relatedSlugs || [],
+          published: true,
+          legacyUrl: null,
+        }).onConflictDoNothing();
+        synced++;
+      } catch (err: any) {
+        if (!err.message?.includes("unique") && !err.message?.includes("duplicate")) {
+          console.error(`[sync] Failed to sync "${post.slug}":`, err.message);
+        }
+      }
+    }
+    console.log(`[sync] Synced ${synced} CSV-imported posts (new ones inserted, existing skipped)`);
+  } catch (error) {
+    console.error("[sync] Failed:", error);
   }
 }
