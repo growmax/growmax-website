@@ -3,6 +3,7 @@ import { ArrowRight, Server, Box, GitMerge, Activity, CheckSquare, Maximize, Ale
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { organizationSchema } from "@/lib/structuredData";
+import { SiemensLogo, SchwingSttetterLogo, OBOBettermannLogo } from "@/components/ui/ClientLogos";
 
 export default function Home() {
   return (
@@ -73,19 +74,22 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-12">
             {[
-              { name: "Siemens", label: "Partner Commerce" },
-              { name: "Schwing Stetter", label: "Spares Portal" },
-              { name: "OBO Bettermann", label: "Dealer Portal" },
+              { logo: <SiemensLogo className="h-8 md:h-10 w-auto" />, logoLight: <SiemensLogo className="h-8 md:h-10 w-auto" variant="light" />, label: "Partner Commerce" },
+              { logo: <SchwingSttetterLogo className="h-10 md:h-12 w-auto" />, logoLight: <SchwingSttetterLogo className="h-10 md:h-12 w-auto" variant="light" />, label: "Spares Portal" },
+              { logo: <OBOBettermannLogo className="h-8 md:h-10 w-auto" />, logoLight: <OBOBettermannLogo className="h-8 md:h-10 w-auto" variant="light" />, label: "Dealer Portal" },
             ].map((partner, i) => (
               <div
                 key={i}
-                className="border-2 border-growmax-black p-6 md:p-8 flex flex-col items-center justify-center text-center hover:bg-growmax-black hover:text-white group transition-colors"
+                className="border-2 border-growmax-black p-6 md:p-8 flex flex-col items-center justify-center text-center hover:bg-growmax-black group transition-colors"
                 data-testid={`partner-logo-${i}`}
               >
-                <span className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tighter uppercase leading-tight">
-                  {partner.name}
-                </span>
-                <span className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mt-2">
+                <div className="group-hover:hidden">
+                  {partner.logo}
+                </div>
+                <div className="hidden group-hover:block">
+                  {partner.logoLight}
+                </div>
+                <span className="font-mono text-[10px] md:text-xs uppercase tracking-widest text-gray-500 group-hover:text-gray-400 mt-3">
                   {partner.label}
                 </span>
               </div>
@@ -256,7 +260,7 @@ export default function Home() {
             <div className="border-2 border-growmax-black p-8 md:p-12 flex flex-col lg:flex-row gap-12 items-start hover:bg-gray-50 transition-colors">
               <div className="lg:w-1/3">
                 <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Case Study 01</div>
-                <h3 className="text-4xl font-bold tracking-tighter mb-2">Siemens</h3>
+                <SiemensLogo className="h-8 w-auto mb-2" />
                 <p className="font-mono text-sm text-gray-500 uppercase">Partner Commerce Platform</p>
               </div>
               <div className="lg:w-2/3 grid md:grid-cols-2 gap-8">
@@ -285,7 +289,7 @@ export default function Home() {
             <div className="border-2 border-growmax-black p-8 md:p-12 flex flex-col lg:flex-row gap-12 items-start hover:bg-gray-50 transition-colors">
               <div className="lg:w-1/3">
                 <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Case Study 02</div>
-                <h3 className="text-4xl font-bold tracking-tighter mb-2">Schwing Stetter</h3>
+                <SchwingSttetterLogo className="h-10 w-auto mb-2" />
                 <p className="font-mono text-sm text-gray-500 uppercase">Spares Portal</p>
               </div>
               <div className="lg:w-2/3 grid md:grid-cols-2 gap-8">

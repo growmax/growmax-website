@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { ArrowRight, Wrench, DollarSign, Package, TrendingUp, Search, ShieldCheck, CheckSquare, BarChart3, Layers, Cog, Truck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { SchwingSttetterLogo } from "@/components/ui/ClientLogos";
 import SEOHead from "@/components/SEOHead";
 import { webPageSchema } from "@/lib/structuredData";
 
@@ -384,7 +385,8 @@ export default function SparePartsHub() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-5">
-              <div className="font-mono text-xs text-growmax-red font-bold uppercase mb-4 tracking-widest border-l-2 border-growmax-red pl-2">Case Study // Schwing Stetter</div>
+              <div className="font-mono text-xs text-growmax-red font-bold uppercase mb-4 tracking-widest border-l-2 border-growmax-red pl-2">Case Study</div>
+              <SchwingSttetterLogo className="h-10 w-auto mb-4" />
               <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-casestudy-title">Equipment Manufacturer Digitizes Spare Parts</h2>
               <p className="text-xl text-gray-600 mb-6 font-light leading-relaxed">
                 Schwing Stetter, a global leader in concrete technology, needed to transform how their 200+ dealers ordered spare parts for concrete pumps, batching plants, and transit mixers.
