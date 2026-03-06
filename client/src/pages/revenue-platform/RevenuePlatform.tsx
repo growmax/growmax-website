@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { ArrowRight, Server, Box, Fingerprint, Activity, Layers, CheckSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
+import { softwareApplicationSchema } from "@/lib/structuredData";
 
 export default function RevenuePlatform() {
   return (
@@ -10,6 +11,12 @@ export default function RevenuePlatform() {
         title="Enterprise B2B Commerce Platform | SAP & ERP Integration | Growmax"
         description="Enterprise-grade B2B commerce platform with native SAP JCo integration, multi-tier pricing engine, approval workflows, and multi-warehouse orchestration. Deploy in 8-12 weeks."
         path="/revenue-platform"
+        structuredData={softwareApplicationSchema({
+          name: "Growmax Revenue Platform",
+          description: "Enterprise-grade B2B commerce platform with native SAP JCo integration, multi-tier pricing engine, approval workflows, and multi-warehouse orchestration.",
+          path: "/revenue-platform",
+          category: "BusinessApplication",
+        })}
       />
       {/* Hero Section - Swiss Style / Editorial */}
       <section className="pt-24 pb-24 border-b border-gray-200 bg-grid-blueprint relative overflow-hidden">

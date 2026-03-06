@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { ArrowRight, Smartphone, Database, Zap, Cpu, Server, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
+import { softwareApplicationSchema } from "@/lib/structuredData";
 
 export default function Arc() {
   return (
@@ -10,6 +11,12 @@ export default function Arc() {
         title="Growmax ARC | B2B Ordering Platform for Distributors | Zoho Integration"
         description="Growmax ARC is the connected distributor platform. Branded ordering portal, mobile field sales app, real-time inventory visibility, and native Zoho integration. Starting at $199/mo."
         path="/arc"
+        structuredData={softwareApplicationSchema({
+          name: "Growmax ARC",
+          description: "The connected distributor platform. Branded ordering portal, mobile field sales app, real-time inventory visibility, and native Zoho integration.",
+          path: "/arc",
+          offers: { price: "199", priceCurrency: "USD", billingPeriod: "Monthly" },
+        })}
       />
       {/* Hero Section */}
       <section className="pt-32 pb-24 border-b border-gray-200 bg-grid-pattern relative">

@@ -2,6 +2,7 @@ import { Check, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
+import { productOfferSchema } from "@/lib/structuredData";
 
 export default function Pricing() {
   return (
@@ -10,6 +11,23 @@ export default function Pricing() {
         title="Growmax ARC Pricing | $199/month B2B Commerce Platform"
         description="Growmax ARC starts at $199/month with 5 user seats, inventory engine, sales rep app, customer portal, and native Zoho integration. No hidden fees, 14-day free trial."
         path="/arc/pricing"
+        structuredData={productOfferSchema({
+          name: "Growmax ARC - B2B Commerce Platform",
+          description: "Connected distributor platform with inventory engine, sales rep app, customer portal, catalog management, and native Zoho integration. 5 user seats included.",
+          path: "/arc/pricing",
+          price: "199",
+          features: [
+            "5 User Seats Included",
+            "Inventory Engine",
+            "Sales Rep App (iOS/Android)",
+            "Customer Ordering Portal",
+            "Catalog Management",
+            "Order Tracking Logic",
+            "Native Zoho Integration",
+            "Reporting Dashboards",
+            "Standard Support SLA",
+          ],
+        })}
       />
       {/* Hero */}
       <section className="pt-32 pb-24 border-b border-gray-200 bg-grid-pattern relative">

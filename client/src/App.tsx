@@ -26,6 +26,8 @@ import CompareEnterprise from "@/pages/revenue-platform/CompareEnterprise";
 
 // Industry Pages
 import ElectricalDistributors from "@/pages/industries/ElectricalDistributors";
+import BuildingMaterials from "@/pages/industries/BuildingMaterials";
+import IndustrialManufacturing from "@/pages/industries/IndustrialManufacturing";
 
 // Legal Pages
 import Privacy from "@/pages/legal/Privacy";
@@ -49,6 +51,8 @@ function Router() {
           <Route path="/arc/compare/pepperi" component={ComparePepperi} />
           
           <Route path="/industries/electrical-distributors" component={ElectricalDistributors} />
+          <Route path="/industries/building-materials" component={BuildingMaterials} />
+          <Route path="/industries/industrial-manufacturing" component={IndustrialManufacturing} />
           
           <Route path="/demo" component={Demo} />
           <Route path="/company/about" component={About} />

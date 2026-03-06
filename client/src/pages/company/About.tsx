@@ -3,6 +3,7 @@ import { ArrowRight, Activity, ShieldCheck, Database, GitMerge, Settings } from 
 import { Button } from "@/components/ui/button";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
+import { aboutPageSchema } from "@/lib/structuredData";
 
 export default function About() {
   return (
@@ -11,6 +12,7 @@ export default function About() {
         title="About Growmax | B2B Commerce for Industrial Distributors"
         description="Growmax delivers connected B2B commerce platforms for industrial distributors and manufacturers. Founded by ex-Siemens and ex-SAP leaders with 25+ years of industry experience."
         path="/company/about"
+        structuredData={aboutPageSchema()}
       />
       
       {/* Hero Section */}

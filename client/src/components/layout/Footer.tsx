@@ -47,6 +47,8 @@ export default function Footer() {
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Industries</h4>
               <ul className="space-y-4 text-gray-400">
                 <li><Link href="/industries/electrical-distributors" className="hover:text-white transition-colors block">Electrical Distributors</Link></li>
+                <li><Link href="/industries/building-materials" className="hover:text-white transition-colors block">Building Materials</Link></li>
+                <li><Link href="/industries/industrial-manufacturing" className="hover:text-white transition-colors block">Industrial Manufacturing</Link></li>
               </ul>
             </div>
             

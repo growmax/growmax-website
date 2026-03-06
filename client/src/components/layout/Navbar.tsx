@@ -38,6 +38,8 @@ const navDropdowns: NavDropdown[] = [
     label: "Industries",
     items: [
       { label: "Electrical Distributors", href: "/industries/electrical-distributors" },
+      { label: "Building Materials", href: "/industries/building-materials" },
+      { label: "Industrial Manufacturing", href: "/industries/industrial-manufacturing" },
     ],
   },
   {
@@ -201,7 +203,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 z-50 w-full bg-growmax-white border-b-2 border-growmax-black font-mono text-sm uppercase tracking-widest mix-blend-difference bg-white/90 backdrop-blur-sm">
+      <header className="fixed top-0 z-50 w-full bg-white/95 border-b-2 border-growmax-black font-mono text-sm uppercase tracking-widest backdrop-blur-sm">
         <div className="flex items-stretch h-16 w-full">
           <Link href="/" className="flex items-center px-6 border-r-2 border-growmax-black bg-growmax-black text-white hover:bg-growmax-red transition-colors duration-0 shrink-0">
             <BrandLogo variant="horizontal" dark className="scale-90 origin-left" />

@@ -81,6 +81,106 @@ export function webPageSchema({
   };
 }
 
+export function softwareApplicationSchema({
+  name,
+  description,
+  path,
+  operatingSystem = "Web, iOS, Android",
+  category = "BusinessApplication",
+  offers,
+}: {
+  name: string;
+  description: string;
+  path: string;
+  operatingSystem?: string;
+  category?: string;
+  offers?: { price: string; priceCurrency: string; billingPeriod?: string };
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name,
+    description,
+    url: `${BASE_URL}${path}`,
+    applicationCategory: category,
+    operatingSystem,
+    ...(offers
+      ? {
+          offers: {
+            "@type": "Offer",
+            price: offers.price,
+            priceCurrency: offers.priceCurrency,
+            ...(offers.billingPeriod ? { billingPeriod: offers.billingPeriod } : {}),
+          },
+        }
+      : {}),
+    publisher: {
+      "@type": "Organization",
+      name: "Growmax",
+      logo: {
+        "@type": "ImageObject",
+        url: `${BASE_URL}/logo.png`,
+      },
+    },
+  };
+}
+
+export function productOfferSchema({
+  name,
+  description,
+  path,
+  price,
+  priceCurrency = "USD",
+  features,
+}: {
+  name: string;
+  description: string;
+  path: string;
+  price: string;
+  priceCurrency?: string;
+  features?: string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    description,
+    url: `${BASE_URL}${path}`,
+    brand: {
+      "@type": "Organization",
+      name: "Growmax",
+    },
+    offers: {
+      "@type": "Offer",
+      price,
+      priceCurrency,
+      priceValidUntil: "2026-12-31",
+      availability: "https://schema.org/InStock",
+      url: `${BASE_URL}${path}`,
+    },
+    ...(features && features.length > 0
+      ? {
+          additionalProperty: features.map((f) => ({
+            "@type": "PropertyValue",
+            name: f,
+          })),
+        }
+      : {}),
+  };
+}
+
+export function aboutPageSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "About Growmax | B2B Commerce for Industrial Distributors",
+    description:
+      "Growmax delivers connected B2B commerce platforms for industrial distributors and manufacturers. Founded by ex-Siemens and ex-SAP leaders with 25+ years of industry experience.",
+    url: `${BASE_URL}/company/about`,
+    mainEntity: organizationSchema(),
+  };
+}
+
 export function contactPageSchema() {
   return {
     "@context": "https://schema.org",

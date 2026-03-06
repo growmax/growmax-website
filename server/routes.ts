@@ -14,6 +14,8 @@ const staticPages = [
   { path: "/arc/compare/b2b-wave", changefreq: "monthly", priority: "0.7" },
   { path: "/arc/compare/pepperi", changefreq: "monthly", priority: "0.7" },
   { path: "/industries/electrical-distributors", changefreq: "monthly", priority: "0.8" },
+  { path: "/industries/industrial-manufacturing", changefreq: "monthly", priority: "0.8" },
+  { path: "/industries/building-materials", changefreq: "monthly", priority: "0.8" },
   { path: "/demo", changefreq: "monthly", priority: "0.9" },
   { path: "/company/about", changefreq: "monthly", priority: "0.6" },
   { path: "/blog", changefreq: "daily", priority: "0.8" },
