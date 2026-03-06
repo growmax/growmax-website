@@ -7,7 +7,7 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 
 ## Architecture
 - **Frontend**: React 19 + Vite + Wouter (routing) + Tailwind CSS v4 + shadcn/ui components + react-helmet-async (SEO meta tags)
-- **Backend**: Express.js API server with express-session for admin auth
+- **Backend**: Express.js API server with express-session (connect-pg-simple PostgreSQL store) for admin auth
 - **Database**: PostgreSQL via Drizzle ORM (Neon serverless driver)
 - **SSR**: Full server-side rendering for SEO/AEO crawlability
   - `client/src/entry-server.tsx` — SSR render function using `renderToString`, extracts head tags (title, meta, canonical, JSON-LD) from rendered HTML via regex (React 19 workaround since react-helmet-async v3 HelmetProvider ignores context with React 19)
@@ -45,7 +45,7 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - `client/src/pages/blog/BlogPost.tsx` — Blog post detail with Article schema + Related Articles
 - `client/src/pages/WriteForUs.tsx` — Guest contributor page
 - `client/src/pages/admin/` — Admin login, dashboard, post editor
-- `client/src/pages/legal/` — Privacy, Terms
+- `client/src/pages/legal/` — Privacy Policy (aligned with app.growmaxai.com/privacy), Terms of Service (aligned with app.growmaxai.com/terms)
 - `shared/schema.ts` — Database schema (demo_requests, newsletter_subscriptions, blog_posts, blog_redirects)
 - `server/routes.ts` — API routes + admin auth + blog CRUD + dynamic sitemap.xml (152 URLs) + robots.txt + 301 redirects
 - `server/storage.ts` — Database storage interface with blog CRUD methods
@@ -165,6 +165,12 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - Product naming: Always "Growmax Enterprise" (never "Revenue Platform" or "Enterprise Platform"), always "Growmax ARC"
 - Enterprise comparison pages: Position Growmax Enterprise with ecosystem story, custom pricing, SAP/Epicor (8 pages)
 - ARC comparison pages: Position Growmax ARC with $199/mo, QuickBooks/Zoho/Xero (6 pages + 5 direct comparisons)
+
+## External URLs
+- **ARC App**: https://app.growmaxai.com
+- **ARC Registration**: https://app.growmaxai.com/register (linked from ARC pricing, ARC page CTAs, ARC compare CTAs, legal pages)
+- **ARC Terms**: https://app.growmaxai.com/terms (source of truth for Terms of Service content)
+- **ARC Privacy**: https://app.growmaxai.com/privacy (source of truth for Privacy Policy content)
 
 ## Target Market
 US Industrial and Electrical Distributors — nationwide coverage across all major manufacturing, construction, and distribution corridors.

@@ -70,10 +70,12 @@ export default function Pricing() {
               </div>
               <p className="text-xs text-gray-500 font-mono mb-10 uppercase tracking-wide">Billed monthly or annually</p>
               
-              <Button className="w-full bg-growmax-red hover:bg-growmax-black text-white rounded-none h-14 font-bold text-lg transition-colors">
-                Initialize Trial
-              </Button>
-              <p className="text-[10px] text-center text-gray-400 font-mono uppercase mt-4">14-day validation · No CC required</p>
+              <a href="https://app.growmaxai.com/register" target="_blank" rel="noopener noreferrer">
+                <Button className="w-full bg-growmax-red hover:bg-growmax-black text-white rounded-none h-14 font-bold text-lg transition-colors" data-testid="button-start-trial">
+                  Start Free Trial
+                </Button>
+              </a>
+              <p className="text-[10px] text-center text-gray-400 font-mono uppercase mt-4">14-day free trial · No credit card required</p>
             </div>
             
             {/* Right/Features Section */}

@@ -38,14 +38,19 @@ export default function Arc() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 items-center">
+                <a href="https://app.growmaxai.com/register" target="_blank" rel="noopener noreferrer">
+                  <Button className="w-full sm:w-auto bg-growmax-red hover:bg-growmax-black text-white h-14 px-8 text-lg rounded-none transition-colors duration-300 font-bold" data-testid="button-arc-hero-trial">
+                    Start Free Trial
+                  </Button>
+                </a>
                 <Link href="/arc/pricing">
-                  <Button className="w-full sm:w-auto bg-growmax-black hover:bg-growmax-red text-white h-14 px-8 text-lg rounded-none transition-colors duration-300 font-bold">
-                    View Pricing Model
+                  <Button className="w-full sm:w-auto bg-white hover:bg-growmax-black hover:text-white text-growmax-black h-14 px-8 text-lg rounded-none transition-colors duration-300 font-bold border-2 border-growmax-black" data-testid="button-arc-hero-pricing">
+                    View Pricing
                   </Button>
                 </Link>
-                <div className="font-mono text-xs text-gray-500 uppercase tracking-widest px-4 border-l border-gray-300">
-                  Starts at $199/mo <br/> 5 Min Setup
-                </div>
+              </div>
+              <div className="font-mono text-xs text-gray-500 uppercase tracking-widest mt-4">
+                $199/mo · 14-day free trial · No credit card required
               </div>
             </div>
             
@@ -231,11 +236,18 @@ export default function Arc() {
       <section className="py-32 text-center bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl sm:text-4xl font-bold mb-6 tracking-tight text-growmax-black">Digitize your distribution. $199/mo.</h2>
-          <Link href="/arc/pricing">
-            <Button className="mt-8 bg-growmax-red hover:bg-growmax-black text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight">
-              View Deployment Tiers
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <a href="https://app.growmaxai.com/register" target="_blank" rel="noopener noreferrer">
+              <Button className="bg-growmax-red hover:bg-growmax-black text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight" data-testid="button-arc-cta-trial">
+                Start Free Trial
+              </Button>
+            </a>
+            <Link href="/arc/pricing">
+              <Button className="bg-white hover:bg-growmax-black hover:text-white text-growmax-black h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight border-2 border-growmax-black" data-testid="button-arc-cta-pricing">
+                View Pricing
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>

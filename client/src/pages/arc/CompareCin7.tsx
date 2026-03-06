@@ -329,14 +329,14 @@ export default function CompareCin7() {
             Start your 14-day free trial. No credit card required. Full platform access from day one.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/demo">
-              <Button className="bg-growmax-red hover:bg-growmax-black text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight" data-testid="button-cta-demo">
-                Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
+            <a href="https://app.growmaxai.com/register" target="_blank" rel="noopener noreferrer">
+              <Button className="bg-growmax-red hover:bg-growmax-black text-white h-14 px-10 text-lg rounded-none transition-all font-bold" data-testid="button-cta-trial">
+                Start Free Trial
               </Button>
-            </Link>
-            <Link href="/arc/pricing">
-              <Button variant="outline" className="border-growmax-black text-growmax-black hover:bg-growmax-black hover:text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight" data-testid="button-cta-pricing">
-                View Pricing
+            </a>
+            <Link href="/demo">
+              <Button className="bg-white hover:bg-growmax-black hover:text-white text-growmax-black h-14 px-10 text-lg rounded-none transition-all font-bold border-2 border-growmax-black" data-testid="button-cta-demo">
+                Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
           </div>
