@@ -64,7 +64,7 @@ function ManufacturerEcosystem() {
     >
       <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 flex items-center gap-2">
         <span className="w-2 h-2 bg-growmax-red animate-ping-dot" />
-        Model 1 — Manufacturer + Partner Ecosystem
+        Manufacturer + Partner Network
       </div>
 
       <div className="flex flex-col items-center">
@@ -77,7 +77,7 @@ function ManufacturerEcosystem() {
           testId="node-manufacturer"
         />
 
-        <div className="grid grid-cols-3 gap-4 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full mt-1">
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex flex-col items-center">
               <AnimatedConnector direction="down" delay={i * 0.4} color="red" />
@@ -87,7 +87,7 @@ function ManufacturerEcosystem() {
 
         <FlowLabel text="distributes through" />
 
-        <div className="grid grid-cols-3 gap-3 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full mt-1">
           {[
             { label: "Dealer A", sub: "Region: West" },
             { label: "Dealer B", sub: "Region: Central" },
@@ -103,7 +103,7 @@ function ManufacturerEcosystem() {
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-4 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full mt-1">
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex flex-col items-center">
               <AnimatedConnector direction="down" delay={i * 0.3 + 0.6} color="white" />
@@ -113,7 +113,7 @@ function ManufacturerEcosystem() {
 
         <FlowLabel text="customers buy from partners" />
 
-        <div className="grid grid-cols-3 gap-3 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full mt-1">
           {[0, 1, 2].map((i) => (
             <FlowNode
               key={i}
@@ -125,7 +125,7 @@ function ManufacturerEcosystem() {
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-4 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full mt-1">
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex flex-col items-center">
               <AnimatedConnector direction="down" delay={i * 0.2 + 0.3} color="white" />
@@ -135,7 +135,7 @@ function ManufacturerEcosystem() {
 
         <FlowLabel text="partners fulfill orders" />
 
-        <div className="grid grid-cols-3 gap-3 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full mt-1">
           {[0, 1, 2].map((i) => (
             <div key={i} className="border border-emerald-500/40 bg-emerald-500/5 p-3 text-center">
               <Truck className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
@@ -159,9 +159,8 @@ function ManufacturerEcosystem() {
         </div>
       </div>
 
-      <div className="mt-6 pt-4 border-t border-white/10 font-mono text-[10px] text-gray-500 uppercase flex items-center justify-between">
-        <span>Growmax Enterprise</span>
-        <span className="text-growmax-red font-bold">Custom Pricing</span>
+      <div className="mt-6 pt-4 border-t border-white/10 font-mono text-[10px] text-gray-500 uppercase text-center">
+        <span>Partners sell & fulfill — you grow revenue with full visibility</span>
       </div>
     </div>
   );
@@ -170,12 +169,12 @@ function ManufacturerEcosystem() {
 function DistributorBranches() {
   return (
     <div
-      className="border-2 border-white/20 p-6 md:p-8 lg:p-10 hover:border-white/40 transition-colors"
+      className="border-2 border-white/20 p-6 md:p-8 lg:p-10 hover:border-growmax-red transition-colors"
       data-testid="diagram-distributor-flow"
     >
-      <div className="font-mono text-xs font-bold text-white/60 uppercase tracking-widest mb-6 flex items-center gap-2">
-        <span className="w-2 h-2 bg-white/60 animate-ping-dot" style={{ animationDelay: "1s" }} />
-        Model 2 — Distributor with Sales Branches
+      <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 flex items-center gap-2">
+        <span className="w-2 h-2 bg-growmax-red animate-ping-dot" style={{ animationDelay: "1s" }} />
+        Distributor + Branch Network
       </div>
 
       <div className="flex flex-col items-center">
@@ -187,7 +186,7 @@ function DistributorBranches() {
           testId="node-distributor-hq"
         />
 
-        <div className="grid grid-cols-3 gap-4 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full mt-1">
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex flex-col items-center">
               <AnimatedConnector direction="down" delay={i * 0.3} color="white" />
@@ -197,7 +196,7 @@ function DistributorBranches() {
 
         <FlowLabel text="manages branches" />
 
-        <div className="grid grid-cols-3 gap-3 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full mt-1">
           {[
             { label: "Houston", sub: "Branch store" },
             { label: "Dallas", sub: "Branch store" },
@@ -211,7 +210,7 @@ function DistributorBranches() {
           ))}
         </div>
 
-        <div className="grid grid-cols-3 gap-4 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 w-full mt-1">
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex flex-col items-center">
               <AnimatedConnector direction="down" delay={i * 0.25 + 0.5} color="white" />
@@ -221,7 +220,7 @@ function DistributorBranches() {
 
         <FlowLabel text="customers buy from their branch" />
 
-        <div className="grid grid-cols-3 gap-3 w-full mt-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full mt-1">
           {[0, 1, 2].map((i) => (
             <FlowNode
               key={i}
@@ -269,9 +268,8 @@ function DistributorBranches() {
         </div>
       </div>
 
-      <div className="mt-6 pt-4 border-t border-white/10 font-mono text-[10px] text-gray-500 uppercase flex items-center justify-between">
-        <span>Growmax ARC</span>
-        <span className="text-white font-bold">$199/month</span>
+      <div className="mt-6 pt-4 border-t border-white/10 font-mono text-[10px] text-gray-500 uppercase text-center">
+        <span>Every branch, every rep, every order — one connected platform</span>
       </div>
     </div>
   );
@@ -292,18 +290,18 @@ export default function EcosystemFlowDiagram() {
           }`}
           data-testid="tab-enterprise-flow"
         >
-          Enterprise
+          Partners
         </button>
         <button
           onClick={() => setActiveTab("arc")}
           className={`flex-1 py-3 font-mono text-xs uppercase tracking-widest transition-colors ${
             activeTab === "arc"
-              ? "bg-white/20 text-white"
+              ? "bg-growmax-red text-white"
               : "bg-transparent text-gray-400 hover:text-white"
           }`}
           data-testid="tab-arc-flow"
         >
-          ARC
+          Branches
         </button>
       </div>
 

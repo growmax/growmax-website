@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Server, Box, GitMerge, Activity, CheckSquare, Maximize, AlertCircle, Fingerprint, Layers, Cpu, Users, Eye, ShoppingCart, FileText, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,182 @@ import { organizationSchema } from "@/lib/structuredData";
 import { SiemensLogo, SchwingSttetterLogo, OBOBettermannLogo } from "@/components/ui/ClientLogos";
 import EcosystemFlowDiagram from "@/components/EcosystemFlowDiagram";
 
+function TypicalEcommercePanel() {
+  return (
+    <div className="border-2 border-white/10 p-8 md:p-10 relative overflow-hidden opacity-70 hover:opacity-90 transition-opacity" data-testid="diagram-typical-ecommerce">
+      <div className="font-mono text-xs font-bold text-gray-500 uppercase tracking-widest mb-8 flex items-center gap-2">
+        <span className="w-2 h-2 bg-gray-500" />
+        Typical B2B eCommerce Platform
+      </div>
+
+      <div className="flex flex-col items-center">
+        <div className="w-full border-2 border-white/15 bg-white/5 p-5 text-center">
+          <div className="font-bold text-lg uppercase tracking-tight flex items-center justify-center gap-2 text-gray-400">
+            <ShoppingCart className="w-5 h-5" />
+            eCommerce Storefront
+          </div>
+          <div className="font-mono text-[10px] text-gray-500 mt-1">ONLINE ORDERS ONLY</div>
+        </div>
+
+        <div className="flex flex-col items-center py-2" style={{ height: "48px" }}>
+          <div className="relative w-full h-full flex items-center justify-center">
+            <div className="w-px h-full border-l border-dashed border-gray-600" />
+            <div className="absolute w-2 h-2 bg-gray-500 animate-flow-down" />
+          </div>
+        </div>
+
+        <div className="w-full border border-white/15 bg-white/5 p-4 text-center">
+          <ShoppingCart className="w-5 h-5 text-gray-500 mx-auto mb-2" />
+          <div className="font-bold text-sm uppercase tracking-tight text-gray-400">Customers Order Online</div>
+          <div className="font-mono text-[10px] text-gray-500 mt-1">Self-service only</div>
+        </div>
+
+        <div className="w-full my-6 relative">
+          <div className="border-t-2 border-dashed border-growmax-red/50 w-full" />
+          <div className="absolute left-1/2 -translate-x-1/2 -top-3 bg-growmax-black px-3">
+            <div className="flex items-center gap-1.5 text-growmax-red">
+              <AlertCircle className="w-4 h-4" />
+              <span className="font-mono text-[10px] font-bold uppercase">Disconnected</span>
+              <AlertCircle className="w-4 h-4" />
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full border border-white/15 bg-white/5 p-5 text-center">
+          <Users className="w-6 h-6 text-gray-500 mx-auto mb-2" />
+          <div className="font-bold text-sm uppercase tracking-tight text-gray-400">Your Sales Team</div>
+          <div className="font-mono text-[10px] text-gray-500 mt-2">ZERO visibility into online orders</div>
+        </div>
+
+        <div className="mt-3 w-full border border-white/15 bg-white/5 p-5 text-center">
+          <GitMerge className="w-6 h-6 text-gray-500 mx-auto mb-2" />
+          <div className="font-bold text-sm uppercase tracking-tight text-gray-400">Your Partners & Dealers</div>
+          <div className="font-mono text-[10px] text-gray-500 mt-2">Separate system, no connection</div>
+        </div>
+
+        <div className="w-full mt-6 space-y-2">
+          {[
+            "Sales reps don't know what customers buy online",
+            "Partners manage orders in separate tools",
+            "No unified view of revenue across channels",
+          ].map((pain, i) => (
+            <div key={i} className="flex items-start gap-2 font-mono text-[11px] text-gray-500">
+              <span className="text-growmax-red mt-0.5 shrink-0">✕</span>
+              <span>{pain}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 pt-4 border-t border-white/10 font-mono text-[10px] text-gray-600 uppercase text-center">
+        Silos kill revenue. Your teams work in the dark.
+      </div>
+    </div>
+  );
+}
+
+function GrowmaxConnectedPanel() {
+  return (
+    <div className="border-2 border-growmax-red/40 p-8 md:p-10 hover:border-growmax-red transition-colors" data-testid="diagram-growmax-connected">
+      <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-8 flex items-center gap-2">
+        <span className="w-2 h-2 bg-growmax-red animate-ping-dot" />
+        With Growmax — Everyone Connected
+      </div>
+
+      <div className="flex flex-col items-center">
+        <div className="w-full border-2 border-growmax-red bg-growmax-red/10 p-5 text-center animate-pulse-glow">
+          <div className="font-bold text-lg uppercase tracking-tight flex items-center justify-center gap-2">
+            <Building2 className="w-5 h-5 text-growmax-red" />
+            Your Brand
+          </div>
+          <div className="font-mono text-[10px] text-gray-400 mt-1">INTELLIGENT REVENUE OPERATIONS PLATFORM</div>
+        </div>
+
+        <div className="flex justify-center mt-1">
+          <div className="relative flex flex-col items-center py-1" style={{ height: "40px" }}>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-px h-full border-l border-dashed border-growmax-red/40" />
+            </div>
+            <div className="relative w-2 h-2 bg-growmax-red animate-flow-down" />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-gray-500 py-0.5">
+          <div className="w-6 h-px bg-growmax-red/30" />
+          <span className="font-mono text-[10px] uppercase text-growmax-red/70">everyone on one page</span>
+          <div className="w-6 h-px bg-growmax-red/30" />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-1">
+          <div className="border border-growmax-red/30 bg-growmax-red/5 p-4 text-center hover:bg-growmax-red/10 transition-colors">
+            <Users className="w-6 h-6 text-growmax-red mx-auto mb-2" />
+            <div className="font-bold text-sm uppercase tracking-tight">Sales Reps</div>
+            <div className="font-mono text-[10px] text-gray-400 mt-2 leading-relaxed normal-case">
+              See every order, quote, and customer interaction
+            </div>
+          </div>
+          <div className="border border-growmax-red/30 bg-growmax-red/5 p-4 text-center hover:bg-growmax-red/10 transition-colors">
+            <GitMerge className="w-6 h-6 text-growmax-red mx-auto mb-2" />
+            <div className="font-bold text-sm uppercase tracking-tight">Partners</div>
+            <div className="font-mono text-[10px] text-gray-400 mt-2 leading-relaxed normal-case">
+              Order, fulfill, and manage on the same platform
+            </div>
+          </div>
+          <div className="border border-growmax-red/30 bg-growmax-red/5 p-4 text-center hover:bg-growmax-red/10 transition-colors">
+            <ShoppingCart className="w-6 h-6 text-growmax-red mx-auto mb-2" />
+            <div className="font-bold text-sm uppercase tracking-tight">Customers</div>
+            <div className="font-mono text-[10px] text-gray-400 mt-2 leading-relaxed normal-case">
+              Self-serve portal, reorder, track — all connected
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-center mt-1">
+          <div className="relative flex flex-col items-center py-1" style={{ height: "40px" }}>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-px h-full border-l border-dashed border-emerald-500/30" />
+            </div>
+            <div className="relative w-2 h-2 bg-emerald-500 animate-flow-up" style={{ animationDelay: "0.5s" }} />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-gray-500 py-0.5">
+          <div className="w-6 h-px bg-emerald-500/30" />
+          <span className="font-mono text-[10px] uppercase text-emerald-400/70">full visibility flows back</span>
+          <div className="w-6 h-px bg-emerald-500/30" />
+        </div>
+
+        <div className="w-full border-2 border-emerald-500/30 bg-emerald-500/5 p-5 text-center mt-1">
+          <div className="flex items-center justify-center gap-2 text-emerald-400">
+            <Eye className="w-5 h-5" />
+            <span className="font-bold text-sm uppercase tracking-tight">100% Visibility</span>
+          </div>
+          <div className="font-mono text-[10px] text-emerald-400/60 mt-1">Every order, every channel, every stakeholder — one truth</div>
+        </div>
+
+        <div className="w-full mt-6 space-y-2">
+          {[
+            "Sales reps see what every customer buys — online or offline",
+            "Partners and dealers work on the same connected platform",
+            "One unified revenue view across all channels",
+          ].map((win, i) => (
+            <div key={i} className="flex items-start gap-2 font-mono text-[11px] text-gray-300">
+              <span className="text-emerald-500 mt-0.5 shrink-0">■</span>
+              <span>{win}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 pt-4 border-t border-white/10 font-mono text-[10px] text-growmax-red uppercase text-center">
+        B2B is a team sport. Growmax puts everyone on the same field.
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
+  const [comparisonTab, setComparisonTab] = useState<"others" | "growmax">("others");
   return (
     <div className="flex flex-col min-h-screen pt-16 selection:bg-growmax-red selection:text-white">
       <SEOHead
@@ -66,159 +242,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 2: ECOSYSTEM DIAGRAM — THE "AHA" MOMENT */}
+      {/* SECTION 2: THEM VS US — THE "AHA" MOMENT */}
       <section className="py-24 bg-growmax-black text-white border-b-2 border-growmax-red" data-testid="section-ecosystem-diagram">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
-            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">What Makes Growmax Different</div>
+            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Why B2B Needs More Than eCommerce</div>
             <h2 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase mb-4">Not Just eCommerce<span className="text-growmax-red">.</span></h2>
-            <p className="font-mono text-sm text-gray-400 uppercase max-w-2xl mx-auto">
-              We connect your entire revenue ecosystem digitally — sales reps, partners, and customers — with 100% visibility back to you.
+            <p className="font-mono text-sm text-gray-400 max-w-3xl mx-auto">
+              B2B is not retail. Your sales reps, partners, and customers must work together — not in silos. That's why you need an Intelligent Revenue Operations Platform.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-4">
-            {/* Growmax Enterprise Ecosystem Diagram */}
-            <div className="border-2 border-white/20 p-8 md:p-10 hover:border-growmax-red transition-colors" data-testid="diagram-enterprise-ecosystem">
-              <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 flex items-center gap-2">
-                <span className="w-2 h-2 bg-growmax-red"></span>
-                Growmax Enterprise — Multi-Party Ecosystem
-              </div>
-              
-              {/* Brand at center */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-full border-2 border-growmax-red bg-growmax-red/10 p-4 text-center">
-                  <div className="font-bold text-lg uppercase tracking-tight flex items-center justify-center gap-2">
-                    <Building2 className="w-5 h-5 text-growmax-red" />
-                    Your Brand
-                  </div>
-                  <div className="font-mono text-[10px] text-gray-400 mt-1">100% VISIBILITY ACROSS ALL CHANNELS</div>
-                </div>
-                
-                <div className="flex items-center gap-2 text-gray-500">
-                  <div className="w-8 h-px bg-gray-600"></div>
-                  <span className="font-mono text-[10px] uppercase">connects to</span>
-                  <div className="w-8 h-px bg-gray-600"></div>
-                </div>
+          <div className="lg:hidden flex border-2 border-white/20 mb-4">
+            <button
+              onClick={() => setComparisonTab("others")}
+              className={`flex-1 py-3 font-mono text-xs uppercase tracking-widest transition-colors border-r border-white/20 ${
+                comparisonTab === "others" ? "bg-white/10 text-white" : "text-gray-400 hover:text-white"
+              }`}
+              data-testid="tab-others"
+            >
+              Typical B2B eCommerce
+            </button>
+            <button
+              onClick={() => setComparisonTab("growmax")}
+              className={`flex-1 py-3 font-mono text-xs uppercase tracking-widest transition-colors ${
+                comparisonTab === "growmax" ? "bg-growmax-red text-white" : "text-growmax-red hover:text-white"
+              }`}
+              data-testid="tab-growmax"
+            >
+              With Growmax
+            </button>
+          </div>
 
-                {/* Three party nodes */}
-                <div className="grid grid-cols-3 gap-3 w-full">
-                  <div className="border border-white/30 bg-white/5 p-4 text-center hover:bg-white/10 transition-colors">
-                    <Users className="w-6 h-6 text-growmax-red mx-auto mb-2" />
-                    <div className="font-bold text-sm uppercase tracking-tight">Sales Reps</div>
-                    <div className="font-mono text-[10px] text-gray-400 mt-2 leading-relaxed normal-case">
-                      Create multi-version quotes, place orders on behalf of customers
-                    </div>
-                  </div>
-                  <div className="border border-white/30 bg-white/5 p-4 text-center hover:bg-white/10 transition-colors">
-                    <GitMerge className="w-6 h-6 text-growmax-red mx-auto mb-2" />
-                    <div className="font-bold text-sm uppercase tracking-tight">Partners & Dealers</div>
-                    <div className="font-mono text-[10px] text-gray-400 mt-2 leading-relaxed normal-case">
-                      Order, fulfill, manage accounts through partner portal
-                    </div>
-                  </div>
-                  <div className="border border-white/30 bg-white/5 p-4 text-center hover:bg-white/10 transition-colors">
-                    <ShoppingCart className="w-6 h-6 text-growmax-red mx-auto mb-2" />
-                    <div className="font-bold text-sm uppercase tracking-tight">End Customers</div>
-                    <div className="font-mono text-[10px] text-gray-400 mt-2 leading-relaxed normal-case">
-                      Self-service portal, reorder, track orders & invoices
-                    </div>
-                  </div>
-                </div>
+          <div className="hidden lg:grid lg:grid-cols-2 gap-4">
+            <TypicalEcommercePanel />
+            <GrowmaxConnectedPanel />
+          </div>
 
-                <div className="flex items-center gap-2 text-gray-500">
-                  <div className="w-8 h-px bg-gray-600"></div>
-                  <span className="font-mono text-[10px] uppercase">integrated with</span>
-                  <div className="w-8 h-px bg-gray-600"></div>
-                </div>
-
-                <div className="w-full grid grid-cols-2 gap-3">
-                  <div className="border border-white/20 p-3 text-center font-mono text-xs uppercase tracking-widest text-gray-400">
-                    <span className="text-white font-bold">SAP</span> / Epicor
-                  </div>
-                  <div className="border border-white/20 p-3 text-center font-mono text-xs uppercase tracking-widest text-gray-400">
-                    Industry-specific ERPs
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-white/10 font-mono text-[10px] text-gray-500 uppercase flex items-center justify-between">
-                <span>For 100+ employee manufacturers</span>
-                <span className="text-growmax-red font-bold">Custom Pricing</span>
-              </div>
-            </div>
-
-            {/* Growmax ARC Simple Diagram */}
-            <div className="border-2 border-white/20 p-8 md:p-10 hover:border-white/40 transition-colors" data-testid="diagram-arc-ecosystem">
-              <div className="font-mono text-xs font-bold text-white/60 uppercase tracking-widest mb-6 flex items-center gap-2">
-                <span className="w-2 h-2 bg-white/60"></span>
-                Growmax ARC — One-to-One, All-in-One
-              </div>
-              
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-full border-2 border-white/40 bg-white/5 p-4 text-center">
-                  <div className="font-bold text-lg uppercase tracking-tight flex items-center justify-center gap-2">
-                    <Building2 className="w-5 h-5" />
-                    Your Brand
-                  </div>
-                  <div className="font-mono text-[10px] text-gray-400 mt-1">DIRECT SALES — SIMPLE & FAST</div>
-                </div>
-                
-                <div className="flex items-center gap-2 text-gray-500">
-                  <div className="w-8 h-px bg-gray-600"></div>
-                  <span className="font-mono text-[10px] uppercase">sells directly to</span>
-                  <div className="w-8 h-px bg-gray-600"></div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 w-full">
-                  <div className="border border-white/30 bg-white/5 p-4 text-center hover:bg-white/10 transition-colors">
-                    <ShoppingCart className="w-6 h-6 mx-auto mb-2" />
-                    <div className="font-bold text-sm uppercase tracking-tight">Your Customers</div>
-                    <div className="font-mono text-[10px] text-gray-400 mt-2 leading-relaxed normal-case">
-                      Customer portal for ordering, reorders, and account management
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-gray-500">
-                  <div className="w-8 h-px bg-gray-600"></div>
-                  <span className="font-mono text-[10px] uppercase">powered by</span>
-                  <div className="w-8 h-px bg-gray-600"></div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 w-full">
-                  <div className="border border-white/20 bg-white/5 p-4 text-center">
-                    <Layers className="w-5 h-5 mx-auto mb-2 text-gray-400" />
-                    <div className="font-bold text-xs uppercase">Inventory</div>
-                  </div>
-                  <div className="border border-white/20 bg-white/5 p-4 text-center">
-                    <FileText className="w-5 h-5 mx-auto mb-2 text-gray-400" />
-                    <div className="font-bold text-xs uppercase">Customer Portal</div>
-                  </div>
-                  <div className="border border-white/20 bg-white/5 p-4 text-center">
-                    <Cpu className="w-5 h-5 mx-auto mb-2 text-gray-400" />
-                    <div className="font-bold text-xs uppercase">Sales Rep App</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-gray-500">
-                  <div className="w-8 h-px bg-gray-600"></div>
-                  <span className="font-mono text-[10px] uppercase">integrated with</span>
-                  <div className="w-8 h-px bg-gray-600"></div>
-                </div>
-
-                <div className="w-full grid grid-cols-3 gap-3">
-                  <div className="border border-white/20 p-3 text-center font-mono text-xs uppercase tracking-widest text-gray-400">QuickBooks</div>
-                  <div className="border border-white/20 p-3 text-center font-mono text-xs uppercase tracking-widest text-gray-400">Zoho</div>
-                  <div className="border border-white/20 p-3 text-center font-mono text-xs uppercase tracking-widest text-gray-400">Xero</div>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-white/10 font-mono text-[10px] text-gray-500 uppercase flex items-center justify-between">
-                <span>For up to 100 employees</span>
-                <span className="text-white font-bold">$199/month</span>
-              </div>
-            </div>
+          <div className="lg:hidden">
+            {comparisonTab === "others" ? <TypicalEcommercePanel /> : <GrowmaxConnectedPanel />}
           </div>
         </div>
       </section>
