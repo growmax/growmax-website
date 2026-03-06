@@ -210,7 +210,7 @@ export default function ElectricalDistributors() {
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-5">
               <div className="font-mono text-xs text-growmax-red font-bold uppercase mb-4 tracking-widest border-l-2 border-growmax-red pl-2">Case Study</div>
-              <OBOBettermannLogo className="h-10 w-auto mb-4" />
+              <OBOBettermannLogo size="lg" className="mb-4" />
               <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-casestudy-title">Electrical Manufacturer Goes Digital</h2>
               <p className="text-xl text-gray-600 mb-6 font-light leading-relaxed">
                 OBO Bettermann, a leading manufacturer of cable management and electrical installation systems, needed to digitize their partner ordering process across multiple regions.

@@ -74,9 +74,9 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-12">
             {[
-              { logo: <SiemensLogo className="h-8 md:h-10 w-auto" />, logoLight: <SiemensLogo className="h-8 md:h-10 w-auto" variant="light" />, label: "Partner Commerce" },
-              { logo: <SchwingSttetterLogo className="h-10 md:h-12 w-auto" />, logoLight: <SchwingSttetterLogo className="h-10 md:h-12 w-auto" variant="light" />, label: "Spares Portal" },
-              { logo: <OBOBettermannLogo className="h-8 md:h-10 w-auto" />, logoLight: <OBOBettermannLogo className="h-8 md:h-10 w-auto" variant="light" />, label: "Dealer Portal" },
+              { logo: <SiemensLogo size="lg" />, logoLight: <SiemensLogo size="lg" variant="light" />, label: "Partner Commerce" },
+              { logo: <SchwingSttetterLogo size="lg" />, logoLight: <SchwingSttetterLogo size="lg" variant="light" />, label: "Spares Portal" },
+              { logo: <OBOBettermannLogo size="lg" />, logoLight: <OBOBettermannLogo size="lg" variant="light" />, label: "Dealer Portal" },
             ].map((partner, i) => (
               <div
                 key={i}
@@ -260,7 +260,7 @@ export default function Home() {
             <div className="border-2 border-growmax-black p-8 md:p-12 flex flex-col lg:flex-row gap-12 items-start hover:bg-gray-50 transition-colors">
               <div className="lg:w-1/3">
                 <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Case Study 01</div>
-                <SiemensLogo className="h-8 w-auto mb-2" />
+                <SiemensLogo size="lg" className="mb-2" />
                 <p className="font-mono text-sm text-gray-500 uppercase">Partner Commerce Platform</p>
               </div>
               <div className="lg:w-2/3 grid md:grid-cols-2 gap-8">
@@ -289,7 +289,7 @@ export default function Home() {
             <div className="border-2 border-growmax-black p-8 md:p-12 flex flex-col lg:flex-row gap-12 items-start hover:bg-gray-50 transition-colors">
               <div className="lg:w-1/3">
                 <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Case Study 02</div>
-                <SchwingSttetterLogo className="h-10 w-auto mb-2" />
+                <SchwingSttetterLogo size="lg" className="mb-2" />
                 <p className="font-mono text-sm text-gray-500 uppercase">Spares Portal</p>
               </div>
               <div className="lg:w-2/3 grid md:grid-cols-2 gap-8">

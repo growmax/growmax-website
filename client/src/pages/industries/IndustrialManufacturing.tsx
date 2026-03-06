@@ -210,7 +210,7 @@ export default function IndustrialManufacturing() {
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-5">
               <div className="font-mono text-xs text-growmax-red font-bold uppercase mb-4 tracking-widest border-l-2 border-growmax-red pl-2">Case Study</div>
-              <SchwingSttetterLogo className="h-10 w-auto mb-4" />
+              <SchwingSttetterLogo size="lg" className="mb-4" />
               <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]" data-testid="text-casestudy-title">Concrete Equipment Manufacturer Goes Digital</h2>
               <p className="text-xl text-gray-600 mb-6 font-light leading-relaxed">
                 Schwing Stetter, a global leader in concrete technology and equipment manufacturing, needed to digitize their dealer ordering and spare parts management across multiple regions.
@@ -263,7 +263,7 @@ export default function IndustrialManufacturing() {
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-7 bg-growmax-gray border-2 border-growmax-black p-8 md:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
               <div className="flex items-center gap-4 mb-8">
-                <SiemensLogo className="h-6 w-auto" />
+                <SiemensLogo size="sm" />
                 <span className="font-mono text-xs text-growmax-black font-bold uppercase tracking-widest">Reference Architecture</span>
               </div>
 

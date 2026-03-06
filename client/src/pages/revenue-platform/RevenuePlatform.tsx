@@ -189,7 +189,7 @@ export default function RevenuePlatform() {
           <div className="grid lg:grid-cols-12 gap-16 items-start">
             <div className="lg:col-span-5">
               <div className="font-mono text-xs text-growmax-red font-bold uppercase mb-4 tracking-widest border-l-2 border-growmax-red pl-2">Case Study</div>
-              <SiemensLogo className="h-10 w-auto mb-4" />
+              <SiemensLogo size="lg" className="mb-4" />
               <h2 className="text-5xl font-bold tracking-tighter mb-8 uppercase leading-[1.1]">Partner Commerce Platform</h2>
               <p className="text-xl text-gray-600 mb-6 font-light leading-relaxed">
                 Siemens' partner ecosystem prioritized the top 20% of customers driving 80% of revenue, leaving smaller contractors underserved.
@@ -218,7 +218,7 @@ export default function RevenuePlatform() {
                <div className="space-y-12">
                  <div className="flex flex-col md:flex-row items-start md:items-center gap-6 border-b border-gray-300 pb-8">
                    <div className="w-full md:w-1/3">
-                     <SchwingSttetterLogo className="h-10 w-auto mb-1" />
+                     <SchwingSttetterLogo size="md" className="mb-1" />
                      <div className="text-xs text-gray-500 font-mono uppercase tracking-widest">Spares Portal</div>
                    </div>
                    <div className="w-full md:w-2/3 flex justify-between gap-4">
@@ -235,7 +235,7 @@ export default function RevenuePlatform() {
                  
                  <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                    <div className="w-full md:w-1/3">
-                     <OBOBettermannLogo className="h-10 w-auto mb-1" />
+                     <OBOBettermannLogo size="md" className="mb-1" />
                      <div className="text-xs text-gray-500 font-mono uppercase tracking-widest">Partner Portal</div>
                    </div>
                    <div className="w-full md:w-2/3 flex justify-between gap-4">
