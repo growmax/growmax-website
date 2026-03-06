@@ -30,16 +30,18 @@ export default function Footer() {
                 <li><Link href="/revenue-platform" className="hover:text-growmax-red transition-colors block">Enterprise Platform</Link></li>
                 <li><Link href="/arc" className="hover:text-growmax-red transition-colors block">Growmax ARC</Link></li>
                 <li><Link href="/arc/pricing" className="hover:text-growmax-red transition-colors block text-gray-500">ARC Pricing</Link></li>
+                <li><Link href="/solutions/spare-parts-ecommerce" className="hover:text-growmax-red transition-colors block">Spare Parts eCommerce</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Platform</h4>
+              <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Comparisons</h4>
               <ul className="space-y-4 text-gray-400">
-                <li><Link href="/revenue-platform/dealer-portal" className="hover:text-white transition-colors block">Dealer Portals</Link></li>
-                <li><Link href="/revenue-platform/partner-commerce" className="hover:text-white transition-colors block">Partner Commerce</Link></li>
-                <li><Link href="/revenue-platform/spares-portal" className="hover:text-white transition-colors block">Spares Portals</Link></li>
-                <li><Link href="/revenue-platform" className="hover:text-white transition-colors block">SAP Integration</Link></li>
+                <li><Link href="/comparisons/handshake-alternatives" className="hover:text-white transition-colors block">Handshake Alternatives</Link></li>
+                <li><Link href="/comparisons/tradegecko-alternatives" className="hover:text-white transition-colors block">TradeGecko Alternatives</Link></li>
+                <li><Link href="/arc/compare/b2b-wave" className="hover:text-white transition-colors block">ARC vs B2B Wave</Link></li>
+                <li><Link href="/arc/compare/pepperi" className="hover:text-white transition-colors block">ARC vs Pepperi</Link></li>
+                <li><Link href="/revenue-platform/compare" className="hover:text-white transition-colors block">Enterprise Comparison</Link></li>
               </ul>
             </div>
             
@@ -49,6 +51,8 @@ export default function Footer() {
                 <li><Link href="/industries/electrical-distributors" className="hover:text-white transition-colors block">Electrical Distributors</Link></li>
                 <li><Link href="/industries/building-materials" className="hover:text-white transition-colors block">Building Materials</Link></li>
                 <li><Link href="/industries/industrial-manufacturing" className="hover:text-white transition-colors block">Industrial Manufacturing</Link></li>
+                <li><Link href="/industries/food-beverage" className="hover:text-white transition-colors block">Food & Beverage</Link></li>
+                <li><Link href="/industries/automotive-aftermarket" className="hover:text-white transition-colors block">Automotive Aftermarket</Link></li>
               </ul>
             </div>
             

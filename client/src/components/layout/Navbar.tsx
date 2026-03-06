@@ -40,12 +40,17 @@ const navDropdowns: NavDropdown[] = [
       { label: "Electrical Distributors", href: "/industries/electrical-distributors" },
       { label: "Building Materials", href: "/industries/building-materials" },
       { label: "Industrial Manufacturing", href: "/industries/industrial-manufacturing" },
+      { label: "Food & Beverage", href: "/industries/food-beverage" },
+      { label: "Automotive Aftermarket", href: "/industries/automotive-aftermarket" },
     ],
   },
   {
     label: "Intelligence",
     items: [
       { label: "All Articles", href: "/blog" },
+      { label: "Spare Parts Guide", href: "/solutions/spare-parts-ecommerce" },
+      { label: "Handshake Alternatives", href: "/comparisons/handshake-alternatives" },
+      { label: "TradeGecko Alternatives", href: "/comparisons/tradegecko-alternatives" },
     ],
   },
 ];

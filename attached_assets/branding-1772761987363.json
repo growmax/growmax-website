@@ -1,0 +1,134 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Inter",
+      "role": "body"
+    },
+    {
+      "family": "Nexa",
+      "role": "heading"
+    }
+  ],
+  "colors": {
+    "primary": "#D14100",
+    "accent": "#1766A6",
+    "background": "#333333",
+    "textPrimary": "#333333",
+    "link": "#1766A6"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Inter",
+      "heading": "Nexa"
+    },
+    "fontStacks": {
+      "heading": [
+        "Nexa",
+        "system-ui",
+        "sans-serif"
+      ],
+      "body": [
+        "Inter",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Nexa",
+        "system-ui",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "40px",
+      "h2": "24px",
+      "body": "18.4px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "4px"
+  },
+  "components": {
+    "buttonPrimary": {
+      "background": "#D14100",
+      "textColor": "#FFFFFF",
+      "borderRadius": "60px",
+      "borderRadiusCorners": {
+        "topLeft": "60px",
+        "topRight": "60px",
+        "bottomRight": "60px",
+        "bottomLeft": "60px"
+      },
+      "shadow": "rgba(0, 0, 0, 0.12) 0px 2px 4px 0px"
+    },
+    "buttonSecondary": {
+      "background": "#FFFFFF",
+      "textColor": "#1A1A1A",
+      "borderColor": "#333333",
+      "borderRadius": "26px",
+      "borderRadiusCorners": {
+        "topLeft": "26px",
+        "topRight": "26px",
+        "bottomRight": "26px",
+        "bottomLeft": "26px"
+      },
+      "shadow": "rgba(0, 0, 0, 0.08) 0px 4px 8px 0px"
+    }
+  },
+  "images": {
+    "logo": "https://www.pepperi.com/wp-content/uploads/2023/12/brand-logo-full@2x-2024.png.webp",
+    "favicon": "https://www.pepperi.com/wp-content/uploads/2023/10/pepperi-favicon_2x-transparent.png",
+    "ogImage": "https://www.pepperi.com/wp-content/uploads/2023/12/MicrosoftTeams-image-16.png",
+    "logoHref": "File saved at: attached_assets/logoHref.html",
+    "logoAlt": "Pepperi logo"
+  },
+  "__llm_logo_reasoning": {
+    "selectedIndex": 0,
+    "reasoning": "Selected #0 because it is visible, located in the header, links to the homepage, and matches the brand name 'Pepperi'.",
+    "confidence": 0.95,
+    "source": "llm"
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": 0,
+      "text": "Get Demo",
+      "reasoning": "Button #1 ('Get Demo') uses the brand's vibrant color (#D14100) and has action-oriented text, making it the primary CTA."
+    },
+    "secondary": {
+      "index": 3,
+      "text": "Read more about Integrations",
+      "reasoning": "Button #0 ('Read more about Integrations') has a different color group (#FFFFFF) and serves as a secondary action with informative text."
+    },
+    "confidence": 0.95
+  },
+  "personality": {
+    "tone": "professional",
+    "energy": "medium",
+    "targetAudience": "B2B companies looking for commerce solutions"
+  },
+  "designSystem": {
+    "framework": "custom",
+    "componentLibrary": ""
+  },
+  "confidence": {
+    "buttons": 0.95,
+    "colors": 0.9,
+    "overall": 0.925
+  },
+  "__llm_metadata": {
+    "logoSelection": {
+      "llmCalled": true,
+      "llmSucceeded": true,
+      "finalSource": "llm",
+      "rawLogoSelection": {
+        "selectedLogoIndex": 0,
+        "selectedLogoReasoning": "Selected #0 because it is visible, located in the header, links to the homepage, and matches the brand name 'Pepperi'.",
+        "confidence": 0.95
+      }
+    },
+    "buttonClassification": {
+      "llmCalled": true,
+      "llmSucceeded": true
+    }
+  }
+}

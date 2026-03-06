@@ -1,0 +1,145 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Inter",
+      "role": "body"
+    },
+    {
+      "family": "Impact",
+      "role": "heading"
+    },
+    {
+      "family": "STK Bureau Serif",
+      "role": "unknown"
+    },
+    {
+      "family": "Arial",
+      "role": "unknown"
+    },
+    {
+      "family": "Roboto",
+      "role": "unknown"
+    }
+  ],
+  "colors": {
+    "primary": "#22B6CA",
+    "accent": "#22B6CA",
+    "background": "#FFFFFF",
+    "textPrimary": "#142323",
+    "link": "#142323"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Inter",
+      "heading": "Impact"
+    },
+    "fontStacks": {
+      "heading": [
+        "Inter",
+        "Impact",
+        "sans-serif"
+      ],
+      "body": [
+        "Roboto",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Inter",
+        "Impact",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "16px",
+      "h2": "60px",
+      "body": "16px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "5px"
+  },
+  "components": {
+    "buttonPrimary": {
+      "background": "#22B6CA",
+      "textColor": "#FFFFFF",
+      "borderRadius": "8px",
+      "borderRadiusCorners": {
+        "topLeft": "8px",
+        "topRight": "8px",
+        "bottomRight": "8px",
+        "bottomLeft": "8px"
+      },
+      "shadow": "none"
+    },
+    "buttonSecondary": {
+      "background": "transparent",
+      "textColor": "#142323",
+      "borderColor": "#949494",
+      "borderRadius": "8px",
+      "borderRadiusCorners": {
+        "topLeft": "8px",
+        "topRight": "8px",
+        "bottomRight": "8px",
+        "bottomLeft": "8px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "logo": "File saved at: attached_assets/logo.png",
+    "favicon": "File saved at: attached_assets/favicon.jpg",
+    "ogImage": "File saved at: attached_assets/ogImage.png"
+  },
+  "__llm_logo_reasoning": {
+    "selectedIndex": 14,
+    "reasoning": "Logo rejected: Red flags detected (menu word). Selected #0 because it is visible, located in the header, links to the homepage, and matches the brand name 'B2B Wave'.",
+    "confidence": 0.9,
+    "rejected": true,
+    "source": "llm"
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": 0,
+      "text": "Try free for 14 daysTry free for 14 days",
+      "reasoning": "Button #0 'Try free for 14 days' uses the brand's vibrant blue color (#22B6CA) and has a strong call-to-action text, making it the primary CTA."
+    },
+    "secondary": {
+      "index": 2,
+      "text": "Try free for 14 daysTry free for 14 days",
+      "reasoning": "Button #2 'Try free for 14 days' is transparent with a border, providing a secondary, less prominent option."
+    },
+    "confidence": 0.95
+  },
+  "personality": {
+    "tone": "professional",
+    "energy": "medium",
+    "targetAudience": "businesses looking for B2B eCommerce solutions"
+  },
+  "designSystem": {
+    "framework": "custom",
+    "componentLibrary": ""
+  },
+  "confidence": {
+    "buttons": 0.95,
+    "colors": 0.9,
+    "overall": 0.925
+  },
+  "__llm_metadata": {
+    "logoSelection": {
+      "llmCalled": true,
+      "llmSucceeded": true,
+      "finalSource": "llm",
+      "rawLogoSelection": {
+        "selectedLogoIndex": 0,
+        "selectedLogoReasoning": "Selected #0 because it is visible, located in the header, links to the homepage, and matches the brand name 'B2B Wave'.",
+        "confidence": 0.9
+      }
+    },
+    "buttonClassification": {
+      "llmCalled": true,
+      "llmSucceeded": true
+    }
+  }
+}

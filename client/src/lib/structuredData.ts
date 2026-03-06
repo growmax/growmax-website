@@ -181,6 +181,31 @@ export function aboutPageSchema() {
   };
 }
 
+export function faqPageSchema({
+  title,
+  path,
+  faqs,
+}: {
+  title: string;
+  path: string;
+  faqs: { question: string; answer: string }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    name: title,
+    url: `${BASE_URL}${path}`,
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
 export function contactPageSchema() {
   return {
     "@context": "https://schema.org",

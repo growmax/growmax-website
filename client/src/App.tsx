@@ -23,11 +23,18 @@ import BlogPost from "@/pages/blog/BlogPost";
 
 // Comparison Pages
 import CompareEnterprise from "@/pages/revenue-platform/CompareEnterprise";
+import HandshakeAlternatives from "@/pages/comparisons/HandshakeAlternatives";
+import TradeGeckoAlternatives from "@/pages/comparisons/TradeGeckoAlternatives";
 
 // Industry Pages
 import ElectricalDistributors from "@/pages/industries/ElectricalDistributors";
 import BuildingMaterials from "@/pages/industries/BuildingMaterials";
 import IndustrialManufacturing from "@/pages/industries/IndustrialManufacturing";
+import FoodBeverage from "@/pages/industries/FoodBeverage";
+import AutomotiveAftermarket from "@/pages/industries/AutomotiveAftermarket";
+
+// Solution Pages
+import SparePartsHub from "@/pages/solutions/SparePartsHub";
 
 // Legal Pages
 import Privacy from "@/pages/legal/Privacy";
@@ -50,9 +57,16 @@ function Router() {
           <Route path="/arc/compare/b2b-wave" component={CompareB2BWave} />
           <Route path="/arc/compare/pepperi" component={ComparePepperi} />
           
+          <Route path="/comparisons/handshake-alternatives" component={HandshakeAlternatives} />
+          <Route path="/comparisons/tradegecko-alternatives" component={TradeGeckoAlternatives} />
+          
           <Route path="/industries/electrical-distributors" component={ElectricalDistributors} />
           <Route path="/industries/building-materials" component={BuildingMaterials} />
           <Route path="/industries/industrial-manufacturing" component={IndustrialManufacturing} />
+          <Route path="/industries/food-beverage" component={FoodBeverage} />
+          <Route path="/industries/automotive-aftermarket" component={AutomotiveAftermarket} />
+          
+          <Route path="/solutions/spare-parts-ecommerce" component={SparePartsHub} />
           
           <Route path="/demo" component={Demo} />
           <Route path="/company/about" component={About} />
