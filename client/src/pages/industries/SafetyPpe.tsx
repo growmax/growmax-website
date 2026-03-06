@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import { webPageSchema, faqPageSchema } from "@/lib/structuredData";
+import WhichGrowmax from "@/components/ui/WhichGrowmax";
 
 const painPoints = [
   {
@@ -378,21 +379,7 @@ export default function SafetyPpe() {
         </div>
       </section>
 
-      <section className="py-32 bg-growmax-black text-white text-center bg-dots-dark">
-        <div className="container mx-auto px-4">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tighter uppercase leading-[1.1]" data-testid="text-cta-title">
-            Ready to modernize your<br />safety & PPE distribution?
-          </h2>
-          <p className="text-xl text-gray-400 font-light mb-12 max-w-2xl mx-auto">
-            See how Growmax handles your compliance catalogs, PPE programs, and size-matrix ordering — live, in 30 minutes.
-          </p>
-          <Link href="/demo">
-            <Button className="mt-4 bg-growmax-red hover:bg-white hover:text-growmax-black text-white h-16 px-12 text-lg rounded-none transition-all duration-300 font-bold tracking-widest uppercase border-2 border-transparent hover:border-growmax-black shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] hover:shadow-none hover:translate-x-2 hover:translate-y-2" data-testid="button-schedule-demo">
-              Schedule a 30-Min Demo <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
-        </div>
-      </section>
+      <WhichGrowmax industry="Safety & PPE" />
     </div>
   );
 }

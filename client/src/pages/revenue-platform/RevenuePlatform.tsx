@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ArrowRight, Server, Box, Fingerprint, Activity, Layers, CheckSquare } from "lucide-react";
+import { ArrowRight, Server, Box, Fingerprint, Activity, Layers, CheckSquare, Users, GitMerge, ShoppingCart, Building2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { softwareApplicationSchema } from "@/lib/structuredData";
@@ -9,83 +9,120 @@ export default function RevenuePlatform() {
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
       <SEOHead
-        title="Enterprise B2B Commerce Platform | SAP & ERP Integration | Growmax"
-        description="Enterprise-grade B2B commerce platform with native SAP JCo integration, multi-tier pricing engine, approval workflows, and multi-warehouse orchestration. Deploy in 8-12 weeks."
+        title="Growmax Enterprise | Intelligent Revenue Operations Platform | Growmax"
+        description="Connect your sales reps, partners, and customers on one intelligent platform. Multi-party revenue ecosystem with native SAP integration, multi-version quotes, partner commerce, and dealer portals."
         path="/revenue-platform"
         structuredData={softwareApplicationSchema({
-          name: "Growmax Revenue Platform",
-          description: "Enterprise-grade B2B commerce platform with native SAP JCo integration, multi-tier pricing engine, approval workflows, and multi-warehouse orchestration.",
+          name: "Growmax Enterprise",
+          description: "Intelligent Revenue Operations Platform connecting sales reps, partners, and customers with native SAP integration, multi-version quotes, partner commerce, and full visibility across the revenue chain.",
           path: "/revenue-platform",
           category: "BusinessApplication",
         })}
       />
-      {/* Hero Section - Swiss Style / Editorial */}
+
+      {/* Hero Section */}
       <section className="pt-24 pb-24 border-b border-gray-200 bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-start">
             <div>
               <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3">
-                Architecture // Enterprise
+                Growmax Enterprise
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8 uppercase">
-                Enterprise-grade. <br/>
-                Cloud-native. <br/>
-                <span className="text-gray-400">Built for scale.</span>
+              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-8 uppercase" data-testid="text-enterprise-headline">
+                Intelligent Revenue<br/>
+                Operations<br/>
+                <span className="text-gray-400">Platform.</span>
               </h1>
               <div className="w-16 h-2 bg-growmax-black mb-8"></div>
-              <p className="text-xl text-gray-600 font-light leading-relaxed mb-10 max-w-lg">
-                Decoupled backend giving complete flexibility. AWS hosted with Microservice architecture on K8s infrastructure. Highly scalable and secure.
+              <p className="text-xl text-gray-600 font-light leading-relaxed mb-10 max-w-lg" data-testid="text-enterprise-description">
+                Not just eCommerce. Growmax Enterprise connects your entire revenue ecosystem — sales reps creating multi-version quotes, partners managing orders and fulfillment, and customers self-serving — all with 100% visibility back to you.
               </p>
               
               <Link href="/demo">
-                <Button className="bg-growmax-red hover:bg-growmax-black text-white h-14 px-8 text-lg rounded-none transition-colors duration-300 font-bold tracking-tight shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5">
-                  Request Architecture Review <ArrowRight className="ml-2 w-5 h-5" />
+                <Button className="bg-growmax-red hover:bg-growmax-black text-white h-14 px-8 text-lg rounded-none transition-colors duration-300 font-bold tracking-tight shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5" data-testid="button-enterprise-demo">
+                  Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </div>
             
-            {/* Abstract Architecture Diagram */}
-            <div className="hidden lg:block bg-growmax-gray border-2 border-growmax-black p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative">
+            {/* Ecosystem Flow Diagram */}
+            <div className="hidden lg:block bg-growmax-gray border-2 border-growmax-black p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] relative" data-testid="diagram-enterprise-flow">
               <div className="absolute top-4 right-4 flex gap-2">
                 <div className="w-3 h-3 rounded-full bg-growmax-red animate-pulse"></div>
               </div>
-              <div className="font-mono text-xs text-growmax-black mb-6 uppercase font-bold tracking-widest">System Diagram v1.0</div>
+              <div className="font-mono text-xs text-growmax-black mb-6 uppercase font-bold tracking-widest">Revenue Ecosystem Flow</div>
               
-              {/* Top Layer */}
-              <div className="border border-growmax-black bg-white p-4 text-center font-bold text-sm mb-4 uppercase tracking-tight">
-                Omnichannel Experience (Customers & Partners)
+              <div className="border-2 border-growmax-red bg-growmax-red/5 p-4 text-center font-bold text-sm mb-3 uppercase tracking-tight flex items-center justify-center gap-2">
+                <Building2 className="w-4 h-4 text-growmax-red" />
+                Your Brand — Full Visibility
               </div>
               
               <div className="flex justify-center my-2"><ArrowRight className="w-5 h-5 text-growmax-black rotate-90" /></div>
               
-              {/* API Layer */}
-              <div className="border-2 border-growmax-red border-dashed bg-growmax-red/5 p-3 text-center font-mono text-sm text-growmax-red mb-4 uppercase tracking-widest font-bold">
-                Commerce API
+              <div className="grid grid-cols-3 gap-3 mb-3">
+                <div className="border border-growmax-black bg-white p-3 text-center">
+                  <Users className="w-5 h-5 text-growmax-red mx-auto mb-1" />
+                  <div className="font-mono text-[10px] uppercase font-bold">Sales Reps</div>
+                  <div className="font-mono text-[9px] text-gray-500 mt-1">Multi-version quotes</div>
+                </div>
+                <div className="border border-growmax-black bg-white p-3 text-center">
+                  <GitMerge className="w-5 h-5 text-growmax-red mx-auto mb-1" />
+                  <div className="font-mono text-[10px] uppercase font-bold">Partners</div>
+                  <div className="font-mono text-[9px] text-gray-500 mt-1">Order & fulfill</div>
+                </div>
+                <div className="border border-growmax-black bg-white p-3 text-center">
+                  <ShoppingCart className="w-5 h-5 text-growmax-red mx-auto mb-1" />
+                  <div className="font-mono text-[10px] uppercase font-bold">Customers</div>
+                  <div className="font-mono text-[9px] text-gray-500 mt-1">Self-service portal</div>
+                </div>
               </div>
               
               <div className="flex justify-center my-2"><ArrowRight className="w-5 h-5 text-growmax-black rotate-90" /></div>
-              
-              {/* Core Layer */}
-              <div className="border border-growmax-black bg-growmax-black text-white p-6 flex justify-between items-center mb-4 font-mono">
-                <div className="text-xs uppercase w-1/4 text-center">Orders</div>
-                <div className="text-xs uppercase w-1/4 text-center">Catalog</div>
-                <div className="text-xs uppercase w-1/4 text-center">Pricing</div>
+
+              <div className="border border-growmax-black bg-growmax-black text-white p-4 flex justify-between items-center mb-3 font-mono">
                 <div className="text-xs uppercase w-1/4 text-center">Quotes</div>
+                <div className="text-xs uppercase w-1/4 text-center">Orders</div>
+                <div className="text-xs uppercase w-1/4 text-center">Pricing</div>
+                <div className="text-xs uppercase w-1/4 text-center">Catalog</div>
               </div>
               
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="flex justify-center"><ArrowRight className="w-5 h-5 text-growmax-black rotate-90" /></div>
-                <div className="flex justify-center"><ArrowRight className="w-5 h-5 text-growmax-black rotate-90" /></div>
-                <div className="flex justify-center"><ArrowRight className="w-5 h-5 text-growmax-black rotate-90" /></div>
+              <div className="flex justify-center my-2"><ArrowRight className="w-5 h-5 text-growmax-black rotate-90" /></div>
+
+              <div className="grid grid-cols-3 gap-3 font-mono text-growmax-black">
+                <div className="border-2 border-growmax-black bg-white p-3 text-center font-bold text-xs uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">SAP</div>
+                <div className="border border-gray-400 bg-white p-3 text-center text-xs uppercase tracking-widest text-gray-500">Epicor</div>
+                <div className="border border-gray-400 bg-white p-3 text-center text-xs uppercase tracking-widest text-gray-500">Your ERP</div>
               </div>
-              
-              {/* Systems of Record Layer */}
-              <div className="grid grid-cols-3 gap-4 mt-4 font-mono text-growmax-black">
-                <div className="border-2 border-growmax-black bg-white p-3 text-center font-bold text-xs uppercase tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">ERP / SAP</div>
-                <div className="border border-gray-400 bg-white p-3 text-center text-xs uppercase tracking-widest text-gray-400">CRM</div>
-                <div className="border border-gray-400 bg-white p-3 text-center text-xs uppercase tracking-widest text-gray-400">PIM</div>
+
+              <div className="mt-4 pt-3 border-t border-gray-300 flex items-center justify-center gap-2 font-mono text-[10px] text-gray-500 uppercase">
+                <Eye className="w-3 h-3 text-growmax-red" />
+                100% visibility from quote to fulfillment
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Target Industries & Company Profile */}
+      <section className="py-16 bg-growmax-black text-white">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="grid md:grid-cols-4 gap-0">
+            <div className="border border-white/20 p-6 text-center">
+              <div className="font-mono text-growmax-red text-xs uppercase tracking-widest font-bold mb-3">Industries</div>
+              <div className="font-mono text-sm">Industrial, Electrical, Construction, Building Materials</div>
+            </div>
+            <div className="border border-white/20 p-6 text-center">
+              <div className="font-mono text-growmax-red text-xs uppercase tracking-widest font-bold mb-3">Company Size</div>
+              <div className="text-2xl font-bold font-mono">100+ Employees</div>
+            </div>
+            <div className="border border-white/20 p-6 text-center">
+              <div className="font-mono text-growmax-red text-xs uppercase tracking-widest font-bold mb-3">Integrations</div>
+              <div className="font-mono text-sm">SAP ECC/S4HANA, Epicor, Industry-specific ERPs</div>
+            </div>
+            <div className="border border-white/20 p-6 text-center">
+              <div className="font-mono text-growmax-red text-xs uppercase tracking-widest font-bold mb-3">Deployment</div>
+              <div className="text-2xl font-bold font-mono">8-12 Weeks</div>
             </div>
           </div>
         </div>
@@ -123,12 +160,12 @@ export default function RevenuePlatform() {
         </div>
       </section>
 
-      {/* The Growmax Advantage - Deep Dive */}
+      {/* The Growmax Enterprise Advantage */}
       <section className="py-32 bg-growmax-white">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-20 max-w-3xl mx-auto">
-            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase">The Growmax Advantage</h2>
-            <p className="text-xl text-gray-600 font-light border-b-2 border-growmax-black inline-block pb-4">Deeply technical features built for the realities of distribution and manufacturing.</p>
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tighter text-growmax-black mb-6 uppercase">The Enterprise Advantage</h2>
+            <p className="text-xl text-gray-600 font-light border-b-2 border-growmax-black inline-block pb-4">Built for the realities of multi-party revenue operations in manufacturing and distribution.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -165,25 +202,25 @@ export default function RevenuePlatform() {
               <Server className="w-12 h-12 text-growmax-red mb-6 relative z-10" />
               <h3 className="text-2xl font-bold mb-4 tracking-tight uppercase relative z-10 bg-white inline-block pr-2">ERP Grade Integrations</h3>
               <div className="space-y-4 text-gray-800 font-medium relative z-10 bg-white/90 p-4 border border-growmax-black backdrop-blur-sm">
-                <p className="flex items-start gap-2"><CheckSquare className="w-4 h-4 text-growmax-red shrink-0 mt-0.5" /> Native two-way SAP ECC integration utilizing JCo protocol. Bidirectional RFC calls.</p>
-                <p className="flex items-start gap-2"><CheckSquare className="w-4 h-4 text-growmax-red shrink-0 mt-0.5" /> No fragile middleware. Direct API foundation ready for integration with any custom enterprise ERP.</p>
+                <p className="flex items-start gap-2"><CheckSquare className="w-4 h-4 text-growmax-red shrink-0 mt-0.5" /> Native two-way SAP ECC/S4HANA integration utilizing JCo protocol. Bidirectional RFC calls.</p>
+                <p className="flex items-start gap-2"><CheckSquare className="w-4 h-4 text-growmax-red shrink-0 mt-0.5" /> Open to Epicor, industry-specific US market ERPs, and any custom enterprise ERP integration.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Target Market Context Note */}
+      {/* Target Market Context */}
       <section className="py-16 bg-growmax-black text-white border-t border-gray-800 border-b-4 border-growmax-red">
          <div className="container mx-auto px-4 text-center">
             <p className="font-mono text-sm uppercase tracking-widest text-gray-400">
-               Optimized for Industrial & Electrical Distributors <br/> 
+               Optimized for Industrial & Electrical Manufacturers with Partner Networks <br/> 
                <span className="text-growmax-red font-bold">Target Focus: US East Coast & Texas Region</span>
             </p>
          </div>
       </section>
 
-      {/* Case Study Highlight */}
+      {/* Case Study */}
       <section className="py-32 bg-white">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid lg:grid-cols-12 gap-16 items-start">
@@ -196,7 +233,7 @@ export default function RevenuePlatform() {
               </p>
               <div className="bg-gray-50 border border-gray-200 p-6 mb-8">
                  <p className="text-sm font-mono text-gray-600 leading-relaxed">
-                   Growmax rolled out a connected platform between internal sales, channel partners, and the underserved base. We created scalable digital sales reps, going live across India, Indonesia, Vietnam & Thailand.
+                   Growmax Enterprise connected internal sales reps, channel partners, and the underserved customer base on one platform — creating scalable digital revenue operations across India, Indonesia, Vietnam & Thailand.
                  </p>
               </div>
               
@@ -260,7 +297,7 @@ export default function RevenuePlatform() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-8" data-testid="banner-compare-alternatives">
             <div>
               <div className="font-mono text-xs uppercase tracking-widest font-bold mb-2 text-white/80">Compare Alternatives</div>
-              <h3 className="text-2xl font-bold tracking-tight">See how Growmax stacks up against Corevist & SAP Commerce Cloud</h3>
+              <h3 className="text-2xl font-bold tracking-tight">See how Growmax Enterprise stacks up against Corevist & SAP Commerce Cloud</h3>
             </div>
             <Link href="/revenue-platform/compare">
               <Button className="bg-white text-growmax-black hover:bg-growmax-black hover:text-white h-14 px-8 text-lg rounded-none transition-all duration-300 font-bold tracking-tight whitespace-nowrap" data-testid="button-compare-alternatives">
@@ -274,7 +311,7 @@ export default function RevenuePlatform() {
       <section className="py-24 bg-white border-t-2 border-growmax-black">
         <div className="container mx-auto px-4 md:px-8">
           <div className="mb-16">
-            <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Related Architecture</div>
+            <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Related</div>
             <h2 className="text-4xl font-bold tracking-tighter text-growmax-black uppercase mb-4">Explore More</h2>
             <div className="w-16 h-2 bg-growmax-red"></div>
           </div>
@@ -291,9 +328,9 @@ export default function RevenuePlatform() {
 
             <Link href="/arc">
               <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
-                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">For Distributors</div>
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">For SMB Distributors</div>
                 <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC</h3>
-                <p className="text-sm text-gray-600 font-light leading-relaxed">The connected distributor platform with ordering portal, field sales app, and Zoho integration.</p>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">All-in-one distributor platform with customer portal, field sales app, and QuickBooks/Zoho/Xero integration. $199/month.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>
@@ -312,10 +349,10 @@ export default function RevenuePlatform() {
 
       <section className="py-32 bg-growmax-black text-white text-center bg-dots-dark">
         <div className="container mx-auto px-4">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tighter uppercase leading-[1.1]">Deploy Enterprise Commerce.<br/>Without the legacy timelines.</h2>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tighter uppercase leading-[1.1]">Connect your revenue ecosystem.<br/>Without the legacy timelines.</h2>
           <Link href="/demo">
-            <Button className="mt-12 bg-growmax-red hover:bg-white hover:text-growmax-black text-white h-16 px-12 text-lg rounded-none transition-all duration-300 font-bold tracking-widest uppercase border-2 border-transparent hover:border-growmax-black shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] hover:shadow-none hover:translate-x-2 hover:translate-y-2">
-              Schedule Architecture Review
+            <Button className="mt-12 bg-growmax-red hover:bg-white hover:text-growmax-black text-white h-16 px-12 text-lg rounded-none transition-all duration-300 font-bold tracking-widest uppercase border-2 border-transparent hover:border-growmax-black shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)] hover:shadow-none hover:translate-x-2 hover:translate-y-2" data-testid="button-schedule-review">
+              Book a Demo
             </Button>
           </Link>
         </div>

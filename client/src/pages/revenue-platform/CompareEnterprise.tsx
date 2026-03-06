@@ -83,11 +83,11 @@ export default function CompareEnterprise() {
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Growmax vs Corevist vs SAP Commerce Cloud | Enterprise B2B Platform Comparison"
-        description="Compare Growmax Revenue Platform against Corevist and SAP Commerce Cloud. Feature-by-feature analysis of enterprise B2B commerce platforms with SAP integration."
+        description="Compare Growmax Enterprise against Corevist and SAP Commerce Cloud. Feature-by-feature analysis of enterprise B2B commerce platforms with SAP integration."
         path="/revenue-platform/compare"
         structuredData={webPageSchema({
-          title: "Growmax vs Corevist vs SAP Commerce Cloud | Enterprise B2B Platform Comparison",
-          description: "Compare Growmax Revenue Platform against Corevist and SAP Commerce Cloud. Feature-by-feature analysis of enterprise B2B commerce platforms with SAP integration.",
+          title: "Growmax Enterprise vs Corevist vs SAP Commerce Cloud | Enterprise B2B Platform Comparison",
+          description: "Compare Growmax Enterprise against Corevist and SAP Commerce Cloud. Feature-by-feature analysis of enterprise B2B commerce platforms with SAP integration.",
           path: "/revenue-platform/compare",
           keywords: ["SAP Commerce Cloud alternative", "Corevist alternative", "B2B commerce platform comparison", "enterprise B2B ecommerce", "SAP integrated commerce"],
         })}
@@ -98,7 +98,7 @@ export default function CompareEnterprise() {
           <div className="max-w-4xl">
             <div className="mb-6">
               <Breadcrumbs items={[
-                { label: "Revenue Platform", href: "/revenue-platform" },
+                { label: "Growmax Enterprise", href: "/revenue-platform" },
                 { label: "Enterprise Comparison" },
               ]} />
             </div>
@@ -111,7 +111,7 @@ export default function CompareEnterprise() {
             </h1>
             <div className="w-16 h-2 bg-growmax-red mb-8"></div>
             <p className="text-xl text-gray-600 font-light leading-relaxed mb-10 max-w-2xl" data-testid="text-page-description">
-              Enterprise-grade SAP-integrated B2B commerce — without the enterprise timeline or price tag. See how Growmax Revenue Platform compares feature-by-feature against Corevist and SAP Commerce Cloud.
+              Enterprise-grade SAP-integrated B2B commerce — without the enterprise timeline or price tag. See how Growmax Enterprise compares feature-by-feature against Corevist and SAP Commerce Cloud.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link href="/demo">
@@ -345,9 +345,9 @@ export default function CompareEnterprise() {
             <Link href="/revenue-platform">
               <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-revenue-platform">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Platform</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Revenue Platform</h3>
-                <p className="text-sm text-gray-600 font-light leading-relaxed">Enterprise-grade, cloud-native B2B commerce with native SAP integration and multi-warehouse orchestration.</p>
-                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore Platform <ArrowRight className="w-3 h-3" /></div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax Enterprise</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Multi-party revenue ecosystem connecting sales reps, partners, and customers with native SAP integration.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore Enterprise <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>
 

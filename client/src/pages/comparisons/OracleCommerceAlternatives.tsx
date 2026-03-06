@@ -7,24 +7,24 @@ import { webPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Mid-Market Industrial Distributors",
+    name: "Growmax Enterprise",
+    tagline: "Multi-Party Revenue Ecosystem for Industrial Manufacturers",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. Native ERP integration, offline field sales app, multi-warehouse inventory, and partner commerce portal — without Oracle's complexity or cost.",
+    description: "The intelligent revenue operations platform that connects your sales reps, partners, dealers, and customers on one platform with full visibility. Native SAP ECC/S4HANA integration, multi-version quote workflows, partner commerce portals, and dealer management — without Oracle's complexity or cost.",
     pros: [
-      "Native SAP & Zoho ERP integration",
+      "Multi-party ecosystem: Brand → Sales Reps → Partners → Customers with 100% visibility",
+      "Native SAP ECC/S4HANA & Epicor integration",
+      "Multi-version quote workflows with approval engine",
+      "Partner commerce portal for dealer and channel networks",
       "Offline-capable mobile app for field sales reps",
-      "Multi-warehouse inventory with intelligent allocation",
-      "Partner commerce portal for channel sales",
-      "Quote-to-order workflow with approval engine",
       "2-4 week deployment (vs 12-24 months for Oracle)",
     ],
     cons: [
       "Focused on B2B industrial — not for B2C retail",
       "No native Oracle ERP integration (via API)",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Mid-market industrial distributors who need enterprise-grade B2B commerce without enterprise-grade complexity",
+    pricing: "Custom pricing",
+    bestFor: "Industrial manufacturers with 100+ employees who need enterprise-grade revenue operations without enterprise-grade complexity",
     rating: "4.8",
   },
   {
@@ -88,7 +88,7 @@ const competitors = [
       "High implementation costs ($50K-$200K+)",
       "Requires SAP or Dynamics — no standalone mode",
       "No offline mobile app for field reps",
-      "No Zoho ecosystem support",
+      "No multi-party ecosystem support",
       "Complex pricing based on order volume",
       "4-8 month implementation cycle",
     ],
@@ -140,7 +140,7 @@ const featureComparison = [
   { category: "Integrations", items: [
     { feature: "Native Oracle ERP Integration", growmax: false, oracle: true, sap: false, sana: false, sfcc: false },
     { feature: "Native SAP ERP Integration", growmax: true, oracle: false, sap: true, sana: true, sfcc: false },
-    { feature: "Native Zoho Integration", growmax: true, oracle: false, sap: false, sana: false, sfcc: false },
+    { feature: "Native SAP ECC/S4HANA Integration", growmax: true, oracle: false, sap: true, sana: true, sfcc: false },
     { feature: "QuickBooks Integration", growmax: true, oracle: false, sap: false, sana: false, sfcc: false },
     { feature: "API Access", growmax: true, oracle: true, sap: true, sana: true, sfcc: true },
     { feature: "Self-Service Setup (No Code)", growmax: true, oracle: false, sap: false, sana: false, sfcc: false },
@@ -154,9 +154,9 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", oracle: "$200K+/year", sap: "$100K+/year", sana: "$1,500+/mo", sfcc: "$150K+/year" },
-  { label: "Free Trial", growmax: "14 days", oracle: "No", sap: "No", sana: "No", sfcc: "No" },
-  { label: "Setup Fee", growmax: "$0", oracle: "$750K–$3M+", sap: "$500K–$2M+", sana: "$50K–$200K+", sfcc: "$200K–$500K+" },
+  { label: "Starting Price", growmax: "Custom pricing", oracle: "$200K+/year", sap: "$100K+/year", sana: "$1,500+/mo", sfcc: "$150K+/year" },
+  { label: "Free Trial", growmax: "Request consultation", oracle: "No", sap: "No", sana: "No", sfcc: "No" },
+  { label: "Setup Fee", growmax: "Custom", oracle: "$750K–$3M+", sap: "$500K–$2M+", sana: "$50K–$200K+", sfcc: "$200K–$500K+" },
   { label: "Mobile App Included", growmax: "Yes", oracle: "No", sap: "No", sana: "No", sfcc: "No" },
   { label: "Implementation Time", growmax: "2-4 weeks", oracle: "12-24 months", sap: "12-18 months", sana: "4-8 months", sfcc: "6-12 months" },
 ];
@@ -165,12 +165,12 @@ const whyOracleUsersSwitch = [
   {
     icon: DollarSign,
     title: "Oracle Commerce Costs Millions",
-    description: "Between licensing ($200K+/year), implementation ($750K-$3M), and ongoing maintenance, Oracle Commerce Cloud is a multi-million dollar commitment. Growmax delivers equivalent B2B commerce at 1% of the cost."
+    description: "Between licensing ($200K+/year), implementation ($750K-$3M), and ongoing maintenance, Oracle Commerce Cloud is a multi-million dollar commitment. Growmax Enterprise delivers equivalent multi-party revenue operations at a fraction of the cost."
   },
   {
     icon: Zap,
     title: "24-Month Implementations Are a Dealbreaker",
-    description: "Oracle Commerce Cloud implementations take 12-24 months. In that time, your competitors have launched, iterated, and captured market share. Growmax deploys in 2-4 weeks."
+    description: "Oracle Commerce Cloud implementations take 12-24 months. In that time, your competitors have launched, iterated, and captured market share. Growmax Enterprise deploys in 2-4 weeks."
   },
   {
     icon: Smartphone,
@@ -180,17 +180,17 @@ const whyOracleUsersSwitch = [
   {
     icon: Building2,
     title: "Oracle Ecosystem Lock-In",
-    description: "Oracle Commerce Cloud requires deep Oracle ecosystem investment. If you want flexibility to integrate with Zoho, SAP, or QuickBooks, you need a platform-agnostic commerce solution."
+    description: "Oracle Commerce Cloud requires deep Oracle ecosystem investment. Growmax Enterprise connects natively to SAP ECC/S4HANA, Epicor, and industry-specific ERPs — giving you flexibility without lock-in."
   },
   {
     icon: Package,
     title: "Mid-Market Doesn't Need Enterprise Bloat",
-    description: "Oracle Commerce Cloud was built for $1B+ enterprises. If you're a $10M-$500M distributor, you're paying for capabilities you'll never use. Growmax is purpose-built for your scale."
+    description: "Oracle Commerce Cloud was built for $1B+ enterprises. If you're a manufacturer with 100-500+ employees, Growmax Enterprise is purpose-built for your scale — connecting your sales reps, partners, and customers in one ecosystem."
   },
   {
     icon: ShieldCheck,
     title: "No Developer Dependency",
-    description: "Oracle Commerce Cloud requires a dedicated development team. Growmax is self-service — configure catalogs, pricing, and workflows without writing code or hiring consultants."
+    description: "Oracle Commerce Cloud requires a dedicated development team. Growmax Enterprise is self-service — configure catalogs, pricing, multi-version quotes, and partner workflows without writing code or hiring consultants."
   },
 ];
 
@@ -352,7 +352,7 @@ export default function OracleCommerceAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Oracle Commerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">SAP Commerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Sana Commerce</div>
@@ -397,7 +397,7 @@ export default function OracleCommerceAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Oracle Commerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">SAP Commerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Sana</div>
@@ -422,18 +422,18 @@ export default function OracleCommerceAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Verdict</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax Is the Best Oracle Commerce Alternative for Mid-Market Distributors</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax Enterprise Is the Best Oracle Commerce Alternative for Industrial Manufacturers</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8" data-testid="section-why-growmax-wins">
             {[
-              { number: "01", title: "1000x Lower Cost", description: "Growmax starts at $199/mo with no setup fees. Oracle Commerce Cloud typically requires $750K-$3M+ in implementation alone, plus $200K+/year in licensing. For mid-market distributors, the ROI is immediate." },
-              { number: "02", title: "2-4 Weeks vs 24 Months", description: "Deploy Growmax in weeks. Oracle Commerce Cloud implementations average 12-24 months. Your market opportunity won't wait for a 2-year implementation project." },
-              { number: "03", title: "Mobile Field Sales App", description: "Oracle Commerce Cloud has no offline mobile app for field sales reps. Growmax includes iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing." },
-              { number: "04", title: "No Vendor Lock-In", description: "Oracle Commerce Cloud locks you into the Oracle ecosystem. Growmax integrates with SAP, Zoho, QuickBooks, and any ERP via API — switch ERPs without switching your commerce platform." },
-              { number: "05", title: "Self-Service Configuration", description: "Oracle Commerce Cloud requires Java developers for customization. Growmax is self-service — configure pricing, catalogs, partner portals, and workflows without writing code." },
-              { number: "06", title: "Partner Commerce Included", description: "Growmax includes a partner commerce portal at no extra cost. On Oracle Commerce Cloud, partner-facing capabilities require additional licensing and custom development." },
+              { number: "01", title: "Dramatically Lower Cost", description: "Growmax Enterprise offers custom pricing with rapid deployment. Oracle Commerce Cloud typically requires $750K-$3M+ in implementation alone, plus $200K+/year in licensing. For industrial manufacturers, the ROI is immediate." },
+              { number: "02", title: "2-4 Weeks vs 24 Months", description: "Deploy Growmax Enterprise in weeks. Oracle Commerce Cloud implementations average 12-24 months. Your market opportunity won't wait for a 2-year implementation project." },
+              { number: "03", title: "Mobile Field Sales App", description: "Oracle Commerce Cloud has no offline mobile app for field sales reps. Growmax Enterprise includes iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing." },
+              { number: "04", title: "No Vendor Lock-In", description: "Oracle Commerce Cloud locks you into the Oracle ecosystem. Growmax Enterprise integrates natively with SAP ECC/S4HANA, Epicor, and industry-specific ERPs — switch ERPs without switching your commerce platform." },
+              { number: "05", title: "Self-Service Configuration", description: "Oracle Commerce Cloud requires Java developers for customization. Growmax Enterprise is self-service — configure pricing, catalogs, partner portals, and workflows without writing code." },
+              { number: "06", title: "Partner Commerce Included", description: "Growmax Enterprise includes a partner commerce portal at no extra cost. On Oracle Commerce Cloud, partner-facing capabilities require additional licensing and custom development." },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group" data-testid={`card-advantage-${i}`}>
                 <div className="font-mono text-xs text-growmax-red mb-4 uppercase">{item.number}</div>
@@ -449,14 +449,14 @@ export default function OracleCommerceAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Migrate from Oracle Commerce to Growmax</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Migrate from Oracle Commerce to Growmax Enterprise</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6" data-testid="section-migration-steps">
             {[
-              { step: "01", title: "Audit & Export", description: "Audit your Oracle Commerce catalog, pricing rules, and customer data. Export to migration templates provided by Growmax." },
-              { step: "02", title: "Connect Your ERP", description: "Link Growmax to your ERP (SAP, Zoho, QuickBooks, or via API). Native connectors handle bidirectional sync automatically." },
+              { step: "01", title: "Audit & Export", description: "Audit your Oracle Commerce catalog, pricing rules, and customer data. Export to migration templates provided by Growmax Enterprise." },
+              { step: "02", title: "Connect Your ERP", description: "Link Growmax Enterprise to your ERP (SAP ECC/S4HANA, Epicor, or via API). Native connectors handle bidirectional sync automatically." },
               { step: "03", title: "Configure & Test", description: "Set up customer-specific pricing, multi-warehouse rules, partner portals, and approval workflows. Run parallel testing." },
               { step: "04", title: "Go Live", description: "Deploy mobile apps to field reps, invite customers to the portal, and switch over. Typical go-live: 2-4 weeks." },
             ].map((item, i) => (

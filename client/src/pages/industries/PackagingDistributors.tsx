@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import { webPageSchema, faqPageSchema } from "@/lib/structuredData";
+import WhichGrowmax from "@/components/ui/WhichGrowmax";
 
 const painPoints = [
   {
@@ -210,26 +211,7 @@ export default function PackagingDistributors() {
         </div>
       </section>
 
-      <section className="py-24 bg-growmax-red text-white">
-        <div className="container mx-auto px-4 md:px-8 max-w-4xl text-center">
-          <h2 className="text-4xl font-bold tracking-tighter mb-6">Ready to Digitize Your Packaging Distribution?</h2>
-          <p className="text-xl font-light mb-8 opacity-90 max-w-2xl mx-auto">
-            See how Growmax handles volume pricing, recurring orders, and multi-warehouse fulfillment for packaging distributors. Deploy in 2-4 weeks.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/demo">
-              <Button size="lg" className="bg-white text-growmax-red hover:bg-gray-100 rounded-none font-bold px-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)]" data-testid="button-cta-demo">
-                Schedule a Demo <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/arc/pricing">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 rounded-none font-bold px-8" data-testid="button-cta-pricing">
-                View Pricing
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <WhichGrowmax industry="Packaging" />
     </div>
   );
 }

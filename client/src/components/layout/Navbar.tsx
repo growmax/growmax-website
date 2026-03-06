@@ -15,23 +15,29 @@ interface NavDropdown {
 
 const navDropdowns: NavDropdown[] = [
   {
-    label: "Platform Arc",
+    label: "Growmax Enterprise",
     items: [
-      { label: "Revenue Platform", href: "/revenue-platform" },
+      { label: "Growmax Enterprise", href: "/revenue-platform" },
       { label: "Enterprise Comparison", href: "/revenue-platform/compare" },
       { label: "Dealer Portals", href: "/revenue-platform/dealer-portals" },
       { label: "Partner Commerce", href: "/revenue-platform/partner-commerce" },
       { label: "Spares Portals", href: "/revenue-platform/spares-portals" },
       { label: "SAP Integration", href: "/revenue-platform/sap-integration" },
+      { label: "vs Sana Commerce", href: "/comparisons/sana-commerce-alternatives" },
+      { label: "vs SAP Commerce Cloud", href: "/comparisons/sap-commerce-cloud-alternatives" },
+      { label: "vs Salesforce Commerce", href: "/comparisons/salesforce-commerce-alternatives" },
     ],
   },
   {
-    label: "Distributor Arc",
+    label: "Growmax ARC",
     items: [
       { label: "Growmax ARC", href: "/arc" },
       { label: "ARC Pricing", href: "/arc/pricing" },
       { label: "ARC vs B2B Wave", href: "/arc/compare/b2b-wave" },
       { label: "ARC vs Pepperi", href: "/arc/compare/pepperi" },
+      { label: "ARC vs NowCommerce", href: "/arc/compare/nowcommerce" },
+      { label: "ARC vs Cin7", href: "/arc/compare/cin7" },
+      { label: "ARC vs Unleashed", href: "/arc/compare/unleashed" },
     ],
   },
   {
@@ -40,8 +46,15 @@ const navDropdowns: NavDropdown[] = [
       { label: "Electrical Distributors", href: "/industries/electrical-distributors" },
       { label: "Building Materials", href: "/industries/building-materials" },
       { label: "Industrial Manufacturing", href: "/industries/industrial-manufacturing" },
+      { label: "Plumbing & HVAC", href: "/industries/plumbing-hvac" },
+      { label: "Safety & PPE", href: "/industries/safety-ppe" },
+      { label: "Industrial Fasteners", href: "/industries/industrial-fasteners" },
+      { label: "Pump & Valve", href: "/industries/pump-valve" },
+      { label: "Chemical Distributors", href: "/industries/chemical-distributors" },
+      { label: "Packaging Distributors", href: "/industries/packaging-distributors" },
       { label: "Food & Beverage", href: "/industries/food-beverage" },
       { label: "Automotive Aftermarket", href: "/industries/automotive-aftermarket" },
+      { label: "Janitorial & Sanitation", href: "/industries/janitorial-sanitation" },
     ],
   },
   {
@@ -51,6 +64,8 @@ const navDropdowns: NavDropdown[] = [
       { label: "Spare Parts Guide", href: "/solutions/spare-parts-ecommerce" },
       { label: "Handshake Alternatives", href: "/comparisons/handshake-alternatives" },
       { label: "TradeGecko Alternatives", href: "/comparisons/tradegecko-alternatives" },
+      { label: "Magento B2B Alternatives", href: "/comparisons/magento-b2b-alternatives" },
+      { label: "Shopify Plus B2B Alternatives", href: "/comparisons/shopify-plus-b2b-alternatives" },
     ],
   },
 ];
@@ -94,7 +109,7 @@ function DesktopDropdown({ dropdown }: { dropdown: NavDropdown }) {
         />
       </button>
       {open && (
-        <div className="absolute top-full left-0 min-w-[280px] bg-white border-2 border-growmax-black z-50">
+        <div className="absolute top-full left-0 min-w-[280px] bg-white border-2 border-growmax-black z-50 max-h-[70vh] overflow-y-auto">
           {dropdown.items.map((item) => (
             <Link
               key={item.href}
@@ -178,9 +193,9 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
             href="/company/about"
             className="block px-6 py-4 font-mono text-sm uppercase tracking-widest hover:bg-growmax-black hover:text-white transition-colors"
             onClick={onClose}
-            data-testid="mobile-link-thesis-team"
+            data-testid="mobile-link-about-us"
           >
-            Thesis & Team
+            About Us
           </Link>
         </div>
         <div className="p-6">
@@ -190,7 +205,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
             onClick={onClose}
             data-testid="mobile-link-demo"
           >
-            Initialize System
+            Book a Demo
           </Link>
         </div>
       </div>
@@ -221,9 +236,9 @@ export default function Navbar() {
             <Link
               href="/company/about"
               className="flex items-center px-6 border-r border-growmax-gray hover:bg-growmax-black hover:text-white transition-colors"
-              data-testid="nav-link-thesis-team"
+              data-testid="nav-link-about-us"
             >
-              Thesis & Team
+              About Us
             </Link>
           </div>
 
@@ -240,7 +255,7 @@ export default function Navbar() {
               className="flex items-center px-8 bg-growmax-red text-white font-bold hover:bg-growmax-black transition-colors border-l-2 border-growmax-black"
               data-testid="nav-link-demo"
             >
-              Initialize System
+              Book a Demo
             </Link>
           </div>
         </div>

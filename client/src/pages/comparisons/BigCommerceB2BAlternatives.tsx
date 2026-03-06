@@ -7,10 +7,10 @@ import { webPageSchema, faqPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Industrial Distributors & Manufacturers",
+    name: "Growmax ARC",
+    tagline: "Best All-in-One Platform for SMB Distributors",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. Native ERP integration, offline field sales app, multi-warehouse inventory, and partner commerce — designed for businesses where B2B is the core business, not an afterthought.",
+    description: "The all-in-one B2B distributor platform with self-service signup. Inventory, customer portal, and mobile sales rep app — ready in minutes. Purpose-built for B2B with native Zoho, QuickBooks & Xero integration, offline field sales, and multi-warehouse inventory.",
     pros: [
       "Purpose-built for B2B — not a DTC platform with B2B bolted on",
       "Offline-capable mobile app for field sales reps",
@@ -168,54 +168,54 @@ const whyBigCommerceUsersSwitch = [
   {
     icon: Smartphone,
     title: "No Mobile App for Field Sales",
-    description: "BigCommerce has no native mobile app for field sales reps. Growmax includes iOS and Android apps with offline ordering, customer-specific pricing, and GPS visit logging."
+    description: "BigCommerce has no native mobile app for field sales reps. Growmax ARC includes iOS and Android apps with offline ordering, customer-specific pricing, and GPS visit logging."
   },
   {
     icon: TrendingUp,
     title: "Revenue-Based Pricing Hurts Growth",
-    description: "BigCommerce charges based on your revenue. As your B2B sales grow, so does your platform cost. Growmax offers flat pricing — your success doesn't come with a penalty."
+    description: "BigCommerce charges based on your revenue. As your B2B sales grow, so does your platform cost. Growmax ARC offers flat $199/mo pricing — your success doesn't come with a penalty."
   },
   {
     icon: Package,
     title: "No Multi-Warehouse Intelligence",
-    description: "BigCommerce doesn't support multi-warehouse allocation logic. Industrial distributors with multiple warehouses need intelligent inventory routing — Growmax delivers it natively."
+    description: "BigCommerce doesn't support multi-warehouse allocation logic. Distributors with multiple warehouses need intelligent inventory routing — Growmax ARC delivers it natively."
   },
   {
     icon: Globe,
     title: "Limited ERP Integration",
-    description: "BigCommerce relies on third-party apps for ERP integration. Growmax connects natively to Zoho, SAP, and QuickBooks — no middleware, no sync delays."
+    description: "BigCommerce relies on third-party apps for ERP integration. Growmax ARC connects natively to Zoho, QuickBooks, and Xero — no middleware, no sync delays."
   },
   {
     icon: ShieldCheck,
     title: "No Partner Commerce Portal",
-    description: "BigCommerce has no partner portal for channel sales. Growmax includes a full partner commerce portal where channel partners place orders and manage accounts independently."
+    description: "BigCommerce has no partner portal for channel sales. Growmax ARC includes a full customer self-service portal where buyers place orders and manage accounts independently."
   },
 ];
 
 const faqs = [
   {
     question: "What is the best alternative to BigCommerce B2B?",
-    answer: "Growmax is the best BigCommerce B2B alternative for industrial distributors and manufacturers. Unlike BigCommerce (a DTC platform with B2B features added), Growmax is purpose-built for B2B with native ERP integration, offline mobile ordering, multi-warehouse inventory, and partner commerce."
+    answer: "Growmax ARC is the best BigCommerce B2B alternative for SMB distributors. Unlike BigCommerce (a DTC platform with B2B features added), Growmax ARC is purpose-built for B2B with native Zoho/QuickBooks/Xero integration, offline mobile ordering, multi-warehouse inventory, and customer self-service portal."
   },
   {
-    question: "How does Growmax compare to BigCommerce B2B pricing?",
-    answer: "Growmax starts at $199/month with flat pricing — no revenue-based fees. BigCommerce B2B typically costs $1,000-$3,000+/month and charges based on your annual revenue. As your B2B sales grow, BigCommerce gets more expensive while Growmax stays predictable."
+    question: "How does Growmax ARC compare to BigCommerce B2B pricing?",
+    answer: "Growmax ARC starts at $199/month with flat pricing — no revenue-based fees. BigCommerce B2B typically costs $1,000-$3,000+/month and charges based on your annual revenue. As your B2B sales grow, BigCommerce gets more expensive while Growmax ARC stays predictable."
   },
   {
-    question: "Can I migrate from BigCommerce to Growmax?",
-    answer: "Yes. Growmax provides a structured migration path from BigCommerce. We help export your product catalog, customer accounts, and pricing data. Most BigCommerce migrations complete within 2-4 weeks."
+    question: "Can I migrate from BigCommerce to Growmax ARC?",
+    answer: "Yes. Growmax ARC provides a structured migration path from BigCommerce. We help export your product catalog, customer accounts, and pricing data. Most BigCommerce migrations complete within 2-4 weeks."
   },
   {
-    question: "Does Growmax support headless commerce like BigCommerce?",
-    answer: "Growmax focuses on providing a complete B2B commerce experience out of the box, including customer portal, mobile app, and ERP integration. For custom frontend needs, Growmax offers a comprehensive API. However, if headless DTC storefront is your primary need, BigCommerce may be more suitable."
+    question: "Does Growmax ARC support headless commerce like BigCommerce?",
+    answer: "Growmax ARC focuses on providing a complete B2B commerce experience out of the box, including customer portal, mobile app, and accounting integration. For custom frontend needs, Growmax ARC offers a comprehensive API. However, if headless DTC storefront is your primary need, BigCommerce may be more suitable."
   },
   {
-    question: "Is BigCommerce or Growmax better for wholesale distribution?",
-    answer: "Growmax is significantly better for wholesale distribution. It includes offline field sales apps, multi-warehouse inventory allocation, quote-to-order workflows, partner commerce portals, and native ERP integration — none of which BigCommerce B2B offers natively."
+    question: "Is BigCommerce or Growmax ARC better for wholesale distribution?",
+    answer: "Growmax ARC is significantly better for wholesale distribution. It includes offline field sales apps, multi-warehouse inventory allocation, quote-to-order workflows, customer self-service portals, and native accounting integration — none of which BigCommerce B2B offers natively."
   },
   {
-    question: "Does Growmax support DTC and B2B together?",
-    answer: "Growmax is focused exclusively on B2B commerce. If you need a hybrid B2B/DTC platform, BigCommerce or Shopify Plus may be better options. But if B2B is your core business, Growmax delivers significantly more depth and value."
+    question: "Does Growmax ARC support DTC and B2B together?",
+    answer: "Growmax ARC is focused exclusively on B2B commerce. If you need a hybrid B2B/DTC platform, BigCommerce or Shopify Plus may be better options. But if B2B is your core business, Growmax ARC delivers significantly more depth and value at $199/mo."
   },
 ];
 
@@ -224,7 +224,7 @@ export default function BigCommerceB2BAlternatives() {
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Best BigCommerce B2B Alternatives & Competitors in 2026 | Growmax"
-        description="Compare the best BigCommerce B2B alternatives for wholesale distributors: Growmax, Shopify Plus, OroCommerce, and Adobe Commerce. Feature comparison, pricing, and migration guide."
+        description="Compare the best BigCommerce B2B alternatives for wholesale distributors: Growmax ARC, Shopify Plus, OroCommerce, and Adobe Commerce. Feature comparison, pricing, and migration guide."
         path="/comparisons/bigcommerce-b2b-alternatives"
         structuredData={[
           webPageSchema({
@@ -385,7 +385,7 @@ export default function BigCommerceB2BAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax ARC</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">BigCommerce B2B</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Shopify Plus</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">OroCommerce</div>
@@ -430,7 +430,7 @@ export default function BigCommerceB2BAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax ARC</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">BigCommerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Shopify Plus</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">OroCommerce</div>
@@ -455,15 +455,15 @@ export default function BigCommerceB2BAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">How to Migrate from BigCommerce B2B to Growmax</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">How to Migrate from BigCommerce B2B to Growmax ARC</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6" data-testid="section-migration-steps">
             {[
               { step: "01", title: "Export Your Data", description: "Export your BigCommerce product catalog, customer accounts, price lists, and order history via CSV or API." },
-              { step: "02", title: "Map & Import", description: "Our team maps your BigCommerce data to Growmax — products, pricing tiers, customer segments, and inventory." },
-              { step: "03", title: "Connect Your ERP", description: "Link Growmax to your Zoho, SAP, or QuickBooks instance with native connectors. No middleware needed." },
+              { step: "02", title: "Map & Import", description: "Our team maps your BigCommerce data to Growmax ARC — products, pricing tiers, customer segments, and inventory." },
+              { step: "03", title: "Connect Your Accounting", description: "Link Growmax ARC to your Zoho, QuickBooks, or Xero instance with native connectors. No middleware needed." },
               { step: "04", title: "Go Live", description: "Deploy mobile apps, launch customer portal, train your team. Typical migration: 2-4 weeks from kickoff." },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-6 hover:border-growmax-red transition-colors" data-testid={`card-step-${i}`}>
@@ -521,7 +521,7 @@ export default function BigCommerceB2BAlternatives() {
         <div className="container mx-auto px-4">
           <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-6 font-bold">Deploy Now</div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-growmax-black" data-testid="text-cta-title">
-            Ready for purpose-built B2B?<br/>Deploy Growmax today.
+            Ready for purpose-built B2B?<br/>Deploy Growmax ARC today.
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto mb-10">
             Start your 14-day free trial. No credit card required. No revenue-based pricing. Go live in weeks — not months.

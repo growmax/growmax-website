@@ -7,16 +7,16 @@ import { webPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Industrial Distributors & Manufacturers",
+    name: "Growmax Enterprise",
+    tagline: "Multi-Party Revenue Ecosystem for Industrial Manufacturers",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. Native Zoho & SAP integration, offline field sales app, multi-warehouse inventory, and partner commerce portal. Deploy in weeks, not quarters.",
+    description: "The intelligent revenue operations platform that connects your sales reps, partners, dealers, and customers on one platform with full visibility from quote to fulfillment. Native SAP ECC/S4HANA integration, multi-version quote workflows, partner commerce portals, and dealer management. Deploy in weeks, not quarters.",
     pros: [
-      "Native Zoho & SAP ERP integration — no middleware",
+      "Multi-party ecosystem: Brand → Sales Reps → Partners → Customers with 100% visibility",
+      "Native SAP ECC/S4HANA integration with bidirectional sync",
+      "Multi-version quote workflows with approval engine",
+      "Partner commerce portal for dealer and channel networks",
       "Offline-capable mobile app for field sales reps",
-      "Multi-warehouse inventory with intelligent allocation",
-      "Partner commerce portal for channel sales",
-      "Quote-to-order workflow with approval engine",
       "Customer-specific pricing with volume brackets",
       "2-4 week implementation timeline",
     ],
@@ -24,8 +24,8 @@ const competitors = [
       "Focused on B2B industrial — not ideal for DTC brands",
       "No native Shopify or WooCommerce integration",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Industrial distributors, electrical wholesalers, building materials companies, manufacturers with complex pricing",
+    pricing: "Custom pricing",
+    bestFor: "Industrial manufacturers with 100+ employees, electrical equipment companies, building materials manufacturers with partner networks",
     rating: "4.8",
   },
   {
@@ -66,7 +66,7 @@ const competitors = [
       "High implementation costs ($50K-$200K+)",
       "Requires SAP or Dynamics — no standalone mode",
       "No offline mobile app for field reps",
-      "No Zoho ecosystem support",
+      "No multi-party ecosystem support",
       "Complex pricing based on order volume",
       "Long implementation cycles (4-8 months)",
     ],
@@ -87,7 +87,7 @@ const competitors = [
     ],
     cons: [
       "Originally built for DTC — B2B is bolted on",
-      "No native ERP integration for SAP/Zoho",
+      "No native ERP integration for SAP/Epicor",
       "No offline field sales capabilities",
       "Limited multi-warehouse support",
       "Transaction-based pricing at scale",
@@ -139,7 +139,7 @@ const featureComparison = [
     { feature: "Inventory Allocation Logic", growmax: true, oro: false, sana: false, bigcommerce: false, magento: false },
   ]},
   { category: "Integrations", items: [
-    { feature: "Native Zoho Integration", growmax: true, oro: false, sana: false, bigcommerce: false, magento: false },
+    { feature: "Native SAP ECC/S4HANA Integration", growmax: true, oro: false, sana: true, bigcommerce: false, magento: false },
     { feature: "Salesforce CRM Integration", growmax: false, oro: true, sana: false, bigcommerce: false, magento: false },
     { feature: "SAP / ERP Connectivity", growmax: true, oro: false, sana: true, bigcommerce: false, magento: false },
     { feature: "API Access", growmax: true, oro: true, sana: true, bigcommerce: true, magento: true },
@@ -154,9 +154,9 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", oro: "Custom ($2,000+/mo)", sana: "Custom ($1,500+/mo)", bigcommerce: "Custom ($1,000+/mo)", magento: "Custom ($40K+/yr)" },
-  { label: "Free Trial", growmax: "14 days", oro: "No", sana: "No", bigcommerce: "No", magento: "No" },
-  { label: "Setup Fee", growmax: "$0", oro: "$30K-$150K+", sana: "$50K-$200K+", bigcommerce: "$5K-$25K", magento: "$50K-$300K+" },
+  { label: "Starting Price", growmax: "Custom pricing", oro: "Custom ($2,000+/mo)", sana: "Custom ($1,500+/mo)", bigcommerce: "Custom ($1,000+/mo)", magento: "Custom ($40K+/yr)" },
+  { label: "Free Trial", growmax: "Request consultation", oro: "No", sana: "No", bigcommerce: "No", magento: "No" },
+  { label: "Setup Fee", growmax: "Custom", oro: "$30K-$150K+", sana: "$50K-$200K+", bigcommerce: "$5K-$25K", magento: "$50K-$300K+" },
   { label: "Mobile App Included", growmax: "Yes", oro: "No", sana: "No", bigcommerce: "No", magento: "No" },
   { label: "Implementation Time", growmax: "2-4 weeks", oro: "6-12 months", sana: "4-8 months", bigcommerce: "2-4 months", magento: "6-12 months" },
 ];
@@ -165,55 +165,55 @@ const whySalesforceUsersSwitch = [
   {
     icon: DollarSign,
     title: "Salesforce Commerce Cloud Is Prohibitively Expensive",
-    description: "Salesforce Commerce Cloud licensing starts at $150K+/year with implementation costs often exceeding $500K. Growmax delivers purpose-built B2B commerce starting at $199/mo — that's 99% less."
+    description: "Salesforce Commerce Cloud licensing starts at $150K+/year with implementation costs often exceeding $500K. Growmax Enterprise delivers purpose-built multi-party revenue operations at a fraction of the cost with custom pricing tailored to your ecosystem."
   },
   {
     icon: Clock,
     title: "Implementation Takes 12-18 Months",
-    description: "Salesforce Commerce Cloud projects routinely take 12-18 months to go live. Growmax deploys in 2-4 weeks. Your team is processing B2B orders before the Salesforce project completes its discovery phase."
+    description: "Salesforce Commerce Cloud projects routinely take 12-18 months to go live. Growmax Enterprise deploys in 2-4 weeks. Your team is processing B2B orders before the Salesforce project completes its discovery phase."
   },
   {
     icon: Smartphone,
     title: "No Offline Mobile App for Field Sales",
-    description: "Salesforce Commerce Cloud doesn't include an offline-capable mobile ordering app for field reps. Growmax provides native iOS/Android apps with offline order creation, GPS visit logging, and customer-specific pricing."
+    description: "Salesforce Commerce Cloud doesn't include an offline-capable mobile ordering app for field reps. Growmax Enterprise provides native iOS/Android apps with offline order creation, GPS visit logging, and customer-specific pricing."
   },
   {
     icon: Package,
     title: "Built for Retail, Not Distribution",
-    description: "Salesforce Commerce Cloud was designed for B2C retail. Its B2B capabilities require extensive customization. Growmax was purpose-built for industrial distributors with complex pricing, multi-warehouse inventory, and partner commerce."
+    description: "Salesforce Commerce Cloud was designed for B2C retail. Its B2B capabilities require extensive customization. Growmax Enterprise was purpose-built for industrial manufacturers with multi-party ecosystems — connecting sales reps, partners, and customers."
   },
   {
     icon: Building2,
     title: "You Don't Need the Full Salesforce Stack",
-    description: "Salesforce Commerce Cloud works best when you're all-in on the Salesforce ecosystem. If you run Zoho, SAP, or QuickBooks, Growmax integrates natively without forcing an ecosystem migration."
+    description: "Salesforce Commerce Cloud works best when you're all-in on the Salesforce ecosystem. If you run SAP or Epicor, Growmax Enterprise integrates natively without forcing an ecosystem migration."
   },
   {
     icon: ShieldCheck,
     title: "Partner Commerce Requires Separate Licensing",
-    description: "In Salesforce, partner and channel management requires additional clouds and licensing. Growmax includes a full partner commerce portal — channel partners place orders, track deliveries, and manage accounts from day one."
+    description: "In Salesforce, partner and channel management requires additional clouds and licensing. Growmax Enterprise includes a full partner commerce portal — dealers and channel partners place orders, track deliveries, and manage accounts with full visibility back to the brand."
   },
 ];
 
 const faqs = [
   {
-    question: "How does Growmax compare to Salesforce Commerce Cloud for B2B?",
-    answer: "Growmax is purpose-built for B2B industrial distribution, while Salesforce Commerce Cloud is primarily a retail commerce platform with B2B capabilities added. Growmax offers faster deployment (2-4 weeks vs 12-18 months), dramatically lower TCO ($199/mo vs $150K+/year), offline mobile ordering, and native partner commerce — features that require extensive customization in Salesforce."
+    question: "How does Growmax Enterprise compare to Salesforce Commerce Cloud for B2B?",
+    answer: "Growmax Enterprise is purpose-built for B2B industrial manufacturers with multi-party ecosystems, while Salesforce Commerce Cloud is primarily a retail commerce platform with B2B capabilities added. Growmax Enterprise offers faster deployment (2-4 weeks vs 12-18 months), dramatically lower TCO, offline mobile ordering, and native partner commerce — features that require extensive customization in Salesforce."
   },
   {
-    question: "Can I keep using Salesforce CRM while switching to Growmax?",
-    answer: "Yes. Growmax doesn't require you to abandon your CRM. While Growmax includes its own sales pipeline features with native Zoho CRM integration, it can also connect to Salesforce CRM via API for bidirectional data sync of contacts, accounts, and opportunities."
+    question: "Can I keep using Salesforce CRM while switching to Growmax Enterprise?",
+    answer: "Yes. Growmax Enterprise doesn't require you to abandon your CRM. It can connect to Salesforce CRM via API for bidirectional data sync of contacts, accounts, and opportunities while providing its own multi-party ecosystem management."
   },
   {
-    question: "What's the real cost difference between Salesforce Commerce and Growmax?",
-    answer: "Salesforce Commerce Cloud typically costs $150K-$500K+ per year including licensing, implementation, and ongoing partner support. Growmax starts at $199/mo with $0 setup fees and 2-4 week deployment. Over 3 years, Growmax can save you $300K-$1M+ compared to Salesforce Commerce Cloud."
+    question: "What's the real cost difference between Salesforce Commerce and Growmax Enterprise?",
+    answer: "Salesforce Commerce Cloud typically costs $150K-$500K+ per year including licensing, implementation, and ongoing partner support. Growmax Enterprise offers custom pricing with dramatically lower total cost of ownership and 2-4 week deployment. Over 3 years, Growmax Enterprise can save you $300K-$1M+ compared to Salesforce Commerce Cloud."
   },
   {
-    question: "Is Growmax enterprise-grade?",
-    answer: "Absolutely. Growmax serves industrial distributors and manufacturers with 10K-100K+ SKUs, complex pricing matrices, multi-warehouse inventory, and thousands of B2B customers. The platform handles enterprise-scale operations without enterprise-scale complexity or cost."
+    question: "Is Growmax Enterprise truly enterprise-grade?",
+    answer: "Absolutely. Growmax Enterprise serves industrial manufacturers with 100+ employees, connecting their sales reps, partners, dealers, and customers in one ecosystem. It handles 10K-100K+ SKUs, complex multi-version quote workflows, partner commerce, and SAP/Epicor integration — without enterprise-scale complexity or cost."
   },
   {
     question: "How long does migration from Salesforce Commerce Cloud take?",
-    answer: "Most Salesforce Commerce Cloud to Growmax migrations complete in 4-8 weeks. Growmax's implementation team handles catalog migration, customer data transfer, pricing rule configuration, and ERP integration. Parallel running is available during the transition period."
+    answer: "Most Salesforce Commerce Cloud to Growmax Enterprise migrations complete in 4-8 weeks. Our implementation team handles catalog migration, customer data transfer, pricing rule configuration, and SAP/Epicor integration. Parallel running is available during the transition period."
   },
 ];
 
@@ -375,7 +375,7 @@ export default function SalesforceCommerceAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">OroCommerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Sana Commerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">BigCommerce</div>
@@ -420,7 +420,7 @@ export default function SalesforceCommerceAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Oro</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Sana</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">BigCommerce</div>
@@ -445,15 +445,15 @@ export default function SalesforceCommerceAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Migrating from Salesforce Commerce Cloud to Growmax</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Migrating from Salesforce Commerce Cloud to Growmax Enterprise</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-8">
             {[
               { step: "01", title: "Discovery & Audit", description: "We analyze your current Salesforce Commerce setup, catalog structure, pricing rules, customer segments, and integration points to build a complete migration plan." },
-              { step: "02", title: "Data Migration", description: "Product catalogs, customer accounts, pricing matrices, order history, and custom fields are migrated to Growmax with full data validation and integrity checks." },
-              { step: "03", title: "Integration Config", description: "Connect Growmax to your ERP (Zoho, SAP, QuickBooks) with bidirectional sync. Set up API connections to your existing CRM if needed." },
+              { step: "02", title: "Data Migration", description: "Product catalogs, customer accounts, pricing matrices, order history, and custom fields are migrated to Growmax Enterprise with full data validation and integrity checks." },
+              { step: "03", title: "Integration Config", description: "Connect Growmax Enterprise to your ERP (SAP ECC/S4HANA, Epicor) with bidirectional sync. Set up API connections to your existing CRM if needed." },
               { step: "04", title: "Launch & Optimize", description: "Go live with parallel running available. Dedicated success team ensures smooth transition, user training, and ongoing optimization support." },
             ].map((item, i) => (
               <div key={i} className="border-2 border-growmax-black p-6" data-testid={`card-migration-step-${i}`}>
@@ -489,7 +489,7 @@ export default function SalesforceCommerceAlternatives() {
         <div className="container mx-auto px-4">
           <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-6 font-bold">Deploy Now</div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-growmax-black" data-testid="text-cta-title">
-            Move beyond Salesforce Commerce.<br/>Deploy Growmax today.
+            Move beyond Salesforce Commerce.<br/>Deploy Growmax Enterprise today.
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto mb-10">
             Start your 14-day free trial. No credit card required. Full platform access from day one.

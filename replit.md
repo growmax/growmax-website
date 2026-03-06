@@ -1,9 +1,9 @@
 # Growmax LLC Corporate Website
 
 ## Overview
-Professional corporate website for Growmax (Webspot Growmax Commerce Private Limited, India / Growmax LLC, US), a B2B software company. Two product lines:
-1. **Revenue Platform** — Enterprise SAP/ERP integrations for manufacturers (Siemens, Schwing Stetter, OBO Bettermann)
-2. **Growmax ARC** — Zoho-integrated ordering platform for SMB distributors ($199/month)
+Professional corporate website for Growmax (Webspot Growmax Commerce Private Limited, India / Growmax LLC, US), a B2B software company. Two clearly differentiated product lines:
+1. **Growmax Enterprise** — Intelligent Revenue Operations Platform connecting sales reps, partners, and customers (multi-party ecosystem). SAP/Epicor integrations for 100+ employee manufacturers in industrial, electrical, construction, and building materials. Custom pricing.
+2. **Growmax ARC** — All-in-one distributor platform for SMBs (up to 100 employees). Inventory + Customer Portal + Sales Rep App. QuickBooks/Zoho/Xero integrations. $199/month. Self-service signup.
 
 ## Architecture
 - **Frontend**: React + Vite + Wouter (routing) + Tailwind CSS v4 + shadcn/ui components + react-helmet-async (SEO)
@@ -17,8 +17,9 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - `client/src/components/SEOHead.tsx` — Reusable SEO meta tag component (title, description, OG, Twitter)
 - `client/src/components/Breadcrumbs.tsx` — Reusable breadcrumb navigation component
 - `client/src/lib/structuredData.ts` — JSON-LD structured data generators (Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage, CollectionPage)
-- `client/src/pages/Home.tsx` — Homepage with customer logo wall, partner marquee
-- `client/src/pages/revenue-platform/RevenuePlatform.tsx` — Enterprise product page + compare alternatives banner + SoftwareApplication schema
+- `client/src/pages/Home.tsx` — Homepage with ecosystem hero, visual ecosystem diagrams (Enterprise multi-party vs ARC one-to-one), architecture split product routing, customer logos
+- `client/src/components/ui/WhichGrowmax.tsx` — Reusable "Which Growmax is right for you?" product routing component (used on all 12 industry pages)
+- `client/src/pages/revenue-platform/RevenuePlatform.tsx` — Growmax Enterprise product page with ecosystem flow diagram + SoftwareApplication schema
 - `client/src/pages/revenue-platform/CompareEnterprise.tsx` — Growmax vs Corevist vs SAP Commerce Cloud comparison
 - `client/src/pages/arc/Arc.tsx` — ARC product page + compare alternatives banner + SoftwareApplication schema
 - `client/src/pages/arc/Pricing.tsx` — ARC pricing page + Product/Offer schema
@@ -150,7 +151,10 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - All corners: radius 0 (sharp edges)
 - Hover states: hard translate, high-contrast inversions, shadow [8px_8px_0px]
 - CSS utilities: bg-grid-blueprint, bg-grid-blueprint-dark, bg-dots, bg-dots-dark, text-stroke, animate-marquee
-- Framing language: "Architecture" not "Products", "Deploy" not "Get Started", "Intelligence" for blog
+- Framing language: "Book a Demo" (not "Initialize System"), "About Us" (not "Thesis & Team"), "Intelligence" for blog
+- Product naming: Always "Growmax Enterprise" (never "Revenue Platform" or "Enterprise Platform"), always "Growmax ARC"
+- Enterprise comparison pages: Position Growmax Enterprise with ecosystem story, custom pricing, SAP/Epicor (8 pages)
+- ARC comparison pages: Position Growmax ARC with $199/mo, QuickBooks/Zoho/Xero (6 pages + 5 direct comparisons)
 
 ## Target Market
 US East Coast & Texas — Industrial and Electrical Distributors for enterprise-grade revenue operations platform.

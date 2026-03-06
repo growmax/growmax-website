@@ -7,24 +7,24 @@ import { webPageSchema, faqPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Industrial Distributors & Manufacturers",
+    name: "Growmax Enterprise",
+    tagline: "Multi-Party Revenue Ecosystem for Industrial Manufacturers",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. While Magento requires teams of PHP developers and months of customization, Growmax delivers enterprise B2B commerce out of the box — with native ERP integration, offline mobile ordering, and partner portals.",
+    description: "The intelligent revenue operations platform that connects your sales reps, partners, dealers, and customers on one platform with full visibility. While Magento requires teams of PHP developers and months of customization, Growmax Enterprise delivers multi-party revenue operations out of the box — with native SAP integration, multi-version quotes, and partner portals.",
     pros: [
-      "Purpose-built for B2B industrial distribution — not a B2C platform customized for B2B",
-      "Native Zoho & SAP ERP integration — no middleware or custom connectors",
+      "Multi-party ecosystem: Brand → Sales Reps → Partners → Customers with 100% visibility",
+      "Native SAP ECC/S4HANA & Epicor integration — no middleware",
+      "Multi-version quote workflows with approval engine",
+      "Partner commerce portal for dealer and channel networks",
       "Offline-capable mobile app for field sales reps (iOS & Android)",
-      "Multi-warehouse inventory with intelligent allocation logic",
-      "Partner commerce portal for channel/dealer networks",
       "2-4 week implementation vs. Magento's 6-12 months",
     ],
     cons: [
       "Focused on B2B industrial — not designed for DTC retail",
       "No native Shopify or WooCommerce plugin marketplace",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Mid-market industrial distributors, electrical wholesalers, building materials companies, manufacturers",
+    pricing: "Custom pricing",
+    bestFor: "Industrial manufacturers with 100+ employees, electrical equipment companies, building materials manufacturers with partner networks",
     rating: "4.8",
   },
   {
@@ -88,7 +88,7 @@ const competitors = [
       "No customer-specific pricing with volume brackets",
       "No multi-warehouse inventory management",
       "No offline mobile app for field sales",
-      "No native ERP integration (SAP, Zoho)",
+      "No native ERP integration (SAP, Epicor)",
       "Less customization flexibility than Magento",
       "Transaction fees on top of monthly costs",
     ],
@@ -111,7 +111,7 @@ const competitors = [
       "Requires SAP or Dynamics — no standalone mode",
       "High implementation costs ($50K-$200K+)",
       "No offline mobile app for field reps",
-      "No Zoho ecosystem support",
+      "No multi-party ecosystem support",
       "Long implementation cycles (4-8 months)",
     ],
     pricing: "Custom (~$1,500+/mo + implementation)",
@@ -142,7 +142,7 @@ const featureComparison = [
     { feature: "Low Stock Alerts", growmax: true, bigcommerce: true, oro: true, shopify: true, sana: true },
   ]},
   { category: "Integrations & Ecosystem", items: [
-    { feature: "Native Zoho Integration", growmax: true, bigcommerce: false, oro: false, shopify: false, sana: false },
+    { feature: "Native SAP ECC/S4HANA Integration", growmax: true, bigcommerce: false, oro: false, shopify: false, sana: true },
     { feature: "Native SAP Integration", growmax: true, bigcommerce: false, oro: false, shopify: false, sana: true },
     { feature: "QuickBooks Integration", growmax: true, bigcommerce: true, oro: false, shopify: true, sana: false },
     { feature: "API Access", growmax: true, bigcommerce: true, oro: true, shopify: true, sana: true },
@@ -151,9 +151,9 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", bigcommerce: "~$400/mo", oro: "Custom ($45K+/yr)", shopify: "$2,300/mo", sana: "~$1,500+/mo" },
-  { label: "Free Trial", growmax: "14 days", bigcommerce: "15 days", oro: "Demo only", shopify: "Demo only", sana: "Demo only" },
-  { label: "Setup Fee", growmax: "$0", bigcommerce: "$0", oro: "$20K-$100K+", shopify: "$0", sana: "$50K-$200K+" },
+  { label: "Starting Price", growmax: "Custom pricing", bigcommerce: "~$400/mo", oro: "Custom ($45K+/yr)", shopify: "$2,300/mo", sana: "~$1,500+/mo" },
+  { label: "Free Trial", growmax: "Request consultation", bigcommerce: "15 days", oro: "Demo only", shopify: "Demo only", sana: "Demo only" },
+  { label: "Setup Fee", growmax: "Custom", bigcommerce: "$0", oro: "$20K-$100K+", shopify: "$0", sana: "$50K-$200K+" },
   { label: "Mobile App Included", growmax: "Yes", bigcommerce: "No", oro: "No", shopify: "No", sana: "No" },
   { label: "Implementation Time", growmax: "2-4 weeks", bigcommerce: "2-4 months", oro: "6-12 months", shopify: "1-3 months", sana: "4-8 months" },
   { label: "Developers Required", growmax: "No", bigcommerce: "Optional", oro: "Yes (PHP)", shopify: "Optional", sana: "Yes" },
@@ -163,12 +163,12 @@ const whyMagentoUsersSwitch = [
   {
     icon: Code,
     title: "Developer Dependency Is Unsustainable",
-    description: "Magento requires specialized PHP developers for every change — pricing rules, catalog updates, integrations. Finding and retaining Magento developers is increasingly difficult and expensive as the talent pool shrinks."
+    description: "Magento requires specialized PHP developers for every change — pricing rules, catalog updates, integrations. Growmax Enterprise is SaaS — no development team needed for multi-party revenue operations."
   },
   {
     icon: DollarSign,
     title: "Total Cost of Ownership Is Exploding",
-    description: "Adobe Commerce (Magento 2) licensing starts at $22K+/year, but the real cost is infrastructure ($2-5K/mo), developers ($150K+/year), security patches, and extensions. TCO often exceeds $200K/year."
+    description: "Adobe Commerce (Magento 2) licensing starts at $22K+/year, but the real cost is infrastructure ($2-5K/mo), developers ($150K+/year), security patches, and extensions. TCO often exceeds $200K/year. Growmax Enterprise offers custom pricing with dramatically lower total cost."
   },
   {
     icon: ShieldCheck,
@@ -188,22 +188,22 @@ const whyMagentoUsersSwitch = [
   {
     icon: Building2,
     title: "ERP Integration Requires Expensive Middleware",
-    description: "Connecting Magento to SAP, Zoho, or other ERPs requires middleware (Celigo, MuleSoft, Boomi) that adds $20-50K+ in costs and ongoing maintenance."
+    description: "Connecting Magento to SAP or other ERPs requires middleware (Celigo, MuleSoft, Boomi) that adds $20-50K+ in costs. Growmax Enterprise offers native SAP ECC/S4HANA and Epicor integration — no middleware needed."
   },
 ];
 
 const faqs = [
   {
-    question: "What is the best alternative to Magento B2B for industrial distributors?",
-    answer: "Growmax is the best Magento B2B alternative for industrial distributors. It provides customer-specific pricing, multi-warehouse inventory, offline mobile ordering, and native SAP/Zoho integration out of the box — features that require extensive customization on Magento. Implementation takes 2-4 weeks vs. Magento's 6-12 months."
+    question: "What is the best alternative to Magento B2B for industrial manufacturers?",
+    answer: "Growmax Enterprise is the best Magento B2B alternative for industrial manufacturers with 100+ employees. It provides a multi-party revenue ecosystem connecting sales reps, partners, and customers, with native SAP ECC/S4HANA integration, multi-version quote workflows, and partner commerce portals — features that require extensive customization on Magento. Implementation takes 2-4 weeks vs. Magento's 6-12 months."
   },
   {
     question: "How much does it cost to migrate from Magento to a B2B platform?",
-    answer: "Migration costs depend on your target platform. Migrating to Growmax typically costs $0 in setup fees with implementation in 2-4 weeks. Migrating to BigCommerce or Shopify Plus costs $10-50K for data migration and theme development. Migrating to OroCommerce or Sana Commerce can cost $50-200K+ due to complex implementation requirements."
+    answer: "Migration costs depend on your target platform. Migrating to Growmax Enterprise includes a tailored implementation with 2-4 week deployment. Migrating to BigCommerce or Shopify Plus costs $10-50K for data migration and theme development. Migrating to OroCommerce or Sana Commerce can cost $50-200K+ due to complex implementation requirements."
   },
   {
     question: "Is Adobe Commerce (Magento 2) still worth using for B2B?",
-    answer: "Adobe Commerce remains viable for large enterprises with dedicated development teams and complex B2C+B2B hybrid requirements. However, for pure B2B distributors, purpose-built platforms like Growmax deliver more B2B functionality at 1/10th the total cost of ownership, without requiring PHP developers or managing infrastructure."
+    answer: "Adobe Commerce remains viable for large enterprises with dedicated development teams and complex B2C+B2B hybrid requirements. However, for industrial manufacturers with partner networks, purpose-built platforms like Growmax Enterprise deliver deeper multi-party ecosystem functionality without requiring PHP developers or managing infrastructure."
   },
   {
     question: "Can I migrate from Magento without losing SEO rankings?",
@@ -355,7 +355,7 @@ export default function MagentoB2BAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">BigCommerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">OroCommerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Shopify Plus</div>
@@ -399,7 +399,7 @@ export default function MagentoB2BAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">BigCommerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">OroCommerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Shopify Plus</div>

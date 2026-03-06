@@ -7,24 +7,24 @@ import { webPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Mid-Market Industrial Distributors",
+    name: "Growmax Enterprise",
+    tagline: "Multi-Party Revenue Ecosystem for Industrial Manufacturers",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. Native SAP & Zoho integration, offline field sales app, multi-warehouse inventory, and partner commerce portal — at a fraction of SAP Commerce Cloud's cost.",
+    description: "The intelligent revenue operations platform that connects your sales reps, partners, dealers, and customers on one platform with full visibility. Native SAP ECC/S4HANA integration, multi-version quote workflows, partner commerce portals, and dealer management — at a fraction of SAP Commerce Cloud's cost.",
     pros: [
-      "Native SAP integration with bidirectional sync",
+      "Multi-party ecosystem: Brand → Sales Reps → Partners → Customers with 100% visibility",
+      "Native SAP ECC/S4HANA integration with bidirectional sync",
+      "Multi-version quote workflows with approval engine",
+      "Partner commerce portal for dealer and channel networks",
       "Offline-capable mobile app for field sales reps",
-      "Multi-warehouse inventory with intelligent allocation",
-      "Partner commerce portal for channel sales",
-      "Quote-to-order workflow with approval engine",
       "2-4 week deployment (vs 12-18 months for SAP)",
     ],
     cons: [
       "Focused on B2B industrial — not for B2C retail",
       "Fewer enterprise customization options than SAP",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Mid-market industrial distributors who need SAP-grade capabilities without SAP-grade complexity and cost",
+    pricing: "Custom pricing",
+    bestFor: "Industrial manufacturers with 100+ employees who need SAP-grade capabilities without SAP-grade complexity and cost",
     rating: "4.8",
   },
   {
@@ -65,7 +65,7 @@ const competitors = [
       "High implementation costs ($50K-$200K+)",
       "Requires SAP or Dynamics — no standalone mode",
       "No offline mobile app for field reps",
-      "No Zoho ecosystem support",
+      "No multi-party ecosystem support",
       "Complex pricing based on order volume",
       "4-8 month implementation cycle",
     ],
@@ -139,7 +139,7 @@ const featureComparison = [
   ]},
   { category: "Integrations", items: [
     { feature: "Native SAP S/4HANA Integration", growmax: true, sap: true, sana: false, oro: false, sfcc: false },
-    { feature: "Native Zoho Integration", growmax: true, sap: false, sana: false, oro: false, sfcc: false },
+    { feature: "Native SAP ECC/S4HANA Integration", growmax: true, sap: true, sana: true, oro: false, sfcc: false },
     { feature: "QuickBooks Integration", growmax: true, sap: false, sana: false, oro: false, sfcc: false },
     { feature: "Salesforce CRM Integration", growmax: false, sap: false, sana: false, oro: true, sfcc: true },
     { feature: "API Access", growmax: true, sap: true, sana: true, oro: true, sfcc: true },
@@ -154,9 +154,9 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", sap: "$100K+/year", sana: "$1,500+/mo", oro: "Free / Custom", sfcc: "$150K+/year" },
-  { label: "Free Trial", growmax: "14 days", sap: "No", sana: "No", oro: "Community edition", sfcc: "No" },
-  { label: "Setup Fee", growmax: "$0", sap: "$500K–$2M+", sana: "$50K–$200K+", oro: "$50K–$200K+", sfcc: "$200K–$500K+" },
+  { label: "Starting Price", growmax: "Custom pricing", sap: "$100K+/year", sana: "$1,500+/mo", oro: "Free / Custom", sfcc: "$150K+/year" },
+  { label: "Free Trial", growmax: "Request consultation", sap: "No", sana: "No", oro: "Community edition", sfcc: "No" },
+  { label: "Setup Fee", growmax: "Custom", sap: "$500K–$2M+", sana: "$50K–$200K+", oro: "$50K–$200K+", sfcc: "$200K–$500K+" },
   { label: "Mobile App Included", growmax: "Yes", sap: "No", sana: "No", oro: "No", sfcc: "No" },
   { label: "Implementation Time", growmax: "2-4 weeks", sap: "12-18 months", sana: "4-8 months", oro: "6-12 months", sfcc: "6-12 months" },
 ];
@@ -165,32 +165,32 @@ const whySAPUsersSwitch = [
   {
     icon: DollarSign,
     title: "SAP Commerce Cloud Costs $1M+",
-    description: "Between licensing ($100K+/year), implementation ($500K-$2M), and ongoing maintenance, SAP Commerce Cloud is a multi-million dollar commitment. Growmax delivers 90% of the value at 1% of the cost."
+    description: "Between licensing ($100K+/year), implementation ($500K-$2M), and ongoing maintenance, SAP Commerce Cloud is a multi-million dollar commitment. Growmax Enterprise delivers the same ecosystem connectivity at a fraction of the cost."
   },
   {
     icon: Zap,
     title: "18-Month Implementations Are Unacceptable",
-    description: "By the time SAP Commerce Cloud goes live, your market has moved on. Growmax deploys in 2-4 weeks — start taking orders while competitors are still in requirements gathering."
+    description: "By the time SAP Commerce Cloud goes live, your market has moved on. Growmax Enterprise deploys in 2-4 weeks — start taking orders while competitors are still in requirements gathering."
   },
   {
     icon: Smartphone,
     title: "Your Field Reps Need Mobile",
-    description: "SAP Commerce Cloud has no offline mobile app for field sales. Your reps visit customers in warehouses and factories with poor connectivity. Growmax works offline and syncs when connected."
+    description: "SAP Commerce Cloud has no offline mobile app for field sales. Your reps visit customers in warehouses and factories with poor connectivity. Growmax Enterprise works offline and syncs when connected."
   },
   {
     icon: Building2,
     title: "You Don't Need Enterprise Bloat",
-    description: "SAP Commerce Cloud was built for $1B+ enterprises. If you're a $10M-$500M distributor, you don't need 90% of what SAP offers — but you're paying for all of it."
+    description: "SAP Commerce Cloud was built for $1B+ enterprises. If you're a manufacturer with 100-500+ employees, Growmax Enterprise gives you the multi-party ecosystem capabilities you need without the bloat."
   },
   {
     icon: Package,
     title: "You Still Need SAP Integration",
-    description: "Switching away from SAP Commerce Cloud doesn't mean abandoning SAP ERP. Growmax connects natively to SAP S/4HANA and ECC with bidirectional real-time sync."
+    description: "Switching away from SAP Commerce Cloud doesn't mean abandoning SAP ERP. Growmax Enterprise connects natively to SAP S/4HANA and ECC with bidirectional real-time sync."
   },
   {
     icon: ShieldCheck,
     title: "You Need Partner Commerce",
-    description: "Growmax includes a full partner commerce portal out of the box. On SAP Commerce Cloud, partner portals require additional licensing and custom development."
+    description: "Growmax Enterprise includes a full partner commerce portal out of the box — connecting your brand, sales reps, dealers, and customers. On SAP Commerce Cloud, partner portals require additional licensing and custom development."
   },
 ];
 
@@ -352,7 +352,7 @@ export default function SAPCommerceCloudAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">SAP Commerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Sana Commerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">OroCommerce</div>
@@ -397,7 +397,7 @@ export default function SAPCommerceCloudAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">SAP Commerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Sana</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Oro</div>
@@ -422,18 +422,18 @@ export default function SAPCommerceCloudAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Verdict</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax Is the Best SAP Commerce Cloud Alternative for Mid-Market Distributors</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax Enterprise Is the Best SAP Commerce Cloud Alternative for Industrial Manufacturers</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8" data-testid="section-why-growmax-wins">
             {[
-              { number: "01", title: "100x Lower Cost", description: "Growmax starts at $199/mo with no setup fees. SAP Commerce Cloud typically requires $500K-$2M+ in implementation alone, plus $100K+/year in licensing. For mid-market distributors, the math is simple." },
-              { number: "02", title: "2-4 Weeks vs 18 Months", description: "Deploy Growmax in weeks. SAP Commerce Cloud implementations take 12-18 months on average. Your competitors will have launched, iterated, and captured market share before SAP goes live." },
-              { number: "03", title: "Mobile Field Sales App", description: "SAP Commerce Cloud has no offline mobile app for field sales reps. Growmax includes iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing." },
-              { number: "04", title: "Keep Your SAP ERP", description: "Moving away from SAP Commerce Cloud doesn't mean abandoning SAP ERP. Growmax connects natively to SAP S/4HANA and ECC with bidirectional real-time sync — no middleware required." },
-              { number: "05", title: "No Developer Dependency", description: "SAP Commerce Cloud requires Java developers for customization. Growmax is self-service — configure pricing, catalogs, and workflows without writing a single line of code." },
-              { number: "06", title: "Partner Commerce Included", description: "Growmax includes a partner commerce portal at no extra cost. On SAP Commerce Cloud, partner-facing capabilities require additional licensing and custom development." },
+              { number: "01", title: "Dramatically Lower Cost", description: "Growmax Enterprise offers custom pricing with no bloated implementation. SAP Commerce Cloud typically requires $500K-$2M+ in implementation alone, plus $100K+/year in licensing. For industrial manufacturers, the math is simple." },
+              { number: "02", title: "2-4 Weeks vs 18 Months", description: "Deploy Growmax Enterprise in weeks. SAP Commerce Cloud implementations take 12-18 months on average. Your competitors will have launched, iterated, and captured market share before SAP goes live." },
+              { number: "03", title: "Mobile Field Sales App", description: "SAP Commerce Cloud has no offline mobile app for field sales reps. Growmax Enterprise includes iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing." },
+              { number: "04", title: "Keep Your SAP ERP", description: "Moving away from SAP Commerce Cloud doesn't mean abandoning SAP ERP. Growmax Enterprise connects natively to SAP S/4HANA and ECC with bidirectional real-time sync — no middleware required." },
+              { number: "05", title: "No Developer Dependency", description: "SAP Commerce Cloud requires Java developers for customization. Growmax Enterprise is self-service — configure pricing, catalogs, and workflows without writing a single line of code." },
+              { number: "06", title: "Partner Commerce Included", description: "Growmax Enterprise includes a partner commerce portal at no extra cost. On SAP Commerce Cloud, partner-facing capabilities require additional licensing and custom development." },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group" data-testid={`card-advantage-${i}`}>
                 <div className="font-mono text-xs text-growmax-red mb-4 uppercase">{item.number}</div>
@@ -449,7 +449,7 @@ export default function SAPCommerceCloudAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Migrate from SAP Commerce Cloud to Growmax</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Migrate from SAP Commerce Cloud to Growmax Enterprise</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 

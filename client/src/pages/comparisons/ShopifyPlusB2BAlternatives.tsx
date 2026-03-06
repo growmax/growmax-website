@@ -7,10 +7,10 @@ import { webPageSchema, faqPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Industrial Distributors & Manufacturers",
+    name: "Growmax ARC",
+    tagline: "Best All-in-One Platform for SMB Distributors",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. While Shopify Plus adds B2B features to a DTC platform, Growmax was built from the ground up for B2B wholesale — with offline field sales, ERP integration, and partner commerce.",
+    description: "The all-in-one B2B distributor platform with self-service signup. While Shopify Plus adds B2B features to a DTC platform, Growmax ARC was built from the ground up for B2B wholesale — with inventory management, customer portal, mobile sales rep app, and native Zoho/QuickBooks/Xero integration.",
     pros: [
       "Purpose-built for B2B — not a DTC platform with B2B bolted on",
       "Offline-capable mobile app for field sales reps",
@@ -164,17 +164,17 @@ const whyShopifyUsersSwitch = [
   {
     icon: Building2,
     title: "B2B Is an Add-On, Not the Foundation",
-    description: "Shopify Plus B2B is built on top of a DTC platform. The B2B features are limited compared to purpose-built solutions — no offline ordering, no field sales app, no partner commerce."
+    description: "Shopify Plus B2B is built on top of a DTC platform. The B2B features are limited compared to purpose-built solutions — no offline ordering, no field sales app, no customer self-service portal."
   },
   {
     icon: CreditCard,
     title: "Transaction Fees Eat Your Margins",
-    description: "Shopify charges 0.15-0.5% on every transaction if you don't use Shopify Payments. For high-volume B2B distributors, this adds up to thousands per month. Growmax has zero transaction fees."
+    description: "Shopify charges 0.15-0.5% on every transaction if you don't use Shopify Payments. For high-volume B2B distributors, this adds up to thousands per month. Growmax ARC has zero transaction fees."
   },
   {
     icon: Smartphone,
     title: "No Mobile App for Field Sales",
-    description: "Shopify has no native mobile app for field sales reps. Growmax includes iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing."
+    description: "Shopify has no native mobile app for field sales reps. Growmax ARC includes iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing."
   },
   {
     icon: DollarSign,
@@ -184,39 +184,39 @@ const whyShopifyUsersSwitch = [
   {
     icon: Globe,
     title: "No Native ERP Integration",
-    description: "Shopify relies on third-party apps for ERP integration. Growmax connects natively to Zoho, SAP, and QuickBooks with bidirectional real-time sync."
+    description: "Shopify relies on third-party apps for ERP integration. Growmax ARC connects natively to Zoho, QuickBooks, and Xero with bidirectional real-time sync."
   },
   {
     icon: Package,
     title: "No Multi-Warehouse Intelligence",
-    description: "Shopify doesn't support multi-warehouse allocation logic. Industrial distributors need intelligent inventory routing across multiple locations — Growmax handles this natively."
+    description: "Shopify doesn't support multi-warehouse allocation logic. Distributors need intelligent inventory routing across multiple locations — Growmax ARC handles this natively."
   },
 ];
 
 const faqs = [
   {
     question: "What is the best alternative to Shopify Plus for B2B?",
-    answer: "Growmax is the best Shopify Plus B2B alternative for industrial distributors and manufacturers. Unlike Shopify Plus (a DTC platform with B2B added), Growmax is purpose-built for B2B with offline mobile ordering, native ERP integration, multi-warehouse inventory, partner commerce, and zero transaction fees."
+    answer: "Growmax ARC is the best Shopify Plus B2B alternative for SMB distributors. Unlike Shopify Plus (a DTC platform with B2B added), Growmax ARC is purpose-built for B2B with offline mobile ordering, native Zoho/QuickBooks/Xero integration, multi-warehouse inventory, customer self-service portal, and zero transaction fees — all for $199/mo."
   },
   {
-    question: "How does Growmax compare to Shopify Plus B2B pricing?",
-    answer: "Growmax starts at $199/month with no transaction fees. Shopify Plus starts at $2,300/month and charges 0.15-0.5% transaction fees on non-Shopify Payments orders. For a distributor processing $500K/month, Shopify's transaction fees alone can cost $750-$2,500/month."
+    question: "How does Growmax ARC compare to Shopify Plus B2B pricing?",
+    answer: "Growmax ARC starts at $199/month with no transaction fees. Shopify Plus starts at $2,300/month and charges 0.15-0.5% transaction fees on non-Shopify Payments orders. For a distributor processing $500K/month, Shopify's transaction fees alone can cost $750-$2,500/month."
   },
   {
     question: "Can I use Shopify Plus for B2B wholesale distribution?",
-    answer: "While Shopify Plus has added B2B features, it lacks critical capabilities for wholesale distribution: no offline ordering, no field sales apps, no multi-warehouse allocation, no partner commerce portal, and limited complex pricing. For pure B2B distribution, purpose-built platforms like Growmax are significantly more capable."
+    answer: "While Shopify Plus has added B2B features, it lacks critical capabilities for wholesale distribution: no offline ordering, no field sales apps, no multi-warehouse allocation, no customer self-service portal, and limited complex pricing. For pure B2B distribution, purpose-built platforms like Growmax ARC are significantly more capable."
   },
   {
-    question: "Does Growmax have an app marketplace like Shopify?",
-    answer: "Growmax focuses on providing complete B2B functionality out of the box rather than relying on third-party apps. Features like ERP integration, mobile ordering, partner commerce, and inventory management are all native — no additional apps or plugins needed."
+    question: "Does Growmax ARC have an app marketplace like Shopify?",
+    answer: "Growmax ARC focuses on providing complete B2B functionality out of the box rather than relying on third-party apps. Features like accounting integration, mobile ordering, customer portal, and inventory management are all native — no additional apps or plugins needed."
   },
   {
-    question: "Can I migrate from Shopify Plus to Growmax?",
-    answer: "Yes. Growmax provides structured migration support from Shopify Plus. We help export your product catalog, customer accounts, and pricing data. Most migrations complete within 2-4 weeks with zero data loss."
+    question: "Can I migrate from Shopify Plus to Growmax ARC?",
+    answer: "Yes. Growmax ARC provides structured migration support from Shopify Plus. We help export your product catalog, customer accounts, and pricing data. Most migrations complete within 2-4 weeks with zero data loss."
   },
   {
-    question: "Should I use Shopify Plus or Growmax for B2B?",
-    answer: "If your business is primarily DTC with a secondary wholesale channel, Shopify Plus may work. If B2B is your core business — especially if you're an industrial distributor or manufacturer — Growmax delivers significantly more depth: offline ordering, field sales tools, ERP integration, multi-warehouse intelligence, and partner commerce."
+    question: "Should I use Shopify Plus or Growmax ARC for B2B?",
+    answer: "If your business is primarily DTC with a secondary wholesale channel, Shopify Plus may work. If B2B is your core business — especially if you're a distributor — Growmax ARC delivers significantly more depth at $199/mo: offline ordering, field sales tools, accounting integration, multi-warehouse intelligence, and customer self-service portal."
   },
 ];
 
@@ -225,7 +225,7 @@ export default function ShopifyPlusB2BAlternatives() {
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Best Shopify Plus B2B Alternatives & Competitors in 2026 | Growmax"
-        description="Compare the best Shopify Plus B2B alternatives for wholesale distributors: Growmax, BigCommerce B2B, WooCommerce, and Sana Commerce. Feature comparison, pricing, and migration guide."
+        description="Compare the best Shopify Plus B2B alternatives for wholesale distributors: Growmax ARC, BigCommerce B2B, WooCommerce, and Sana Commerce. Feature comparison, pricing, and migration guide."
         path="/comparisons/shopify-plus-b2b-alternatives"
         structuredData={[
           webPageSchema({
@@ -386,7 +386,7 @@ export default function ShopifyPlusB2BAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax ARC</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Shopify Plus</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">BigCommerce B2B</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">WooCommerce</div>
@@ -431,7 +431,7 @@ export default function ShopifyPlusB2BAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax ARC</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Shopify Plus</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">BigCommerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">WooCommerce</div>
@@ -457,15 +457,15 @@ export default function ShopifyPlusB2BAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">How to Migrate from Shopify Plus to Growmax</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">How to Migrate from Shopify Plus to Growmax ARC</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6" data-testid="section-migration-steps">
             {[
               { step: "01", title: "Export Your Data", description: "Export your Shopify product catalog, customer accounts, B2B price lists, and order history via CSV or Shopify API." },
-              { step: "02", title: "Map & Import", description: "Our team maps your Shopify data to Growmax — products, customer-specific pricing, inventory, and company accounts." },
-              { step: "03", title: "Connect Your ERP", description: "Set up native Zoho, SAP, or QuickBooks integration. No third-party apps — direct bidirectional sync." },
+              { step: "02", title: "Map & Import", description: "Our team maps your Shopify data to Growmax ARC — products, customer-specific pricing, inventory, and company accounts." },
+              { step: "03", title: "Connect Your Accounting", description: "Set up native Zoho, QuickBooks, or Xero integration. No third-party apps — direct bidirectional sync." },
               { step: "04", title: "Go Live", description: "Deploy field sales apps, launch B2B portal, train your team. Go live in 2-4 weeks — zero transaction fees from day one." },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-6 hover:border-growmax-red transition-colors" data-testid={`card-step-${i}`}>
@@ -523,7 +523,7 @@ export default function ShopifyPlusB2BAlternatives() {
         <div className="container mx-auto px-4">
           <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-6 font-bold">Deploy Now</div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-growmax-black" data-testid="text-cta-title">
-            Ready for real B2B commerce?<br/>Deploy Growmax today.
+            Ready for real B2B commerce?<br/>Deploy Growmax ARC today.
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto mb-10">
             Start your 14-day free trial. No transaction fees. No credit card required. Purpose-built B2B commerce in weeks.

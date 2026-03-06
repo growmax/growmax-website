@@ -7,16 +7,16 @@ import { webPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Industrial Distributors & Manufacturers",
+    name: "Growmax Enterprise",
+    tagline: "Multi-Party Revenue Ecosystem for Industrial Manufacturers",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. Native Zoho & SAP integration, offline field sales app, multi-warehouse inventory, and partner commerce portal. Deploy in weeks, not months.",
+    description: "The intelligent revenue operations platform that connects your sales reps, partners, dealers, and customers on one platform with full visibility from quote to fulfillment. Native SAP ECC/S4HANA integration, multi-version quote workflows, partner commerce portals, and dealer management. Deploy in weeks, not months.",
     pros: [
-      "Native Zoho & SAP ERP integration — no middleware",
+      "Multi-party ecosystem: Brand → Sales Reps → Partners → Customers with 100% visibility",
+      "Native SAP ECC/S4HANA integration with bidirectional sync",
+      "Multi-version quote workflows with approval engine",
+      "Partner commerce portal for dealer and channel networks",
       "Offline-capable mobile app for field sales reps",
-      "Multi-warehouse inventory with intelligent allocation",
-      "Partner commerce portal for channel sales",
-      "Quote-to-order workflow with approval engine",
       "Customer-specific pricing with volume brackets",
       "2-4 week implementation timeline",
     ],
@@ -24,8 +24,8 @@ const competitors = [
       "Focused on B2B industrial — not ideal for DTC brands",
       "No native Shopify or WooCommerce integration",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Industrial distributors, electrical wholesalers, building materials companies, manufacturers with complex pricing",
+    pricing: "Custom pricing",
+    bestFor: "Industrial manufacturers with 100+ employees, electrical equipment companies, building materials manufacturers with partner networks",
     rating: "4.8",
   },
   {
@@ -43,7 +43,7 @@ const competitors = [
       "High implementation costs ($50K-$200K+)",
       "Requires SAP or Dynamics — no standalone mode",
       "No offline mobile app for field reps",
-      "No Zoho ecosystem support",
+      "No multi-party ecosystem support",
       "Complex pricing based on order volume",
       "Long implementation cycles (4-8 months)",
     ],
@@ -90,7 +90,7 @@ const competitors = [
       "No native ERP integration (relies on middleware)",
       "No offline field sales capabilities",
       "Limited multi-warehouse support",
-      "No Zoho or SAP native connectors",
+      "No SAP/Epicor native connectors",
       "Transaction-based pricing can be expensive at scale",
     ],
     pricing: "Custom (typically $1,000+/mo)",
@@ -140,7 +140,7 @@ const featureComparison = [
     { feature: "Inventory Allocation Logic", growmax: true, sana: false, oro: false, bigcommerce: false, shopify: false },
   ]},
   { category: "Integrations", items: [
-    { feature: "Native Zoho Integration", growmax: true, sana: false, oro: false, bigcommerce: false, shopify: false },
+    { feature: "Native SAP ECC/S4HANA Integration", growmax: true, sana: true, oro: false, bigcommerce: false, shopify: false },
     { feature: "Microsoft Dynamics 365", growmax: false, sana: true, oro: false, bigcommerce: false, shopify: false },
     { feature: "SAP / ERP Connectivity", growmax: true, sana: true, oro: false, bigcommerce: false, shopify: false },
     { feature: "API Access", growmax: true, sana: true, oro: true, bigcommerce: true, shopify: true },
@@ -155,9 +155,9 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", sana: "Custom ($1,500+/mo)", oro: "Custom ($2,000+/mo)", bigcommerce: "Custom ($1,000+/mo)", shopify: "$2,300/mo" },
-  { label: "Free Trial", growmax: "14 days", sana: "No", oro: "No", bigcommerce: "No", shopify: "No" },
-  { label: "Setup Fee", growmax: "$0", sana: "$50K-$200K+", oro: "$30K-$150K+", bigcommerce: "$5K-$25K", shopify: "$0" },
+  { label: "Starting Price", growmax: "Custom pricing", sana: "Custom ($1,500+/mo)", oro: "Custom ($2,000+/mo)", bigcommerce: "Custom ($1,000+/mo)", shopify: "$2,300/mo" },
+  { label: "Free Trial", growmax: "Request consultation", sana: "No", oro: "No", bigcommerce: "No", shopify: "No" },
+  { label: "Setup Fee", growmax: "Custom", sana: "$50K-$200K+", oro: "$30K-$150K+", bigcommerce: "$5K-$25K", shopify: "$0" },
   { label: "Mobile App Included", growmax: "Yes", sana: "No", oro: "No", bigcommerce: "No", shopify: "No" },
   { label: "Implementation Time", growmax: "2-4 weeks", sana: "4-8 months", oro: "6-12 months", bigcommerce: "2-4 months", shopify: "1-3 months" },
 ];
@@ -166,55 +166,55 @@ const whyDynamicsUsersSwitch = [
   {
     icon: Clock,
     title: "12-Month Implementations Are Unacceptable",
-    description: "Dynamics 365 Commerce implementations often take 6-12 months and cost $100K+. Growmax deploys in 2-4 weeks with zero setup fees — your team is taking orders before the Dynamics project even kicks off."
+    description: "Dynamics 365 Commerce implementations often take 6-12 months and cost $100K+. Growmax Enterprise deploys in 2-4 weeks — your team is taking orders before the Dynamics project even kicks off."
   },
   {
     icon: Smartphone,
     title: "Your Field Reps Need Mobile Ordering",
-    description: "Dynamics 365 Commerce has no offline-capable mobile app for field sales reps. Growmax puts a native iOS/Android app in their hands with offline ordering, GPS visit logging, and customer-specific pricing."
+    description: "Dynamics 365 Commerce has no offline-capable mobile app for field sales reps. Growmax Enterprise puts a native iOS/Android app in their hands with offline ordering, GPS visit logging, and customer-specific pricing."
   },
   {
     icon: DollarSign,
     title: "TCO Is Spiraling Out of Control",
-    description: "Between licensing, implementation, customization, and ongoing Microsoft partner fees, Dynamics 365 Commerce TCO often exceeds $200K/year. Growmax delivers more B2B-specific functionality starting at $199/mo."
+    description: "Between licensing, implementation, customization, and ongoing Microsoft partner fees, Dynamics 365 Commerce TCO often exceeds $200K/year. Growmax Enterprise delivers more multi-party revenue operations functionality at dramatically lower cost."
   },
   {
     icon: Package,
     title: "Industrial Pricing Is Too Complex for Dynamics",
-    description: "Volume brackets, customer-specific price lists, contract pricing, and real-time margin calculations are core to Growmax — not bolt-on modules that require expensive customization."
+    description: "Volume brackets, customer-specific price lists, multi-version quotes, and real-time margin calculations are core to Growmax Enterprise — not bolt-on modules that require expensive customization."
   },
   {
     icon: Building2,
     title: "You Need a Distributor Platform, Not an ERP Add-On",
-    description: "Dynamics 365 Commerce is a module within the Dynamics ecosystem. Growmax is purpose-built for distributors — with multi-warehouse intelligence, partner portals, and quote-to-order workflows baked in."
+    description: "Dynamics 365 Commerce is a module within the Dynamics ecosystem. Growmax Enterprise is purpose-built for manufacturers with partner networks — with multi-party visibility, partner portals, and multi-version quote workflows baked in."
   },
   {
     icon: ShieldCheck,
     title: "Partner Channel Management Is Missing",
-    description: "Dynamics 365 Commerce has no partner commerce portal. Growmax includes a full channel partner portal where dealers and resellers place orders, track shipments, and manage their accounts independently."
+    description: "Dynamics 365 Commerce has no partner commerce portal. Growmax Enterprise includes a full channel partner portal where dealers and resellers place orders, track shipments, and manage their accounts — with full visibility back to the brand."
   },
 ];
 
 const faqs = [
   {
-    question: "How does Growmax compare to Dynamics 365 Commerce for B2B?",
-    answer: "Growmax is purpose-built for B2B industrial distributors, while Dynamics 365 Commerce is a module within Microsoft's broader ERP ecosystem. Growmax offers faster deployment (2-4 weeks vs 6-12 months), lower TCO ($199/mo vs $100K+ annually), offline mobile ordering, and native partner commerce — features that require expensive customization in Dynamics."
+    question: "How does Growmax Enterprise compare to Dynamics 365 Commerce for B2B?",
+    answer: "Growmax Enterprise is purpose-built for industrial manufacturers with multi-party ecosystems, while Dynamics 365 Commerce is a module within Microsoft's broader ERP ecosystem. Growmax Enterprise offers faster deployment (2-4 weeks vs 6-12 months), dramatically lower TCO, offline mobile ordering, multi-version quote workflows, and native partner commerce — features that require expensive customization in Dynamics."
   },
   {
-    question: "Can Growmax integrate with Microsoft Dynamics 365?",
-    answer: "Yes, Growmax offers API connectivity to Dynamics 365 and other ERPs. While Sana Commerce offers tighter native Dynamics integration, Growmax provides a more complete B2B commerce experience with features like offline mobile ordering, partner portals, and multi-warehouse intelligence that Dynamics Commerce lacks."
+    question: "Can Growmax Enterprise integrate with Microsoft Dynamics 365?",
+    answer: "Yes, Growmax Enterprise offers API connectivity to Dynamics 365 and other ERPs. While Growmax Enterprise specializes in native SAP ECC/S4HANA and Epicor integration, it provides a more complete multi-party revenue experience with features like multi-version quote workflows, partner portals, and full ecosystem visibility that Dynamics Commerce lacks."
   },
   {
     question: "What's the total cost of ownership compared to Dynamics 365 Commerce?",
-    answer: "Dynamics 365 Commerce typically costs $50K-$200K+ for implementation, $1,500+/mo in licensing, plus ongoing Microsoft partner support fees. Growmax starts at $199/mo with $0 setup fees and 2-4 week deployment — delivering a 70-80% lower TCO for most mid-market distributors."
+    answer: "Dynamics 365 Commerce typically costs $50K-$200K+ for implementation, $1,500+/mo in licensing, plus ongoing Microsoft partner support fees. Growmax Enterprise offers custom pricing with dramatically lower TCO and 2-4 week deployment — delivering 70-80% lower total cost for most industrial manufacturers."
   },
   {
-    question: "Is Growmax suitable for enterprises currently on Dynamics 365?",
-    answer: "Absolutely. Many mid-market distributors find that Dynamics 365 Commerce is overkill and overly complex for their B2B ordering needs. Growmax can run alongside your existing Dynamics ERP, handling the B2B commerce layer while your ERP manages financials and operations."
+    question: "Is Growmax Enterprise suitable for enterprises currently on Dynamics 365?",
+    answer: "Absolutely. Many manufacturers find that Dynamics 365 Commerce is overly complex for their multi-party revenue needs. Growmax Enterprise can run alongside your existing ERP, handling the revenue operations layer — connecting sales reps, partners, and customers — while your ERP manages financials and operations."
   },
   {
     question: "How long does migration from Dynamics 365 Commerce take?",
-    answer: "Most Dynamics 365 Commerce to Growmax migrations complete in 4-6 weeks. Growmax's implementation team handles catalog import, customer account migration, pricing setup, and ERP integration. Your team can run both platforms in parallel during the transition."
+    answer: "Most Dynamics 365 Commerce to Growmax Enterprise migrations complete in 4-6 weeks. Our implementation team handles catalog import, customer account migration, pricing setup, and SAP/Epicor integration. Your team can run both platforms in parallel during the transition."
   },
 ];
 
@@ -376,7 +376,7 @@ export default function Dynamics365Alternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Sana Commerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">OroCommerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">BigCommerce</div>
@@ -421,7 +421,7 @@ export default function Dynamics365Alternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Sana</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Oro</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">BigCommerce</div>
@@ -446,15 +446,15 @@ export default function Dynamics365Alternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Migrating from Dynamics 365 Commerce to Growmax</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Migrating from Dynamics 365 Commerce to Growmax Enterprise</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-8">
             {[
               { step: "01", title: "Audit & Plan", description: "We analyze your current Dynamics 365 Commerce setup, catalog structure, pricing rules, and integration points to create a migration roadmap." },
-              { step: "02", title: "Data Migration", description: "Product catalogs, customer accounts, pricing matrices, and order history are migrated to Growmax with full data integrity verification." },
-              { step: "03", title: "Integration Setup", description: "Connect Growmax to your ERP (Zoho, SAP, QuickBooks) with bidirectional sync. Configure webhooks and API integrations." },
+              { step: "02", title: "Data Migration", description: "Product catalogs, customer accounts, pricing matrices, and order history are migrated to Growmax Enterprise with full data integrity verification." },
+              { step: "03", title: "Integration Setup", description: "Connect Growmax Enterprise to your ERP (SAP ECC/S4HANA, Epicor) with bidirectional sync. Configure webhooks and API integrations." },
               { step: "04", title: "Go Live & Support", description: "Launch with parallel running if needed. Dedicated support team ensures smooth transition with zero downtime for your customers." },
             ].map((item, i) => (
               <div key={i} className="border-2 border-growmax-black p-6" data-testid={`card-migration-step-${i}`}>
@@ -490,7 +490,7 @@ export default function Dynamics365Alternatives() {
         <div className="container mx-auto px-4">
           <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-6 font-bold">Deploy Now</div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-growmax-black" data-testid="text-cta-title">
-            Move beyond Dynamics 365 Commerce.<br/>Deploy Growmax today.
+            Move beyond Dynamics 365 Commerce.<br/>Deploy Growmax Enterprise today.
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto mb-10">
             Start your 14-day free trial. No credit card required. Full platform access from day one.

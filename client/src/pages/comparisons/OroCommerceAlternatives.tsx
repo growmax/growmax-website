@@ -7,24 +7,24 @@ import { webPageSchema, faqPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Industrial Distributors & Manufacturers",
+    name: "Growmax Enterprise",
+    tagline: "Multi-Party Revenue Ecosystem for Industrial Manufacturers",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. Deploy in weeks — not months — with native ERP integration, offline mobile app, and partner commerce portal. No development team required.",
+    description: "The intelligent revenue operations platform that connects your sales reps, partners, dealers, and customers on one platform with full visibility. Deploy in weeks — not months — with native SAP ECC/S4HANA integration, multi-version quote workflows, and partner commerce portals. No development team required.",
     pros: [
-      "Native Zoho & SAP ERP integration — no middleware",
+      "Multi-party ecosystem: Brand → Sales Reps → Partners → Customers with 100% visibility",
+      "Native SAP ECC/S4HANA & Epicor integration — no middleware",
+      "Multi-version quote workflows with approval engine",
+      "Partner commerce portal for dealer and channel networks",
       "Offline-capable mobile app for field sales reps",
-      "Multi-warehouse inventory with intelligent allocation",
-      "Partner commerce portal for channel sales",
-      "Quote-to-order workflow with approval engine",
       "No development team required — SaaS deployment",
     ],
     cons: [
       "Focused on B2B industrial — not ideal for DTC brands",
       "Less customizable than open-source solutions",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Industrial distributors and manufacturers who want B2B commerce without hiring a development team",
+    pricing: "Custom pricing",
+    bestFor: "Industrial manufacturers with 100+ employees who want multi-party revenue operations without hiring a development team",
     rating: "4.8",
   },
   {
@@ -65,7 +65,7 @@ const competitors = [
       "Locked to SAP or Dynamics only",
       "High implementation costs ($50K-$200K+)",
       "No offline mobile app",
-      "No Zoho integration",
+      "No native SAP/Epicor integration",
       "4-8 month implementation",
     ],
     pricing: "Custom (typically $1,500+/mo)",
@@ -135,7 +135,7 @@ const featureComparison = [
     { feature: "Inventory Allocation Logic", growmax: true, oro: false, sana: false, magento: false, salesforce: false },
   ]},
   { category: "Integrations", items: [
-    { feature: "Native Zoho Integration", growmax: true, oro: false, sana: false, magento: false, salesforce: false },
+    { feature: "Native SAP ECC/S4HANA Integration", growmax: true, oro: false, sana: true, magento: false, salesforce: false },
     { feature: "SAP / ERP Connectivity", growmax: true, oro: false, sana: true, magento: false, salesforce: false },
     { feature: "QuickBooks Integration", growmax: true, oro: false, sana: false, magento: true, salesforce: false },
     { feature: "API Access", growmax: true, oro: true, sana: true, magento: true, salesforce: true },
@@ -150,9 +150,9 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", oro: "Custom ($2K+/mo)", sana: "Custom ($1.5K+/mo)", magento: "$40K+/year", salesforce: "$300K+/year" },
-  { label: "Free Trial", growmax: "14 days", oro: "No", sana: "No", magento: "No", salesforce: "No" },
-  { label: "Setup Fee", growmax: "$0", oro: "$50K-$200K+", sana: "$50K-$200K+", magento: "$100K-$500K+", salesforce: "$200K-$1M+" },
+  { label: "Starting Price", growmax: "Custom pricing", oro: "Custom ($2K+/mo)", sana: "Custom ($1.5K+/mo)", magento: "$40K+/year", salesforce: "$300K+/year" },
+  { label: "Free Trial", growmax: "Request consultation", oro: "No", sana: "No", magento: "No", salesforce: "No" },
+  { label: "Setup Fee", growmax: "Custom", oro: "$50K-$200K+", sana: "$50K-$200K+", magento: "$100K-$500K+", salesforce: "$200K-$1M+" },
   { label: "Dev Team Required", growmax: "No", oro: "Yes (PHP)", sana: "No", magento: "Yes", salesforce: "Yes" },
   { label: "Implementation Time", growmax: "2-4 weeks", oro: "6-12 months", sana: "4-8 months", magento: "6-12 months", salesforce: "12-18 months" },
 ];
@@ -161,59 +161,59 @@ const whyOroUsersSwitch = [
   {
     icon: Code,
     title: "Development Costs Are Unsustainable",
-    description: "OroCommerce requires PHP/Symfony developers for implementation, customization, and ongoing maintenance. Growmax is SaaS — no development team needed."
+    description: "OroCommerce requires PHP/Symfony developers for implementation, customization, and ongoing maintenance. Growmax Enterprise is SaaS — no development team needed for multi-party revenue operations."
   },
   {
     icon: DollarSign,
     title: "Total Cost of Ownership Is Too High",
-    description: "Between hosting, development, security patches, and upgrades, OroCommerce's TCO often exceeds $200K/year. Growmax starts at $199/mo all-in."
+    description: "Between hosting, development, security patches, and upgrades, OroCommerce's TCO often exceeds $200K/year. Growmax Enterprise offers custom pricing with dramatically lower total cost of ownership."
   },
   {
     icon: Smartphone,
     title: "No Mobile App for Field Sales",
-    description: "OroCommerce has no native mobile app. Growmax includes iOS and Android apps with offline ordering, GPS visit logging, and real-time inventory."
+    description: "OroCommerce has no native mobile app. Growmax Enterprise includes iOS and Android apps with offline ordering, GPS visit logging, and real-time inventory."
   },
   {
     icon: Globe,
     title: "Implementation Takes Too Long",
-    description: "OroCommerce implementations typically take 6-12 months. Growmax goes live in 2-4 weeks with your existing catalog and ERP connections."
+    description: "OroCommerce implementations typically take 6-12 months. Growmax Enterprise goes live in 2-4 weeks with your existing catalog and SAP/Epicor connections."
   },
   {
     icon: Building2,
     title: "No Native ERP Connectors",
-    description: "OroCommerce requires custom development for ERP integration. Growmax offers native Zoho, SAP, and QuickBooks connectors out of the box."
+    description: "OroCommerce requires custom development for ERP integration. Growmax Enterprise offers native SAP ECC/S4HANA and Epicor connectors out of the box, plus open connectivity to industry-specific ERPs."
   },
   {
     icon: ShieldCheck,
     title: "Infrastructure Management Burden",
-    description: "Self-hosted OroCommerce means managing servers, security, backups, and scaling. Growmax is fully managed SaaS — we handle the infrastructure."
+    description: "Self-hosted OroCommerce means managing servers, security, backups, and scaling. Growmax Enterprise is fully managed SaaS — we handle the infrastructure so you can focus on revenue operations."
   },
 ];
 
 const faqs = [
   {
     question: "What is the best alternative to OroCommerce?",
-    answer: "Growmax is the best OroCommerce alternative for industrial distributors who want B2B commerce without hiring a development team. It offers native ERP integration, an offline mobile app, multi-warehouse inventory, and a partner commerce portal — all as a managed SaaS with 2-4 week deployment."
+    answer: "Growmax Enterprise is the best OroCommerce alternative for industrial manufacturers with 100+ employees who want multi-party revenue operations without hiring a development team. It offers native SAP/Epicor integration, multi-version quote workflows, partner commerce portals, and dealer management — all as a managed SaaS with 2-4 week deployment."
   },
   {
-    question: "How does Growmax compare to OroCommerce pricing?",
-    answer: "Growmax starts at $199/month with $0 setup fee. OroCommerce's cloud edition starts at $2,000+/month, with implementation costs of $50K-$200K+ and ongoing development costs. Growmax's total cost of ownership is typically 80% lower than OroCommerce."
+    question: "How does Growmax Enterprise compare to OroCommerce pricing?",
+    answer: "Growmax Enterprise offers custom pricing tailored to your ecosystem needs. OroCommerce's cloud edition starts at $2,000+/month, with implementation costs of $50K-$200K+ and ongoing development costs. Growmax Enterprise's total cost of ownership is typically 80% lower than OroCommerce."
   },
   {
-    question: "Can I migrate from OroCommerce to Growmax?",
-    answer: "Yes. Growmax provides migration support for OroCommerce users. We help export your product catalog, customer pricing, and configuration. Most migrations complete within 2-4 weeks."
+    question: "Can I migrate from OroCommerce to Growmax Enterprise?",
+    answer: "Yes. Growmax Enterprise provides migration support for OroCommerce users. We help export your product catalog, customer pricing, and configuration. Most migrations complete within 2-4 weeks."
   },
   {
-    question: "Do I need developers to use Growmax?",
-    answer: "No. Unlike OroCommerce, Growmax is a fully managed SaaS platform. Configuration, ERP integration, and portal setup are all done through the admin interface — no coding required."
+    question: "Do I need developers to use Growmax Enterprise?",
+    answer: "No. Unlike OroCommerce, Growmax Enterprise is a fully managed SaaS platform. Configuration, SAP/Epicor integration, partner portal setup, and quote workflows are all done through the admin interface — no coding required."
   },
   {
-    question: "Does Growmax have a CRM like OroCRM?",
-    answer: "Growmax integrates natively with Zoho CRM and includes built-in opportunity pipeline management, visit logging, and field data capture. For full CRM functionality, the native Zoho CRM integration provides a seamless experience."
+    question: "Does Growmax Enterprise have CRM capabilities like OroCRM?",
+    answer: "Growmax Enterprise includes built-in opportunity pipeline management, visit logging, and field data capture as part of its multi-party ecosystem. It also integrates with your existing CRM via API for a seamless experience across your revenue operations."
   },
   {
-    question: "Is Growmax suitable for multi-organization setups?",
-    answer: "Yes. Growmax supports multi-warehouse operations, partner commerce portals, and account-level pricing matrices. For multi-brand or multi-organization requirements, Growmax provides the structure without the development overhead of OroCommerce."
+    question: "Is Growmax Enterprise suitable for multi-organization setups?",
+    answer: "Yes. Growmax Enterprise supports multi-party ecosystems with partner commerce portals, dealer management, multi-warehouse operations, and account-level pricing matrices. For manufacturers with partner/dealer networks, Growmax Enterprise provides the structure without the development overhead of OroCommerce."
   },
 ];
 
@@ -383,7 +383,7 @@ export default function OroCommerceAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">OroCommerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Sana Commerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Adobe Commerce</div>
@@ -428,7 +428,7 @@ export default function OroCommerceAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">OroCommerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Sana Commerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Adobe Commerce</div>
@@ -453,15 +453,15 @@ export default function OroCommerceAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">How to Migrate from OroCommerce to Growmax</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">How to Migrate from OroCommerce to Growmax Enterprise</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6" data-testid="section-migration-steps">
             {[
               { step: "01", title: "Export Your Data", description: "Export your OroCommerce product catalog, customer accounts, pricing tiers, and order history via the built-in export tools or API." },
-              { step: "02", title: "Map & Import", description: "Our migration team maps your OroCommerce data model to Growmax — products, customer-specific pricing, and inventory locations. Bulk import via Excel or API." },
-              { step: "03", title: "Connect Your ERP", description: "Set up native Zoho, SAP, or QuickBooks connectors. No custom development — most integrations go live within 24 hours." },
+              { step: "02", title: "Map & Import", description: "Our migration team maps your OroCommerce data model to Growmax Enterprise — products, customer-specific pricing, and inventory locations. Bulk import via Excel or API." },
+              { step: "03", title: "Connect Your ERP", description: "Set up native SAP ECC/S4HANA or Epicor connectors. No custom development — most integrations go live within 24 hours." },
               { step: "04", title: "Go Live", description: "Deploy mobile apps, launch customer portal, train your team. Typical migration: 2-4 weeks. No more managing servers or patching code." },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-6 hover:border-growmax-red transition-colors" data-testid={`card-step-${i}`}>
@@ -519,7 +519,7 @@ export default function OroCommerceAlternatives() {
         <div className="container mx-auto px-4">
           <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-6 font-bold">Deploy Now</div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-growmax-black" data-testid="text-cta-title">
-            Ready to replace OroCommerce?<br/>Deploy Growmax today.
+            Ready to replace OroCommerce?<br/>Deploy Growmax Enterprise today.
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto mb-10">
             Start your 14-day free trial. No developers required. No infrastructure to manage. Go live in weeks — not months.

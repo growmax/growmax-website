@@ -65,7 +65,7 @@ export default function Demo() {
   return (
     <div className="min-h-screen bg-gray-50 pt-32 pb-24 selection:bg-growmax-red selection:text-white">
       <SEOHead
-        title="Request a Demo | Growmax B2B Revenue Platform"
+        title="Book a Demo | Growmax B2B Revenue Operations Platform"
         description="Schedule a technical consultation with the Growmax architecture team. Deploy pilot programs in 8-12 weeks. ERP integration, partner portals, and B2B commerce."
         path="/demo"
         structuredData={contactPageSchema()}
@@ -78,7 +78,7 @@ export default function Demo() {
               Deployment Request
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-growmax-black mb-8 leading-[1.1] tracking-tighter">
-              Fix your disconnected commerce.
+              Connect your revenue ecosystem.
             </h1>
             <p className="text-xl text-gray-600 mb-12 font-light leading-relaxed">
               We deploy pilot programs in 8-12 weeks. Stop revenue leaks and connect your Sales, Partners, and ERP.
@@ -110,7 +110,7 @@ export default function Demo() {
           <div className="lg:col-span-7">
             <div className="bg-white border border-gray-200 p-8 md:p-12 shadow-sm relative">
               <div className="absolute top-0 right-0 p-4 font-mono text-[10px] text-gray-400">SECURE_FORM_V2</div>
-              <h2 className="text-2xl font-bold text-growmax-black mb-8 font-mono uppercase tracking-tight">Initiate Sequence</h2>
+              <h2 className="text-2xl font-bold text-growmax-black mb-8 font-mono uppercase tracking-tight">Book a Demo</h2>
               
               <form
                 className="space-y-6"

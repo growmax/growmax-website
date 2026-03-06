@@ -7,10 +7,10 @@ import { webPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Industrial Distributors & Manufacturers",
+    name: "Growmax ARC",
+    tagline: "Best All-in-One Platform for SMB Distributors",
     highlight: true,
-    description: "The connected B2B revenue platform purpose-built for industrial distributors. Native Zoho & SAP integration, offline field sales app, multi-warehouse inventory, and partner commerce portal.",
+    description: "The all-in-one B2B distributor platform with self-service signup. Inventory management, customer portal, and mobile sales rep app — ready in minutes. Native Zoho, QuickBooks & Xero integration, offline field sales app, and multi-warehouse inventory.",
     pros: [
       "Native Zoho & SAP ERP integration — no middleware",
       "Offline-capable mobile app for field sales reps",
@@ -168,7 +168,7 @@ const whyHandshakeUsersSwitch = [
   {
     icon: Smartphone,
     title: "You Need Mobile-First Ordering",
-    description: "Handshake's strength was mobile ordering for field reps. Growmax delivers the same mobile-first experience with offline capability, GPS visit logging, and customer-specific pricing — all on iOS and Android."
+    description: "Handshake's strength was mobile ordering for field reps. Growmax ARC delivers the same mobile-first experience with offline capability, GPS visit logging, and customer-specific pricing — all on iOS and Android."
   },
   {
     icon: Package,
@@ -178,17 +178,17 @@ const whyHandshakeUsersSwitch = [
   {
     icon: DollarSign,
     title: "You're Tired of Per-User Pricing",
-    description: "Enterprise platforms like Pepperi charge $500+/user/month. Growmax starts at $199/mo with unlimited portal users — your total cost doesn't scale with every new sales rep."
+    description: "Enterprise platforms like Pepperi charge $500+/user/month. Growmax ARC starts at $199/mo with unlimited portal users — your total cost doesn't scale with every new sales rep."
   },
   {
     icon: Building2,
     title: "Your ERP Is the Source of Truth",
-    description: "Whether you run Zoho, SAP, or QuickBooks — your B2B platform should sync natively, not through fragile middleware. Growmax connects directly to your ERP with bidirectional real-time sync."
+    description: "Whether you run Zoho, QuickBooks, or Xero — your B2B platform should sync natively, not through fragile middleware. Growmax ARC connects directly to your accounting system with bidirectional real-time sync."
   },
   {
     icon: ShieldCheck,
     title: "You Need Partner Commerce",
-    description: "Handshake had no partner portal. Growmax includes a full partner commerce portal where channel partners place orders, track deliveries, and manage their accounts independently."
+    description: "Handshake had no partner portal. Growmax ARC includes a full customer self-service portal where buyers place orders, track deliveries, and manage their accounts independently."
   },
 ];
 
@@ -197,11 +197,11 @@ export default function HandshakeAlternatives() {
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Best Handshake Alternatives & Competitors in 2026 | Growmax"
-        description="Compare the best Handshake alternatives for B2B ordering: Growmax, B2B Wave, Pepperi, NowCommerce, and Sana Commerce. Feature comparison, pricing, and pros/cons for industrial distributors."
+        description="Compare the best Handshake alternatives for B2B ordering: Growmax ARC, B2B Wave, Pepperi, NowCommerce, and Sana Commerce. Feature comparison, pricing, and pros/cons for SMB distributors."
         path="/comparisons/handshake-alternatives"
         structuredData={webPageSchema({
           title: "Best Handshake Alternatives & Competitors in 2026",
-          description: "Comprehensive comparison of Handshake alternatives for B2B wholesale ordering. Compare features, pricing, pros and cons of Growmax, B2B Wave, Pepperi, NowCommerce, and Sana Commerce.",
+          description: "Comprehensive comparison of Handshake alternatives for B2B wholesale ordering. Compare features, pricing, pros and cons of Growmax ARC, B2B Wave, Pepperi, NowCommerce, and Sana Commerce.",
           path: "/comparisons/handshake-alternatives",
           keywords: [
             "handshake alternatives",
@@ -352,7 +352,7 @@ export default function HandshakeAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax ARC</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">B2B Wave</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Pepperi</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">NowCommerce</div>
@@ -397,7 +397,7 @@ export default function HandshakeAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax ARC</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">B2B Wave</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Pepperi</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">NowCommerce</div>
@@ -422,7 +422,7 @@ export default function HandshakeAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Verdict</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax Is the Best Handshake Alternative for Industrial Distributors</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax ARC Is the Best Handshake Alternative for SMB Distributors</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
@@ -431,32 +431,32 @@ export default function HandshakeAlternatives() {
               {
                 number: "01",
                 title: "Mobile-First, Like Handshake Was",
-                description: "Handshake was loved for its mobile ordering. Growmax delivers the same mobile-first DNA — iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing. No connectivity? No problem."
+                description: "Handshake was loved for its mobile ordering. Growmax ARC delivers the same mobile-first DNA — iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing. No connectivity? No problem."
               },
               {
                 number: "02",
                 title: "Built for Industrial Complexity",
-                description: "Unlike generic B2B platforms, Growmax handles 100K+ SKU catalogs, multi-tier pricing matrices, volume brackets, SPAs, and customer-specific discount structures natively."
+                description: "Unlike generic B2B platforms, Growmax ARC handles large SKU catalogs, multi-tier pricing matrices, volume brackets, and customer-specific discount structures natively."
               },
               {
                 number: "03",
                 title: "Native ERP Integration",
-                description: "Zoho, SAP, QuickBooks — Growmax connects directly to your ERP with bidirectional real-time sync. No middleware, no Zapier chains, no data lag."
+                description: "Zoho, QuickBooks, Xero — Growmax ARC connects directly to your accounting system with bidirectional real-time sync. No middleware, no Zapier chains, no data lag."
               },
               {
                 number: "04",
                 title: "Partner Commerce Portal",
-                description: "Something Handshake never had: a full partner commerce portal for channel partners to independently place orders, track deliveries, and manage their accounts."
+                description: "Something Handshake never had: a full customer self-service portal where buyers independently place orders, track deliveries, and manage their accounts."
               },
               {
                 number: "05",
                 title: "Multi-Warehouse Intelligence",
-                description: "Manage inventory across multiple warehouses with intelligent allocation logic. Growmax ensures you never oversell, even when stock is distributed across 50+ locations."
+                description: "Manage inventory across multiple warehouses with intelligent allocation logic. Growmax ARC ensures you never oversell, even when stock is distributed across multiple locations."
               },
               {
                 number: "06",
                 title: "2-4 Week Go-Live",
-                description: "While enterprise alternatives take 6-12 months, Growmax deploys in 2-4 weeks. Import your catalog, connect your ERP, train your team, go live. No $200K implementation project."
+                description: "While enterprise alternatives take 6-12 months, Growmax ARC deploys in 2-4 weeks. Self-service signup, import your catalog, connect your accounting system, train your team, go live. Starting at $199/mo."
               },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group" data-testid={`card-advantage-${i}`}>
@@ -473,14 +473,14 @@ export default function HandshakeAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Migrate from Handshake to Growmax</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Migrate from Handshake to Growmax ARC</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6" data-testid="section-migration-steps">
             {[
               { step: "01", title: "Export Your Data", description: "Export your Handshake catalog, customer list, pricing, and order history. Our team provides migration templates." },
-              { step: "02", title: "Connect Your ERP", description: "Link Growmax to your Zoho, SAP, or QuickBooks instance. Native connectors handle the heavy lifting — no middleware needed." },
+              { step: "02", title: "Connect Your Accounting", description: "Link Growmax ARC to your Zoho, QuickBooks, or Xero instance. Native connectors handle the heavy lifting — no middleware needed." },
               { step: "03", title: "Configure & Test", description: "Set up customer-specific pricing, multi-warehouse rules, and approval workflows. Our team runs parallel testing with your live data." },
               { step: "04", title: "Go Live", description: "Deploy mobile apps to your field reps, invite customers to the portal, and switch over. Typical go-live: 2-4 weeks from kickoff." },
             ].map((item, i) => (
@@ -582,7 +582,7 @@ export default function HandshakeAlternatives() {
         <div className="container mx-auto px-4">
           <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-6 font-bold">Deploy Now</div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-growmax-black" data-testid="text-cta-title">
-            Ready to replace Handshake?<br/>Deploy Growmax today.
+            Ready to replace Handshake?<br/>Deploy Growmax ARC today.
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto mb-10">
             Start your 14-day free trial. No credit card required. Migrate your catalog, connect your ERP, and go live in weeks — not months.

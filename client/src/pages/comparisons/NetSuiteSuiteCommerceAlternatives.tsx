@@ -7,24 +7,24 @@ import { webPageSchema, faqPageSchema } from "@/lib/structuredData";
 
 const competitors = [
   {
-    name: "Growmax",
-    tagline: "Best for Industrial Distributors & Manufacturers",
+    name: "Growmax Enterprise",
+    tagline: "Multi-Party Revenue Ecosystem for Industrial Manufacturers",
     highlight: true,
-    description: "Purpose-built B2B commerce for industrial distributors. Where NetSuite SuiteCommerce bundles commerce into an ERP monolith, Growmax delivers best-of-breed B2B commerce with native ERP integration — including SAP, Zoho, and QuickBooks.",
+    description: "The intelligent revenue operations platform that connects your entire ecosystem — sales reps, partners, dealers, and customers — on one platform with full visibility. Where NetSuite SuiteCommerce bundles commerce into an ERP monolith, Growmax Enterprise delivers best-of-breed multi-party revenue operations with native SAP ECC/S4HANA integration.",
     pros: [
-      "Purpose-built for B2B industrial distribution — not an ERP add-on module",
-      "Native Zoho, SAP & QuickBooks integration — works with any ERP",
+      "Multi-party ecosystem: Brand → Sales Reps → Partners → Customers with 100% visibility",
+      "Native SAP ECC/S4HANA integration with bidirectional sync",
+      "Multi-version quote workflows with approval engine",
+      "Partner commerce portal for dealer and channel networks",
       "Offline-capable mobile app for field sales reps (iOS & Android)",
-      "Multi-warehouse inventory with intelligent allocation",
-      "Partner commerce portal for dealer networks",
       "2-4 week implementation vs. NetSuite's 6-12 months",
     ],
     cons: [
       "Focused on B2B industrial — not designed for B2C retail",
       "Doesn't include ERP/accounting (by design — it integrates with yours)",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Mid-market industrial distributors, manufacturers, and wholesalers who want best-of-breed commerce",
+    pricing: "Custom pricing",
+    bestFor: "Industrial manufacturers with 100+ employees, partner/dealer networks, and complex multi-party revenue operations",
     rating: "4.8",
   },
   {
@@ -64,7 +64,7 @@ const competitors = [
       "No NetSuite integration — requires ERP switch",
       "High implementation costs ($50K-$200K+)",
       "No offline mobile app",
-      "No Zoho support",
+      "No multi-party ecosystem support",
       "4-8 month implementation",
     ],
     pricing: "Custom (~$1,500+/mo + implementation)",
@@ -133,7 +133,7 @@ const featureComparison = [
     { feature: "GPS Visit Logging", growmax: true, bigcommerce: false, sana: false, shopify: false, oro: false },
   ]},
   { category: "Integrations", items: [
-    { feature: "Native Zoho Integration", growmax: true, bigcommerce: false, sana: false, shopify: false, oro: false },
+    { feature: "Native SAP ECC/S4HANA Integration", growmax: true, bigcommerce: false, sana: true, shopify: false, oro: false },
     { feature: "Native SAP Integration", growmax: true, bigcommerce: false, sana: true, shopify: false, oro: false },
     { feature: "QuickBooks Integration", growmax: true, bigcommerce: true, sana: false, shopify: true, oro: false },
     { feature: "Multi-Warehouse Inventory", growmax: true, bigcommerce: false, sana: true, shopify: false, oro: true },
@@ -142,23 +142,23 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", bigcommerce: "~$400/mo", sana: "~$1,500+/mo", shopify: "$2,300/mo", oro: "~$45K+/yr" },
-  { label: "Setup Fee", growmax: "$0", bigcommerce: "$0", sana: "$50K-$200K+", shopify: "$0", oro: "$20K-$100K+" },
+  { label: "Starting Price", growmax: "Custom pricing", bigcommerce: "~$400/mo", sana: "~$1,500+/mo", shopify: "$2,300/mo", oro: "~$45K+/yr" },
+  { label: "Setup Fee", growmax: "Custom", bigcommerce: "$0", sana: "$50K-$200K+", shopify: "$0", oro: "$20K-$100K+" },
   { label: "Implementation", growmax: "2-4 weeks", bigcommerce: "2-4 months", sana: "4-8 months", shopify: "1-3 months", oro: "6-12 months" },
   { label: "Mobile App", growmax: "Included", bigcommerce: "No", sana: "No", shopify: "No", oro: "No" },
-  { label: "ERP Flexibility", growmax: "Any ERP", bigcommerce: "Middleware", sana: "SAP/Dynamics", shopify: "Middleware", oro: "Custom" },
+  { label: "ERP Flexibility", growmax: "SAP/Epicor", bigcommerce: "Middleware", sana: "SAP/Dynamics", shopify: "Middleware", oro: "Custom" },
 ];
 
 const whyNetSuiteUsersSwitch = [
   {
     icon: DollarSign,
     title: "NetSuite Licensing Is Crushing Your Margins",
-    description: "NetSuite SuiteCommerce costs $999+/mo on top of your existing NetSuite ERP license. Combined with per-user fees, customization costs, and SuiteCloud development, total commerce costs easily exceed $50K+/year."
+    description: "NetSuite SuiteCommerce costs $999+/mo on top of your existing NetSuite ERP license. Combined with per-user fees, customization costs, and SuiteCloud development, total commerce costs easily exceed $50K+/year. Growmax Enterprise offers purpose-built multi-party revenue operations at competitive custom pricing."
   },
   {
     icon: Clock,
     title: "SuiteCommerce Implementations Take Too Long",
-    description: "Typical SuiteCommerce implementations take 6-12 months with specialized NetSuite developers. By the time you launch, your requirements have changed and you're already behind competitors."
+    description: "Typical SuiteCommerce implementations take 6-12 months with specialized NetSuite developers. By the time you launch, your requirements have changed. Growmax Enterprise deploys in 2-4 weeks."
   },
   {
     icon: Smartphone,
@@ -168,7 +168,7 @@ const whyNetSuiteUsersSwitch = [
   {
     icon: Building2,
     title: "Locked Into the NetSuite Ecosystem",
-    description: "SuiteCommerce only works with NetSuite ERP. If you ever switch ERPs, migrate divisions to SAP or Zoho, or acquire a company on a different ERP, you're starting over."
+    description: "SuiteCommerce only works with NetSuite ERP. If you ever switch ERPs or migrate divisions to SAP, you're starting over. Growmax Enterprise integrates natively with SAP ECC/S4HANA and Epicor."
   },
   {
     icon: Package,
@@ -185,19 +185,19 @@ const whyNetSuiteUsersSwitch = [
 const faqs = [
   {
     question: "What is the best alternative to NetSuite SuiteCommerce?",
-    answer: "Growmax is the best alternative for B2B industrial distributors, offering native ERP integration, offline mobile ordering, and partner portals at a fraction of SuiteCommerce's cost. For B2C-focused businesses, Shopify Plus offers the simplest alternative. For companies on Dynamics or SAP, Sana Commerce provides deep ERP integration."
+    answer: "Growmax Enterprise is the best alternative for industrial manufacturers with 100+ employees, offering a multi-party revenue ecosystem with native SAP integration, multi-version quote workflows, partner portals, and dealer management. For B2C-focused businesses, Shopify Plus offers the simplest alternative."
   },
   {
     question: "Can I use a different eCommerce platform with NetSuite ERP?",
-    answer: "Yes. You can keep NetSuite as your ERP while using a separate best-of-breed commerce platform. Growmax integrates with multiple ERPs including connectivity options for NetSuite data. BigCommerce and Shopify Plus also offer NetSuite connectors through middleware platforms like Celigo."
+    answer: "Yes. You can keep NetSuite as your ERP while using a separate best-of-breed commerce platform. Growmax Enterprise integrates natively with SAP ECC/S4HANA and Epicor, with API connectivity for other ERPs. BigCommerce and Shopify Plus also offer NetSuite connectors through middleware."
   },
   {
     question: "How much does NetSuite SuiteCommerce cost?",
-    answer: "NetSuite SuiteCommerce typically costs $999+/month on top of your existing NetSuite ERP license ($999+/month). Add per-user fees, SuiteCloud development costs, and implementation services ($50-200K+), and total first-year costs often exceed $100K. Growmax starts at $199/month with no setup fee."
+    answer: "NetSuite SuiteCommerce typically costs $999+/month on top of your existing NetSuite ERP license ($999+/month). Add per-user fees, SuiteCloud development costs, and implementation services ($50-200K+), and total first-year costs often exceed $100K. Growmax Enterprise offers custom pricing with dramatically lower total cost of ownership."
   },
   {
     question: "Is NetSuite SuiteCommerce good for B2B?",
-    answer: "SuiteCommerce has basic B2B capabilities but was primarily designed for B2C retail. It lacks key B2B features like offline mobile ordering, advanced partner portals, and deep multi-ERP integration. Purpose-built B2B platforms like Growmax offer significantly more B2B depth at lower cost."
+    answer: "SuiteCommerce has basic B2B capabilities but was primarily designed for B2C retail. It lacks key B2B features like multi-party ecosystem management, multi-version quote workflows, advanced partner portals, and deep multi-ERP integration. Purpose-built platforms like Growmax Enterprise offer significantly more depth for manufacturers with partner networks."
   },
 ];
 
@@ -345,7 +345,7 @@ export default function NetSuiteSuiteCommerceAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">BigCommerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Sana</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Shopify Plus</div>
@@ -389,7 +389,7 @@ export default function NetSuiteSuiteCommerceAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">BigCommerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Sana</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Shopify Plus</div>

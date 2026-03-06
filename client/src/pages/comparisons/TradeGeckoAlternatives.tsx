@@ -155,7 +155,7 @@ const migrationSteps = [
   {
     step: "02",
     title: "Map Your Data Model",
-    description: "Our migration team maps your TradeGecko product catalog, customer-specific pricing, and inventory locations to the Growmax data model — typically completed in 48 hours.",
+    description: "Our migration team maps your TradeGecko product catalog, customer-specific pricing, and inventory locations to the Growmax ARC data model — typically completed in 48 hours.",
   },
   {
     step: "03",
@@ -404,13 +404,13 @@ export default function TradeGeckoAlternatives() {
                 icon: Globe,
                 number: "02",
                 title: "B2B Self-Ordering Portal",
-                description: "TradeGecko's B2B portal was one of its best features — and Intuit removed it. Growmax includes a full customer self-ordering portal with customer-specific pricing, catalog visibility rules, and re-order automation."
+                description: "TradeGecko's B2B portal was one of its best features — and Intuit removed it. Growmax ARC includes a full customer self-ordering portal with customer-specific pricing, catalog visibility rules, and re-order automation."
               },
               {
                 icon: RefreshCw,
                 number: "03",
                 title: "No Platform Lock-In",
-                description: "QuickBooks Commerce only works with QuickBooks. Growmax connects to Zoho, QuickBooks, SAP, and any ERP via API. You choose your accounting system — we integrate with it."
+                description: "QuickBooks Commerce only works with QuickBooks. Growmax ARC connects to Zoho, QuickBooks, Xero, and any accounting system via API. You choose your accounting system — we integrate with it."
               },
               {
                 icon: Zap,
@@ -422,13 +422,13 @@ export default function TradeGeckoAlternatives() {
                 icon: Shield,
                 number: "05",
                 title: "Multi-Warehouse Intelligence",
-                description: "Go beyond TradeGecko's basic multi-location inventory. Growmax manages stock across multiple warehouses with intelligent allocation logic, geographic zone management, and automated reorder points."
+                description: "Go beyond TradeGecko's basic multi-location inventory. Growmax ARC manages stock across multiple warehouses with intelligent allocation logic, geographic zone management, and automated reorder points."
               },
               {
                 icon: DollarSign,
                 number: "06",
                 title: "Lower Cost, More Value",
-                description: "At $199/mo with B2B portal and mobile app included, Growmax delivers more B2B functionality than Cin7 ($349/mo) or Cin7 Omni ($799/mo) — without nickel-and-diming you on add-ons."
+                description: "At $199/mo with B2B portal and mobile app included, Growmax ARC delivers more B2B functionality than Cin7 ($349/mo) or Cin7 Omni ($799/mo) — without nickel-and-diming you on add-ons."
               },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group" data-testid={`card-advantage-${i}`}>
