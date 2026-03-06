@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import { webPageSchema, faqPageSchema } from "@/lib/structuredData";
+import SiloVsConnected from "@/components/SiloVsConnected";
 
 const competitors = [
   {
@@ -477,6 +478,12 @@ export default function ShopifyPlusB2BAlternatives() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 md:px-8">
+          <SiloVsConnected competitorName="Shopify Plus B2B" />
         </div>
       </section>
 

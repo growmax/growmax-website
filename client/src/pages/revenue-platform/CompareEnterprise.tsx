@@ -3,6 +3,7 @@ import { ArrowRight, Check, X, Minus, Clock, DollarSign, Server, Shield, Users, 
 import { Button } from "@/components/ui/button";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
+import SiloVsConnected from "@/components/SiloVsConnected";
 import { webPageSchema } from "@/lib/structuredData";
 
 const featureMatrix = [
@@ -325,6 +326,12 @@ export default function CompareEnterprise() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white border-t-4 border-growmax-black">
+        <div className="container mx-auto px-4 md:px-8">
+          <SiloVsConnected competitorName="Enterprise Platforms" />
         </div>
       </section>
 

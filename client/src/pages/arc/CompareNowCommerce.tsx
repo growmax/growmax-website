@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SEOHead from "@/components/SEOHead";
 import { webPageSchema } from "@/lib/structuredData";
+import SiloVsConnected from "@/components/SiloVsConnected";
 
 const features = [
   { category: "Ordering & Commerce", items: [
@@ -302,6 +303,12 @@ export default function CompareNowCommerce() {
               </div>
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="py-24 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+          <SiloVsConnected competitorName="NowCommerce" />
         </div>
       </section>
 
