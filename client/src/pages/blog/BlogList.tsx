@@ -6,6 +6,7 @@ import { Search, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import SEOHead from "@/components/SEOHead";
+import { collectionPageSchema } from "@/lib/structuredData";
 
 const categories = [
   "All",
@@ -63,6 +64,11 @@ export default function BlogList() {
         title="Growmax Intelligence | B2B Commerce & Industrial Distribution Insights"
         description="Technical papers, case studies, and insights on B2B eCommerce, industrial distribution, AI in commerce, partner engagement, and revenue operations."
         path="/blog"
+        structuredData={collectionPageSchema({
+          title: "Growmax Intelligence — B2B Commerce & Industrial Distribution Blog",
+          description: "Technical papers, case studies, and insights on B2B eCommerce, industrial distribution, AI in commerce, partner engagement, and revenue operations.",
+          path: "/blog",
+        })}
       />
       <section className="pt-24 pb-16 border-b border-gray-200 bg-grid-blueprint relative">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>

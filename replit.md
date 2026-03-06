@@ -16,74 +16,97 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - `client/src/index.css` — Design system tokens, grid utilities, custom CSS, marquee animation
 - `client/src/components/SEOHead.tsx` — Reusable SEO meta tag component (title, description, OG, Twitter)
 - `client/src/components/Breadcrumbs.tsx` — Reusable breadcrumb navigation component
-- `client/src/lib/structuredData.ts` — JSON-LD structured data generators (Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage)
+- `client/src/lib/structuredData.ts` — JSON-LD structured data generators (Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage, CollectionPage)
 - `client/src/pages/Home.tsx` — Homepage with customer logo wall, partner marquee
 - `client/src/pages/revenue-platform/RevenuePlatform.tsx` — Enterprise product page + compare alternatives banner + SoftwareApplication schema
 - `client/src/pages/revenue-platform/CompareEnterprise.tsx` — Growmax vs Corevist vs SAP Commerce Cloud comparison
 - `client/src/pages/arc/Arc.tsx` — ARC product page + compare alternatives banner + SoftwareApplication schema
 - `client/src/pages/arc/Pricing.tsx` — ARC pricing page + Product/Offer schema
-- `client/src/pages/arc/CompareB2BWave.tsx` — ARC vs B2B Wave comparison + cross-links
-- `client/src/pages/arc/ComparePepperi.tsx` — ARC vs Pepperi comparison + cross-links
-- `client/src/pages/comparisons/HandshakeAlternatives.tsx` — Best Handshake Alternatives comparison page (5 competitors)
-- `client/src/pages/comparisons/TradeGeckoAlternatives.tsx` — Best TradeGecko/QuickBooks Commerce Alternatives page (5 competitors)
+- `client/src/pages/arc/CompareB2BWave.tsx` — ARC vs B2B Wave comparison
+- `client/src/pages/arc/ComparePepperi.tsx` — ARC vs Pepperi comparison
+- `client/src/pages/arc/CompareNowCommerce.tsx` — ARC vs NowCommerce comparison
+- `client/src/pages/arc/CompareCin7.tsx` — ARC vs Cin7 comparison
+- `client/src/pages/arc/CompareUnleashed.tsx` — ARC vs Unleashed comparison
+- `client/src/pages/comparisons/` — 14 comparison/alternatives pages (Handshake, TradeGecko, Sana Commerce, OroCommerce, BigCommerce B2B, Shopify Plus, Magento B2B, Dynamics 365, Salesforce Commerce, WooCommerce B2B, Zoho Commerce, SAP Commerce Cloud, Oracle Commerce, NetSuite SuiteCommerce)
+- `client/src/pages/industries/` — 12 industry landing pages (Electrical, Building Materials, Industrial Manufacturing, Food & Beverage, Automotive Aftermarket, Plumbing & HVAC, Janitorial & Sanitation, Safety & PPE, Industrial Fasteners, Pump & Valve, Chemical, Packaging)
 - `client/src/pages/solutions/SparePartsHub.tsx` — Spare Parts eCommerce pillar page with FAQ schema
-- `client/src/pages/industries/ElectricalDistributors.tsx` — Electrical distributors industry landing page
-- `client/src/pages/industries/IndustrialManufacturing.tsx` — Industrial manufacturing landing page
-- `client/src/pages/industries/BuildingMaterials.tsx` — Building materials distributors landing page
-- `client/src/pages/industries/FoodBeverage.tsx` — Food & Beverage distributors industry landing page
-- `client/src/pages/industries/AutomotiveAftermarket.tsx` — Automotive Aftermarket & Spare Parts industry landing page
 - `client/src/pages/Demo.tsx` — Demo request form (functional, saves to DB) + ContactPage schema
 - `client/src/pages/company/About.tsx` — About/Team page + AboutPage schema
-- `client/src/pages/blog/BlogList.tsx` — Blog index fetching from /api/blog, category filters, search
-- `client/src/pages/blog/BlogPost.tsx` — Blog post detail page fetching from /api/blog/:slug + Article schema + Related Articles component
-- `client/src/pages/WriteForUs.tsx` — Write For Us / guest contributor page
-- `client/src/pages/admin/AdminLogin.tsx` — Admin login (password-only, brutalist design)
-- `client/src/pages/admin/AdminDashboard.tsx` — Admin dashboard (post list, search, filter, delete, publish toggle)
-- `client/src/pages/admin/AdminPostEditor.tsx` — Admin post editor (create/edit, sections editor, preview modal)
-- `client/src/data/blogPosts.ts` — Legacy blog post data (43 entries, now seeded into DB)
-- `client/src/pages/legal/Privacy.tsx` — Privacy policy
-- `client/src/pages/legal/Terms.tsx` — Terms of service
-- `client/src/pages/not-found.tsx` — 404 page with SEOHead
-- `client/src/components/layout/Navbar.tsx` — Fixed navbar with dropdown menus (Platform, ARC, Industries, Intelligence)
-- `client/src/components/layout/Footer.tsx` — Footer with Solutions, Comparisons, Industries, Company sections
-- `client/src/components/ui/BrandLogo.tsx` — Brand logo component
+- `client/src/pages/blog/BlogList.tsx` — Blog index with CollectionPage schema, category filters, search
+- `client/src/pages/blog/BlogPost.tsx` — Blog post detail with Article schema + Related Articles
+- `client/src/pages/WriteForUs.tsx` — Guest contributor page
+- `client/src/pages/admin/` — Admin login, dashboard, post editor
+- `client/src/pages/legal/` — Privacy, Terms
 - `shared/schema.ts` — Database schema (demo_requests, newsletter_subscriptions, blog_posts, blog_redirects)
-- `server/routes.ts` — API routes + admin auth + blog CRUD + dynamic sitemap.xml + robots.txt + 301 redirects
+- `server/routes.ts` — API routes + admin auth + blog CRUD + dynamic sitemap.xml (152 URLs) + robots.txt + 301 redirects
 - `server/storage.ts` — Database storage interface with blog CRUD methods
-- `server/index.ts` — Express app with session middleware
-- `server/db.ts` — Database connection (Neon serverless)
-- `scripts/seed-blog.ts` — Seed script for migrating 43 posts + 95 redirects into DB
+- `scripts/seed-blog.ts` — Seed script for blog posts + redirects
+- `scripts/seed-listicle-posts.ts` — Seed script for 6 "best of" listicle blog posts
 
 ## Routes
+### Core Pages
 - `/` — Homepage
 - `/revenue-platform` — Enterprise product
 - `/revenue-platform/compare` — Enterprise competitor comparison
-- `/revenue-platform/:feature` — Dynamic feature sub-pages
 - `/arc` — ARC product
 - `/arc/pricing` — ARC pricing
-- `/arc/compare/b2b-wave` — ARC vs B2B Wave
-- `/arc/compare/pepperi` — ARC vs Pepperi
-- `/comparisons/handshake-alternatives` — Best Handshake Alternatives & Competitors
-- `/comparisons/tradegecko-alternatives` — Best TradeGecko/QuickBooks Commerce Alternatives
-- `/solutions/spare-parts-ecommerce` — Spare Parts eCommerce pillar page
-- `/industries/electrical-distributors` — Electrical distributors landing
-- `/industries/industrial-manufacturing` — Industrial manufacturing landing
-- `/industries/building-materials` — Building materials landing
-- `/industries/food-beverage` — Food & Beverage distributors landing
-- `/industries/automotive-aftermarket` — Automotive Aftermarket & Spare Parts landing
 - `/demo` — Demo request form
 - `/company/about` — About page
-- `/blog` — Blog index (43 posts from DB, category filters)
-- `/blog/:slug` — Individual blog post (slug-based, from DB)
+
+### ARC Comparisons (5 pages)
+- `/arc/compare/b2b-wave` — ARC vs B2B Wave
+- `/arc/compare/pepperi` — ARC vs Pepperi
+- `/arc/compare/nowcommerce` — ARC vs NowCommerce
+- `/arc/compare/cin7` — ARC vs Cin7
+- `/arc/compare/unleashed` — ARC vs Unleashed
+
+### Competitor Alternatives (14 pages)
+- `/comparisons/handshake-alternatives`
+- `/comparisons/tradegecko-alternatives`
+- `/comparisons/sana-commerce-alternatives`
+- `/comparisons/orocommerce-alternatives`
+- `/comparisons/bigcommerce-b2b-alternatives`
+- `/comparisons/shopify-plus-b2b-alternatives`
+- `/comparisons/magento-b2b-alternatives`
+- `/comparisons/dynamics-365-commerce-alternatives`
+- `/comparisons/salesforce-commerce-alternatives`
+- `/comparisons/woocommerce-b2b-alternatives`
+- `/comparisons/zoho-commerce-alternatives`
+- `/comparisons/sap-commerce-cloud-alternatives`
+- `/comparisons/oracle-commerce-alternatives`
+- `/comparisons/netsuite-suitecommerce-alternatives`
+
+### Industry Pages (12 pages)
+- `/industries/electrical-distributors`
+- `/industries/building-materials`
+- `/industries/industrial-manufacturing`
+- `/industries/food-beverage`
+- `/industries/automotive-aftermarket`
+- `/industries/plumbing-hvac`
+- `/industries/janitorial-sanitation`
+- `/industries/safety-ppe`
+- `/industries/industrial-fasteners`
+- `/industries/pump-valve`
+- `/industries/chemical-distributors`
+- `/industries/packaging-distributors`
+
+### Content & Blog
+- `/blog` — Blog index (109+ posts from DB)
+- `/blog/:slug` — Individual blog post
+- `/solutions/spare-parts-ecommerce` — Spare Parts pillar page
+- `/write-for-us` — Guest contributor guidelines
+
+### Legal & Admin
 - `/privacy` — Privacy policy
 - `/terms-of-service` — Terms of service
-- `/admin/login` — Admin login page
-- `/admin` — Admin dashboard (blog post management)
-- `/admin/posts/new` — Create new blog post
-- `/admin/posts/:id/edit` — Edit existing blog post
-- `/write-for-us` — Guest contributor guidelines (636 clicks, 2nd highest traffic page)
-- `/sitemap.xml` — Dynamic XML sitemap (124 URLs, pulls blog slugs from DB)
-- `/robots.txt` — Crawler directives (server-generated)
+- `/admin/login` — Admin login
+- `/admin` — Admin dashboard
+- `/admin/posts/new` — Create post
+- `/admin/posts/:id/edit` — Edit post
+
+### Generated
+- `/sitemap.xml` — Dynamic XML sitemap (152 URLs: 44 static + 108 blog posts)
+- `/robots.txt` — Crawler directives
 
 ## API Endpoints
 - `GET /api/blog` — Published blog posts (public)
@@ -100,39 +123,26 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - `POST /api/newsletter` — Subscribe to newsletter
 
 ## Database Tables
-- `demo_requests` — Stores demo form submissions (firstName, lastName, email, company, companySize, modules[], message)
-- `newsletter_subscriptions` — Stores email subscriptions (email, unique constraint)
-- `blog_posts` — Blog posts (id serial, slug unique, title, category, date, author, authorTeam, readTime, excerpt, sections jsonb, relatedSlugs text[], published boolean, legacyUrl, createdAt, updatedAt)
-- `blog_redirects` — URL redirects for old blog paths (id serial, oldPath unique, newPath, createdAt)
-
-## Blog Admin System
-- Password-based admin auth using ADMIN_PASSWORD env var
-- Session-based authentication (express-session, cookie-based, sameSite: lax)
-- Admin UI at /admin with brutalist design matching the site
-- Dashboard: search/filter posts, view published status, create/edit/delete
-- Post editor: title, slug (auto-generated), category dropdown, sections editor (add/remove), HTML content, preview modal, published toggle
-- 103 total posts: 43 new SEO-optimized posts + 60 restored high-traffic legacy posts
-- 35 remaining 301 redirects (thin/duplicate content only)
-- 60 old posts restored at original URLs with content answering original search intent + CTA linking to related new posts
-- Blog frontend reads from API with react-query (loading states, error handling)
-- Dynamic sitemap pulls published post slugs from DB
+- `demo_requests` — Demo form submissions
+- `newsletter_subscriptions` — Email subscriptions
+- `blog_posts` — Blog posts (109+ entries, sections as JSONB, relatedSlugs for cross-linking)
+- `blog_redirects` — URL redirects for old blog paths
 
 ## SEO Infrastructure
-- **Meta Tags**: react-helmet-async with reusable SEOHead component on every page (including 404)
-- **Structured Data**: JSON-LD for Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage
-- **Sitemap**: Dynamic XML sitemap at /sitemap.xml covering 124 URLs (22 static + 103 blog posts, DB-driven)
-- **Robots.txt**: Allows all crawlers, points to sitemap at https://www.growmax.io/sitemap.xml
+- **Meta Tags**: react-helmet-async with reusable SEOHead component on every page
+- **Structured Data**: JSON-LD for Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage, CollectionPage
+- **Sitemap**: Dynamic XML sitemap at /sitemap.xml (152 URLs, DB-driven blog posts)
+- **Robots.txt**: Allows all crawlers, points to sitemap
 - **Breadcrumbs**: Monospace uppercase breadcrumbs on all interior pages
-- **301 Redirects**: 35 remaining old blog URLs mapped to new paths (thin/duplicate content only); 60 high-traffic URLs restored as real content
-- **Related Articles**: Automatic related article cards on every blog post (uses relatedSlugs or falls back to same-category posts)
-- **Topic Clusters**: Old informational posts (top-of-funnel) link to new commercial posts (bottom-of-funnel) via CTAs
-- **Base URL**: https://www.growmax.io (consistent across sitemap and meta tags)
+- **301 Redirects**: Old blog URLs mapped to new paths
+- **FAQ Schema**: On all comparison and industry pages for rich snippet eligibility
+- **Base URL**: https://www.growmax.io
 
-## Navigation
-- **Navbar**: Dropdown menus for Platform Arc, Distributor Arc, Industries (5 pages), Intelligence (blog + comparisons + solutions)
-- **Footer**: 4-column layout — Solutions (incl. Spare Parts), Comparisons (5 comparison pages), Industries (5 pages), Company
-- **Internal Cross-Links**: Compare alternatives banners on product pages, related architecture sections on all pages
-- **Breadcrumbs**: On blog posts, comparison pages, industry pages, pricing, about
+## SEO Content Strategy (Neil Patel Gap Analysis)
+- **15 comparison pages** targeting "X alternatives" keywords for every major B2B commerce competitor
+- **12 industry pages** targeting "[industry] B2B ecommerce" keywords
+- **6 listicle blog posts** targeting "best [category] 2026" keywords (best-b2b-ecommerce-platforms-2026, best-b2b-ordering-apps-distributors, best-sap-b2b-commerce-solutions, best-dealer-portal-software-2026, best-spare-parts-management-software, top-wholesale-ordering-platforms-2026)
+- **109+ blog posts** covering partner engagement, CPQ, pipeline management, offline ordering, SAP integration, AI B2B, customer-specific pricing, dealer portal, spare parts, channel management
 
 ## Design System Notes
 - Fonts: IBM Plex Sans (body), IBM Plex Mono (metadata/labels)
@@ -145,8 +155,8 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 ## Target Market
 US East Coast & Texas — Industrial and Electrical Distributors for enterprise-grade revenue operations platform.
 
-## SEO Strategy
-- Competitor comparison pages target: "Corevist alternative", "SAP Commerce Cloud alternative", "B2B Wave alternative", "Pepperi alternative", "Handshake alternatives", "TradeGecko alternatives"
-- Industry landing pages target: "B2B ecommerce for electrical distributors", "industrial manufacturing B2B commerce", "building materials distributor platform", "food beverage B2B ecommerce", "automotive aftermarket ecommerce", "spare parts B2B platform"
-- Solutions hub: Spare Parts eCommerce pillar page linking to all spare parts blog content
-- Blog targets: 43 SEO-optimized articles covering partner engagement, CPQ, pipeline management, offline ordering, SAP integration, AI B2B, customer-specific pricing, dealer portal, spare parts, channel management keywords
+## Branding
+- **Logo assets** in `client/public/`: `/logo-white.png` (dark bg), `/logo-dark.png` (light bg), `/favicon.png`
+- **Client logos**: `/images/siemens-logo.svg`, `/images/schwing-stetter-logo.png`, `/images/obo-bettermann-logo.svg`
+- **ClientLogos.tsx**: Uses `size` prop (sm/md/lg) + `variant` (dark/light)
+- **Company names**: India = "Webspot Growmax Commerce Private Limited, Chennai, India"; US = "Growmax LLC, US"

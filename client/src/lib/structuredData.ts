@@ -206,6 +206,28 @@ export function faqPageSchema({
   };
 }
 
+export function collectionPageSchema({
+  title,
+  description,
+  path,
+}: {
+  title: string;
+  description: string;
+  path: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: title,
+    description,
+    url: `${BASE_URL}${path}`,
+    publisher: {
+      "@type": "Organization",
+      name: "Growmax",
+    },
+  };
+}
+
 export function contactPageSchema() {
   return {
     "@context": "https://schema.org",
