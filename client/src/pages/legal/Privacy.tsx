@@ -32,7 +32,7 @@ export default function Privacy() {
           <div className="prose max-w-none prose-headings:font-bold prose-headings:tracking-tighter prose-headings:uppercase prose-headings:text-growmax-black prose-p:text-gray-600 prose-p:font-light prose-p:leading-relaxed prose-a:text-growmax-red">
             
             <p className="font-mono text-sm uppercase bg-gray-50 p-4 border border-gray-200 mb-8">
-              Apptino Software Private Limited ("Growmax", "we", "us", or "our") respects your privacy and is committed to protecting it through our compliance with this policy.
+              Webspot Growmax Commerce Private Limited / Growmax LLC ("Growmax", "we", "us", or "our") respects your privacy and is committed to protecting it through our compliance with this policy.
             </p>
 
             <h2>1. Information We Collect</h2>

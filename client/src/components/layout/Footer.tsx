@@ -16,9 +16,15 @@ export default function Footer() {
               </p>
             </div>
             
-            <div className="mt-12 space-y-2 text-gray-500">
-              <p>Apptino Software Private Limited</p>
-              <p>Founded 2017 // Chennai, India</p>
+            <div className="mt-12 space-y-3 text-gray-500">
+              <div>
+                <p className="text-gray-400 font-bold">Growmax LLC</p>
+                <p>United States</p>
+              </div>
+              <div>
+                <p className="text-gray-400 font-bold">Webspot Growmax Commerce Private Limited</p>
+                <p>Chennai, India</p>
+              </div>
               <p className="text-growmax-red mt-4 block">Target Operations: US East Coast & Texas</p>
             </div>
           </div>

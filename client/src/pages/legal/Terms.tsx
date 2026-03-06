@@ -32,7 +32,7 @@ export default function Terms() {
           <div className="prose max-w-none prose-headings:font-bold prose-headings:tracking-tighter prose-headings:uppercase prose-headings:text-growmax-black prose-p:text-gray-600 prose-p:font-light prose-p:leading-relaxed prose-a:text-growmax-red">
             
             <p className="font-mono text-sm uppercase bg-gray-50 p-4 border border-gray-200 mb-8">
-              These terms of service ("Terms", "Agreement") are an agreement between the website operator ("we", "us" or "our", referring to Apptino Software Private Limited) and you ("User", "you" or "your").
+              These terms of service ("Terms", "Agreement") are an agreement between the website operator ("we", "us" or "our", referring to Webspot Growmax Commerce Private Limited / Growmax LLC) and you ("User", "you" or "your").
             </p>
 
             <h2>1. Acceptance of Terms</h2>

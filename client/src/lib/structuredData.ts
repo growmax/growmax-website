@@ -6,7 +6,7 @@ export function organizationSchema() {
     "@type": "Organization",
     name: "Growmax",
     url: BASE_URL,
-    logo: `${BASE_URL}/logo.png`,
+    logo: `${BASE_URL}/icon-512.png`,
     description:
       "The connected platform for B2B revenue operations. Customer self-ordering portals, sales quote & pricing, partner portals, and ERP integration for industrial distributors and manufacturers.",
     sameAs: [

@@ -1,7 +1,7 @@
 # Growmax LLC Corporate Website
 
 ## Overview
-Professional corporate website for Growmax LLC (Apptino Software Private Limited), a B2B software company. Two product lines:
+Professional corporate website for Growmax (Webspot Growmax Commerce Private Limited, India / Growmax LLC, US), a B2B software company. Two product lines:
 1. **Revenue Platform** — Enterprise SAP/ERP integrations for manufacturers (Siemens, Schwing Stetter, OBO Bettermann)
 2. **Growmax ARC** — Zoho-integrated ordering platform for SMB distributors ($199/month)
 
