@@ -6,9 +6,17 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 2. **Growmax ARC** — All-in-one distributor platform for SMBs (up to 100 employees). Inventory + Customer Portal + Sales Rep App. QuickBooks/Zoho/Xero integrations. $199/month. Self-service signup.
 
 ## Architecture
-- **Frontend**: React + Vite + Wouter (routing) + Tailwind CSS v4 + shadcn/ui components + react-helmet-async (SEO)
+- **Frontend**: React 19 + Vite + Wouter (routing) + Tailwind CSS v4 + shadcn/ui components + react-helmet-async (SEO meta tags)
 - **Backend**: Express.js API server with express-session for admin auth
 - **Database**: PostgreSQL via Drizzle ORM (Neon serverless driver)
+- **SSR**: Full server-side rendering for SEO/AEO crawlability
+  - `client/src/entry-server.tsx` — SSR render function using `renderToString`, extracts head tags (title, meta, canonical, JSON-LD) from rendered HTML via regex (React 19 workaround since react-helmet-async v3 HelmetProvider ignores context with React 19)
+  - `client/src/entry-client.tsx` — Client hydration entry using `hydrateRoot` + TanStack Query `HydrationBoundary`
+  - `server/vite.ts` — Dev SSR handler (uses `vite.ssrLoadModule`)
+  - `server/static.ts` — Production SSR handler (loads pre-built server bundle)
+  - `server/ssr-utils.ts` — SSR injection helpers (head tags, HTML, dehydrated state)
+  - `script/build.ts` — Dual Vite build (client → `dist/public`, server → `dist/server`)
+  - Blog pages prefetch data server-side via storage layer, serialized as `window.__REACT_QUERY_STATE__`
 - **Design System**: Digital Brutalism / Swiss Engineering — IBM Plex Sans + IBM Plex Mono, radius: 0, Growmax Red accent (hsl 0 80% 50%)
 
 ## Key Files
@@ -130,7 +138,9 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - `blog_redirects` — URL redirects for old blog paths
 
 ## SEO Infrastructure
-- **Meta Tags**: react-helmet-async with reusable SEOHead component on every page
+- **SSR**: Full server-side rendering — all pages return complete HTML with SEO tags for Google, AI answer engines (Perplexity, SGE), and social crawlers
+- **Canonical Tags**: Every page includes `<link rel="canonical">` via SEOHead component
+- **Meta Tags**: react-helmet-async with reusable SEOHead component on every page (title, description, OG, Twitter)
 - **Structured Data**: JSON-LD for Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage, CollectionPage
 - **Sitemap**: Dynamic XML sitemap at /sitemap.xml (152 URLs, DB-driven blog posts)
 - **Robots.txt**: Allows all crawlers, points to sitemap

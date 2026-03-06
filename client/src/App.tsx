@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -63,7 +64,7 @@ import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminPostEditor from "@/pages/admin/AdminPostEditor";
 
-function Router() {
+function AppRouter() {
   return (
     <Switch>
       <Route path="/admin/login" component={AdminLogin} />
@@ -141,13 +142,23 @@ function Router() {
   );
 }
 
+export function AppContent() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return (
+    <>
+      {mounted && <Toaster />}
+      <AppRouter />
+    </>
+  );
+}
+
 function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Toaster />
-          <Router />
+          <AppContent />
         </TooltipProvider>
       </QueryClientProvider>
     </HelmetProvider>
