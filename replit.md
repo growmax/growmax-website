@@ -31,8 +31,8 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - `client/src/pages/revenue-platform/CompareEnterprise.tsx` — Growmax vs Corevist vs SAP Commerce Cloud comparison
 - `client/src/pages/arc/Arc.tsx` — ARC product page + compare alternatives banner + SoftwareApplication schema
 - `client/src/pages/arc/Pricing.tsx` — ARC pricing page + Product/Offer schema
-- `client/src/pages/arc/CompareB2BWave.tsx` — ARC vs B2B Wave comparison
-- `client/src/pages/arc/ComparePepperi.tsx` — ARC vs Pepperi comparison
+- `client/src/pages/arc/CompareB2BWave.tsx` — ARC vs B2B Wave comparison (FAQ schema, deep-dive content, internal links to blog posts)
+- `client/src/pages/arc/ComparePepperi.tsx` — ARC vs Pepperi comparison (FAQ schema, DSD/CRM/trade promo deep-dive, internal links)
 - `client/src/pages/arc/CompareNowCommerce.tsx` — ARC vs NowCommerce comparison
 - `client/src/pages/arc/CompareCin7.tsx` — ARC vs Cin7 comparison
 - `client/src/pages/arc/CompareUnleashed.tsx` — ARC vs Unleashed comparison
@@ -153,7 +153,10 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - **15 comparison pages** targeting "X alternatives" keywords for every major B2B commerce competitor
 - **12 industry pages** targeting "[industry] B2B ecommerce" keywords
 - **6 listicle blog posts** targeting "best [category] 2026" keywords (best-b2b-ecommerce-platforms-2026, best-b2b-ordering-apps-distributors, best-sap-b2b-commerce-solutions, best-dealer-portal-software-2026, best-spare-parts-management-software, top-wholesale-ordering-platforms-2026)
-- **109+ blog posts** covering partner engagement, CPQ, pipeline management, offline ordering, SAP integration, AI B2B, customer-specific pricing, dealer portal, spare parts, channel management
+- **154 blog posts** total, including 7 competitor keyword-targeted posts (DSD guide, B2B sales tips, CRM vs SFA, trade promotions, push vs pull marketing, EDI vs eCommerce, B2B mobile ordering app)
+- **Competitor keyword posts**: `scripts/competitor-keyword-posts.ts` — synced via `syncMissingPosts()` in auto-seed alongside `scripts/csv-imported-posts.ts`
+- **Blog SEO enhancements**: 141 posts have FAQ schema, 143 have CTAs, 147 have Related Articles, 133 have internal cross-links
+- **Comparison page upgrades**: Pepperi and B2B Wave comparison pages upgraded with FAQ schema, deep-dive analysis content, Quick Verdict sections, and internal links to blog posts
 
 ## Design System Notes
 - Fonts: IBM Plex Sans (body), IBM Plex Mono (metadata/labels)
