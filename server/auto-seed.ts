@@ -7,6 +7,7 @@ import { batch3Posts } from "../scripts/old-blog-batch-3";
 import { batch4Posts } from "../scripts/old-blog-batch-4";
 import { listiclePosts } from "../scripts/listicle-data";
 import { csvImportedPosts } from "../scripts/csv-imported-posts";
+import { competitorKeywordPosts } from "../scripts/competitor-keyword-posts";
 import { sql, eq, and, jsonb } from "drizzle-orm";
 
 const oldToNewRedirects: Record<string, string> = {
@@ -236,7 +237,8 @@ export async function syncMissingPosts(): Promise<void> {
 
     let inserted = 0;
     let updated = 0;
-    for (const post of csvImportedPosts) {
+    const allSyncPosts = [...csvImportedPosts, ...competitorKeywordPosts];
+    for (const post of allSyncPosts) {
       try {
         const existing = await db.select({ id: blogPosts.id }).from(blogPosts).where(eq(blogPosts.slug, post.slug));
 
