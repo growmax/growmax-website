@@ -72,7 +72,7 @@ export default function ElectricalDistributors() {
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
       <SEOHead
-        title="B2B eCommerce for Electrical Distributors | Texas & East Coast"
+        title="B2B eCommerce for Electrical Distributors | Growmax"
         description="Revenue operations platform for electrical distributors. Multi-tier pricing, multi-warehouse inventory, contractor portals, and SAP integration for electrical wholesale."
         path="/industries/electrical-distributors"
         structuredData={webPageSchema({
@@ -87,8 +87,8 @@ export default function ElectricalDistributors() {
             "switchgear quoting software",
             "cable management ordering system",
             "multi-warehouse electrical distribution",
-            "electrical distributor Texas",
-            "electrical wholesale platform East Coast",
+            "electrical distributor ordering platform",
+            "electrical wholesale B2B commerce",
             "SAP integrated electrical commerce",
           ],
         })}
@@ -262,9 +262,9 @@ export default function ElectricalDistributors() {
       <section className="py-32 bg-growmax-black text-white bg-dots-dark">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
-            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Regional Focus</div>
+            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Where Our Customers Operate</div>
             <h2 className="text-5xl md:text-6xl font-bold tracking-tighter mb-6 uppercase" data-testid="text-regional-title">
-              US East Coast & Texas
+              Electrical Distribution<br/>Across America
             </h2>
             <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto">
               Purpose-built for the electrical distribution markets driving America's infrastructure growth.
@@ -298,8 +298,8 @@ export default function ElectricalDistributors() {
               "switchgear quoting software",
               "cable management ordering system",
               "multi-warehouse electrical distribution",
-              "electrical distributor Texas",
-              "electrical wholesale platform East Coast",
+              "electrical distributor ordering platform",
+              "electrical wholesale B2B platform",
               "SAP integrated electrical commerce"
             ].map((keyword, i) => (
               <span key={i} className="border border-growmax-black px-3 py-1 font-mono text-xs uppercase tracking-widest text-gray-600 hover:bg-growmax-black hover:text-white transition-colors cursor-default">

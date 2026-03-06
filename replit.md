@@ -157,7 +157,7 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - ARC comparison pages: Position Growmax ARC with $199/mo, QuickBooks/Zoho/Xero (6 pages + 5 direct comparisons)
 
 ## Target Market
-US East Coast & Texas — Industrial and Electrical Distributors for enterprise-grade revenue operations platform.
+US Industrial and Electrical Distributors — nationwide coverage across all major manufacturing, construction, and distribution corridors.
 
 ## Branding
 - **Logo assets** in `client/public/`: `/logo-white.png` (dark bg), `/logo-dark.png` (light bg), `/favicon.png`

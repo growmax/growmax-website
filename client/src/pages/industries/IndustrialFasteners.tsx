@@ -278,9 +278,9 @@ export default function IndustrialFasteners() {
       <section className="py-32 bg-growmax-black text-white bg-dots-dark">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
-            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Regional Focus</div>
+            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Where Our Customers Operate</div>
             <h2 className="text-5xl md:text-6xl font-bold tracking-tighter mb-6 uppercase" data-testid="text-regional-title">
-              Manufacturing Heartland
+              Industrial Fasteners<br/>Across America
             </h2>
             <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto">
               Purpose-built for the industrial fastener distribution markets serving America's manufacturing and construction sectors.

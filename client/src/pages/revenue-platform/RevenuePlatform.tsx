@@ -214,8 +214,7 @@ export default function RevenuePlatform() {
       <section className="py-16 bg-growmax-black text-white border-t border-gray-800 border-b-4 border-growmax-red">
          <div className="container mx-auto px-4 text-center">
             <p className="font-mono text-sm uppercase tracking-widest text-gray-400">
-               Optimized for Industrial & Electrical Manufacturers with Partner Networks <br/> 
-               <span className="text-growmax-red font-bold">Target Focus: US East Coast & Texas Region</span>
+               Optimized for Industrial & Electrical Manufacturers with Partner Networks
             </p>
          </div>
       </section>

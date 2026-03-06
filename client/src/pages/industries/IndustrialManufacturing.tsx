@@ -89,7 +89,7 @@ export default function IndustrialManufacturing() {
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="B2B Commerce for Industrial Manufacturers | Dealer Portal & Spare Parts"
-        description="Revenue operations platform for industrial equipment and machinery manufacturers. Complex BOM management, multi-tier dealer networks, spare parts portals, and SAP integration for US East Coast manufacturers."
+        description="Revenue operations platform for industrial equipment and machinery manufacturers. Complex BOM management, multi-tier dealer networks, spare parts portals, and SAP integration for manufacturers across America."
         path="/industries/industrial-manufacturing"
         structuredData={structuredData}
       />
@@ -319,9 +319,9 @@ export default function IndustrialManufacturing() {
       <section className="py-32 bg-growmax-black text-white bg-dots-dark">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
-            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Regional Focus</div>
+            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">Where Our Customers Operate</div>
             <h2 className="text-5xl md:text-6xl font-bold tracking-tighter mb-6 uppercase" data-testid="text-regional-title">
-              US East Coast & Midwest
+              Industrial Manufacturing<br/>Across America
             </h2>
             <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto">
               Purpose-built for the industrial manufacturing corridors driving America's equipment and machinery production.

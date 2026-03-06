@@ -25,7 +25,6 @@ export default function Footer() {
                 <p className="text-gray-400 font-bold">Webspot Growmax Commerce Private Limited</p>
                 <p>Chennai, India</p>
               </div>
-              <p className="text-growmax-red mt-4 block">Target Operations: US East Coast & Texas</p>
             </div>
           </div>
           
