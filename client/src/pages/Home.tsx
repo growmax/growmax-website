@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import SEOHead from "@/components/SEOHead";
 import { organizationSchema } from "@/lib/structuredData";
 import { SiemensLogo, SchwingSttetterLogo, OBOBettermannLogo } from "@/components/ui/ClientLogos";
+import EcosystemFlowDiagram from "@/components/EcosystemFlowDiagram";
 
 export default function Home() {
   return (
@@ -358,50 +359,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 5: THE GROWMAX ADVANTAGE */}
-      <section className="py-32 bg-growmax-gray bg-grid-blueprint border-b-2 border-growmax-black">
+      {/* SECTION 5: THE GROWMAX ADVANTAGE — ANIMATED ECOSYSTEM FLOW */}
+      <section className="py-32 bg-growmax-black text-white border-b-2 border-growmax-red">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase">The Growmax Advantage</h2>
-            <p className="font-mono text-sm mt-6 text-gray-600">Complexity is NOT bad. This accurately represents B2B reality.</p>
+          <div className="text-center mb-16">
+            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-4">The Growmax Advantage</div>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase mb-4">How Revenue Flows<span className="text-growmax-red">.</span></h2>
+            <p className="font-mono text-sm text-gray-400 uppercase max-w-3xl mx-auto">
+              See how orders move through your ecosystem — from customer purchase to partner fulfillment to revenue growth — with 100% visibility back to you.
+            </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-2 bg-growmax-black p-2">
-            {[
-              {
-                title: "Multi-Tier Pricing Engine",
-                icon: <Fingerprint className="w-8 h-8"/>,
-                points: ["Not: Product → Customer", "But: Product → Tier → Volume → Time → Customer", "SPAs & Margin controls built in"]
-              },
-              {
-                title: "Approval Engine",
-                icon: <Activity className="w-8 h-8"/>,
-                points: ["Rule based approval flow by discounts or margins", "Multi-levels, Auto approval", "Override discount protocols"]
-              },
-              {
-                title: "Warehouse Orchestration",
-                icon: <Layers className="w-8 h-8"/>,
-                points: ["Role based multi-branch management", "Intelligent allocation with zone logic", "50+ location capability"]
-              },
-              {
-                title: "ERP Grade Integrations",
-                icon: <Server className="w-8 h-8"/>,
-                points: ["Native two-way SAP ECC integration with JCo", "API & foundation ready for any ERP", "Zero middleware latency"]
-              }
-            ].map((adv, i) => (
-              <div key={i} className="bg-growmax-white p-10 md:p-14 hover:bg-white transition-colors flex flex-col">
-                <div className="text-growmax-red mb-6">{adv.icon}</div>
-                <h3 className="text-2xl font-bold tracking-tighter mb-6 uppercase">{adv.title}</h3>
-                <ul className="space-y-4 font-mono text-sm text-gray-600 mt-auto">
-                  {adv.points.map((pt, j) => (
-                    <li key={j} className="flex gap-3">
-                      <span className="text-growmax-red mt-0.5">■</span> {pt}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          <EcosystemFlowDiagram />
         </div>
       </section>
 
