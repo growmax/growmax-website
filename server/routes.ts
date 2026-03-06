@@ -140,9 +140,16 @@ export async function registerRoutes(
     const { password } = req.body;
     if (password === process.env.ADMIN_PASSWORD) {
       req.session.isAdmin = true;
-      return res.json({ success: true });
+      req.session.save((err) => {
+        if (err) {
+          console.error("[admin] Session save error:", err);
+          return res.status(500).json({ error: "Session error" });
+        }
+        return res.json({ success: true });
+      });
+    } else {
+      return res.status(401).json({ error: "Invalid password" });
     }
-    return res.status(401).json({ error: "Invalid password" });
   });
 
   app.post("/api/admin/logout", (req, res) => {

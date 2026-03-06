@@ -1,5 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import { pool } from "./db";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { autoSeedIfEmpty } from "./auto-seed";
@@ -30,15 +32,24 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
-app.set("trust proxy", 1);
+app.set("trust proxy", true);
+
+const isProduction = process.env.NODE_ENV === "production" || !!process.env.REPLIT_DEPLOYMENT;
+const PgStore = connectPgSimple(session);
 
 app.use(
   session({
+    store: new PgStore({
+      pool,
+      tableName: "session",
+      createTableIfMissing: true,
+    }),
     secret: process.env.SESSION_SECRET || require("crypto").randomBytes(32).toString("hex"),
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
-      secure: true,
+      secure: isProduction,
       httpOnly: true,
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000,
