@@ -235,6 +235,20 @@ export async function registerRoutes(
     }
     try {
       const result = await storage.createDemoRequest(parsed.data);
+
+      const webhookUrl = "https://chat.googleapis.com/v1/spaces/AAQAsJFg7Xs/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=68Ej0IZj6mUOe2Q5hMpkkmmIkWl8nnnyfHUymGvaesU";
+      const data = parsed.data;
+      const cardMessage = {
+        text: `*New Demo Request*\n\n*Name:* ${data.firstName} ${data.lastName}\n*Email:* ${data.email}\n*Company:* ${data.company}\n*Company Size:* ${data.companySize}\n*Modules:* ${data.modules.join(", ")}\n*Message:* ${data.message || "N/A"}`,
+      };
+      fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cardMessage),
+      }).catch((err) => {
+        console.error("[webhook] Failed to send demo request notification:", err.message);
+      });
+
       return res.status(201).json(result);
     } catch (err: any) {
       return res.status(500).json({ error: "Failed to submit demo request" });
