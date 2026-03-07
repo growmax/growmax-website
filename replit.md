@@ -140,7 +140,7 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 ## SEO Infrastructure
 - **SSR**: Full server-side rendering — all pages return complete HTML with SEO tags for Google, AI answer engines (Perplexity, SGE), and social crawlers
 - **Canonical Tags**: Every page includes `<link rel="canonical">` via SEOHead component
-- **Meta Tags**: react-helmet-async with reusable SEOHead component on every page (title, description, OG, Twitter)
+- **Meta Tags**: SEOHead component manages ALL meta tags (title, description, og:type, og:title, og:description, og:url, og:image, twitter:card, twitter:site, twitter:title, twitter:description, twitter:image) — NO meta tags in index.html (only charset, viewport, favicon, fonts). SSR deduplication in `injectSSR()` strips any existing meta/title/canonical/LD+JSON from template before injecting SSR head tags.
 - **Structured Data**: JSON-LD for Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage, CollectionPage
 - **Sitemap**: Dynamic XML sitemap at /sitemap.xml (152 URLs, DB-driven blog posts)
 - **Robots.txt**: Allows all crawlers, points to sitemap

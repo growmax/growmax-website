@@ -9,6 +9,12 @@ export function injectSSR(
   result: { html: string; headTags: string; state: any },
 ): string {
   let page = template;
+
+  page = page.replace(/<title[^>]*>.*?<\/title>/gi, "");
+  page = page.replace(/<meta\s+[^>]*(?:name=["'](?:description|robots|twitter:[^"']*)|property=["']og:[^"']*)[^>]*\/?>/gi, "");
+  page = page.replace(/<link\s+[^>]*rel=["']canonical["'][^>]*\/?>/gi, "");
+  page = page.replace(/<script\s+type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi, "");
+
   page = page.replace("<!--ssr-head-->", result.headTags || "");
   page = page.replace("<!--ssr-outlet-->", result.html);
   page = page.replace("<!--ssr-state-->", buildStateScript(result.state));

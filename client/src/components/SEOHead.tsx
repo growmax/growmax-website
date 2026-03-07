@@ -8,6 +8,7 @@ interface SEOHeadProps {
 }
 
 const BASE_URL = "https://www.growmax.io";
+const OG_IMAGE = `${BASE_URL}/icon-512.png`;
 
 export default function SEOHead({ title, description, path = "", structuredData }: SEOHeadProps) {
   const url = `${BASE_URL}${path}`;
@@ -17,11 +18,16 @@ export default function SEOHead({ title, description, path = "", structuredData 
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
+      <meta property="og:type" content="website" />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
+      <meta property="og:image" content={OG_IMAGE} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@growaboratory" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={OG_IMAGE} />
       {structuredData && (
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
