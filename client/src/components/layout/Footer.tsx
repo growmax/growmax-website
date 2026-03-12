@@ -28,7 +28,7 @@ export default function Footer() {
             </div>
           </div>
           
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
             <div>
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Solutions</h4>
               <ul className="space-y-4">
@@ -42,14 +42,29 @@ export default function Footer() {
             <div>
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Comparisons</h4>
               <ul className="space-y-4 text-gray-400">
-                <li className="text-gray-600 font-bold text-[10px] mt-2">Enterprise</li>
+                <li className="text-gray-600 font-bold text-[10px] mt-2">Enterprise Alternatives</li>
                 <li><Link href="/revenue-platform/compare" className="hover:text-white transition-colors block">vs SAP & Corevist</Link></li>
-                <li><Link href="/comparisons/sana-commerce-alternatives" className="hover:text-white transition-colors block">vs Sana Commerce</Link></li>
-                <li><Link href="/comparisons/salesforce-commerce-alternatives" className="hover:text-white transition-colors block">vs Salesforce</Link></li>
-                <li className="text-gray-600 font-bold text-[10px] mt-4">ARC</li>
+                <li><Link href="/comparisons/sap-commerce-cloud-alternatives" className="hover:text-white transition-colors block">SAP Commerce Cloud</Link></li>
+                <li><Link href="/comparisons/salesforce-commerce-alternatives" className="hover:text-white transition-colors block">Salesforce Commerce</Link></li>
+                <li><Link href="/comparisons/oracle-commerce-alternatives" className="hover:text-white transition-colors block">Oracle Commerce</Link></li>
+                <li><Link href="/comparisons/netsuite-suitecommerce-alternatives" className="hover:text-white transition-colors block">NetSuite SuiteCommerce</Link></li>
+                <li><Link href="/comparisons/dynamics-365-commerce-alternatives" className="hover:text-white transition-colors block">Dynamics 365</Link></li>
+                <li><Link href="/comparisons/sana-commerce-alternatives" className="hover:text-white transition-colors block">Sana Commerce</Link></li>
+                <li><Link href="/comparisons/orocommerce-alternatives" className="hover:text-white transition-colors block">OroCommerce</Link></li>
+                <li className="text-gray-600 font-bold text-[10px] mt-4">SMB Alternatives</li>
+                <li><Link href="/comparisons/shopify-plus-b2b-alternatives" className="hover:text-white transition-colors block">Shopify Plus B2B</Link></li>
+                <li><Link href="/comparisons/bigcommerce-b2b-alternatives" className="hover:text-white transition-colors block">BigCommerce B2B</Link></li>
+                <li><Link href="/comparisons/magento-b2b-alternatives" className="hover:text-white transition-colors block">Magento B2B</Link></li>
+                <li><Link href="/comparisons/woocommerce-b2b-alternatives" className="hover:text-white transition-colors block">WooCommerce B2B</Link></li>
+                <li><Link href="/comparisons/zoho-commerce-alternatives" className="hover:text-white transition-colors block">Zoho Commerce</Link></li>
+                <li><Link href="/comparisons/handshake-alternatives" className="hover:text-white transition-colors block">Handshake</Link></li>
+                <li><Link href="/comparisons/tradegecko-alternatives" className="hover:text-white transition-colors block">TradeGecko</Link></li>
+                <li className="text-gray-600 font-bold text-[10px] mt-4">ARC Direct</li>
                 <li><Link href="/arc/compare/b2b-wave" className="hover:text-white transition-colors block">ARC vs B2B Wave</Link></li>
                 <li><Link href="/arc/compare/pepperi" className="hover:text-white transition-colors block">ARC vs Pepperi</Link></li>
-                <li><Link href="/comparisons/handshake-alternatives" className="hover:text-white transition-colors block">Handshake Alternatives</Link></li>
+                <li><Link href="/arc/compare/cin7" className="hover:text-white transition-colors block">ARC vs Cin7</Link></li>
+                <li><Link href="/arc/compare/nowcommerce" className="hover:text-white transition-colors block">ARC vs NowCommerce</Link></li>
+                <li><Link href="/arc/compare/unleashed" className="hover:text-white transition-colors block">ARC vs Unleashed</Link></li>
               </ul>
             </div>
             

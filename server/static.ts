@@ -24,6 +24,12 @@ export async function serveStatic(app: Express) {
     console.error("Failed to load SSR bundle, falling back to SPA mode:", error);
     app.use(express.static(distPath));
     app.use("/{*path}", (_req, res) => {
+      res.removeHeader("Expires");
+      res.set({
+        "Cache-Control": "public, max-age=300, s-maxage=3600",
+        "X-Robots-Tag": "index, follow",
+        "Vary": "Accept-Encoding",
+      });
       res.sendFile(path.resolve(distPath, "index.html"));
     });
     return;
@@ -38,16 +44,30 @@ export async function serveStatic(app: Express) {
       const initialData = await prefetchData(url);
       const result = render(url, initialData);
 
+      res.removeHeader("Expires");
+      const seoHeaders = {
+        "Content-Type": "text/html",
+        "Cache-Control": "public, max-age=300, s-maxage=3600",
+        "X-Robots-Tag": "index, follow",
+        "Vary": "Accept-Encoding",
+      };
+
       if (!result.html) {
-        res.status(200).set({ "Content-Type": "text/html" }).send(template);
+        res.status(200).set(seoHeaders).send(template);
         return;
       }
 
       const page = injectSSR(template, result);
-      res.status(200).set({ "Content-Type": "text/html" }).send(page);
+      res.status(200).set(seoHeaders).send(page);
     } catch (error) {
       console.error("SSR error, falling back to SPA:", error);
-      res.status(200).set({ "Content-Type": "text/html" }).send(template);
+      res.removeHeader("Expires");
+      res.status(200).set({
+        "Content-Type": "text/html",
+        "Cache-Control": "public, max-age=300, s-maxage=3600",
+        "X-Robots-Tag": "index, follow",
+        "Vary": "Accept-Encoding",
+      }).send(template);
     }
   });
 }
@@ -58,7 +78,7 @@ async function prefetchData(
   try {
     const cleanUrl = url.split("?")[0];
 
-    if (cleanUrl === "/blog") {
+    if (cleanUrl === "/" || cleanUrl === "/blog") {
       const posts = await storage.getPublishedBlogPosts();
       return { "/api/blog": posts };
     }

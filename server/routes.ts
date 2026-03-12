@@ -64,14 +64,14 @@ export async function registerRoutes(
 ): Promise<Server> {
 
   app.get("/sitemap.xml", async (_req, res) => {
-    const today = new Date().toISOString().split("T")[0];
+    const staticLastmod = "2026-03-01";
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
     for (const page of staticPages) {
       xml += `  <url>\n`;
       xml += `    <loc>${SITE_URL}${page.path}</loc>\n`;
-      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += `    <lastmod>${staticLastmod}</lastmod>\n`;
       xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
       xml += `    <priority>${page.priority}</priority>\n`;
       xml += `  </url>\n`;
@@ -80,9 +80,12 @@ export async function registerRoutes(
     try {
       const posts = await storage.getPublishedBlogPosts();
       for (const post of posts) {
+        const postDate = post.createdAt
+          ? new Date(post.createdAt).toISOString().split("T")[0]
+          : staticLastmod;
         xml += `  <url>\n`;
         xml += `    <loc>${SITE_URL}/blog/${post.slug}</loc>\n`;
-        xml += `    <lastmod>${today}</lastmod>\n`;
+        xml += `    <lastmod>${postDate}</lastmod>\n`;
         xml += `    <changefreq>monthly</changefreq>\n`;
         xml += `    <priority>0.6</priority>\n`;
         xml += `  </url>\n`;
@@ -92,7 +95,10 @@ export async function registerRoutes(
     }
 
     xml += `</urlset>`;
-    res.set("Content-Type", "application/xml");
+    res.set({
+      "Content-Type": "application/xml",
+      "Cache-Control": "public, max-age=3600, s-maxage=86400",
+    });
     res.send(xml);
   });
 

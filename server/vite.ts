@@ -58,13 +58,21 @@ export async function setupVite(server: Server, app: Express) {
       const initialData = await prefetchData(url);
       const result = render(url, initialData);
 
+      res.removeHeader("Expires");
+      const seoHeaders = {
+        "Content-Type": "text/html",
+        "Cache-Control": "public, max-age=300, s-maxage=3600",
+        "X-Robots-Tag": "index, follow",
+        "Vary": "Accept-Encoding",
+      };
+
       if (!result.html) {
-        res.status(200).set({ "Content-Type": "text/html" }).end(page);
+        res.status(200).set(seoHeaders).end(page);
         return;
       }
 
       const finalPage = injectSSR(page, result);
-      res.status(200).set({ "Content-Type": "text/html" }).end(finalPage);
+      res.status(200).set(seoHeaders).end(finalPage);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);
@@ -78,7 +86,7 @@ async function prefetchData(
   try {
     const cleanUrl = url.split("?")[0];
 
-    if (cleanUrl === "/blog") {
+    if (cleanUrl === "/" || cleanUrl === "/blog") {
       const posts = await storage.getPublishedBlogPosts();
       return { "/api/blog": posts };
     }
