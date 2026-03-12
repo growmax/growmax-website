@@ -195,7 +195,7 @@ interface BlogPost {
 export default function Home() {
   const [comparisonTab, setComparisonTab] = useState<"others" | "growmax">("others");
   const { data: blogPosts = [] } = useQuery<BlogPost[]>({ queryKey: ["/api/blog"] });
-  const latestPosts = blogPosts.slice(0, 6);
+  const latestPosts = blogPosts.slice(0, 4);
   return (
     <div className="flex flex-col min-h-screen pt-16 selection:bg-growmax-red selection:text-white">
       <SEOHead

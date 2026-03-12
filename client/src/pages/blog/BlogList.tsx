@@ -1,12 +1,14 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useMemo } from "react";
+import { Link, useSearch } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
+import { Search, ArrowRight, CheckCircle, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import SEOHead from "@/components/SEOHead";
 import { collectionPageSchema } from "@/lib/structuredData";
+
+const POSTS_PER_PAGE = 18;
 
 const categories = [
   "All",
@@ -102,6 +104,9 @@ export default function BlogList() {
   const [subEmail, setSubEmail] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const search = useSearch();
+  const pageParam = new URLSearchParams(search).get("page");
+  const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
 
   const { data: posts = [], isLoading } = useQuery<BlogPost[]>({
     queryKey: ["/api/blog"],
@@ -124,15 +129,25 @@ export default function BlogList() {
     return matchesCategory && matchesSearch;
   });
 
-  const featured = filteredPosts.length > 0 && activeCategory === "All" && searchQuery === "" ? filteredPosts[0] : null;
-  const gridPosts = featured ? filteredPosts.slice(1) : filteredPosts;
+  const featured = filteredPosts.length > 0 && activeCategory === "All" && searchQuery === "" && currentPage === 1 ? filteredPosts[0] : null;
+  const afterFeatured = featured ? filteredPosts.slice(1) : filteredPosts;
+  const totalPages = Math.max(1, Math.ceil(afterFeatured.length / POSTS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIdx = (safePage - 1) * POSTS_PER_PAGE;
+  const gridPosts = afterFeatured.slice(startIdx, startIdx + POSTS_PER_PAGE);
+
+  const paginationLinks = useMemo(() => {
+    const prevPage = safePage > 1 ? safePage - 1 : null;
+    const nextPage = safePage < totalPages ? safePage + 1 : null;
+    return { prevPage, nextPage };
+  }, [safePage, totalPages]);
 
   return (
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white pt-16">
       <SEOHead
-        title="Growmax Intelligence | B2B Commerce & Industrial Distribution Insights"
+        title={safePage > 1 ? `Growmax Intelligence — Page ${safePage} | B2B Commerce Insights` : "Growmax Intelligence | B2B Commerce & Industrial Distribution Insights"}
         description="Technical papers, case studies, and insights on B2B eCommerce, industrial distribution, AI in commerce, partner engagement, and revenue operations."
-        path="/blog"
+        path={safePage > 1 ? `/blog?page=${safePage}` : "/blog"}
         structuredData={collectionPageSchema({
           title: "Growmax Intelligence — B2B Commerce & Industrial Distribution Blog",
           description: "Technical papers, case studies, and insights on B2B eCommerce, industrial distribution, AI in commerce, partner engagement, and revenue operations.",
@@ -216,12 +231,61 @@ export default function BlogList() {
                   <PostCard key={post.slug} post={post} index={featured ? i + 1 : i} />
                 ))}
               </div>
+
+              {totalPages > 1 && (
+                <nav className="mt-12 pt-8 border-t border-gray-200 flex items-center justify-center gap-2" aria-label="Blog pagination" data-testid="nav-pagination">
+                  {paginationLinks.prevPage ? (
+                    <Link
+                      href={paginationLinks.prevPage === 1 ? "/blog" : `/blog?page=${paginationLinks.prevPage}`}
+                      className="flex items-center gap-1 px-4 py-2 text-sm font-mono uppercase tracking-widest border border-gray-300 hover:border-growmax-black hover:bg-growmax-black hover:text-white transition-colors"
+                      data-testid="link-pagination-prev"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Prev
+                    </Link>
+                  ) : (
+                    <span className="flex items-center gap-1 px-4 py-2 text-sm font-mono uppercase tracking-widest border border-gray-200 text-gray-300 cursor-not-allowed">
+                      <ChevronLeft className="w-4 h-4" /> Prev
+                    </span>
+                  )}
+
+                  <div className="flex items-center gap-1 mx-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                      <Link
+                        key={p}
+                        href={p === 1 ? "/blog" : `/blog?page=${p}`}
+                        className={`w-10 h-10 flex items-center justify-center text-sm font-mono border transition-colors ${
+                          p === safePage
+                            ? "bg-growmax-black text-white border-growmax-black"
+                            : "border-gray-300 hover:border-growmax-black"
+                        }`}
+                        data-testid={`link-pagination-${p}`}
+                      >
+                        {p}
+                      </Link>
+                    ))}
+                  </div>
+
+                  {paginationLinks.nextPage ? (
+                    <Link
+                      href={`/blog?page=${paginationLinks.nextPage}`}
+                      className="flex items-center gap-1 px-4 py-2 text-sm font-mono uppercase tracking-widest border border-gray-300 hover:border-growmax-black hover:bg-growmax-black hover:text-white transition-colors"
+                      data-testid="link-pagination-next"
+                    >
+                      Next <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  ) : (
+                    <span className="flex items-center gap-1 px-4 py-2 text-sm font-mono uppercase tracking-widest border border-gray-200 text-gray-300 cursor-not-allowed">
+                      Next <ChevronRight className="w-4 h-4" />
+                    </span>
+                  )}
+                </nav>
+              )}
             </>
           )}
 
           <div className="mt-12 pt-8 border-t border-gray-200">
             <div className="text-sm text-gray-400 text-center" data-testid="text-post-count">
-              {filteredPosts.length} of {posts.length} articles
+              Showing {startIdx + 1}–{Math.min(startIdx + POSTS_PER_PAGE, afterFeatured.length)} of {filteredPosts.length} articles
             </div>
           </div>
         </div>

@@ -35,7 +35,7 @@ function extractHeadTags(html: string): { cleanHtml: string; headTags: string } 
     return '';
   });
 
-  cleanHtml = cleanHtml.replace(/<link\s+[^>]*rel=["']canonical["'][^>]*\/?>/gi, (match) => {
+  cleanHtml = cleanHtml.replace(/<link\s+[^>]*rel=["'](?:canonical|prev|next)["'][^>]*\/?>/gi, (match) => {
     const cleaned = match
       .replace(/\s*data-replit-metadata="[^"]*"/g, '')
       .replace(/\s*data-component-name="[^"]*"/g, '');

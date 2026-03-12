@@ -63,6 +63,11 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
 
+  app.use("/api", (_req, res, next) => {
+    res.set("Cache-Control", "no-cache, no-store, must-revalidate");
+    next();
+  });
+
   app.get("/sitemap.xml", async (_req, res) => {
     const staticLastmod = "2026-03-01";
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;

@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
-import { injectSSR } from "./ssr-utils";
+import { injectSSR, buildPaginationLinks } from "./ssr-utils";
 import { storage } from "./storage";
 
 export async function serveStatic(app: Express) {
@@ -44,6 +44,11 @@ export async function serveStatic(app: Express) {
       const initialData = await prefetchData(url);
       const result = render(url, initialData);
 
+      const blogPosts = initialData?.["/api/blog"];
+      const paginationLinks = Array.isArray(blogPosts)
+        ? buildPaginationLinks(url, blogPosts.length)
+        : "";
+
       res.removeHeader("Expires");
       const seoHeaders = {
         "Content-Type": "text/html",
@@ -57,7 +62,7 @@ export async function serveStatic(app: Express) {
         return;
       }
 
-      const page = injectSSR(template, result);
+      const page = injectSSR(template, result, paginationLinks);
       res.status(200).set(seoHeaders).send(page);
     } catch (error) {
       console.error("SSR error, falling back to SPA:", error);

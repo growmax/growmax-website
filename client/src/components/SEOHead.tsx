@@ -1,16 +1,18 @@
 import { Helmet } from "react-helmet-async";
+import type { ReactNode } from "react";
 
 interface SEOHeadProps {
   title: string;
   description: string;
   path?: string;
   structuredData?: Record<string, unknown>;
+  extraHead?: ReactNode;
 }
 
 const BASE_URL = "https://www.growmax.io";
 const OG_IMAGE = `${BASE_URL}/icon-512.png`;
 
-export default function SEOHead({ title, description, path = "", structuredData }: SEOHeadProps) {
+export default function SEOHead({ title, description, path = "", structuredData, extraHead }: SEOHeadProps) {
   const url = `${BASE_URL}${path}`;
 
   return (
@@ -33,6 +35,7 @@ export default function SEOHead({ title, description, path = "", structuredData 
           {JSON.stringify(structuredData)}
         </script>
       )}
+      {extraHead}
     </Helmet>
   );
 }

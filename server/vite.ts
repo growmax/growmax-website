@@ -5,7 +5,7 @@ import viteConfig from "../vite.config";
 import fs from "fs";
 import path from "path";
 import { nanoid } from "nanoid";
-import { injectSSR } from "./ssr-utils";
+import { injectSSR, buildPaginationLinks } from "./ssr-utils";
 import { storage } from "./storage";
 
 const viteLogger = createLogger();
@@ -58,6 +58,11 @@ export async function setupVite(server: Server, app: Express) {
       const initialData = await prefetchData(url);
       const result = render(url, initialData);
 
+      const blogPosts = initialData?.["/api/blog"];
+      const paginationLinks = Array.isArray(blogPosts)
+        ? buildPaginationLinks(url, blogPosts.length)
+        : "";
+
       res.removeHeader("Expires");
       const seoHeaders = {
         "Content-Type": "text/html",
@@ -71,7 +76,7 @@ export async function setupVite(server: Server, app: Express) {
         return;
       }
 
-      const finalPage = injectSSR(page, result);
+      const finalPage = injectSSR(page, result, paginationLinks);
       res.status(200).set(seoHeaders).end(finalPage);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
