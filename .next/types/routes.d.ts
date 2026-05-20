@@ -5,7 +5,7 @@ type AppRoutes = "/" | "/admin" | "/admin/login" | "/admin/posts/[id]/edit" | "/
 type AppRouteHandlerRoutes = "/api/admin/login" | "/api/admin/logout" | "/api/admin/posts" | "/api/admin/posts/[id]" | "/api/admin/session" | "/api/blog" | "/api/blog-redirects" | "/api/blog/[slug]" | "/api/demo-requests" | "/api/newsletter"
 type PageRoutes = never
 type LayoutRoutes = "/" | "/admin"
-type RedirectRoutes = "/arc" | "/arc/compare/b2b-wave" | "/arc/compare/cin7" | "/arc/compare/nowcommerce" | "/arc/compare/pepperi" | "/arc/compare/unleashed" | "/arc/pricing"
+type RedirectRoutes = "/arc" | "/arc/compare/b2b-wave" | "/arc/compare/cin7" | "/arc/compare/nowcommerce" | "/arc/compare/pepperi" | "/arc/compare/unleashed" | "/arc/pricing" | "/revenue-platform/dealer-portals" | "/revenue-platform/partner-commerce" | "/revenue-platform/sap-integration" | "/revenue-platform/spares-portals"
 type RewriteRoutes = never
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes | AppRouteHandlerRoutes
 
@@ -66,6 +66,10 @@ interface ParamMap {
   "/privacy": {}
   "/revenue-platform": {}
   "/revenue-platform/compare": {}
+  "/revenue-platform/dealer-portals": {}
+  "/revenue-platform/partner-commerce": {}
+  "/revenue-platform/sap-integration": {}
+  "/revenue-platform/spares-portals": {}
   "/solutions/spare-parts-ecommerce": {}
   "/terms-of-service": {}
   "/write-for-us": {}
