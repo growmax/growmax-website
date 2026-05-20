@@ -2,9 +2,5 @@
   "/api/admin/login/route": "app/api/admin/login/route.js",
   "/api/admin/posts/route": "app/api/admin/posts/route.js",
   "/api/admin/posts/[id]/route": "app/api/admin/posts/[id]/route.js",
-  "/api/blog/[slug]/route": "app/api/blog/[slug]/route.js",
-  "/api/admin/logout/route": "app/api/admin/logout/route.js",
-  "/api/blog/route": "app/api/blog/route.js",
-  "/blog/[slug]/page": "app/blog/[slug]/page.js",
   "/page": "app/page.js"
 }

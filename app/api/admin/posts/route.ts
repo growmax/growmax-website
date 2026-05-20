@@ -25,6 +25,9 @@ export async function POST(req: Request) {
   if (!(await requireAdmin())) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const body = await req.json()
+    if (!body.date || (typeof body.date === 'string' && body.date.trim() === '')) {
+      body.date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+    }
     const parsed = insertBlogPostSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
     const result = await storage.createBlogPost(parsed.data)
