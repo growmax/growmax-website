@@ -18,8 +18,6 @@ import BlogList from "@/pages/blog/BlogList";
 import BlogPost from "@/pages/blog/BlogPost";
 
 import CompareEnterprise from "@/pages/revenue-platform/CompareEnterprise";
-import HandshakeAlternatives from "@/pages/comparisons/HandshakeAlternatives";
-import TradeGeckoAlternatives from "@/pages/comparisons/TradeGeckoAlternatives";
 import SanaCommerceAlternatives from "@/pages/comparisons/SanaCommerceAlternatives";
 import OroCommerceAlternatives from "@/pages/comparisons/OroCommerceAlternatives";
 import BigCommerceB2BAlternatives from "@/pages/comparisons/BigCommerceB2BAlternatives";
@@ -92,8 +90,6 @@ function AppRouter() {
               <Route path="/revenue-platform/compare" component={CompareEnterprise} />
               <Route path="/revenue-platform/:feature" component={RevenuePlatform} />
               
-              <Route path="/comparisons/handshake-alternatives" component={HandshakeAlternatives} />
-              <Route path="/comparisons/tradegecko-alternatives" component={TradeGeckoAlternatives} />
               <Route path="/comparisons/sana-commerce-alternatives" component={SanaCommerceAlternatives} />
               <Route path="/comparisons/orocommerce-alternatives" component={OroCommerceAlternatives} />
               <Route path="/comparisons/bigcommerce-b2b-alternatives" component={BigCommerceB2BAlternatives} />

@@ -409,11 +409,11 @@ export default function FoodBeverage() {
                 <ArrowRight className="w-5 h-5 text-growmax-red shrink-0" />
               </div>
             </Link>
-            <Link href="/comparisons/handshake-alternatives">
-              <div className="border border-gray-200 p-6 flex items-center justify-between gap-4 hover:border-growmax-black transition-colors cursor-pointer" data-testid="link-compare-b2bwave">
+            <Link href="/comparisons/shopify-plus-b2b-alternatives">
+              <div className="border border-gray-200 p-6 flex items-center justify-between gap-4 hover:border-growmax-black transition-colors cursor-pointer" data-testid="link-compare-shopify-plus">
                 <div>
                   <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">Comparison</div>
-                  <p className="text-sm text-gray-700">ARC vs B2B Wave — feature-by-feature distributor platform comparison.</p>
+                  <p className="text-sm text-gray-700">Growmax Enterprise vs Shopify Plus B2B — feature-by-feature comparison for distributors.</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-growmax-red shrink-0" />
               </div>

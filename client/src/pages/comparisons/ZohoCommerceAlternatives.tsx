@@ -155,11 +155,11 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", zoho: "$25/mo", shopify: "$2,000/mo", bigcommerce: "$399/mo", oro: "Free / Custom" },
-  { label: "Free Trial", growmax: "14 days", zoho: "15 days", shopify: "3 days", bigcommerce: "15 days", oro: "Community edition" },
-  { label: "Setup Fee", growmax: "$0", zoho: "$0", shopify: "$0", bigcommerce: "$0", oro: "$50K–$200K+" },
+  { label: "Pricing Model", growmax: "Custom pricing", zoho: "$25/mo", shopify: "$2,000/mo", bigcommerce: "$399/mo", oro: "Free / Custom" },
+  { label: "Evaluation", growmax: "Demo available", zoho: "15 days", shopify: "3 days", bigcommerce: "15 days", oro: "Community edition" },
+  { label: "Setup Fee", growmax: "Custom", zoho: "$0", shopify: "$0", bigcommerce: "$0", oro: "$50K–$200K+" },
   { label: "Mobile App Included", growmax: "Yes", zoho: "No", shopify: "No", bigcommerce: "No", oro: "No" },
-  { label: "Implementation Time", growmax: "2-4 weeks", zoho: "1-2 weeks", shopify: "2-4 weeks", bigcommerce: "4-8 weeks", oro: "6-12 months" },
+  { label: "Implementation Time", growmax: "4-8 weeks", zoho: "1-2 weeks", shopify: "2-4 weeks", bigcommerce: "4-8 weeks", oro: "6-12 months" },
 ];
 
 const whyZohoUsersSwitch = [
@@ -482,20 +482,20 @@ export default function ZohoCommerceAlternatives() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
-            <Link href="/comparisons/handshake-alternatives">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-compare-b2bwave">
+            <Link href="/comparisons/shopify-plus-b2b-alternatives">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-compare-shopify-plus">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Comparison</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Enterprise vs B2B Wave</h3>
-                <p className="text-sm text-gray-600 font-light leading-relaxed">Feature-by-feature comparison of Growmax Enterprise and B2B Wave for wholesale distributors.</p>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Enterprise vs Shopify Plus B2B</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Feature-by-feature comparison of Growmax Enterprise and Shopify Plus B2B for wholesale distributors.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Comparison <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>
 
-            <Link href="/comparisons/handshake-alternatives">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-handshake-alternatives">
+            <Link href="/comparisons/sana-commerce-alternatives">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-sana-commerce-alternatives">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Alternatives</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Handshake Alternatives</h3>
-                <p className="text-sm text-gray-600 font-light leading-relaxed">Compare the best Handshake alternatives for B2B wholesale ordering platforms.</p>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Sana Commerce Alternatives</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Compare Growmax Enterprise vs Sana Commerce for SAP-integrated B2B ordering platforms.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Comparison <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>

@@ -86,7 +86,7 @@ const competitors = [
       "Large developer community",
     ],
     cons: [
-      "B2B features require multiple plugins ($$$)",
+      "B2B features require multiple costly plugins",
       "Security and maintenance burden",
       "No native mobile app",
       "Performance issues at scale",
@@ -153,12 +153,12 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", shopify: "$2,300/mo", bigcommerce: "Custom ($1K+/mo)", woocommerce: "~$50/mo + plugins", sana: "Custom ($1.5K+/mo)" },
+  { label: "Pricing Model", growmax: "Custom pricing", shopify: "$2,300/mo", bigcommerce: "Custom ($1K+/mo)", woocommerce: "~$50/mo + plugins", sana: "Custom ($1.5K+/mo)" },
   { label: "Transaction Fees", growmax: "None", shopify: "0.15-0.5%*", bigcommerce: "None", woocommerce: "Varies", sana: "None" },
-  { label: "Free Trial", growmax: "14 days", shopify: "No", bigcommerce: "Demo only", woocommerce: "N/A", sana: "No" },
-  { label: "Setup Fee", growmax: "$0", shopify: "$0", bigcommerce: "Custom", woocommerce: "$0", sana: "$50K-$200K+" },
+  { label: "Evaluation", growmax: "Demo available", shopify: "No", bigcommerce: "Demo only", woocommerce: "N/A", sana: "No" },
+  { label: "Setup Fee", growmax: "Custom", shopify: "$0", bigcommerce: "Custom", woocommerce: "$0", sana: "$50K-$200K+" },
   { label: "Mobile App Included", growmax: "Yes", shopify: "No", bigcommerce: "No", woocommerce: "No", sana: "No" },
-  { label: "Implementation Time", growmax: "2-4 weeks", shopify: "1-3 months", bigcommerce: "2-4 months", woocommerce: "1-3 months", sana: "4-8 months" },
+  { label: "Implementation Time", growmax: "4-8 weeks", shopify: "1-3 months", bigcommerce: "2-4 months", woocommerce: "1-3 months", sana: "4-8 months" },
 ];
 
 const whyShopifyUsersSwitch = [
@@ -197,11 +197,11 @@ const whyShopifyUsersSwitch = [
 const faqs = [
   {
     question: "What is the best alternative to Shopify Plus for B2B?",
-    answer: "Growmax Enterprise is the best Shopify Plus B2B alternative for SMB distributors. Unlike Shopify Plus (a DTC platform with B2B added), Growmax Enterprise is purpose-built for B2B with offline mobile ordering, native Zoho/QuickBooks/Xero integration, multi-warehouse inventory, customer self-service portal, and zero transaction fees — all for $199/mo."
+    answer: "Growmax Enterprise is the best Shopify Plus B2B alternative for manufacturers and distributors. Unlike Shopify Plus (a DTC platform with B2B added), Growmax Enterprise is purpose-built for B2B with offline mobile ordering, native SAP/Epicor/ERP integration, multi-warehouse inventory, customer self-service portal, and zero transaction fees."
   },
   {
     question: "How does Growmax Enterprise compare to Shopify Plus B2B pricing?",
-    answer: "Growmax Enterprise starts at custom pricing with no transaction fees. Shopify Plus starts at $2,300/month and charges 0.15-0.5% transaction fees on non-Shopify Payments orders. For a distributor processing $500K/month, Shopify's transaction fees alone can cost $750-$2,500/month."
+    answer: "Growmax Enterprise uses custom pricing with no transaction fees. Shopify Plus starts at $2,300/month and charges 0.15-0.5% transaction fees on non-Shopify Payments orders. For a distributor processing $500K/month, Shopify's transaction fees alone can cost $750-$2,500/month."
   },
   {
     question: "Can I use Shopify Plus for B2B wholesale distribution?",
@@ -217,7 +217,7 @@ const faqs = [
   },
   {
     question: "Should I use Shopify Plus or Growmax Enterprise for B2B?",
-    answer: "If your business is primarily DTC with a secondary wholesale channel, Shopify Plus may work. If B2B is your core business — especially if you're a distributor — Growmax Enterprise delivers significantly more depth at $199/mo: offline ordering, field sales tools, accounting integration, multi-warehouse intelligence, and customer self-service portal."
+    answer: "If your business is primarily DTC with a secondary wholesale channel, Shopify Plus may work. If B2B is your core business — especially if you're a manufacturer or distributor — Growmax Enterprise delivers significantly more depth: offline ordering, field sales tools, SAP/Epicor integration, multi-warehouse intelligence, and customer self-service portal."
   },
 ];
 

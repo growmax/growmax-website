@@ -50,10 +50,9 @@ const navDropdowns: NavDropdown[] = [
     items: [
       { label: "All Articles", href: "/blog" },
       { label: "Spare Parts Guide", href: "/solutions/spare-parts-ecommerce" },
-      { label: "Handshake Alternatives", href: "/comparisons/handshake-alternatives" },
-      { label: "TradeGecko Alternatives", href: "/comparisons/tradegecko-alternatives" },
-      { label: "Magento B2B Alternatives", href: "/comparisons/magento-b2b-alternatives" },
       { label: "Shopify Plus B2B Alternatives", href: "/comparisons/shopify-plus-b2b-alternatives" },
+      { label: "Magento B2B Alternatives", href: "/comparisons/magento-b2b-alternatives" },
+      { label: "SAP Commerce Alternatives", href: "/comparisons/sap-commerce-cloud-alternatives" },
     ],
   },
 ];

@@ -154,9 +154,9 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", bigcommerce: "Custom ($1,000+/mo)", shopify: "$2,300/mo", oro: "Custom ($2,000+/mo)", prestashop: "Free + modules" },
-  { label: "Free Trial", growmax: "14 days", bigcommerce: "No", shopify: "No", oro: "No", prestashop: "N/A (self-hosted)" },
-  { label: "Setup Fee", growmax: "$0", bigcommerce: "$5K-$25K", shopify: "$0", oro: "$30K-$150K+", prestashop: "DIY or $5K-$20K" },
+  { label: "Pricing Model", growmax: "Custom pricing", bigcommerce: "Custom ($1,000+/mo)", shopify: "$2,300/mo", oro: "Custom ($2,000+/mo)", prestashop: "Free + modules" },
+  { label: "Evaluation", growmax: "Demo available", bigcommerce: "No", shopify: "No", oro: "No", prestashop: "N/A (self-hosted)" },
+  { label: "Setup Fee", growmax: "Custom", bigcommerce: "$5K-$25K", shopify: "$0", oro: "$30K-$150K+", prestashop: "DIY or $5K-$20K" },
   { label: "Mobile App Included", growmax: "Yes", bigcommerce: "No", shopify: "No", oro: "No", prestashop: "No" },
   { label: "Implementation Time", growmax: "2-4 weeks", bigcommerce: "2-4 months", shopify: "1-3 months", oro: "6-12 months", prestashop: "2-6 months" },
 ];
@@ -197,7 +197,7 @@ const whyWooCommerceUsersSwitch = [
 const faqs = [
   {
     question: "Why switch from WooCommerce to a dedicated B2B platform?",
-    answer: "WooCommerce is a WordPress plugin designed for DTC retail. B2B features like customer-specific pricing, quote management, multi-warehouse inventory, and field sales apps require multiple plugins that create fragility, performance issues, and maintenance burden. A purpose-built B2B platform like Growmax Enterprise delivers all these features natively with better performance, security, and reliability — custom pricing."
+    answer: "WooCommerce is a WordPress plugin designed for DTC retail. B2B features like customer-specific pricing, quote management, multi-warehouse inventory, and field sales apps require multiple plugins that create fragility, performance issues, and maintenance burden. A purpose-built B2B platform like Growmax Enterprise delivers all these features natively with better performance, security, and reliability."
   },
   {
     question: "Can I migrate my WooCommerce catalog to Growmax Enterprise?",
@@ -209,7 +209,7 @@ const faqs = [
   },
   {
     question: "Is Growmax Enterprise more expensive than WooCommerce?",
-    answer: "While WooCommerce itself is free, the total cost of B2B WooCommerce includes premium plugins ($500-$2,000/year), hosting ($100-$500/mo for performance), developer maintenance ($2,000-$5,000/mo), and security management. Growmax Enterprise at $199/mo with zero maintenance overhead is typically 40-60% cheaper in total cost of ownership."
+    answer: "While WooCommerce itself is free, the total cost of B2B WooCommerce includes premium plugins ($500-$2,000/year), hosting ($100-$500/mo for performance), developer maintenance ($2,000-$5,000/mo), and security management. Growmax Enterprise with zero maintenance overhead, included mobile apps, and native ERP integration is typically 40-60% cheaper in total cost of ownership for serious B2B operations."
   },
   {
     question: "How does Growmax Enterprise handle complex B2B pricing vs WooCommerce?",

@@ -10,12 +10,12 @@ export const generateSEOPlan = () => `
 The enterprise giants (SAP, Salesforce) own high-volume generic keywords like "B2B ecommerce platform". However, they fail at long-tail, hyper-specific manufacturing pain points. Corevist owns "SAP integrated portal". 
 **Our Wedge:** We must own the intersection of "Revenue Operations" + "Manufacturing" + "Dealer Networks".
 
-### SMB/Mid-Market Product (Growmax Enterprise)
-**Target:** Independent Wholesale Distributors.
-**Competitors:** B2B Wave, Pepperi, SimplyDepo.
+### Enterprise Product (Growmax Enterprise)
+**Target:** Mid-market and enterprise manufacturers & distributors (100+ employees).
+**Competitors:** SAP Commerce Cloud, Sana Commerce, OroCommerce, Salesforce Commerce, Oracle Commerce, NetSuite SuiteCommerce, Dynamics 365, Magento B2B.
 **Analysis:** 
-Competitors focus heavily on "B2B ordering app". They lack the positioning of "system connectivity" and "replacing WhatsApp/Excel".
-**Our Wedge:** Own the "Digital Transformation for Distributors" and "Zoho Inventory integrated B2B app" narratives.
+Enterprise competitors focus on large-enterprise budgets. They lack the positioning of "revenue operations" and "multi-party ecosystem connectivity."
+**Our Wedge:** Own the "Revenue Operations Platform for Industrial Distributors" and "SAP/Epicor integrated B2B commerce" narratives.
 
 ---
 
@@ -69,8 +69,8 @@ Generative AI (ChatGPT, Perplexity, Claude) synthesizes answers based on trusted
    - Every page needs highly specific \`title\` and \`description\` tags.
    - Example: \`<title>Growmax Enterprise | SAP Integrated Quote-to-Cash Platform</title>\`
 3. **Siloed Internal Linking:**
-   - The ARC pages must heavily interlink with Zoho/Distributor content.
-   - The Enterprise pages must interlink with SAP/Manufacturing content.
-   - Do not cross-contaminate the silos. This confuses search engines about page relevance.
-4. **Deployment of \`/compare\` pages:** Launch the ARC vs B2B Wave and ARC vs Pepperi pages immediately to capture bottom-funnel switchers.
+   - All pages must heavily interlink with SAP/Manufacturing/Distributor content.
+   - Enterprise comparison pages link to relevant Enterprise competitor alternatives.
+   - Industry pages link to relevant comparison and solution pages.
+4. **Deployment of \`/compare\` pages:** All comparison pages now position Growmax Enterprise as the top recommendation. Focus on SAP Commerce, Sana Commerce, OroCommerce, and mid-market platforms like Shopify Plus and BigCommerce B2B.
 `;

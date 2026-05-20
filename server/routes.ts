@@ -9,8 +9,6 @@ const staticPages = [
   { path: "/", changefreq: "weekly", priority: "1.0" },
   { path: "/revenue-platform", changefreq: "weekly", priority: "0.9" },
   { path: "/revenue-platform/compare", changefreq: "monthly", priority: "0.8" },
-  { path: "/comparisons/handshake-alternatives", changefreq: "monthly", priority: "0.8" },
-  { path: "/comparisons/tradegecko-alternatives", changefreq: "monthly", priority: "0.8" },
   { path: "/comparisons/sana-commerce-alternatives", changefreq: "monthly", priority: "0.8" },
   { path: "/comparisons/orocommerce-alternatives", changefreq: "monthly", priority: "0.8" },
   { path: "/comparisons/bigcommerce-b2b-alternatives", changefreq: "monthly", priority: "0.8" },
@@ -105,6 +103,19 @@ export async function registerRoutes(
     res.set("Content-Type", "text/plain");
     res.send(robotsTxt);
   });
+
+  // 301 Redirects for removed ARC product pages
+  app.get("/arc", (_req, res) => res.redirect(301, "/"));
+  app.get("/arc/pricing", (_req, res) => res.redirect(301, "/"));
+  app.get("/arc/compare/b2b-wave", (_req, res) => res.redirect(301, "/"));
+  app.get("/arc/compare/pepperi", (_req, res) => res.redirect(301, "/"));
+  app.get("/arc/compare/nowcommerce", (_req, res) => res.redirect(301, "/"));
+  app.get("/arc/compare/cin7", (_req, res) => res.redirect(301, "/"));
+  app.get("/arc/compare/unleashed", (_req, res) => res.redirect(301, "/"));
+
+  // 301 Redirects for removed SMB-focused comparison pages
+  app.get("/comparisons/handshake-alternatives", (_req, res) => res.redirect(301, "/revenue-platform/compare"));
+  app.get("/comparisons/tradegecko-alternatives", (_req, res) => res.redirect(301, "/revenue-platform/compare"));
 
   // 301 Redirects for old blog URLs
   app.get("/blog/:slug", async (req, res, next) => {

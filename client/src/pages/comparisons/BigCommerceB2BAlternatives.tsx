@@ -152,12 +152,12 @@ const featureComparison = [
 ];
 
 const pricingComparison = [
-  { label: "Starting Price", growmax: "$199/mo", bigcommerce: "Custom ($1K+/mo)", shopify: "$2,300/mo", oro: "Custom ($2K+/mo)", magento: "$40K+/year" },
+  { label: "Pricing Model", growmax: "Custom pricing", bigcommerce: "Custom ($1K+/mo)", shopify: "$2,300/mo", oro: "Custom ($2K+/mo)", magento: "$40K+/year" },
   { label: "Revenue-Based Pricing", growmax: "No", bigcommerce: "Yes", shopify: "No", oro: "No", magento: "Yes" },
-  { label: "Free Trial", growmax: "14 days", bigcommerce: "Demo only", shopify: "No", oro: "No", magento: "No" },
-  { label: "Setup Fee", growmax: "$0", bigcommerce: "Custom", shopify: "$0", oro: "$50K+", magento: "$100K+" },
+  { label: "Evaluation", growmax: "Demo available", bigcommerce: "Demo only", shopify: "No", oro: "No", magento: "No" },
+  { label: "Setup Fee", growmax: "Custom", bigcommerce: "Custom", shopify: "$0", oro: "$50K+", magento: "$100K+" },
   { label: "Mobile App Included", growmax: "Yes", bigcommerce: "No", shopify: "No", oro: "No", magento: "No" },
-  { label: "Implementation Time", growmax: "2-4 weeks", bigcommerce: "2-4 months", shopify: "1-3 months", oro: "6-12 months", magento: "6-12 months" },
+  { label: "Implementation Time", growmax: "4-8 weeks", bigcommerce: "2-4 months", shopify: "1-3 months", oro: "6-12 months", magento: "6-12 months" },
 ];
 
 const whyBigCommerceUsersSwitch = [
@@ -174,7 +174,7 @@ const whyBigCommerceUsersSwitch = [
   {
     icon: TrendingUp,
     title: "Revenue-Based Pricing Hurts Growth",
-    description: "BigCommerce charges based on your revenue. As your B2B sales grow, so does your platform cost. Growmax Enterprise offers flat $199/mo pricing — your success doesn't come with a penalty."
+    description: "BigCommerce charges based on your revenue. As your B2B sales grow, so does your platform cost. Growmax Enterprise offers custom pricing built around your deployment — not a percentage of your success."
   },
   {
     icon: Package,
@@ -196,11 +196,11 @@ const whyBigCommerceUsersSwitch = [
 const faqs = [
   {
     question: "What is the best alternative to BigCommerce B2B?",
-    answer: "Growmax Enterprise is the best BigCommerce B2B alternative for SMB distributors. Unlike BigCommerce (a DTC platform with B2B features added), Growmax Enterprise is purpose-built for B2B with native Zoho/QuickBooks/Xero integration, offline mobile ordering, multi-warehouse inventory, and customer self-service portal."
+    answer: "Growmax Enterprise is the best BigCommerce B2B alternative for manufacturers and distributors. Unlike BigCommerce (a DTC platform with B2B features added), Growmax Enterprise is purpose-built for B2B with native SAP/Epicor integration, offline mobile ordering, multi-warehouse inventory, and customer self-service portal."
   },
   {
     question: "How does Growmax Enterprise compare to BigCommerce B2B pricing?",
-    answer: "Growmax Enterprise starts at custom pricing with flat pricing — no revenue-based fees. BigCommerce B2B typically costs $1,000-$3,000+/month and charges based on your annual revenue. As your B2B sales grow, BigCommerce gets more expensive while Growmax Enterprise stays predictable."
+    answer: "Growmax Enterprise uses custom pricing tailored to your deployment — no revenue-based fees, no per-user penalties. BigCommerce B2B typically costs $1,000-$3,000+/month and charges based on your annual revenue. As your B2B sales grow, BigCommerce gets more expensive while Growmax Enterprise pricing stays aligned with your needs."
   },
   {
     question: "Can I migrate from BigCommerce to Growmax Enterprise?",
@@ -216,7 +216,7 @@ const faqs = [
   },
   {
     question: "Does Growmax Enterprise support DTC and B2B together?",
-    answer: "Growmax Enterprise is focused exclusively on B2B commerce. If you need a hybrid B2B/DTC platform, BigCommerce or Shopify Plus may be better options. But if B2B is your core business, Growmax Enterprise delivers significantly more depth and value at $199/mo."
+    answer: "Growmax Enterprise is focused exclusively on B2B commerce for manufacturers and distributors. If you need a hybrid B2B/DTC platform, BigCommerce or Shopify Plus may be better options. But if B2B is your core business, Growmax Enterprise delivers significantly more depth — SAP/Epicor integration, field sales apps, multi-warehouse intelligence, and partner portals."
   },
 ];
 

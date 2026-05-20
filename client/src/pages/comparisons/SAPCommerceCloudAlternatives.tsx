@@ -491,11 +491,11 @@ export default function SAPCommerceCloudAlternatives() {
               </div>
             </Link>
 
-            <Link href="/comparisons/handshake-alternatives">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-handshake-alternatives">
+            <Link href="/comparisons/sana-commerce-alternatives">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-sana-commerce-alternatives">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Alternatives</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Handshake Alternatives</h3>
-                <p className="text-sm text-gray-600 font-light leading-relaxed">Compare the best Handshake alternatives for B2B wholesale ordering platforms.</p>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Sana Commerce Alternatives</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Compare Growmax Enterprise vs Sana Commerce for SAP-integrated B2B ordering platforms.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Comparison <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>

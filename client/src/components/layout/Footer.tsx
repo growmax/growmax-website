@@ -40,7 +40,6 @@ export default function Footer() {
             <div>
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Comparisons</h4>
               <ul className="space-y-4 text-gray-400">
-                <li className="text-gray-600 font-bold text-[10px] mt-2">Enterprise Alternatives</li>
                 <li><Link href="/revenue-platform/compare" className="hover:text-white transition-colors block">vs SAP & Corevist</Link></li>
                 <li><Link href="/comparisons/sap-commerce-cloud-alternatives" className="hover:text-white transition-colors block">SAP Commerce Cloud</Link></li>
                 <li><Link href="/comparisons/salesforce-commerce-alternatives" className="hover:text-white transition-colors block">Salesforce Commerce</Link></li>
@@ -49,14 +48,11 @@ export default function Footer() {
                 <li><Link href="/comparisons/dynamics-365-commerce-alternatives" className="hover:text-white transition-colors block">Dynamics 365</Link></li>
                 <li><Link href="/comparisons/sana-commerce-alternatives" className="hover:text-white transition-colors block">Sana Commerce</Link></li>
                 <li><Link href="/comparisons/orocommerce-alternatives" className="hover:text-white transition-colors block">OroCommerce</Link></li>
-                <li className="text-gray-600 font-bold text-[10px] mt-4">SMB Alternatives</li>
                 <li><Link href="/comparisons/shopify-plus-b2b-alternatives" className="hover:text-white transition-colors block">Shopify Plus B2B</Link></li>
                 <li><Link href="/comparisons/bigcommerce-b2b-alternatives" className="hover:text-white transition-colors block">BigCommerce B2B</Link></li>
                 <li><Link href="/comparisons/magento-b2b-alternatives" className="hover:text-white transition-colors block">Magento B2B</Link></li>
                 <li><Link href="/comparisons/woocommerce-b2b-alternatives" className="hover:text-white transition-colors block">WooCommerce B2B</Link></li>
                 <li><Link href="/comparisons/zoho-commerce-alternatives" className="hover:text-white transition-colors block">Zoho Commerce</Link></li>
-                <li><Link href="/comparisons/handshake-alternatives" className="hover:text-white transition-colors block">Handshake</Link></li>
-                <li><Link href="/comparisons/tradegecko-alternatives" className="hover:text-white transition-colors block">TradeGecko</Link></li>
               </ul>
             </div>
             
