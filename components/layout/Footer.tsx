@@ -73,7 +73,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 text-[10px] text-gray-500">
           <div className="flex items-center gap-4">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0"></div>
-            <span className="whitespace-nowrap">SYSTEM OPERATIONAL // {new Date().getFullYear()}</span>
+            <span className="whitespace-nowrap" suppressHydrationWarning>SYSTEM OPERATIONAL // {new Date().getFullYear()}</span>
           </div>
           <div className="flex gap-6 sm:gap-8">
             <Link href="/privacy" className="hover:text-white transition-colors whitespace-nowrap">Privacy Policy</Link>
