@@ -108,7 +108,7 @@ export default function HomeComparisonTabs() {
   const [comparisonTab, setComparisonTab] = useState<'others' | 'growmax'>('others')
 
   return (
-    <>
+    <div>
       <div className="lg:hidden flex border-2 border-white/20 mb-4">
         <button
           onClick={() => setComparisonTab('others')}
@@ -132,6 +132,6 @@ export default function HomeComparisonTabs() {
       <div className="lg:hidden">
         {comparisonTab === 'others' ? <TypicalEcommercePanel /> : <GrowmaxConnectedPanel />}
       </div>
-    </>
+    </div>
   )
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import QueryProvider from '@/components/providers/QueryProvider'
 import DemoClient from './DemoClient'
 import { contactPageSchema } from '@/lib/structuredData'
 
@@ -10,5 +11,9 @@ export const metadata: Metadata = {
 }
 
 export default function DemoPage() {
-  return <DemoClient schema={JSON.stringify(contactPageSchema())} />
+  return (
+    <QueryProvider>
+      <DemoClient schema={JSON.stringify(contactPageSchema())} />
+    </QueryProvider>
+  )
 }

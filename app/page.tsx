@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { ArrowRight, CheckSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -20,15 +21,54 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function Home() {
-  let latestPosts: { id: number; title: string; category: string; createdAt: Date | null; slug: string; author: string; excerpt: string }[] = []
+type PostPreview = { id: number; title: string; category: string; createdAt: Date | null; slug: string; author: string; excerpt: string }
+
+async function LatestPostsSection() {
+  let latestPosts: PostPreview[] = []
   try {
     const posts = await storage.getPublishedBlogPosts()
     latestPosts = posts.slice(0, 4)
   } catch {
     latestPosts = []
   }
+  if (latestPosts.length === 0) return null
+  return (
+    <section className="py-24 bg-growmax-white border-t-2 border-growmax-black" data-testid="section-latest-intelligence">
+      <div className="container mx-auto px-4 md:px-8">
+        <div className="flex items-end justify-between mb-16 border-b-4 border-growmax-black pb-6">
+          <div>
+            <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-3">Growmax Intelligence</div>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase">Latest Insights</h2>
+          </div>
+          <Link href="/blog" className="hidden md:flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-growmax-red hover:text-growmax-black transition-colors font-bold" data-testid="link-view-all-blog">View All <ArrowRight className="w-4 h-4" /></Link>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {latestPosts.map((post) => (
+            <Link key={post.slug} href={`/blog/${post.slug}`} className="group block border border-gray-200 bg-white hover:border-growmax-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all" data-testid={`link-latest-post-${post.slug}`}>
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-gray-500 bg-gray-100 px-2 py-0.5 border border-gray-200">{post.category}</span>
+                  <span className="font-mono text-[10px] text-gray-400">{post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
+                </div>
+                <h3 className="text-lg font-bold text-growmax-black tracking-tight group-hover:text-growmax-red transition-colors mb-3 leading-snug line-clamp-2">{post.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-4">{post.excerpt}</p>
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <span className="text-xs text-gray-400 font-mono">{post.author}</span>
+                  <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-growmax-red transition-colors" />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-8 text-center md:hidden">
+          <Link href="/blog" className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-growmax-red font-bold" data-testid="link-view-all-blog-mobile">View All Articles <ArrowRight className="w-4 h-4" /></Link>
+        </div>
+      </div>
+    </section>
+  )
+}
 
+export default function Home() {
   return (
     <div className="flex flex-col min-h-screen pt-16 selection:bg-growmax-red selection:text-white">
       {/* HERO */}
@@ -274,40 +314,9 @@ export default async function Home() {
       </section>
 
       {/* LATEST INTELLIGENCE */}
-      {latestPosts.length > 0 && (
-        <section className="py-24 bg-growmax-white border-t-2 border-growmax-black" data-testid="section-latest-intelligence">
-          <div className="container mx-auto px-4 md:px-8">
-            <div className="flex items-end justify-between mb-16 border-b-4 border-growmax-black pb-6">
-              <div>
-                <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-3">Growmax Intelligence</div>
-                <h2 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase">Latest Insights</h2>
-              </div>
-              <Link href="/blog" className="hidden md:flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-growmax-red hover:text-growmax-black transition-colors font-bold" data-testid="link-view-all-blog">View All <ArrowRight className="w-4 h-4" /></Link>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {latestPosts.map((post) => (
-                <Link key={post.slug} href={`/blog/${post.slug}`} className="group block border border-gray-200 bg-white hover:border-growmax-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all" data-testid={`link-latest-post-${post.slug}`}>
-                  <div className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="font-mono text-[10px] uppercase tracking-widest text-gray-500 bg-gray-100 px-2 py-0.5 border border-gray-200">{post.category}</span>
-                      <span className="font-mono text-[10px] text-gray-400">{post.createdAt ? new Date(post.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : ''}</span>
-                    </div>
-                    <h3 className="text-lg font-bold text-growmax-black tracking-tight group-hover:text-growmax-red transition-colors mb-3 leading-snug line-clamp-2">{post.title}</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-2 mb-4">{post.excerpt}</p>
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <span className="text-xs text-gray-400 font-mono">{post.author}</span>
-                      <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-growmax-red transition-colors" />
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <div className="mt-8 text-center md:hidden">
-              <Link href="/blog" className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-growmax-red font-bold" data-testid="link-view-all-blog-mobile">View All Articles <ArrowRight className="w-4 h-4" /></Link>
-            </div>
-          </div>
-        </section>
-      )}
+      <Suspense fallback={null}>
+        <LatestPostsSection />
+      </Suspense>
 
       {/* FINAL CTA */}
       <section className="py-32 bg-growmax-white text-center border-t-2 border-growmax-black bg-grid-blueprint">

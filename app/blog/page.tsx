@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import QueryProvider from '@/components/providers/QueryProvider'
 import BlogListClient from './BlogListClient'
 import { collectionPageSchema } from '@/lib/structuredData'
 
@@ -20,9 +21,9 @@ export default function BlogPage() {
     path: '/blog',
   }))
   return (
-    <>
+    <QueryProvider>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
       <BlogListClient />
-    </>
+    </QueryProvider>
   )
 }

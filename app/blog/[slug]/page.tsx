@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { storage } from '@/lib/storage'
+import QueryProvider from '@/components/providers/QueryProvider'
 import BlogPostClient from './BlogPostClient'
 import { articleSchema } from '@/lib/structuredData'
 
@@ -33,9 +34,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     post = await storage.getBlogPostBySlug(slug)
   } catch {}
   if (!post) {
-    return <BlogPostClient slug={slug} post={null} />
+    return <QueryProvider><BlogPostClient slug={slug} post={null} /></QueryProvider>
   }
   const schema = JSON.stringify(articleSchema({ title: post.title, description: post.excerpt, slug: post.slug, date: post.date, author: post.author }))
   const postData = { ...post, relatedSlugs: post.relatedSlugs ?? [] }
-  return <BlogPostClient slug={slug} post={postData} schema={schema} />
+  return <QueryProvider><BlogPostClient slug={slug} post={postData} schema={schema} /></QueryProvider>
 }
