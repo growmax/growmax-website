@@ -1,3 +1,10 @@
 {
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/company/about/page": "app/company/about/page.js",
+  "/comparisons/handshake-alternatives/page": "app/comparisons/handshake-alternatives/page.js",
+  "/revenue-platform/page": "app/revenue-platform/page.js",
+  "/industries/electrical-distributors/page": "app/industries/electrical-distributors/page.js",
+  "/demo/page": "app/demo/page.js",
+  "/blog/page": "app/blog/page.js",
+  "/admin/login/page": "app/admin/login/page.js"
 }

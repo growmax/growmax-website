@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface BrandLogoProps {
   variant?: 'full' | 'icon' | 'horizontal';
   dark?: boolean;
@@ -9,7 +11,7 @@ export default function BrandLogo({ variant = 'horizontal', dark = false, crossf
   if (variant === 'icon') {
     return (
       <div className={className}>
-        <img src="/icon-100.png" alt="Growmax" className="w-8 h-8" />
+        <Image src="/icon-100.png" alt="Growmax" width={32} height={32} className="w-8 h-8" priority />
       </div>
     );
   }
@@ -17,16 +19,21 @@ export default function BrandLogo({ variant = 'horizontal', dark = false, crossf
   if (crossfade) {
     return (
       <div className={`relative flex items-center ${className}`}>
-        <img
+        <Image
           src="/logo-color.png"
           alt="Growmax"
+          width={150}
+          height={32}
+          priority
           className="h-8 w-auto transition-opacity duration-200 group-hover:opacity-0"
           data-testid="img-brand-logo"
         />
-        <img
+        <Image
           src="/logo-white.png"
           alt=""
           aria-hidden="true"
+          width={150}
+          height={32}
           className="absolute inset-0 h-8 w-auto opacity-0 transition-opacity duration-200 group-hover:opacity-100"
         />
       </div>
@@ -37,7 +44,7 @@ export default function BrandLogo({ variant = 'horizontal', dark = false, crossf
 
   return (
     <div className={`flex items-center ${className}`}>
-      <img src={logoSrc} alt="Growmax" className="h-8 w-auto" data-testid="img-brand-logo" />
+      <Image src={logoSrc} alt="Growmax" width={150} height={32} priority className="h-8 w-auto" data-testid="img-brand-logo" />
     </div>
   );
 }
