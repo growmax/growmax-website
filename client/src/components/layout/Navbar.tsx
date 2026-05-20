@@ -239,8 +239,8 @@ export default function Navbar() {
     <>
       <header className="fixed top-0 z-50 w-full bg-white/95 border-b-2 border-growmax-black font-mono text-sm uppercase tracking-widest backdrop-blur-sm">
         <div className="flex items-stretch h-16 w-full">
-          <Link href="/" className="flex items-center px-3 sm:px-6 border-r-2 border-growmax-black bg-growmax-black text-white hover:bg-growmax-red transition-colors duration-0 shrink-0">
-            <BrandLogo variant="horizontal" dark className="scale-75 sm:scale-90 origin-left" />
+          <Link href="/" className="group flex items-center px-3 sm:px-6 border-r-2 border-growmax-black bg-white hover:bg-growmax-red transition-colors shrink-0">
+            <BrandLogo variant="horizontal" crossfade className="scale-75 sm:scale-90 origin-left" />
           </Link>
 
           <div className="hidden lg:flex flex-1 items-stretch">
