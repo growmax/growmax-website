@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link'
 import { ArrowRight, Users, Building2, GitMerge } from 'lucide-react'
 import { Button } from '@/components/ui/button'

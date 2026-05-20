@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search, ArrowRight, CheckCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { apiRequest } from '@/lib/queryClient'
 
 const POSTS_PER_PAGE = 18
@@ -53,7 +53,7 @@ function PostCard({ post, index }: { post: BlogPost; index: number }) {
   )
 }
 
-function BlogListContent() {
+function BlogListContent({ initialPosts }: { initialPosts: BlogPost[] }) {
   const [subEmail, setSubEmail] = useState('')
   const [activeCategory, setActiveCategory] = useState<Category>('All')
   const [searchQuery, setSearchQuery] = useState('')
@@ -61,7 +61,8 @@ function BlogListContent() {
   const pageParam = searchParams.get('page')
   const currentPage = Math.max(1, parseInt(pageParam || '1', 10) || 1)
 
-  const { data: posts = [], isLoading } = useQuery<BlogPost[]>({ queryKey: ['/api/blog'] })
+  const posts = initialPosts
+  const isLoading = false
 
   const subMutation = useMutation({
     mutationFn: async () => { const res = await apiRequest('POST', '/api/newsletter', { email: subEmail }); return res.json() },
@@ -177,10 +178,10 @@ function BlogListContent() {
   )
 }
 
-export default function BlogListClient() {
+export default function BlogListClient({ initialPosts }: { initialPosts: BlogPost[] }) {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-growmax-red" /></div>}>
-      <BlogListContent />
+      <BlogListContent initialPosts={initialPosts} />
     </Suspense>
   )
 }

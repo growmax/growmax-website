@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { neon } from '@neondatabase/serverless'
+
+const sql = neon(process.env.DATABASE_URL!)
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -8,17 +11,20 @@ export async function middleware(request: NextRequest) {
     const slug = pathname.replace('/blog/', '')
     if (slug && !slug.includes('/')) {
       try {
-        const baseUrl = request.nextUrl.origin
-        const res = await fetch(`${baseUrl}/api/blog-redirects?slug=${encodeURIComponent(slug)}`, {
-          headers: { 'x-internal': '1' },
-        })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.newSlug) {
-            return NextResponse.redirect(new URL(`/blog/${data.newSlug}`, request.url), { status: 301 })
-          }
+        const rows = (await sql`
+          SELECT new_path FROM blog_redirects
+          WHERE old_path = ${slug}
+          LIMIT 1
+        `) as Array<{ new_path: string }>
+        if (rows.length > 0 && rows[0].new_path) {
+          return NextResponse.redirect(
+            new URL(`/blog/${rows[0].new_path}`, request.url),
+            { status: 301 },
+          )
         }
-      } catch {}
+      } catch {
+        // fail open — let the page handler render
+      }
     }
   }
 
