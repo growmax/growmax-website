@@ -154,7 +154,8 @@ export default function EcosystemFlowDiagram() {
         <DistributorBranches />
       </div>
       <div className="md:hidden">
-        {activeTab === 'enterprise' ? <ManufacturerEcosystem /> : <DistributorBranches />}
+        <div className={activeTab !== 'enterprise' ? 'hidden' : undefined}><ManufacturerEcosystem /></div>
+        <div className={activeTab === 'enterprise' ? 'hidden' : undefined}><DistributorBranches /></div>
       </div>
     </div>
   )
