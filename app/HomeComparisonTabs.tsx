@@ -130,7 +130,8 @@ export default function HomeComparisonTabs() {
         <GrowmaxConnectedPanel />
       </div>
       <div className="lg:hidden">
-        {comparisonTab === 'others' ? <TypicalEcommercePanel /> : <GrowmaxConnectedPanel />}
+        <div className={comparisonTab !== 'others' ? 'hidden' : undefined}><TypicalEcommercePanel /></div>
+        <div className={comparisonTab === 'others' ? 'hidden' : undefined}><GrowmaxConnectedPanel /></div>
       </div>
     </div>
   )
