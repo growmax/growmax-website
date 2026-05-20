@@ -46,7 +46,7 @@ const navDropdowns: NavDropdown[] = [
     ],
   },
   {
-    label: "Intelligence",
+    label: "Insights for B2B",
     items: [
       { label: "All Articles", href: "/blog" },
       { label: "Spare Parts Guide", href: "/solutions/spare-parts-ecommerce" },
