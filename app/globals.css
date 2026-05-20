@@ -1,0 +1,118 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-growmax-red: hsl(0 80% 50%);
+  --color-growmax-red-dark: hsl(0 90% 40%);
+  --color-growmax-black: hsl(0 0% 5%);
+  --color-growmax-white: hsl(0 0% 98%);
+  --color-growmax-gray: hsl(0 0% 90%);
+  
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  
+  --radius: 0px;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 0 80% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 94%;
+    --secondary-foreground: 0 0% 5%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 0% 90%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 0 80% 50%;
+  }
+
+  * { @apply border-border; }
+  body { @apply font-sans antialiased bg-background text-foreground selection:bg-growmax-red selection:text-white; }
+  h1, h2, h3, h4, h5, h6 { @apply font-sans tracking-tight; }
+}
+
+@layer utilities {
+  .bg-grid-blueprint {
+    background-image: linear-gradient(to right, hsl(var(--border) / 0.7) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border) / 0.7) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+  .bg-grid-blueprint-dark {
+    background-image: linear-gradient(to right, hsl(0 0% 100% / 0.1) 1px, transparent 1px), linear-gradient(to bottom, hsl(0 0% 100% / 0.1) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+  .bg-dots { background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px); background-size: 1rem 1rem; }
+  .bg-dots-dark { background-image: radial-gradient(hsl(0 0% 100% / 0.15) 1px, transparent 1px); background-size: 1rem 1rem; }
+  .text-stroke { -webkit-text-stroke: 1px hsl(0 0% 5%); color: transparent; }
+  .text-stroke-white { -webkit-text-stroke: 1px hsl(0 0% 100%); color: transparent; }
+
+  @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .animate-marquee { animation: marquee 20s linear infinite; }
+
+  @keyframes flowDown { 0% { transform: translateY(-8px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(calc(100% + 8px)); opacity: 0; } }
+  @keyframes flowUp { 0% { transform: translateY(8px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(calc(-100% - 8px)); opacity: 0; } }
+  @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(204, 26, 26, 0); } 50% { box-shadow: 0 0 12px 2px rgba(204, 26, 26, 0.3); } }
+  @keyframes pulseGlowWhite { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } 50% { box-shadow: 0 0 12px 2px rgba(255, 255, 255, 0.15); } }
+  @keyframes dashOffset { 0% { stroke-dashoffset: 16; } 100% { stroke-dashoffset: 0; } }
+  @keyframes fadeInUp { 0% { transform: translateY(12px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+  @keyframes pingDot { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.8); opacity: 0.4; } 100% { transform: scale(1); opacity: 1; } }
+
+  .animate-flow-down { animation: flowDown 2.4s ease-in-out infinite; }
+  .animate-flow-up { animation: flowUp 2.4s ease-in-out infinite; }
+  .animate-pulse-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
+  .animate-pulse-glow-white { animation: pulseGlowWhite 2.5s ease-in-out infinite; }
+  .animate-dash-flow { animation: dashOffset 0.8s linear infinite; }
+  .animate-fade-in-up { animation: fadeInUp 0.6s ease-out both; }
+  .animate-ping-dot { animation: pingDot 2s ease-in-out infinite; }
+
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  .prose h2 { font-size: 1.75rem; line-height: 1.2; margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid hsl(0 0% 90%); font-weight: 700; letter-spacing: -0.025em; color: hsl(0 0% 5%); }
+  @media (min-width: 768px) { .prose h2 { font-size: 2rem; } }
+  .prose h3 { font-size: 1.375rem; line-height: 1.3; margin-top: 2rem; margin-bottom: 0.75rem; font-weight: 700; letter-spacing: -0.015em; color: hsl(0 0% 5%); }
+  @media (min-width: 768px) { .prose h3 { font-size: 1.5rem; } }
+  .prose h4 { font-size: 1.125rem; line-height: 1.4; margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; color: hsl(0 0% 5%); }
+  .prose p { color: hsl(0 0% 35%); line-height: 1.8; margin-bottom: 1.25rem; }
+  .prose li { color: hsl(0 0% 35%); line-height: 1.8; }
+  .prose strong { color: hsl(0 0% 5%); font-weight: 600; }
+  .prose a { color: hsl(0 80% 50%); text-decoration: none; }
+  .prose a:hover { text-decoration: underline; }
+  .prose table { width: 100%; border-collapse: collapse; font-size: 0.875rem; overflow-x: auto; display: block; }
+  .prose thead { border-bottom: 2px solid hsl(0 0% 5%); }
+  .prose th { text-align: left; padding: 0.75rem 1rem; font-weight: 600; white-space: nowrap; }
+  .prose td { padding: 0.75rem 1rem; border-bottom: 1px solid hsl(0 0% 90%); white-space: nowrap; }
+  .prose tbody tr:hover { background-color: hsl(0 0% 97%); }
+}
