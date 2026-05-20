@@ -33,8 +33,6 @@ export default function Footer() {
               <h4 className="font-bold mb-6 text-growmax-red border-b border-gray-800 pb-2">Solutions</h4>
               <ul className="space-y-4">
                 <li><Link href="/revenue-platform" className="hover:text-growmax-red transition-colors block">Growmax Enterprise</Link></li>
-                <li><Link href="/arc" className="hover:text-growmax-red transition-colors block">Growmax ARC</Link></li>
-                <li><Link href="/arc/pricing" className="hover:text-growmax-red transition-colors block text-gray-500">ARC Pricing</Link></li>
                 <li><Link href="/solutions/spare-parts-ecommerce" className="hover:text-growmax-red transition-colors block">Spare Parts eCommerce</Link></li>
               </ul>
             </div>
@@ -59,12 +57,6 @@ export default function Footer() {
                 <li><Link href="/comparisons/zoho-commerce-alternatives" className="hover:text-white transition-colors block">Zoho Commerce</Link></li>
                 <li><Link href="/comparisons/handshake-alternatives" className="hover:text-white transition-colors block">Handshake</Link></li>
                 <li><Link href="/comparisons/tradegecko-alternatives" className="hover:text-white transition-colors block">TradeGecko</Link></li>
-                <li className="text-gray-600 font-bold text-[10px] mt-4">ARC Direct</li>
-                <li><Link href="/arc/compare/b2b-wave" className="hover:text-white transition-colors block">ARC vs B2B Wave</Link></li>
-                <li><Link href="/arc/compare/pepperi" className="hover:text-white transition-colors block">ARC vs Pepperi</Link></li>
-                <li><Link href="/arc/compare/cin7" className="hover:text-white transition-colors block">ARC vs Cin7</Link></li>
-                <li><Link href="/arc/compare/nowcommerce" className="hover:text-white transition-colors block">ARC vs NowCommerce</Link></li>
-                <li><Link href="/arc/compare/unleashed" className="hover:text-white transition-colors block">ARC vs Unleashed</Link></li>
               </ul>
             </div>
             

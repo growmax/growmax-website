@@ -449,9 +449,9 @@ export default function NetSuiteSuiteCommerceAlternatives() {
                 Schedule a Demo <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/arc">
+            <Link href="/revenue-platform">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 rounded-none font-bold px-8" data-testid="button-cta-arc">
-                Explore Growmax ARC
+                Explore Growmax Enterprise
               </Button>
             </Link>
           </div>

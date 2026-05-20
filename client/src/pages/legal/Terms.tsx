@@ -6,7 +6,7 @@ export default function Terms() {
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Terms of Service | Growmax"
-        description="Growmax ARC Terms of Service — terms and conditions for using our cloud-based business management platform."
+        description="Growmax Enterprise Terms of Service — terms and conditions for using our cloud-based B2B revenue operations platform."
         path="/terms-of-service"
       />
       
@@ -32,7 +32,7 @@ export default function Terms() {
           <div className="prose prose-sm md:prose-base max-w-none prose-headings:font-bold prose-headings:tracking-tighter prose-headings:uppercase prose-headings:text-growmax-black prose-p:text-gray-600 prose-p:font-light prose-p:leading-relaxed prose-a:text-growmax-red">
             
             <p className="font-mono text-xs md:text-sm uppercase bg-gray-50 p-3 md:p-4 border border-gray-200 mb-6 md:mb-8">
-              These Terms of Service ("Terms") govern your access to and use of the Growmax ARC platform ("Service") provided by Growmax LLC ("Company", "we", "us", or "our"). Please read these Terms carefully before using the Service. — Growmax LLC, USA — hello@growmax.io
+              These Terms of Service ("Terms") govern your access to and use of the Growmax Enterprise platform ("Service") provided by Growmax LLC ("Company", "we", "us", or "our"). Please read these Terms carefully before using the Service. — Growmax LLC, USA — hello@growmax.io
             </p>
 
             <h2>1. Acceptance of Terms</h2>
@@ -58,7 +58,7 @@ export default function Terms() {
 
             <h2>3. Service Description</h2>
             <p>
-              Growmax ARC is a cloud-based business management platform that provides:
+              Growmax Enterprise is a cloud-based business management platform that provides:
             </p>
             <ul>
               <li>Product catalog and inventory management</li>

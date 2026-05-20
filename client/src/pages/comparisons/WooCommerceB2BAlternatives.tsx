@@ -8,25 +8,24 @@ import SiloVsConnected from "@/components/SiloVsConnected";
 
 const competitors = [
   {
-    name: "Growmax ARC",
-    tagline: "Best All-in-One Platform for SMB Distributors",
+    name: "Growmax Enterprise",
+    tagline: "Best Managed B2B Revenue Platform — No Plugins, No Hosting Burden",
     highlight: true,
-    description: "The all-in-one B2B distributor platform with self-service signup. Inventory management, customer portal, and mobile sales rep app — ready in minutes. Native Zoho, QuickBooks & Xero integration, offline field sales, and multi-warehouse inventory — no plugins required.",
+    description: "The intelligent revenue operations platform that replaces WooCommerce's plugin patchwork with a purpose-built, managed SaaS solution. No hosting costs, no security patches, no plugin conflicts — just a fully integrated B2B ecosystem connecting your sales reps, partners, and customers with native SAP/Epicor integration.",
     pros: [
-      "Native Zoho & SAP ERP integration — no middleware",
+      "Managed SaaS — no hosting, maintenance, or plugin management",
+      "Native SAP ECC/S4HANA and Epicor integration — no middleware",
       "Offline-capable mobile app for field sales reps",
       "Multi-warehouse inventory with intelligent allocation",
       "Partner commerce portal for channel sales",
       "Quote-to-order workflow with approval engine",
-      "Customer-specific pricing with volume brackets",
-      "Managed SaaS — no hosting or maintenance burden",
     ],
     cons: [
       "Focused on B2B industrial — not ideal for DTC brands",
       "No native WordPress or WooCommerce plugin",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Industrial distributors, electrical wholesalers, building materials companies, manufacturers with complex pricing",
+    pricing: "Custom pricing",
+    bestFor: "Industrial distributors, electrical wholesalers, and manufacturers with 100+ employees ready to move from self-hosted WordPress to a purpose-built B2B platform",
     rating: "4.8",
   },
   {
@@ -166,55 +165,55 @@ const whyWooCommerceUsersSwitch = [
   {
     icon: Wrench,
     title: "Plugin Fatigue Is Real",
-    description: "Running B2B on WooCommerce means juggling 10-20 plugins for pricing, quoting, inventory, and customer groups. One update breaks another. Growmax ARC delivers all B2B features natively — no plugins, no conflicts, no fragility."
+    description: "Running B2B on WooCommerce means juggling 10-20 plugins for pricing, quoting, inventory, and customer groups. One update breaks another. Growmax Enterprise delivers all B2B features natively — no plugins, no conflicts, no fragility."
   },
   {
     icon: Clock,
     title: "Maintenance Is Consuming Your Team",
-    description: "WordPress core updates, WooCommerce updates, plugin updates, PHP version changes, security patches, hosting management — your team spends more time maintaining the platform than growing the business. Growmax ARC is fully managed SaaS."
+    description: "WordPress core updates, WooCommerce updates, plugin updates, PHP version changes, security patches, hosting management — your team spends more time maintaining the platform than growing the business. Growmax Enterprise is fully managed SaaS."
   },
   {
     icon: Smartphone,
     title: "Your Field Reps Need Mobile Ordering",
-    description: "WooCommerce has no mobile app for field sales reps. Your reps are using a responsive website on their phones — if they even have signal. Growmax ARC provides offline-capable native iOS/Android apps with GPS visit logging."
+    description: "WooCommerce has no mobile app for field sales reps. Your reps are using a responsive website on their phones — if they even have signal. Growmax Enterprise provides offline-capable native iOS/Android apps with GPS visit logging."
   },
   {
     icon: Package,
     title: "Scaling Past 10K SKUs Is Painful",
-    description: "WooCommerce performance degrades significantly with large catalogs. Growmax ARC is built for distributors with large SKU catalogs, handling complex pricing matrices, variant management, and real-time inventory without performance issues."
+    description: "WooCommerce performance degrades significantly with large catalogs. Growmax Enterprise is built for distributors with large SKU catalogs, handling complex pricing matrices, variant management, and real-time inventory without performance issues."
   },
   {
     icon: Building2,
     title: "ERP Integration Is Held Together with Duct Tape",
-    description: "WooCommerce ERP integrations rely on third-party plugins or custom middleware. One API change breaks the sync. Growmax ARC connects natively to Zoho, QuickBooks, and Xero with bidirectional real-time sync — built into the platform."
+    description: "WooCommerce ERP integrations rely on third-party plugins or custom middleware. One API change breaks the sync. Growmax Enterprise connects natively to Zoho, QuickBooks, and Xero with bidirectional real-time sync — built into the platform."
   },
   {
     icon: ShieldCheck,
     title: "Security Is Your Responsibility",
-    description: "WooCommerce sites are high-value targets for hackers. You're responsible for security patches, SSL, PCI compliance, and server hardening. Growmax ARC handles all security, compliance, and infrastructure — so you don't have to."
+    description: "WooCommerce sites are high-value targets for hackers. You're responsible for security patches, SSL, PCI compliance, and server hardening. Growmax Enterprise handles all security, compliance, and infrastructure — so you don't have to."
   },
 ];
 
 const faqs = [
   {
     question: "Why switch from WooCommerce to a dedicated B2B platform?",
-    answer: "WooCommerce is a WordPress plugin designed for DTC retail. B2B features like customer-specific pricing, quote management, multi-warehouse inventory, and field sales apps require multiple plugins that create fragility, performance issues, and maintenance burden. A purpose-built B2B platform like Growmax ARC delivers all these features natively with better performance, security, and reliability — starting at $199/mo."
+    answer: "WooCommerce is a WordPress plugin designed for DTC retail. B2B features like customer-specific pricing, quote management, multi-warehouse inventory, and field sales apps require multiple plugins that create fragility, performance issues, and maintenance burden. A purpose-built B2B platform like Growmax Enterprise delivers all these features natively with better performance, security, and reliability — custom pricing."
   },
   {
-    question: "Can I migrate my WooCommerce catalog to Growmax ARC?",
-    answer: "Yes. Growmax ARC's migration team handles full catalog transfer including products, categories, images, pricing, customer accounts, and order history. Most WooCommerce to Growmax ARC migrations complete in 2-4 weeks with zero data loss."
+    question: "Can I migrate my WooCommerce catalog to Growmax Enterprise?",
+    answer: "Yes. Growmax Enterprise's migration team handles full catalog transfer including products, categories, images, pricing, customer accounts, and order history. Most WooCommerce to Growmax Enterprise migrations complete in 2-4 weeks with zero data loss."
   },
   {
     question: "What about my WordPress blog content?",
-    answer: "Your WordPress blog can continue running independently. Many distributors keep their WordPress site for content marketing and SEO while using Growmax ARC as their B2B commerce platform. The two systems can be linked seamlessly."
+    answer: "Your WordPress blog can continue running independently. Many distributors keep their WordPress site for content marketing and SEO while using Growmax Enterprise as their B2B commerce platform. The two systems can be linked seamlessly."
   },
   {
-    question: "Is Growmax ARC more expensive than WooCommerce?",
-    answer: "While WooCommerce itself is free, the total cost of B2B WooCommerce includes premium plugins ($500-$2,000/year), hosting ($100-$500/mo for performance), developer maintenance ($2,000-$5,000/mo), and security management. Growmax ARC at $199/mo with zero maintenance overhead is typically 40-60% cheaper in total cost of ownership."
+    question: "Is Growmax Enterprise more expensive than WooCommerce?",
+    answer: "While WooCommerce itself is free, the total cost of B2B WooCommerce includes premium plugins ($500-$2,000/year), hosting ($100-$500/mo for performance), developer maintenance ($2,000-$5,000/mo), and security management. Growmax Enterprise at $199/mo with zero maintenance overhead is typically 40-60% cheaper in total cost of ownership."
   },
   {
-    question: "How does Growmax ARC handle complex B2B pricing vs WooCommerce?",
-    answer: "WooCommerce requires plugins like B2B King or Wholesale Suite for customer-specific pricing, and they often conflict with each other. Growmax ARC handles customer-specific price lists, volume brackets, contract pricing, tiered discounts, and real-time margin calculations natively — no plugins needed."
+    question: "How does Growmax Enterprise handle complex B2B pricing vs WooCommerce?",
+    answer: "WooCommerce requires plugins like B2B King or Wholesale Suite for customer-specific pricing, and they often conflict with each other. Growmax Enterprise handles customer-specific price lists, volume brackets, contract pricing, tiered discounts, and real-time margin calculations natively — no plugins needed."
   },
 ];
 
@@ -223,7 +222,7 @@ export default function WooCommerceB2BAlternatives() {
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Best WooCommerce B2B Alternatives & Competitors in 2026 | Growmax"
-        description="Compare the best WooCommerce B2B alternatives: Growmax ARC, BigCommerce B2B, Shopify Plus, OroCommerce, and PrestaShop. Feature comparison, pricing, and migration guide for distributors."
+        description="Compare the best WooCommerce B2B alternatives: Growmax Enterprise, BigCommerce B2B, Shopify Plus, OroCommerce, and PrestaShop. Feature comparison, pricing, and migration guide for distributors."
         path="/comparisons/woocommerce-b2b-alternatives"
         structuredData={webPageSchema({
           title: "Best WooCommerce B2B Alternatives & Competitors in 2026",
@@ -377,7 +376,7 @@ export default function WooCommerceB2BAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax ARC</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">BigCommerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Shopify Plus</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">OroCommerce</div>
@@ -423,7 +422,7 @@ export default function WooCommerceB2BAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax ARC</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">BigCommerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Shopify Plus</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Oro</div>
@@ -448,16 +447,16 @@ export default function WooCommerceB2BAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Migrating from WooCommerce to Growmax ARC</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">Migrating from WooCommerce to Growmax Enterprise</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { step: "01", title: "Plugin Audit", description: "We map your WooCommerce plugins to native Growmax ARC features. Most distributors replace 10-15 plugins with built-in Growmax ARC functionality — eliminating complexity and conflicts." },
+              { step: "01", title: "Plugin Audit", description: "We map your WooCommerce plugins to native Growmax Enterprise features. Most distributors replace 10-15 plugins with built-in Growmax Enterprise functionality — eliminating complexity and conflicts." },
               { step: "02", title: "Data Migration", description: "Products, categories, images, customer accounts, pricing rules, and order history are migrated via our WooCommerce export tool. Full data validation included." },
-              { step: "03", title: "Accounting Connection", description: "Connect Growmax ARC directly to your accounting system (Zoho, QuickBooks, Xero) — no more fragile WooCommerce middleware. Bidirectional sync configured and tested." },
-              { step: "04", title: "Go Live", description: "Launch Growmax ARC with your team trained and ready. Keep your WordPress blog running independently. Zero downtime migration with parallel running available." },
+              { step: "03", title: "Accounting Connection", description: "Connect Growmax Enterprise directly to your accounting system (Zoho, QuickBooks, Xero) — no more fragile WooCommerce middleware. Bidirectional sync configured and tested." },
+              { step: "04", title: "Go Live", description: "Launch Growmax Enterprise with your team trained and ready. Keep your WordPress blog running independently. Zero downtime migration with parallel running available." },
             ].map((item, i) => (
               <div key={i} className="border-2 border-growmax-black p-6" data-testid={`card-migration-step-${i}`}>
                 <div className="font-mono text-xs text-growmax-red mb-3 uppercase font-bold">{item.step}</div>
@@ -498,7 +497,7 @@ export default function WooCommerceB2BAlternatives() {
         <div className="container mx-auto px-4">
           <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-6 font-bold">Deploy Now</div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-growmax-black" data-testid="text-cta-title">
-            Outgrow WooCommerce.<br/>Deploy Growmax ARC today.
+            Outgrow WooCommerce.<br/>Deploy Growmax Enterprise today.
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto mb-10">
             Start your 14-day free trial. No credit card required. Full platform access from day one.
@@ -509,7 +508,7 @@ export default function WooCommerceB2BAlternatives() {
                 Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Link href="/arc/pricing">
+            <Link href="/revenue-platform">
               <Button variant="outline" className="border-growmax-black text-growmax-black hover:bg-growmax-black hover:text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight" data-testid="button-cta-pricing">
                 View Pricing
               </Button>

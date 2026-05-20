@@ -322,7 +322,7 @@ export default function CompareEnterprise() {
               <Zap className="w-10 h-10 text-growmax-red mb-4 relative z-10" />
               <h3 className="text-xl font-bold uppercase tracking-tight mb-3 relative z-10 bg-white inline-block pr-2">Offline Field Sales App</h3>
               <p className="text-gray-600 font-light text-sm leading-relaxed relative z-10 bg-white/90 p-3 border border-growmax-black">
-                Neither Corevist nor SAP Commerce Cloud offer a native offline mobile app for field reps. Growmax ARC lets reps take orders, check inventory, and create quotes — even without connectivity.
+                Neither Corevist nor SAP Commerce Cloud offer a native offline mobile app for field reps. Growmax Enterprise lets reps take orders, check inventory, and create quotes — even without connectivity.
               </p>
             </div>
           </div>
@@ -357,7 +357,7 @@ export default function CompareEnterprise() {
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Platform</div>
                 <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax Enterprise</h3>
                 <p className="text-sm text-gray-600 font-light leading-relaxed">Multi-party revenue ecosystem connecting sales reps, partners, and customers with native SAP integration.</p>
-                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore Enterprise <ArrowRight className="w-3 h-3" /></div>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore Growmax Enterprise <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>
 
@@ -381,11 +381,11 @@ export default function CompareEnterprise() {
           </div>
 
           <div className="mt-8 grid md:grid-cols-2 gap-4">
-            <Link href="/arc">
+            <Link href="/revenue-platform">
               <div className="border border-gray-200 p-6 flex items-center justify-between gap-4 hover:border-growmax-black transition-colors cursor-pointer" data-testid="link-arc-from-enterprise">
                 <div>
-                  <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">For Distributors</div>
-                  <p className="text-sm text-gray-700">Looking for a simpler solution? Explore Growmax ARC for mid-market distributors.</p>
+                  <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">For B2B Distributors</div>
+                  <p className="text-sm text-gray-700">Looking for a simpler solution? Explore Growmax Enterprise for mid-market distributors.</p>
                 </div>
                 <ArrowRight className="w-5 h-5 text-growmax-red shrink-0" />
               </div>

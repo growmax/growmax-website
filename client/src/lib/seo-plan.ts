@@ -10,7 +10,7 @@ export const generateSEOPlan = () => `
 The enterprise giants (SAP, Salesforce) own high-volume generic keywords like "B2B ecommerce platform". However, they fail at long-tail, hyper-specific manufacturing pain points. Corevist owns "SAP integrated portal". 
 **Our Wedge:** We must own the intersection of "Revenue Operations" + "Manufacturing" + "Dealer Networks".
 
-### SMB/Mid-Market Product (Growmax ARC)
+### SMB/Mid-Market Product (Growmax Enterprise)
 **Target:** Independent Wholesale Distributors.
 **Competitors:** B2B Wave, Pepperi, SimplyDepo.
 **Analysis:** 

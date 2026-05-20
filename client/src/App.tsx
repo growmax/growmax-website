@@ -12,13 +12,6 @@ import Footer from "@/components/layout/Footer";
 
 import Home from "@/pages/Home";
 import RevenuePlatform from "@/pages/revenue-platform/RevenuePlatform";
-import Arc from "@/pages/arc/Arc";
-import Pricing from "@/pages/arc/Pricing";
-import CompareB2BWave from "@/pages/arc/CompareB2BWave";
-import ComparePepperi from "@/pages/arc/ComparePepperi";
-import CompareNowCommerce from "@/pages/arc/CompareNowCommerce";
-import CompareCin7 from "@/pages/arc/CompareCin7";
-import CompareUnleashed from "@/pages/arc/CompareUnleashed";
 import Demo from "@/pages/Demo";
 import About from "@/pages/company/About";
 import BlogList from "@/pages/blog/BlogList";
@@ -98,14 +91,6 @@ function AppRouter() {
               <Route path="/revenue-platform" component={RevenuePlatform} />
               <Route path="/revenue-platform/compare" component={CompareEnterprise} />
               <Route path="/revenue-platform/:feature" component={RevenuePlatform} />
-              
-              <Route path="/arc" component={Arc} />
-              <Route path="/arc/pricing" component={Pricing} />
-              <Route path="/arc/compare/b2b-wave" component={CompareB2BWave} />
-              <Route path="/arc/compare/pepperi" component={ComparePepperi} />
-              <Route path="/arc/compare/nowcommerce" component={CompareNowCommerce} />
-              <Route path="/arc/compare/cin7" component={CompareCin7} />
-              <Route path="/arc/compare/unleashed" component={CompareUnleashed} />
               
               <Route path="/comparisons/handshake-alternatives" component={HandshakeAlternatives} />
               <Route path="/comparisons/tradegecko-alternatives" component={TradeGeckoAlternatives} />

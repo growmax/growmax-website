@@ -500,10 +500,10 @@ export default function OracleCommerceAlternatives() {
               </div>
             </Link>
 
-            <Link href="/arc">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
+            <Link href="/revenue-platform">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-enterprise-platform">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Product</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC Platform</h3>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax Enterprise Platform</h3>
                 <p className="text-sm text-gray-600 font-light leading-relaxed">The connected distributor platform — ordering portal, field sales app, and real-time inventory.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
               </div>
@@ -555,7 +555,7 @@ export default function OracleCommerceAlternatives() {
                 Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Link href="/arc/pricing">
+            <Link href="/revenue-platform">
               <Button variant="outline" className="border-growmax-black text-growmax-black hover:bg-growmax-black hover:text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight" data-testid="button-cta-pricing">
                 View Pricing
               </Button>

@@ -8,24 +8,24 @@ import SiloVsConnected from "@/components/SiloVsConnected";
 
 const competitors = [
   {
-    name: "Growmax ARC",
-    tagline: "Best All-in-One Platform for SMB Distributors",
+    name: "Growmax Enterprise",
+    tagline: "Best B2B Revenue Platform with Deep Zoho Ecosystem Integration",
     highlight: true,
-    description: "The all-in-one B2B distributor platform with self-service signup. Native Zoho integration with bidirectional real-time sync, plus QuickBooks and Xero support. Inventory management, customer portal, mobile sales rep app, and multi-warehouse inventory — ready in minutes.",
+    description: "The intelligent revenue operations platform built for B2B manufacturers and distributors in the Zoho ecosystem. Native Zoho CRM, Books & Inventory integration with bidirectional real-time sync — plus the full enterprise ecosystem: multi-party partner commerce, dealer portals, offline field sales, and SAP integration that Zoho Commerce simply cannot provide.",
     pros: [
       "Native Zoho CRM, Books & Inventory integration — no middleware",
+      "Multi-party ecosystem: sales reps, partners, dealers, and customers on one platform",
+      "Native SAP ECC/S4HANA integration alongside Zoho",
       "Offline-capable mobile app for field sales reps",
       "Multi-warehouse inventory with intelligent allocation",
-      "Partner commerce portal for channel sales",
-      "Quote-to-order workflow with approval engine",
-      "Customer-specific pricing with volume brackets",
+      "Partner commerce portal for dealer and channel networks",
     ],
     cons: [
       "Focused on B2B industrial — not ideal for DTC brands",
       "No native Shopify or WooCommerce integration",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Industrial distributors, electrical wholesalers, building materials companies using the Zoho ecosystem",
+    pricing: "Custom pricing",
+    bestFor: "Industrial distributors, electrical wholesalers, and manufacturers with 100+ employees in the Zoho ecosystem who need enterprise B2B capabilities",
     rating: "4.8",
   },
   {
@@ -171,7 +171,7 @@ const whyZohoUsersSwitch = [
   {
     icon: Smartphone,
     title: "You Need Mobile Field Sales",
-    description: "Your field reps need an offline-capable mobile app to take orders at customer sites. Zoho Commerce has no field sales app — Growmax ARC does, with GPS visit logging and customer-specific pricing."
+    description: "Your field reps need an offline-capable mobile app to take orders at customer sites. Zoho Commerce has no field sales app — Growmax Enterprise does, with GPS visit logging and customer-specific pricing."
   },
   {
     icon: Package,
@@ -181,17 +181,17 @@ const whyZohoUsersSwitch = [
   {
     icon: Globe,
     title: "You Want to Stay in Zoho",
-    description: "You love the Zoho ecosystem. Growmax ARC gives you everything Zoho Commerce can't — B2B commerce, field sales, customer portals — while maintaining native bidirectional Zoho sync."
+    description: "You love the Zoho ecosystem. Growmax Enterprise gives you everything Zoho Commerce can't — B2B commerce, field sales, customer portals — while maintaining native bidirectional Zoho sync."
   },
   {
     icon: DollarSign,
     title: "You Need Partner Commerce",
-    description: "Your customers need their own portal to place orders, track deliveries, and manage accounts. Zoho Commerce has no B2B portal. Growmax ARC includes one out of the box."
+    description: "Your customers need their own portal to place orders, track deliveries, and manage accounts. Zoho Commerce has no B2B portal. Growmax Enterprise includes one out of the box."
   },
   {
     icon: ShieldCheck,
     title: "You Need Quote Management",
-    description: "B2B sales require quote-to-order workflows with approval chains, revision tracking, and automatic conversion. Zoho Commerce doesn't support this. Growmax ARC does natively."
+    description: "B2B sales require quote-to-order workflows with approval chains, revision tracking, and automatic conversion. Zoho Commerce doesn't support this. Growmax Enterprise does natively."
   },
 ];
 
@@ -200,11 +200,11 @@ export default function ZohoCommerceAlternatives() {
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Best Zoho Commerce Alternatives for B2B in 2026 | Growmax"
-        description="Compare the best Zoho Commerce alternatives for B2B distribution: Growmax ARC, Shopify Plus, BigCommerce B2B, and OroCommerce. Feature comparison, pricing, and pros/cons for Zoho ecosystem users."
+        description="Compare the best Zoho Commerce alternatives for B2B distribution: Growmax Enterprise, Shopify Plus, BigCommerce B2B, and OroCommerce. Feature comparison, pricing, and pros/cons for Zoho ecosystem users."
         path="/comparisons/zoho-commerce-alternatives"
         structuredData={webPageSchema({
           title: "Best Zoho Commerce Alternatives for B2B in 2026",
-          description: "Comprehensive comparison of Zoho Commerce alternatives for B2B wholesale ordering. Compare features, pricing, pros and cons of Growmax ARC, Shopify Plus, BigCommerce B2B, and OroCommerce.",
+          description: "Comprehensive comparison of Zoho Commerce alternatives for B2B wholesale ordering. Compare features, pricing, pros and cons of Growmax Enterprise, Shopify Plus, BigCommerce B2B, and OroCommerce.",
           path: "/comparisons/zoho-commerce-alternatives",
           keywords: [
             "zoho commerce alternatives",
@@ -354,7 +354,7 @@ export default function ZohoCommerceAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax ARC</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Zoho Commerce</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Shopify Plus</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">BigCommerce</div>
@@ -400,7 +400,7 @@ export default function ZohoCommerceAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax ARC</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Zoho Commerce</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Shopify Plus</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">BigCommerce</div>
@@ -425,18 +425,18 @@ export default function ZohoCommerceAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Verdict</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax ARC Is the Best Zoho Commerce Alternative for B2B</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax Enterprise Is the Best Zoho Commerce Alternative for B2B</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8" data-testid="section-why-growmax-wins">
             {[
-              { number: "01", title: "Stay in the Zoho Ecosystem", description: "Growmax ARC offers native bidirectional sync with Zoho CRM, Books, and Inventory. You get purpose-built B2B commerce without leaving the ecosystem you already know and love." },
-              { number: "02", title: "Built for B2B, Not B2C", description: "Unlike Zoho Commerce (built for retail storefronts), Growmax ARC handles customer-specific pricing, volume brackets, quote-to-order workflows, and multi-warehouse inventory natively." },
-              { number: "03", title: "Mobile Field Sales App", description: "Growmax ARC includes iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing. No other Zoho-compatible platform offers this." },
+              { number: "01", title: "Stay in the Zoho Ecosystem", description: "Growmax Enterprise offers native bidirectional sync with Zoho CRM, Books, and Inventory. You get purpose-built B2B commerce without leaving the ecosystem you already know and love." },
+              { number: "02", title: "Built for B2B, Not B2C", description: "Unlike Zoho Commerce (built for retail storefronts), Growmax Enterprise handles customer-specific pricing, volume brackets, quote-to-order workflows, and multi-warehouse inventory natively." },
+              { number: "03", title: "Mobile Field Sales App", description: "Growmax Enterprise includes iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing. No other Zoho-compatible platform offers this." },
               { number: "04", title: "Customer Self-Service Portal", description: "Give customers their own portal to place orders, track deliveries, and manage accounts independently. Zoho Commerce has no B2B customer portal functionality." },
               { number: "05", title: "Multi-Warehouse Intelligence", description: "Manage inventory across multiple warehouses with intelligent allocation logic. Ensure you never oversell, even when stock is distributed across multiple locations." },
-              { number: "06", title: "2-4 Week Go-Live", description: "Deploy Growmax ARC in weeks, not months. Self-service signup, import your catalog, connect your Zoho instance, train your team, and go live — starting at $199/mo." },
+              { number: "06", title: "2-4 Week Go-Live", description: "Deploy Growmax Enterprise in weeks, not months. Self-service signup, import your catalog, connect your Zoho instance, train your team, and go live — custom pricing." },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group" data-testid={`card-advantage-${i}`}>
                 <div className="font-mono text-xs text-growmax-red mb-4 uppercase">{item.number}</div>
@@ -452,14 +452,14 @@ export default function ZohoCommerceAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Switch from Zoho Commerce to Growmax ARC</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Switch from Zoho Commerce to Growmax Enterprise</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" data-testid="section-migration-steps">
             {[
-              { step: "01", title: "Export Your Data", description: "Export your Zoho Commerce catalog, customer list, and order history. Growmax ARC provides migration templates and import tools." },
-              { step: "02", title: "Connect Zoho CRM", description: "Link Growmax ARC to your Zoho CRM, Books, and Inventory. Native connectors handle bidirectional sync automatically." },
+              { step: "01", title: "Export Your Data", description: "Export your Zoho Commerce catalog, customer list, and order history. Growmax Enterprise provides migration templates and import tools." },
+              { step: "02", title: "Connect Zoho CRM", description: "Link Growmax Enterprise to your Zoho CRM, Books, and Inventory. Native connectors handle bidirectional sync automatically." },
               { step: "03", title: "Configure B2B Features", description: "Set up customer-specific pricing, multi-warehouse rules, partner portals, and quote workflows that Zoho Commerce couldn't support." },
               { step: "04", title: "Go Live", description: "Deploy mobile apps to your field reps, invite customers to the portal, and launch. Typical go-live: 2-4 weeks from kickoff." },
             ].map((item, i) => (
@@ -482,11 +482,11 @@ export default function ZohoCommerceAlternatives() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
-            <Link href="/arc/compare/b2b-wave">
+            <Link href="/comparisons/handshake-alternatives">
               <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-compare-b2bwave">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Comparison</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">ARC vs B2B Wave</h3>
-                <p className="text-sm text-gray-600 font-light leading-relaxed">Feature-by-feature comparison of Growmax ARC and B2B Wave for wholesale distributors.</p>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Enterprise vs B2B Wave</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Feature-by-feature comparison of Growmax Enterprise and B2B Wave for wholesale distributors.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Comparison <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>
@@ -500,10 +500,10 @@ export default function ZohoCommerceAlternatives() {
               </div>
             </Link>
 
-            <Link href="/arc">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
+            <Link href="/revenue-platform">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-enterprise-platform">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Product</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC Platform</h3>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax Enterprise Platform</h3>
                 <p className="text-sm text-gray-600 font-light leading-relaxed">The connected distributor platform — ordering portal, field sales app, and real-time inventory.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
               </div>
@@ -555,7 +555,7 @@ export default function ZohoCommerceAlternatives() {
                 Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Link href="/arc/pricing">
+            <Link href="/revenue-platform">
               <Button variant="outline" className="border-growmax-black text-growmax-black hover:bg-growmax-black hover:text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight" data-testid="button-cta-pricing">
                 View Pricing
               </Button>

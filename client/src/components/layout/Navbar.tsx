@@ -29,18 +29,6 @@ const navDropdowns: NavDropdown[] = [
     ],
   },
   {
-    label: "Growmax ARC",
-    items: [
-      { label: "Growmax ARC", href: "/arc" },
-      { label: "ARC Pricing", href: "/arc/pricing" },
-      { label: "ARC vs B2B Wave", href: "/arc/compare/b2b-wave" },
-      { label: "ARC vs Pepperi", href: "/arc/compare/pepperi" },
-      { label: "ARC vs NowCommerce", href: "/arc/compare/nowcommerce" },
-      { label: "ARC vs Cin7", href: "/arc/compare/cin7" },
-      { label: "ARC vs Unleashed", href: "/arc/compare/unleashed" },
-    ],
-  },
-  {
     label: "Industries",
     items: [
       { label: "Electrical Distributors", href: "/industries/electrical-distributors" },

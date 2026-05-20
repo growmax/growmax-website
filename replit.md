@@ -1,9 +1,10 @@
 # Growmax LLC Corporate Website
 
 ## Overview
-Professional corporate website for Growmax (Webspot Growmax Commerce Private Limited, India / Growmax LLC, US), a B2B software company. Two clearly differentiated product lines:
+Professional corporate website for Growmax (Webspot Growmax Commerce Private Limited, India / Growmax LLC, US), a B2B software company. Single-product strategy focused on:
 1. **Growmax Enterprise** — Intelligent Revenue Operations Platform connecting sales reps, partners, and customers (multi-party ecosystem). SAP/Epicor integrations for 100+ employee manufacturers in industrial, electrical, construction, and building materials. Custom pricing.
-2. **Growmax ARC** — All-in-one distributor platform for SMBs (up to 100 employees). Inventory + Customer Portal + Sales Rep App. QuickBooks/Zoho/Xero integrations. $199/month. Self-service signup.
+
+**Note:** Growmax ARC (SMB product) has been removed from the website. All references have been replaced with Growmax Enterprise. The 7 ARC-specific pages (`/arc`, `/arc/pricing`, and 5 `/arc/compare/*` pages) have been deleted.
 
 ## Architecture
 - **Frontend**: React 19 + Vite + Wouter (routing) + Tailwind CSS v4 + shadcn/ui components + react-helmet-async (SEO meta tags)
@@ -25,18 +26,11 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - `client/src/components/SEOHead.tsx` — Reusable SEO meta tag component (title, description, OG, Twitter)
 - `client/src/components/Breadcrumbs.tsx` — Reusable breadcrumb navigation component
 - `client/src/lib/structuredData.ts` — JSON-LD structured data generators (Organization, Article, WebPage, ContactPage, SoftwareApplication, Product, AboutPage, FAQPage, CollectionPage)
-- `client/src/pages/Home.tsx` — Homepage with ecosystem hero, visual ecosystem diagrams (Enterprise multi-party vs ARC one-to-one), architecture split product routing, customer logos
-- `client/src/components/ui/WhichGrowmax.tsx` — Reusable "Which Growmax is right for you?" product routing component (used on all 12 industry pages)
+- `client/src/pages/Home.tsx` — Homepage with ecosystem hero, visual ecosystem diagrams, architecture split (Enterprise + Demo CTA), customer logos
+- `client/src/components/ui/WhichGrowmax.tsx` — Enterprise-only CTA section used on all 12 industry pages
 - `client/src/pages/revenue-platform/RevenuePlatform.tsx` — Growmax Enterprise product page with ecosystem flow diagram + SoftwareApplication schema
 - `client/src/pages/revenue-platform/CompareEnterprise.tsx` — Growmax vs Corevist vs SAP Commerce Cloud comparison
-- `client/src/pages/arc/Arc.tsx` — ARC product page + compare alternatives banner + SoftwareApplication schema
-- `client/src/pages/arc/Pricing.tsx` — ARC pricing page + Product/Offer schema
-- `client/src/pages/arc/CompareB2BWave.tsx` — ARC vs B2B Wave comparison (FAQ schema, deep-dive content, internal links to blog posts)
-- `client/src/pages/arc/ComparePepperi.tsx` — ARC vs Pepperi comparison (FAQ schema, DSD/CRM/trade promo deep-dive, internal links)
-- `client/src/pages/arc/CompareNowCommerce.tsx` — ARC vs NowCommerce comparison
-- `client/src/pages/arc/CompareCin7.tsx` — ARC vs Cin7 comparison
-- `client/src/pages/arc/CompareUnleashed.tsx` — ARC vs Unleashed comparison
-- `client/src/pages/comparisons/` — 14 comparison/alternatives pages (Handshake, TradeGecko, Sana Commerce, OroCommerce, BigCommerce B2B, Shopify Plus, Magento B2B, Dynamics 365, Salesforce Commerce, WooCommerce B2B, Zoho Commerce, SAP Commerce Cloud, Oracle Commerce, NetSuite SuiteCommerce)
+- `client/src/pages/comparisons/` — 14 comparison/alternatives pages (Handshake, TradeGecko, Sana Commerce, OroCommerce, BigCommerce B2B, Shopify Plus, Magento B2B, Dynamics 365, Salesforce Commerce, WooCommerce B2B, Zoho Commerce, SAP Commerce Cloud, Oracle Commerce, NetSuite SuiteCommerce) — all now position Growmax Enterprise as the top recommendation
 - `client/src/pages/industries/` — 12 industry landing pages (Electrical, Building Materials, Industrial Manufacturing, Food & Beverage, Automotive Aftermarket, Plumbing & HVAC, Janitorial & Sanitation, Safety & PPE, Industrial Fasteners, Pump & Valve, Chemical, Packaging)
 - `client/src/pages/solutions/SparePartsHub.tsx` — Spare Parts eCommerce pillar page with FAQ schema
 - `client/src/pages/Demo.tsx` — Demo request form (functional, saves to DB) + ContactPage schema
@@ -57,17 +51,8 @@ Professional corporate website for Growmax (Webspot Growmax Commerce Private Lim
 - `/` — Homepage
 - `/revenue-platform` — Enterprise product
 - `/revenue-platform/compare` — Enterprise competitor comparison
-- `/arc` — ARC product
-- `/arc/pricing` — ARC pricing
 - `/demo` — Demo request form
 - `/company/about` — About page
-
-### ARC Comparisons (5 pages)
-- `/arc/compare/b2b-wave` — ARC vs B2B Wave
-- `/arc/compare/pepperi` — ARC vs Pepperi
-- `/arc/compare/nowcommerce` — ARC vs NowCommerce
-- `/arc/compare/cin7` — ARC vs Cin7
-- `/arc/compare/unleashed` — ARC vs Unleashed
 
 ### Competitor Alternatives (14 pages)
 - `/comparisons/handshake-alternatives`

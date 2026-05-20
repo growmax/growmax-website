@@ -149,7 +149,7 @@ export const blogPostsData: Record<string, BlogPostData> = {
     category: "B2B eCommerce",
     date: "Dec 8, 2025",
     author: "Growmax Team",
-    authorTeam: "Growmax ARC Division",
+    authorTeam: "Growmax Enterprise Division",
     readTime: "6 Min Read",
     excerpt: "Field sales reps in industrial B2B need tools that work everywhere—even in warehouses and factory floors with zero connectivity. Here's why offline-first architecture matters.",
     relatedIds: ["004", "006"],
@@ -187,20 +187,20 @@ export const blogPostsData: Record<string, BlogPostData> = {
   <li><strong>Order Capture:</strong> Convert the quote to an order with a single tap. Capture the customer's signature on the device. Print or email the order confirmation.</li>
   <li><strong>Background Sync:</strong> As the rep drives to the next customer, the app syncs all captured orders, updated notes, and customer interactions to the central system.</li>
 </ul>
-<p>This workflow is only possible with an app built from the ground up for offline operation. Growmax ARC (Autonomous Revenue Capture) was designed specifically for this use case—enabling field sales teams to be fully productive regardless of connectivity.</p>`
+<p>This workflow is only possible with an app built from the ground up for offline operation. Growmax Enterprise (Autonomous Revenue Capture) was designed specifically for this use case—enabling field sales teams to be fully productive regardless of connectivity.</p>`
       },
       {
         heading: "ROI of Going Offline-First",
         headingId: "roi-offline-first",
         content: `<p>The business case for offline-first is compelling across every metric that matters:</p>
 <ul>
-  <li><strong>Orders Per Visit:</strong> Reps using Growmax ARC capture 40% more orders per customer visit because there's zero friction in the ordering process.</li>
+  <li><strong>Orders Per Visit:</strong> Reps using Growmax Enterprise capture 40% more orders per customer visit because there's zero friction in the ordering process.</li>
   <li><strong>Order Accuracy:</strong> Digital order capture eliminates the transcription errors that plague paper-based and phone-based ordering. Accuracy improves from ~92% to 99.7%.</li>
   <li><strong>Rep Productivity:</strong> With instant access to catalog, pricing, and customer history, reps spend 60% more time selling and 60% less time on administrative tasks.</li>
   <li><strong>Customer Satisfaction:</strong> Customers get immediate order confirmation, accurate pricing, and professional quotes—right there in their facility. No more "I'll send you the quote when I get back to the office."</li>
   <li><strong>Data Capture:</strong> Every customer interaction is logged, creating a rich dataset for territory analysis, demand forecasting, and strategic planning.</li>
 </ul>
-<p>For industrial distributors with field sales teams of 10+ reps, the ROI typically pays for the entire Growmax ARC deployment within the first quarter. The combination of increased order volume, reduced errors, and improved rep productivity creates a compound effect that accelerates over time.</p>`
+<p>For industrial distributors with field sales teams of 10+ reps, the ROI typically pays for the entire Growmax Enterprise deployment within the first quarter. The combination of increased order volume, reduced errors, and improved rep productivity creates a compound effect that accelerates over time.</p>`
       }
     ]
   },

@@ -37,7 +37,7 @@ export default function Privacy() {
 
             <h2>1. Overview</h2>
             <p>
-              This Privacy Policy applies to the Growmax ARC platform ("Service"), operated by Growmax LLC, a company registered in the United States of America. By using the Service, you agree to the collection and use of information in accordance with this policy.
+              This Privacy Policy applies to the Growmax Enterprise platform ("Service"), operated by Growmax LLC, a company registered in the United States of America. By using the Service, you agree to the collection and use of information in accordance with this policy.
             </p>
             <p>
               This policy describes:
@@ -98,7 +98,7 @@ export default function Privacy() {
 
             <h2>3. Google OAuth & Third-Party Authentication</h2>
             <p>
-              Growmax ARC supports Google Sign-In for convenient authentication. When you sign in with Google, we receive the following information:
+              Growmax Enterprise supports Google Sign-In for convenient authentication. When you sign in with Google, we receive the following information:
             </p>
             <ul>
               <li>Email address</li>
@@ -259,7 +259,7 @@ export default function Privacy() {
 
             <h2>12. Children's Privacy</h2>
             <p>
-              Growmax ARC is not directed to individuals under the age of 16. We do not knowingly collect personal information from children. If we discover that we have inadvertently collected data from a child under 16, we will delete it promptly.
+              Growmax Enterprise is not directed to individuals under the age of 16. We do not knowingly collect personal information from children. If we discover that we have inadvertently collected data from a child under 16, we will delete it promptly.
             </p>
 
             <h2>13. Changes to This Policy</h2>

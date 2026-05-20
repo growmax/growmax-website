@@ -510,7 +510,7 @@ export default function Dynamics365Alternatives() {
                 Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Link href="/arc/pricing">
+            <Link href="/revenue-platform">
               <Button variant="outline" className="border-growmax-black text-growmax-black hover:bg-growmax-black hover:text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight" data-testid="button-cta-pricing">
                 View Pricing
               </Button>

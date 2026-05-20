@@ -42,7 +42,7 @@ const painPoints = [
     icon: ShieldCheck,
     title: "Field Sales Blind Spots",
     problem: "Reps visiting job sites and contractor offices have no access to real-time inventory or customer-specific pricing.",
-    solution: "Growmax ARC — the offline-capable mobile ordering app. Reps capture orders on-site, even without connectivity. Syncs automatically when back online."
+    solution: "Growmax Enterprise — the offline-capable mobile ordering app. Reps capture orders on-site, even without connectivity. Syncs automatically when back online."
   }
 ];
 
@@ -337,10 +337,10 @@ export default function ElectricalDistributors() {
               </div>
             </Link>
 
-            <Link href="/arc">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
-                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">For Distributors</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC</h3>
+            <Link href="/revenue-platform">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-enterprise-platform">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">For B2B Distributors</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax Enterprise</h3>
                 <p className="text-sm text-gray-600 font-light leading-relaxed">The connected distributor platform with ordering portal, field sales app, and Zoho integration.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
               </div>
@@ -357,7 +357,7 @@ export default function ElectricalDistributors() {
                 <ArrowRight className="w-5 h-5 text-growmax-red shrink-0" />
               </div>
             </Link>
-            <Link href="/arc/compare/b2b-wave">
+            <Link href="/comparisons/handshake-alternatives">
               <div className="border border-gray-200 p-6 flex items-center justify-between gap-4 hover:border-growmax-black transition-colors cursor-pointer" data-testid="link-compare-b2bwave">
                 <div>
                   <div className="font-mono text-xs text-growmax-red uppercase tracking-widest font-bold mb-1">Comparison</div>

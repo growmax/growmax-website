@@ -554,35 +554,35 @@ export default function Home() {
             </div>
           </Link>
 
-          <Link href="/arc" className="w-full md:w-1/2 p-12 md:p-16 hover:bg-white hover:text-growmax-black group transition-colors duration-300 flex flex-col justify-between min-h-[auto] md:min-h-[600px]" data-testid="link-arc-split">
+          <Link href="/demo" className="w-full md:w-1/2 p-12 md:p-16 hover:bg-white hover:text-growmax-black group transition-colors duration-300 flex flex-col justify-between min-h-[auto] md:min-h-[600px]" data-testid="link-demo-split">
             <div>
-              <div className="font-mono text-xs font-bold uppercase tracking-widest mb-6 border border-gray-800 inline-block px-3 py-1 group-hover:border-growmax-black">Growmax ARC</div>
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 uppercase">All-in-One<br/>Distributor Platform</h2>
+              <div className="font-mono text-xs font-bold uppercase tracking-widest mb-6 border border-gray-800 inline-block px-3 py-1 group-hover:border-growmax-black">See It Live</div>
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tighter mb-4 uppercase">Ready to Transform Your Revenue Operations?</h2>
               <p className="font-mono text-sm text-gray-400 group-hover:text-growmax-black leading-relaxed max-w-md mb-6">
-                Self-service signup. Inventory, customer portal, and mobile sales app — ready in minutes. One-to-one simplicity for growing distributors.
+                See how Growmax Enterprise connects your entire revenue chain — from field sales to channel partners to end customers — in a live product demo.
               </p>
               
               <div className="space-y-4 mb-6">
                 <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest">
                   <span className="text-growmax-red">■</span>
-                  <span className="text-gray-400 group-hover:text-gray-600">Direct sales, one-to-one relationship</span>
+                  <span className="text-gray-400 group-hover:text-gray-600">Personalized to your industry & stack</span>
                 </div>
                 <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest">
                   <span className="text-growmax-red">■</span>
-                  <span className="text-gray-400 group-hover:text-gray-600">QuickBooks, Zoho, Xero</span>
+                  <span className="text-gray-400 group-hover:text-gray-600">Live walkthrough with a product expert</span>
                 </div>
                 <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-widest">
                   <span className="text-growmax-red">■</span>
-                  <span className="text-gray-400 group-hover:text-gray-600">Up to 100 Employees</span>
+                  <span className="text-gray-400 group-hover:text-gray-600">No commitment required</span>
                 </div>
               </div>
 
               <div className="inline-block border border-growmax-red px-3 py-2 font-mono text-xs uppercase tracking-widest text-growmax-red group-hover:bg-growmax-red group-hover:text-white">
-                Starts at $199/month
+                Custom Pricing — Tailored to your ecosystem
               </div>
             </div>
             <div className="flex items-center gap-4 font-mono font-bold uppercase tracking-widest mt-8 text-growmax-red">
-              Explore Growmax ARC <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-4" />
+              Book a Demo <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-4" />
             </div>
           </Link>
 

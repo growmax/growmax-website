@@ -8,24 +8,24 @@ import SiloVsConnected from "@/components/SiloVsConnected";
 
 const competitors = [
   {
-    name: "Growmax ARC",
-    tagline: "Best All-in-One Platform for SMB Distributors",
+    name: "Growmax Enterprise",
+    tagline: "Best Multi-Party Revenue Platform for Industrial Distributors",
     highlight: true,
-    description: "The all-in-one B2B distributor platform with self-service signup. Inventory management, customer portal, and mobile sales rep app — ready in minutes. Native Zoho, QuickBooks & Xero integration, offline field sales app, and multi-warehouse inventory.",
+    description: "The intelligent revenue operations platform that connects your entire ecosystem — sales reps, partners, dealers, and customers — on one platform with full visibility from quote to fulfillment. Where Handshake only covers field sales ordering, Growmax Enterprise connects your entire revenue chain with native SAP/Epicor integration and multi-party partner commerce.",
     pros: [
-      "Native Zoho & SAP ERP integration — no middleware",
+      "Multi-party ecosystem: Brand → Sales Reps → Partners → Customers with 100% visibility",
+      "Native SAP ECC/S4HANA and Epicor integration",
       "Offline-capable mobile app for field sales reps",
-      "Multi-warehouse inventory with intelligent allocation",
-      "Partner commerce portal for channel sales",
-      "Quote-to-order workflow with approval engine",
-      "Customer-specific pricing with volume brackets",
+      "Multi-version quote workflows with approval engine",
+      "Partner commerce portal for dealer and channel networks",
+      "Customer-specific pricing with volume brackets and SPAs",
     ],
     cons: [
       "Focused on B2B industrial — not ideal for DTC brands",
       "No native Shopify or WooCommerce integration",
     ],
-    pricing: "From $199/mo",
-    bestFor: "Industrial distributors, electrical wholesalers, building materials companies, manufacturers with complex pricing",
+    pricing: "Custom pricing",
+    bestFor: "Industrial distributors, electrical wholesalers, building materials companies, and manufacturers with 100+ employees and complex partner/dealer networks",
     rating: "4.8",
   },
   {
@@ -169,7 +169,7 @@ const whyHandshakeUsersSwitch = [
   {
     icon: Smartphone,
     title: "You Need Mobile-First Ordering",
-    description: "Handshake's strength was mobile ordering for field reps. Growmax ARC delivers the same mobile-first experience with offline capability, GPS visit logging, and customer-specific pricing — all on iOS and Android."
+    description: "Handshake's strength was mobile ordering for field reps. Growmax Enterprise delivers the same mobile-first experience with offline capability, GPS visit logging, and customer-specific pricing — all on iOS and Android."
   },
   {
     icon: Package,
@@ -179,17 +179,17 @@ const whyHandshakeUsersSwitch = [
   {
     icon: DollarSign,
     title: "You're Tired of Per-User Pricing",
-    description: "Enterprise platforms like Pepperi charge $500+/user/month. Growmax ARC starts at $199/mo with unlimited portal users — your total cost doesn't scale with every new sales rep."
+    description: "Enterprise platforms like Pepperi charge $500+/user/month. Growmax Enterprise starts at $199/mo with unlimited portal users — your total cost doesn't scale with every new sales rep."
   },
   {
     icon: Building2,
     title: "Your ERP Is the Source of Truth",
-    description: "Whether you run Zoho, QuickBooks, or Xero — your B2B platform should sync natively, not through fragile middleware. Growmax ARC connects directly to your accounting system with bidirectional real-time sync."
+    description: "Whether you run Zoho, QuickBooks, or Xero — your B2B platform should sync natively, not through fragile middleware. Growmax Enterprise connects directly to your accounting system with bidirectional real-time sync."
   },
   {
     icon: ShieldCheck,
     title: "You Need Partner Commerce",
-    description: "Handshake had no partner portal. Growmax ARC includes a full customer self-service portal where buyers place orders, track deliveries, and manage their accounts independently."
+    description: "Handshake had no partner portal. Growmax Enterprise includes a full customer self-service portal where buyers place orders, track deliveries, and manage their accounts independently."
   },
 ];
 
@@ -198,11 +198,11 @@ export default function HandshakeAlternatives() {
     <div className="min-h-screen bg-white selection:bg-growmax-red selection:text-white">
       <SEOHead
         title="Best Handshake Alternatives & Competitors in 2026 | Growmax"
-        description="Compare the best Handshake alternatives for B2B ordering: Growmax ARC, B2B Wave, Pepperi, NowCommerce, and Sana Commerce. Feature comparison, pricing, and pros/cons for SMB distributors."
+        description="Compare the best Handshake alternatives for B2B ordering: Growmax Enterprise, B2B Wave, Pepperi, NowCommerce, and Sana Commerce. Feature comparison, pricing, and pros/cons for SMB distributors."
         path="/comparisons/handshake-alternatives"
         structuredData={webPageSchema({
           title: "Best Handshake Alternatives & Competitors in 2026",
-          description: "Comprehensive comparison of Handshake alternatives for B2B wholesale ordering. Compare features, pricing, pros and cons of Growmax ARC, B2B Wave, Pepperi, NowCommerce, and Sana Commerce.",
+          description: "Comprehensive comparison of Handshake alternatives for B2B wholesale ordering. Compare features, pricing, pros and cons of Growmax Enterprise, B2B Wave, Pepperi, NowCommerce, and Sana Commerce.",
           path: "/comparisons/handshake-alternatives",
           keywords: [
             "handshake alternatives",
@@ -354,7 +354,7 @@ export default function HandshakeAlternatives() {
                 <div className="border border-gray-800 min-w-[800px]">
                   <div className="grid grid-cols-6 border-b border-gray-800 bg-gray-900">
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase">Feature</div>
-                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax ARC</div>
+                    <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-gray-800 font-bold">Growmax Enterprise</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">B2B Wave</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">Pepperi</div>
                     <div className="p-4 font-mono text-xs text-gray-400 uppercase text-center border-l border-gray-800">NowCommerce</div>
@@ -400,7 +400,7 @@ export default function HandshakeAlternatives() {
             <div className="border border-growmax-black min-w-[800px]" data-testid="section-pricing-comparison">
               <div className="grid grid-cols-6 border-b border-growmax-black bg-gray-50">
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase"></div>
-                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax ARC</div>
+                <div className="p-4 font-mono text-xs text-growmax-red uppercase text-center border-l border-growmax-black font-bold">Growmax Enterprise</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">B2B Wave</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">Pepperi</div>
                 <div className="p-4 font-mono text-xs text-gray-500 uppercase text-center border-l border-growmax-black font-bold">NowCommerce</div>
@@ -425,7 +425,7 @@ export default function HandshakeAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Verdict</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax ARC Is the Best Handshake Alternative for SMB Distributors</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4">Why Growmax Enterprise Is the Best Handshake Alternative for SMB Distributors</h2>
             <div className="w-16 h-1 bg-growmax-red"></div>
           </div>
 
@@ -434,17 +434,17 @@ export default function HandshakeAlternatives() {
               {
                 number: "01",
                 title: "Mobile-First, Like Handshake Was",
-                description: "Handshake was loved for its mobile ordering. Growmax ARC delivers the same mobile-first DNA — iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing. No connectivity? No problem."
+                description: "Handshake was loved for its mobile ordering. Growmax Enterprise delivers the same mobile-first DNA — iOS and Android apps with offline ordering, GPS visit logging, and customer-specific pricing. No connectivity? No problem."
               },
               {
                 number: "02",
                 title: "Built for Industrial Complexity",
-                description: "Unlike generic B2B platforms, Growmax ARC handles large SKU catalogs, multi-tier pricing matrices, volume brackets, and customer-specific discount structures natively."
+                description: "Unlike generic B2B platforms, Growmax Enterprise handles large SKU catalogs, multi-tier pricing matrices, volume brackets, and customer-specific discount structures natively."
               },
               {
                 number: "03",
                 title: "Native ERP Integration",
-                description: "Zoho, QuickBooks, Xero — Growmax ARC connects directly to your accounting system with bidirectional real-time sync. No middleware, no Zapier chains, no data lag."
+                description: "Zoho, QuickBooks, Xero — Growmax Enterprise connects directly to your accounting system with bidirectional real-time sync. No middleware, no Zapier chains, no data lag."
               },
               {
                 number: "04",
@@ -454,12 +454,12 @@ export default function HandshakeAlternatives() {
               {
                 number: "05",
                 title: "Multi-Warehouse Intelligence",
-                description: "Manage inventory across multiple warehouses with intelligent allocation logic. Growmax ARC ensures you never oversell, even when stock is distributed across multiple locations."
+                description: "Manage inventory across multiple warehouses with intelligent allocation logic. Growmax Enterprise ensures you never oversell, even when stock is distributed across multiple locations."
               },
               {
                 number: "06",
                 title: "2-4 Week Go-Live",
-                description: "While enterprise alternatives take 6-12 months, Growmax ARC deploys in 2-4 weeks. Self-service signup, import your catalog, connect your accounting system, train your team, go live. Starting at $199/mo."
+                description: "While enterprise alternatives take 6-12 months, Growmax Enterprise deploys in 2-4 weeks. Self-service signup, import your catalog, connect your accounting system, train your team, go live. Starting at $199/mo."
               },
             ].map((item, i) => (
               <div key={i} className="border border-gray-800 p-8 hover:border-growmax-red transition-colors group" data-testid={`card-advantage-${i}`}>
@@ -476,14 +476,14 @@ export default function HandshakeAlternatives() {
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <div className="mb-16">
             <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-4 font-bold">Migration Guide</div>
-            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Migrate from Handshake to Growmax ARC</h2>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-growmax-black">How to Migrate from Handshake to Growmax Enterprise</h2>
             <div className="w-16 h-1 bg-growmax-black"></div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6" data-testid="section-migration-steps">
             {[
               { step: "01", title: "Export Your Data", description: "Export your Handshake catalog, customer list, pricing, and order history. Our team provides migration templates." },
-              { step: "02", title: "Connect Your Accounting", description: "Link Growmax ARC to your Zoho, QuickBooks, or Xero instance. Native connectors handle the heavy lifting — no middleware needed." },
+              { step: "02", title: "Connect Your Accounting", description: "Link Growmax Enterprise to your Zoho, QuickBooks, or Xero instance. Native connectors handle the heavy lifting — no middleware needed." },
               { step: "03", title: "Configure & Test", description: "Set up customer-specific pricing, multi-warehouse rules, and approval workflows. Our team runs parallel testing with your live data." },
               { step: "04", title: "Go Live", description: "Deploy mobile apps to your field reps, invite customers to the portal, and switch over. Typical go-live: 2-4 weeks from kickoff." },
             ].map((item, i) => (
@@ -506,28 +506,28 @@ export default function HandshakeAlternatives() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8" data-testid="section-related-links">
-            <Link href="/arc/compare/b2b-wave">
+            <Link href="/comparisons/handshake-alternatives">
               <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-compare-b2bwave">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Comparison</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">ARC vs B2B Wave</h3>
-                <p className="text-sm text-gray-600 font-light leading-relaxed">Feature-by-feature comparison of Growmax ARC and B2B Wave for wholesale distributors.</p>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Enterprise vs B2B Wave</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">Feature-by-feature comparison of Growmax Enterprise and B2B Wave for wholesale distributors.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Comparison <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>
 
-            <Link href="/arc/compare/pepperi">
+            <Link href="/comparisons/handshake-alternatives">
               <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-compare-pepperi">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Comparison</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">ARC vs Pepperi</h3>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Enterprise vs Pepperi</h3>
                 <p className="text-sm text-gray-600 font-light leading-relaxed">See how ARC stacks up against Pepperi's enterprise CPG platform — at a fraction of the cost.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Read Comparison <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>
 
-            <Link href="/arc">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
+            <Link href="/revenue-platform">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-enterprise-platform">
                 <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Product</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC Platform</h3>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax Enterprise Platform</h3>
                 <p className="text-sm text-gray-600 font-light leading-relaxed">The connected distributor platform — ordering portal, field sales app, and real-time inventory.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
               </div>
@@ -591,7 +591,7 @@ export default function HandshakeAlternatives() {
         <div className="container mx-auto px-4">
           <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-6 font-bold">Deploy Now</div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-growmax-black" data-testid="text-cta-title">
-            Ready to replace Handshake?<br/>Deploy Growmax ARC today.
+            Ready to replace Handshake?<br/>Deploy Growmax Enterprise today.
           </h2>
           <p className="text-xl text-gray-600 font-light max-w-2xl mx-auto mb-10">
             Start your 14-day free trial. No credit card required. Migrate your catalog, connect your ERP, and go live in weeks — not months.
@@ -602,7 +602,7 @@ export default function HandshakeAlternatives() {
                 Book a Demo <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Link href="/arc/pricing">
+            <Link href="/revenue-platform">
               <Button variant="outline" className="border-growmax-black text-growmax-black hover:bg-growmax-black hover:text-white h-14 px-10 text-lg rounded-none transition-all duration-300 font-bold tracking-tight" data-testid="button-cta-pricing">
                 View Pricing
               </Button>

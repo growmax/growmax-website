@@ -30,7 +30,7 @@ const painPoints = [
     icon: Truck,
     title: "Field Service & Warranty",
     problem: "Field technicians on job sites without access to parts availability, pricing, or warranty status — leading to repeat visits and lost revenue.",
-    solution: "Growmax ARC mobile app gives field teams offline access to parts catalogs, warranty lookup, and instant order placement from the job site."
+    solution: "Growmax Enterprise mobile app gives field teams offline access to parts catalogs, warranty lookup, and instant order placement from the job site."
   },
   {
     icon: DollarSign,
@@ -394,10 +394,10 @@ export default function IndustrialManufacturing() {
               </div>
             </Link>
 
-            <Link href="/arc">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
-                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">For Distributors</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC</h3>
+            <Link href="/revenue-platform">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-enterprise-platform">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">For B2B Distributors</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax Enterprise</h3>
                 <p className="text-sm text-gray-600 font-light leading-relaxed">The connected distributor platform with ordering portal, field sales app, and Zoho integration.</p>
                 <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
               </div>

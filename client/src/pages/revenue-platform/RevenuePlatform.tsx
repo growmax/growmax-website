@@ -325,12 +325,12 @@ export default function RevenuePlatform() {
               </div>
             </Link>
 
-            <Link href="/arc">
-              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-arc-platform">
-                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">For SMB Distributors</div>
-                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">Growmax ARC</h3>
-                <p className="text-sm text-gray-600 font-light leading-relaxed">All-in-one distributor platform with customer portal, field sales app, and QuickBooks/Zoho/Xero integration. $199/month.</p>
-                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Explore ARC <ArrowRight className="w-3 h-3" /></div>
+            <Link href="/comparisons/sana-commerce-alternatives">
+              <div className="border-2 border-growmax-black p-8 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 cursor-pointer h-full" data-testid="link-sana-compare">
+                <div className="font-mono text-xs text-growmax-red uppercase tracking-widest mb-3 font-bold">Comparison</div>
+                <h3 className="text-lg font-bold tracking-tight mb-3 uppercase">vs Sana Commerce</h3>
+                <p className="text-sm text-gray-600 font-light leading-relaxed">See how Growmax Enterprise compares to Sana Commerce on cost, implementation time, and ecosystem capabilities.</p>
+                <div className="mt-4 font-mono text-xs text-growmax-red uppercase font-bold flex items-center gap-1">Compare Platforms <ArrowRight className="w-3 h-3" /></div>
               </div>
             </Link>
 
