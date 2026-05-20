@@ -5,7 +5,8 @@ import { ChevronDown, Menu, X } from "lucide-react";
 
 interface DropdownItem {
   label: string;
-  href: string;
+  href?: string;
+  type?: "link" | "section";
 }
 
 interface NavDropdown {
@@ -18,14 +19,10 @@ const navDropdowns: NavDropdown[] = [
     label: "Growmax Enterprise",
     items: [
       { label: "Growmax Enterprise", href: "/revenue-platform" },
-      { label: "Enterprise Comparison", href: "/revenue-platform/compare" },
       { label: "Dealer Portals", href: "/revenue-platform/dealer-portals" },
       { label: "Partner Commerce", href: "/revenue-platform/partner-commerce" },
       { label: "Spares Portals", href: "/revenue-platform/spares-portals" },
       { label: "SAP Integration", href: "/revenue-platform/sap-integration" },
-      { label: "vs Sana Commerce", href: "/comparisons/sana-commerce-alternatives" },
-      { label: "vs SAP Commerce Cloud", href: "/comparisons/sap-commerce-cloud-alternatives" },
-      { label: "vs Salesforce Commerce", href: "/comparisons/salesforce-commerce-alternatives" },
     ],
   },
   {
@@ -48,11 +45,23 @@ const navDropdowns: NavDropdown[] = [
   {
     label: "Insights for B2B",
     items: [
+      { label: "Content", type: "section" },
       { label: "All Articles", href: "/blog" },
       { label: "Spare Parts Guide", href: "/solutions/spare-parts-ecommerce" },
-      { label: "Shopify Plus B2B Alternatives", href: "/comparisons/shopify-plus-b2b-alternatives" },
-      { label: "Magento B2B Alternatives", href: "/comparisons/magento-b2b-alternatives" },
-      { label: "SAP Commerce Alternatives", href: "/comparisons/sap-commerce-cloud-alternatives" },
+      { label: "Comparisons", type: "section" },
+      { label: "Enterprise vs Corevist & SAP", href: "/revenue-platform/compare" },
+      { label: "vs Sana Commerce", href: "/comparisons/sana-commerce-alternatives" },
+      { label: "vs SAP Commerce Cloud", href: "/comparisons/sap-commerce-cloud-alternatives" },
+      { label: "vs Salesforce Commerce", href: "/comparisons/salesforce-commerce-alternatives" },
+      { label: "vs Shopify Plus B2B", href: "/comparisons/shopify-plus-b2b-alternatives" },
+      { label: "vs Magento B2B", href: "/comparisons/magento-b2b-alternatives" },
+      { label: "vs BigCommerce B2B", href: "/comparisons/bigcommerce-b2b-alternatives" },
+      { label: "vs OroCommerce", href: "/comparisons/orocommerce-alternatives" },
+      { label: "vs Dynamics 365 Commerce", href: "/comparisons/dynamics-365-commerce-alternatives" },
+      { label: "vs WooCommerce B2B", href: "/comparisons/woocommerce-b2b-alternatives" },
+      { label: "vs Zoho Commerce", href: "/comparisons/zoho-commerce-alternatives" },
+      { label: "vs Oracle Commerce", href: "/comparisons/oracle-commerce-alternatives" },
+      { label: "vs NetSuite SuiteCommerce", href: "/comparisons/netsuite-suitecommerce-alternatives" },
     ],
   },
 ];
@@ -97,17 +106,26 @@ function DesktopDropdown({ dropdown }: { dropdown: NavDropdown }) {
       </button>
       {open && (
         <div className="absolute top-full left-0 min-w-[280px] bg-white border-2 border-growmax-black z-50 max-h-[70vh] overflow-y-auto">
-          {dropdown.items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block px-6 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors"
-              onClick={() => setOpen(false)}
-              data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {dropdown.items.map((item, i) =>
+            item.type === "section" ? (
+              <div
+                key={`section-${i}`}
+                className="px-6 py-2 font-mono text-[10px] uppercase tracking-widest text-growmax-red bg-gray-50 border-b border-growmax-gray"
+              >
+                {item.label}
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href!}
+                className="block px-6 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors"
+                onClick={() => setOpen(false)}
+                data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+              >
+                {item.label}
+              </Link>
+            )
+          )}
         </div>
       )}
     </div>
@@ -160,17 +178,26 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
             </button>
             {expandedSections.has(dropdown.label) && (
               <div className="bg-gray-50 border-t border-growmax-gray">
-                {dropdown.items.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="block px-10 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors"
-                    onClick={onClose}
-                    data-testid={`mobile-link-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {dropdown.items.map((item, i) =>
+                  item.type === "section" ? (
+                    <div
+                      key={`section-${i}`}
+                      className="px-10 py-2 font-mono text-[10px] uppercase tracking-widest text-growmax-red bg-gray-100 border-b border-growmax-gray"
+                    >
+                      {item.label}
+                    </div>
+                  ) : (
+                    <Link
+                      key={item.href}
+                      href={item.href!}
+                      className="block px-10 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors"
+                      onClick={onClose}
+                      data-testid={`mobile-link-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      {item.label}
+                    </Link>
+                  )
+                )}
               </div>
             )}
           </div>
