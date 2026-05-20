@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Best Zoho Commerce Alternatives for B2B Manufacturers (2026) | Growmax',
   description: 'Zoho Commerce lacks the enterprise B2B depth for industrial distributors. Compare the best alternatives with native ERP integration, partner portals, and complex pricing.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/zoho-commerce-alternatives' },
-  openGraph: { title: 'Best Zoho Commerce Alternatives (2026)', description: 'Compare top Zoho Commerce alternatives for B2B manufacturers.', url: 'https://www.growmax.io/comparisons/zoho-commerce-alternatives' },
+  openGraph: { title: 'Best Zoho Commerce Alternatives (2026)', description: 'Compare top Zoho Commerce alternatives for B2B manufacturers.', url: 'https://www.growmax.io/comparisons/zoho-commerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const competitors = [
@@ -23,7 +23,7 @@ export default function ZohoCommerceAlternatives() {
   const schema = webPageSchema({ title: 'Best Zoho Commerce Alternatives (2026)', description: 'Compare top Zoho Commerce alternatives for B2B manufacturers.', path: '/comparisons/zoho-commerce-alternatives', keywords: ['Zoho Commerce alternatives', 'Zoho ecommerce competitors', 'B2B ecommerce platform'] })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <section className="pt-24 pb-16 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 max-w-4xl">

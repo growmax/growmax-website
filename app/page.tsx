@@ -6,6 +6,7 @@ import { SiemensLogo, SchwingSttetterLogo, OBOBettermannLogo } from '@/component
 import EcosystemFlowDiagram from '@/components/EcosystemFlowDiagram'
 import HomeComparisonTabs from './HomeComparisonTabs'
 import { storage } from '@/lib/storage'
+import { organizationSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
   title: 'Growmax | B2B Revenue Operations Platform for Manufacturers & Distributors',
@@ -16,8 +17,7 @@ export const metadata: Metadata = {
     description: 'Connect your sales reps, partners, and customers on one intelligent platform — from quote to fulfillment with full visibility.',
     url: 'https://www.growmax.io',
     siteName: 'Growmax',
-    type: 'website',
-  },
+    type: 'website', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 type PostPreview = { id: number; title: string; category: string; createdAt: Date | null; slug: string; author: string; excerpt: string }
@@ -71,6 +71,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen pt-16 selection:bg-growmax-red selection:text-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema()) }} />
       {/* HERO */}
       <section className="relative min-h-[90vh] flex flex-col justify-center border-b-2 border-growmax-black overflow-hidden bg-growmax-white bg-grid-blueprint">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-growmax-white pointer-events-none opacity-80"></div>

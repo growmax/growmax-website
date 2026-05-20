@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Best Sana Commerce Alternatives for SAP-Integrated B2B Commerce (2026) | Growmax',
   description: 'Looking for Sana Commerce alternatives? Compare the top SAP-integrated B2B commerce platforms. See why manufacturers choose Growmax Enterprise over Sana Commerce.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/sana-commerce-alternatives' },
-  openGraph: { title: 'Best Sana Commerce Alternatives (2026)', description: 'Compare top SAP-integrated B2B commerce alternatives to Sana Commerce.', url: 'https://www.growmax.io/comparisons/sana-commerce-alternatives' },
+  openGraph: { title: 'Best Sana Commerce Alternatives (2026)', description: 'Compare top SAP-integrated B2B commerce alternatives to Sana Commerce.', url: 'https://www.growmax.io/comparisons/sana-commerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const competitors = [
@@ -23,7 +23,7 @@ export default function SanaCommerceAlternatives() {
   const schema = webPageSchema({ title: 'Best Sana Commerce Alternatives (2026)', description: 'Compare top SAP-integrated B2B commerce alternatives to Sana Commerce.', path: '/comparisons/sana-commerce-alternatives', keywords: ['Sana Commerce alternatives', 'Sana Commerce competitors', 'SAP integrated B2B ecommerce'] })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <section className="pt-24 pb-16 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 max-w-4xl">

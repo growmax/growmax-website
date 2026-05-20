@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Best OroCommerce Alternatives for B2B Manufacturers (2026) | Growmax',
   description: 'Looking for OroCommerce alternatives? Compare top B2B commerce platforms for manufacturers. See why industrial companies choose Growmax Enterprise over OroCommerce.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/orocommerce-alternatives' },
-  openGraph: { title: 'Best OroCommerce Alternatives (2026)', description: 'Compare top B2B commerce alternatives to OroCommerce.', url: 'https://www.growmax.io/comparisons/orocommerce-alternatives' },
+  openGraph: { title: 'Best OroCommerce Alternatives (2026)', description: 'Compare top B2B commerce alternatives to OroCommerce.', url: 'https://www.growmax.io/comparisons/orocommerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const competitors = [
@@ -23,7 +23,7 @@ export default function OroCommerceAlternatives() {
   const schema = webPageSchema({ title: 'Best OroCommerce Alternatives (2026)', description: 'Compare top B2B commerce alternatives to OroCommerce.', path: '/comparisons/orocommerce-alternatives', keywords: ['OroCommerce alternatives', 'OroCommerce competitors', 'open-source B2B ecommerce alternative'] })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <section className="pt-24 pb-16 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 max-w-4xl">

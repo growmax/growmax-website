@@ -9,14 +9,14 @@ export const metadata: Metadata = {
   title: 'About Growmax | B2B Commerce for Industrial Distributors',
   description: 'Growmax delivers connected B2B commerce platforms for industrial distributors and manufacturers. Founded by ex-Siemens and ex-SAP leaders with 25+ years of industry experience.',
   alternates: { canonical: 'https://www.growmax.io/company/about' },
-  openGraph: { title: 'About Growmax | B2B Commerce for Industrial Distributors', description: 'Founded by ex-Siemens and ex-SAP leaders with 25+ years of industry experience.', url: 'https://www.growmax.io/company/about' },
+  openGraph: { title: 'About Growmax | B2B Commerce for Industrial Distributors', description: 'Founded by ex-Siemens and ex-SAP leaders with 25+ years of industry experience.', url: 'https://www.growmax.io/company/about', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 export default function About() {
   const schema = aboutPageSchema()
   return (
     <div className="min-h-screen bg-growmax-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 
       <section className="py-24 md:py-32 bg-growmax-black text-white bg-dots-dark border-b-4 border-growmax-red">
         <div className="container mx-auto px-4 md:px-8">

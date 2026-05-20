@@ -31,10 +31,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/comparisons/handshake-alternatives/page.js"
     ],
+    "/industries/electrical-distributors/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/industries/electrical-distributors/page.js"
+    ],
+    "/demo/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/demo/page.js"
+    ],
     "/blog/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/blog/page.js"
+    ],
+    "/solutions/spare-parts-ecommerce/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/solutions/spare-parts-ecommerce/page.js"
     ]
   }
 }

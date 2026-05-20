@@ -17,8 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         title: `${post.title} | Growmax Intelligence`,
         description: post.excerpt,
         url: `https://www.growmax.io/blog/${post.slug}`,
-        type: 'article',
-      },
+        type: 'article', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
       twitter: { card: 'summary_large_image', title: `${post.title} | Growmax Intelligence`, description: post.excerpt },
       alternates: { canonical: `https://www.growmax.io/blog/${post.slug}` },
     }

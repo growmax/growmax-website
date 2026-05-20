@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Best NetSuite SuiteCommerce Alternatives for B2B Manufacturers (2026) | Growmax',
   description: 'Looking for NetSuite SuiteCommerce alternatives? Compare top B2B commerce platforms for manufacturers with SAP integration support and partner ecosystem management.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/netsuite-suitecommerce-alternatives' },
-  openGraph: { title: 'Best NetSuite SuiteCommerce Alternatives (2026)', description: 'Compare top NetSuite SuiteCommerce alternatives for B2B manufacturers.', url: 'https://www.growmax.io/comparisons/netsuite-suitecommerce-alternatives' },
+  openGraph: { title: 'Best NetSuite SuiteCommerce Alternatives (2026)', description: 'Compare top NetSuite SuiteCommerce alternatives for B2B manufacturers.', url: 'https://www.growmax.io/comparisons/netsuite-suitecommerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const competitors = [
@@ -23,7 +23,7 @@ export default function NetSuiteSuiteCommerceAlternatives() {
   const schema = webPageSchema({ title: 'Best NetSuite SuiteCommerce Alternatives (2026)', description: 'Compare top NetSuite SuiteCommerce alternatives for B2B manufacturers.', path: '/comparisons/netsuite-suitecommerce-alternatives', keywords: ['NetSuite SuiteCommerce alternatives', 'NetSuite ecommerce alternatives', 'B2B commerce platform for manufacturers'] })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <section className="pt-24 pb-16 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 max-w-4xl">

@@ -13,8 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Growmax vs Corevist vs SAP Commerce Cloud',
     description: 'Feature-by-feature analysis of enterprise B2B commerce platforms with SAP integration.',
-    url: 'https://www.growmax.io/revenue-platform/compare',
-  },
+    url: 'https://www.growmax.io/revenue-platform/compare', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const featureMatrix = [
@@ -99,7 +98,7 @@ export default function CompareEnterprise() {
   })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 
       <section className="pt-24 pb-24 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />

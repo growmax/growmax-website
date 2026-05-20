@@ -9,14 +9,14 @@ export const metadata: Metadata = {
   title: 'Growmax Enterprise | Intelligent Revenue Operations Platform | Growmax',
   description: 'Connect your sales reps, partners, and customers on one intelligent platform. Multi-party revenue ecosystem with native SAP integration, multi-version quotes, partner commerce, and dealer portals.',
   alternates: { canonical: 'https://www.growmax.io/revenue-platform' },
-  openGraph: { title: 'Growmax Enterprise | Intelligent Revenue Operations Platform', description: 'Connect your sales reps, partners, and customers on one intelligent platform.', url: 'https://www.growmax.io/revenue-platform' },
+  openGraph: { title: 'Growmax Enterprise | Intelligent Revenue Operations Platform', description: 'Connect your sales reps, partners, and customers on one intelligent platform.', url: 'https://www.growmax.io/revenue-platform', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 export default function RevenuePlatform() {
   const schema = softwareApplicationSchema({ name: 'Growmax Enterprise', description: 'Intelligent Revenue Operations Platform connecting sales reps, partners, and customers with native SAP integration, multi-version quotes, partner commerce, and full visibility across the revenue chain.', path: '/revenue-platform', category: 'BusinessApplication' })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
 
       <section className="pt-24 pb-24 border-b border-gray-200 bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none"></div>

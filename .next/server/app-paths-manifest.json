@@ -1,7 +1,10 @@
 {
   "/page": "app/page.js",
+  "/company/about/page": "app/company/about/page.js",
   "/revenue-platform/page": "app/revenue-platform/page.js",
   "/comparisons/handshake-alternatives/page": "app/comparisons/handshake-alternatives/page.js",
+  "/industries/electrical-distributors/page": "app/industries/electrical-distributors/page.js",
+  "/demo/page": "app/demo/page.js",
   "/blog/page": "app/blog/page.js",
-  "/company/about/page": "app/company/about/page.js"
+  "/solutions/spare-parts-ecommerce/page": "app/solutions/spare-parts-ecommerce/page.js"
 }

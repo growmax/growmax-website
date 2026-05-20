@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Best SAP Commerce Cloud Alternatives for Manufacturers (2026) | Growmax',
   description: 'SAP Commerce Cloud costs $700K-$4M+ over 3 years and takes 12-18 months to deploy. Compare the best alternatives for SAP-integrated B2B commerce at lower cost and speed.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/sap-commerce-cloud-alternatives' },
-  openGraph: { title: 'Best SAP Commerce Cloud Alternatives (2026)', description: 'Compare top SAP Commerce Cloud alternatives for manufacturers.', url: 'https://www.growmax.io/comparisons/sap-commerce-cloud-alternatives' },
+  openGraph: { title: 'Best SAP Commerce Cloud Alternatives (2026)', description: 'Compare top SAP Commerce Cloud alternatives for manufacturers.', url: 'https://www.growmax.io/comparisons/sap-commerce-cloud-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const competitors = [
@@ -23,7 +23,7 @@ export default function SAPCommerceCloudAlternatives() {
   const schema = webPageSchema({ title: 'Best SAP Commerce Cloud Alternatives (2026)', description: 'Compare top SAP Commerce Cloud alternatives for manufacturers.', path: '/comparisons/sap-commerce-cloud-alternatives', keywords: ['SAP Commerce Cloud alternatives', 'SAP Hybris alternatives', 'SAP integrated B2B ecommerce'] })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <section className="pt-24 pb-16 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 max-w-4xl">

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'B2B eCommerce for Automotive Aftermarket Distributors | Growmax',
   description: 'Revenue operations platform for automotive aftermarket distributors. Part number lookup, fitment guides, garage portals, and ERP integration for auto parts distribution.',
   alternates: { canonical: 'https://www.growmax.io/industries/automotive-aftermarket' },
-  openGraph: { title: 'B2B eCommerce for Automotive Aftermarket Distributors | Growmax', description: 'Revenue operations platform for automotive aftermarket distributors.', url: 'https://www.growmax.io/industries/automotive-aftermarket' },
+  openGraph: { title: 'B2B eCommerce for Automotive Aftermarket Distributors | Growmax', description: 'Revenue operations platform for automotive aftermarket distributors.', url: 'https://www.growmax.io/industries/automotive-aftermarket', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const painPoints = [
@@ -26,7 +26,7 @@ export default function AutomotiveAftermarket() {
   const schema = webPageSchema({ title: 'B2B eCommerce for Automotive Aftermarket Distributors', description: 'Revenue operations platform for automotive aftermarket distributors.', path: '/industries/automotive-aftermarket', keywords: ['automotive aftermarket B2B ecommerce', 'auto parts distributor portal', 'fitment catalog software'] })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <section className="pt-24 pb-24 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 max-w-4xl">

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'B2B eCommerce for Packaging Distributors | Growmax',
   description: 'Revenue operations platform for packaging distributors. Custom packaging quoting, print procurement, inventory management, and ERP integration for packaging supply distribution.',
   alternates: { canonical: 'https://www.growmax.io/industries/packaging-distributors' },
-  openGraph: { title: 'B2B eCommerce for Packaging Distributors | Growmax', description: 'Revenue operations platform for packaging distributors.', url: 'https://www.growmax.io/industries/packaging-distributors' },
+  openGraph: { title: 'B2B eCommerce for Packaging Distributors | Growmax', description: 'Revenue operations platform for packaging distributors.', url: 'https://www.growmax.io/industries/packaging-distributors', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const painPoints = [
@@ -26,7 +26,7 @@ export default function PackagingDistributors() {
   const schema = webPageSchema({ title: 'B2B eCommerce for Packaging Distributors', description: 'Revenue operations platform for packaging distributors.', path: '/industries/packaging-distributors', keywords: ['packaging distributor software', 'custom packaging B2B ecommerce', 'packaging supply platform'] })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <section className="pt-24 pb-24 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 max-w-4xl">

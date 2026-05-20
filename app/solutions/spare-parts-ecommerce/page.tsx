@@ -12,8 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Spare Parts eCommerce Platform | Growmax',
     description: 'Spare parts eCommerce platform for manufacturers and aftermarket distributors.',
-    url: 'https://www.growmax.io/solutions/spare-parts-ecommerce',
-  },
+    url: 'https://www.growmax.io/solutions/spare-parts-ecommerce', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const sparePartsTypes = [
@@ -62,7 +61,7 @@ export default function SparePartsHub() {
 
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqSchema }} />
 
       <section className="pt-24 pb-24 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">

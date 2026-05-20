@@ -11,8 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Write For Us | Contribute to Growmax Intelligence',
     description: 'Contribute guest posts to Growmax Intelligence.',
-    url: 'https://www.growmax.io/write-for-us',
-  },
+    url: 'https://www.growmax.io/write-for-us', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const topics = [

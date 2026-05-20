@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Best Shopify Plus B2B Alternatives for Industrial Manufacturers (2026) | Growmax',
   description: 'Looking for Shopify Plus B2B alternatives? Compare the top B2B commerce platforms built for industrial manufacturers and distributors with complex pricing and ERP needs.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/shopify-plus-b2b-alternatives' },
-  openGraph: { title: 'Best Shopify Plus B2B Alternatives (2026)', description: 'Compare top Shopify Plus B2B alternatives for industrial manufacturers.', url: 'https://www.growmax.io/comparisons/shopify-plus-b2b-alternatives' },
+  openGraph: { title: 'Best Shopify Plus B2B Alternatives (2026)', description: 'Compare top Shopify Plus B2B alternatives for industrial manufacturers.', url: 'https://www.growmax.io/comparisons/shopify-plus-b2b-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 const competitors = [
@@ -23,7 +23,7 @@ export default function ShopifyPlusB2BAlternatives() {
   const schema = webPageSchema({ title: 'Best Shopify Plus B2B Alternatives (2026)', description: 'Compare top Shopify Plus B2B alternatives for industrial manufacturers.', path: '/comparisons/shopify-plus-b2b-alternatives', keywords: ['Shopify Plus B2B alternatives', 'Shopify wholesale alternatives', 'industrial B2B ecommerce platform'] })
   return (
     <div className="min-h-screen bg-white pt-16 selection:bg-growmax-red selection:text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
       <section className="pt-24 pb-16 border-b-4 border-growmax-black bg-grid-blueprint relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-white pointer-events-none" />
         <div className="container mx-auto px-4 md:px-8 relative z-10 max-w-4xl">

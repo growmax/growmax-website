@@ -10,8 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Growmax Intelligence | B2B Commerce & Distribution Insights',
     description: 'Expert insights on B2B eCommerce, industrial distribution, spare parts management, and sales automation.',
-    url: 'https://www.growmax.io/blog',
-  },
+    url: 'https://www.growmax.io/blog', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
 }
 
 export default function BlogPage() {
