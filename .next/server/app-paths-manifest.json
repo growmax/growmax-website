@@ -1,10 +1,10 @@
 {
-  "/page": "app/page.js",
-  "/company/about/page": "app/company/about/page.js",
-  "/revenue-platform/page": "app/revenue-platform/page.js",
-  "/comparisons/handshake-alternatives/page": "app/comparisons/handshake-alternatives/page.js",
-  "/industries/electrical-distributors/page": "app/industries/electrical-distributors/page.js",
-  "/demo/page": "app/demo/page.js",
-  "/blog/page": "app/blog/page.js",
-  "/admin/login/page": "app/admin/login/page.js"
+  "/api/admin/login/route": "app/api/admin/login/route.js",
+  "/api/admin/posts/route": "app/api/admin/posts/route.js",
+  "/api/admin/posts/[id]/route": "app/api/admin/posts/[id]/route.js",
+  "/api/blog/[slug]/route": "app/api/blog/[slug]/route.js",
+  "/api/admin/logout/route": "app/api/admin/logout/route.js",
+  "/api/blog/route": "app/api/blog/route.js",
+  "/blog/[slug]/page": "app/blog/[slug]/page.js",
+  "/page": "app/page.js"
 }
