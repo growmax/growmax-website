@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P4.3",
-  "updatedAt": "2026-09-26T19:56:08.693Z",
+  "updatedAt": "2026-09-26T19:59:42.576Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -107,6 +107,14 @@
         "wwwA": 14400,
         "apexA": 14400,
         "evidence": "docs/migration/evidence/P6.3-ttl-precheck.json"
+      },
+      "ttlAfterOwnerChange": {
+        "at": "2026-09-26T19:59:42Z",
+        "ns": "ns-cloud-a1.googledomains.com",
+        "wwwA": 300,
+        "apexA": 14400,
+        "wwwSafeAfter": "2026-09-26T23:59:42.000Z",
+        "note": "www lowered by the owner (verified at the authoritative NS). Resolvers may hold the old 14400 s record until wwwSafeAfter. Apex still 14400."
       }
     },
     "git": {
@@ -214,7 +222,7 @@
     "ownerActions": [
       {
         "id": "OA-TTL",
-        "status": "open",
+        "status": "partly done: www verified at 300 s (2026-09-26T19:59:42Z); apex A records still 14400 s (recommended: lower them too, since Step C apex is RECOMMENDED)",
         "action": "At Squarespace Domains (domains.squarespace.com) -> growmax.io -> DNS: set the TTL of the www A record (and the 4 apex A records) to 300 s, at least 24 h before the DNS switch. Today they are 14400 s (4 h), so without this a switch or rollback takes up to 4 h to propagate and the runbook must wait >= 4 h between Step 0 and Step B",
         "since": "2026-09-26T17:05:00Z"
       }
@@ -282,7 +290,7 @@
         {
           "id": "C7",
           "step": "P6.3 (A2 precondition)",
-          "status": "early capture 2026-09-26T17:01Z: www A TTL 14400 s, apex A TTL 14400 s at ns-cloud-a1 (P6.3-ttl-precheck.json); _dmarc and google._domainkey TXT on the never-touch list. Owner should lower www (and apex) TTL to 300; P6.3 re-captures; A2 needs <= 300 or an enforced >= 14400 s wait",
+          "status": "early capture 2026-09-26T17:01Z: www A TTL 14400 s, apex A TTL 14400 s at ns-cloud-a1 (P6.3-ttl-precheck.json); _dmarc and google._domainkey TXT on the never-touch list. Owner should lower www (and apex) TTL to 300; P6.3 re-captures; A2 needs <= 300 or an enforced >= 14400 s wait; UPDATE 2026-09-26T19:59:42Z: www TTL now 300 at the authoritative NS (owner lowered it); apex still 14400; old-TTL caches expire by 2026-09-26T23:59:42.000Z",
           "summary": "authoritative TTLs of the www and apex A records via dig @ns-cloud-a1.googledomains.com from the Sandbox, plus _dmarc and google._domainkey TXT for the never-touch list; the runbook shows the TTLs; A2 needs www TTL <= 300 or an enforced wait"
         },
         {

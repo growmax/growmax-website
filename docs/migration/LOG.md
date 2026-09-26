@@ -157,3 +157,7 @@
 - 2026-09-26T19:55:53.292Z [P4.3] step pending → in_progress
 - 2026-09-26T19:55:53.347Z [P4.1] Launching P4 (mig-p4-data.js, amended with A1 C2): args dbPath neon-https, dumpPath sandbox-sdk, identity passed at P0.2 (not deferred). Target growmax-db-iad1 PG 18.6, empty.
 - 2026-09-26T19:56:08.694Z set facts.runs.p4
+- 2026-09-26T19:59:42.366Z set facts.dns
+- 2026-09-26T19:59:42.481Z set facts.ownerActions
+- 2026-09-26T19:59:42.577Z set advisor.A1
+- 2026-09-26T19:59:42.628Z [P6.3] OWNER ACTION verified (2026-09-26T19:59:42Z): the www A TTL is 300 s at ns-cloud-a1 (value 34.111.179.208 unchanged). Apex A records are still 14400 s; the owner is asked to lower them too (Step C recommended). A DNS switch should not happen before 2026-09-26T23:59:42.000Z (old-TTL caches).
