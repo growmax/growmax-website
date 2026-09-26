@@ -97,3 +97,12 @@
 - 2026-09-26T14:52:43.999Z [P1.6] A1 = GO_WITH_CONDITIONS (fable/max): 12 conditions, tracked individually in STATE advisor.A1. C1 done now (SPEC-01 §3 addendum and §8 C3 bullet, ORCHESTRATOR §9 row, mig-p3-infra ctx rewritten, STATE config, sin1 ids moved to facts.neon.legacySin1). C4 already met. C3/C8/C11 encoded in mig-p3-infra.js and mig-p2-code.js. Plan changes A (compact manifest, C9) and B (no app guard; size monitoring plus the H4 cache proof, C10) approved. PLAN §3 corrections: next.config.ts has no duplicate /arc sources; 7 literal sources overlap GSC sources with different destinations (the GSC list comes first). Dependencies unchanged: P1 -> {P2 || P3} -> P4 -> P5.
 - 2026-09-26T14:52:44.053Z [P1.6] step in_progress → done — A1 GO_WITH_CONDITIONS; conditions tracked in advisor.A1
 - 2026-09-26T14:52:44.126Z gate G1 → passed (by verifier (P1-G1-verify, P1.3 summary) + reviewer (harness review r5) + advisor A1) — Rows 1.1-1.6 verified by migration-verifier (inventory re-derived byte-identical; Task B read-only proof re-run after the fix); 1.3 reviewer r5 approve; 1.7 A1 GO_WITH_CONDITIONS (12 conditions in advisor.A1)
+- 2026-09-26T14:53:22.066Z [P2.1] step pending → in_progress
+- 2026-09-26T14:53:22.129Z [P2.2] step pending → in_progress
+- 2026-09-26T14:53:22.188Z [P2.3] step pending → in_progress
+- 2026-09-26T14:53:22.247Z [P3.1] step pending → in_progress
+- 2026-09-26T14:53:22.306Z [P3.2] step pending → in_progress
+- 2026-09-26T14:53:22.361Z [P3.3] step pending → in_progress
+- 2026-09-26T14:53:22.418Z [P3.4] step pending → in_progress
+- 2026-09-26T14:53:22.482Z [P3.5] step pending → in_progress
+- 2026-09-26T14:53:22.533Z Launching P2 (mig-p2-code.js) and P3 (mig-p3-infra.js) in parallel per A1 C11. P3 args: teamId, pgMajor 16, vercelApi cli.
