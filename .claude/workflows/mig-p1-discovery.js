@@ -77,16 +77,23 @@ for (let round = 1; needReview && round <= maxRounds; round++) {
   if (!review) break
   if (review.approve && !review.blocking.length) break
   if (round === maxRounds) break
-  const extra = round >= 3 && a.extraFixesFile
-    ? ` Also read the nonBlocking findings in ${a.extraFixesFile} and fix the ones in your directory, unless a fix would conflict with the spec or reach outside your directory; list any you skip and why.`
+  // Round 3 reads args.extraFixesFile (its nonBlocking list); later rounds read args.extraFixesByRound[round]
+  // (its orchestrator-curated actionableNonBlocking list). Round >= 4 is escalation rung 4: opus deep fix.
+  const xf = (a.extraFixesByRound && a.extraFixesByRound[round]) || (round === 3 ? a.extraFixesFile : null)
+  const extra = !xf ? '' : round === 3
+    ? ` Also read the nonBlocking findings in ${xf} and fix the ones in your directory, unless a fix would conflict with the spec or reach outside your directory; list any you skip and why.`
+    : ` Also read the actionableNonBlocking list in ${xf} and fix the ones in your directory, unless a fix would conflict with the spec or reach outside your directory; list any you skip and why.`
+  const deep = round >= 4
+    ? ` This is escalation rung 4 (deep fix): apply each finding's fix precisely, add a self-test case that would have caught each regression, and change nothing outside the findings' scope.`
     : ''
+  const fixModel = round >= 4 ? 'opus' : 'sonnet'
   const dbFix = review.blocking.filter(b => (b.file || '').includes('scripts/migration/db'))
   const hFix = review.blocking.filter(b => !(b.file || '').includes('scripts/migration/db'))
   await parallel([
-    ...(dbFix.length || extra ? [() => agent(role('db-operator') + runnerNote + `Fix these blocking review findings in scripts/migration/db/ and re-run the sync self-test (${EV}/P1.1-sync-selftest.json): ${JSON.stringify(dbFix)}` + extra,
-      { label: `P1.1 fix r${round}`, phase: 'Review', model: 'sonnet', effort: 'high', schema: RESULT })] : []),
-    ...(hFix.length || extra ? [() => agent(role('implementer') + runnerNote + `Fix these blocking review findings in the parity harness, re-run selftest.mjs and rewrite ${EV}/P1.2-harness-selftest.json: ${JSON.stringify(hFix)}` + extra,
-      { label: `P1.2 fix r${round}`, phase: 'Review', model: 'sonnet', effort: 'high', schema: RESULT })] : []),
+    ...(dbFix.length || extra ? [() => agent(role('db-operator') + runnerNote + `Fix these blocking review findings in scripts/migration/db/ and re-run the sync self-test (${EV}/P1.1-sync-selftest.json): ${JSON.stringify(dbFix)}` + extra + deep,
+      { label: `P1.1 fix r${round}`, phase: 'Review', model: fixModel, effort: 'high', schema: RESULT })] : []),
+    ...(hFix.length || extra ? [() => agent(role('implementer') + runnerNote + `Fix these blocking review findings in the parity harness, re-run selftest.mjs and rewrite ${EV}/P1.2-harness-selftest.json: ${JSON.stringify(hFix)}` + extra + deep,
+      { label: `P1.2 fix r${round}`, phase: 'Review', model: fixModel, effort: 'high', schema: RESULT })] : []),
   ])
 }
 const reviewOk = !needReview || (review && review.approve && !review.blocking.length)

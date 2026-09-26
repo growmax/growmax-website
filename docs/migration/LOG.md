@@ -68,3 +68,9 @@
 - 2026-09-26T13:22:01.210Z [P1.1] step failed → in_progress
 - 2026-09-26T13:22:01.272Z [P1.2] step failed → in_progress
 - 2026-09-26T13:22:01.432Z set facts.runs.p1
+- 2026-09-26T13:50:50.645Z [P1.1] step in_progress → failed — Attempt 2 (rung 3): r3 findings verified fixed, but review r4 found a regression: runGapVerifyInit records SOURCE ids as synced after the copy, so a source row committed between dump/verify and the init read is marked synced but never copied, then permanently treated as target_deleted (lead/PII loss).
+- 2026-09-26T13:50:50.704Z [P1.2] step in_progress → failed — Attempt 2 (rung 3): review r4 = 2 blocking, both regressions from the r3 fixes (the other being urls.mjs putting the noindex expectation on /admin instead of /blog?page=2, which also hid /admin from A/B compare).
+- 2026-09-26T13:50:50.754Z Escalation rung 4 (P1.1/P1.2): resume run wf_be59e661-e9c with maxRounds=5. Fix round 4 = opus/high deep fix of the 2 regressions, applying the reviewer's exact fixes, each with a self-test case that would have caught it, plus the 3 actionable r4 notes (visual run.mjs sent the bypass secret to base A; selftest lacked expect/pinning/post-cutover cases; sync edge cases). Then review r5 (opus/high) as the second opinion. If r5 still blocks: advisor A3.
+- 2026-09-26T13:50:50.813Z [P1.1] step failed → in_progress
+- 2026-09-26T13:50:50.869Z [P1.2] step failed → in_progress
+- 2026-09-26T13:50:51.022Z set facts.runs.p1

@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P1.2",
-  "updatedAt": "2026-09-26T13:22:01.431Z",
+  "updatedAt": "2026-09-26T13:50:51.022Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -99,8 +99,11 @@
             },
             "carryForward": "Before producing any pg_dump fixture, the runner must prove pg_dump and pg_restore major >= 16 inside the Sandbox (source is PostgreSQL 16.15), and record the versions in the P1.1 evidence."
           },
-          "maxRounds": 4,
-          "extraFixesFile": "docs/migration/evidence/P1.2-harness-review-r3.json"
+          "maxRounds": 5,
+          "extraFixesFile": "docs/migration/evidence/P1.2-harness-review-r3.json",
+          "extraFixesByRound": {
+            "4": "docs/migration/evidence/P1.2-harness-review-r4.json"
+          }
         }
       }
     }
@@ -283,13 +286,14 @@
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
       "status": "in_progress",
-      "attempts": 2,
+      "attempts": 3,
       "evidence": [],
       "notes": [
-        "2026-09-26T13:22:01.037Z Attempt 1: final review r3 still blocking in scripts/migration/db (sync.mjs delta can resurrect target-deleted rows via the late-commit branch; runner.mjs exec --with-dst skips the full-refresh/cutover guards). Inventory/fingerprints/fixtures/GAP_START=1000000 produced; Sandbox pg_dump/pg_restore 16.15 proven."
+        "2026-09-26T13:22:01.037Z Attempt 1: final review r3 still blocking in scripts/migration/db (sync.mjs delta can resurrect target-deleted rows via the late-commit branch; runner.mjs exec --with-dst skips the full-refresh/cutover guards). Inventory/fingerprints/fixtures/GAP_START=1000000 produced; Sandbox pg_dump/pg_restore 16.15 proven.",
+        "2026-09-26T13:50:50.644Z Attempt 2 (rung 3): r3 findings verified fixed, but review r4 found a regression: runGapVerifyInit records SOURCE ids as synced after the copy, so a source row committed between dump/verify and the init read is marked synced but never copied, then permanently treated as target_deleted (lead/PII loss)."
       ],
-      "startedAt": "2026-09-26T13:22:01.209Z",
-      "lastFailureAt": "2026-09-26T13:22:01.036Z"
+      "startedAt": "2026-09-26T13:50:50.812Z",
+      "lastFailureAt": "2026-09-26T13:50:50.644Z"
     },
     {
       "id": "P1.2",
@@ -301,15 +305,17 @@
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
       "status": "in_progress",
-      "attempts": 2,
+      "attempts": 3,
       "evidence": [
-        "docs/migration/evidence/P1.2-harness-review-r3.json"
+        "docs/migration/evidence/P1.2-harness-review-r3.json",
+        "docs/migration/evidence/P1.2-harness-review-r4.json"
       ],
       "notes": [
-        "2026-09-26T13:22:01.112Z Attempt 1: final review r3 = 6 blocking (4 harness, 2 DB) after two fix rounds (13 -> 7 -> 6). Harness: allowlist value-pinning for text/jsonBySlug; no expected-value post-cutover assertions; --resolve broken on Node 22; functional writes not guarded against answering-host = Replit."
+        "2026-09-26T13:22:01.112Z Attempt 1: final review r3 = 6 blocking (4 harness, 2 DB) after two fix rounds (13 -> 7 -> 6). Harness: allowlist value-pinning for text/jsonBySlug; no expected-value post-cutover assertions; --resolve broken on Node 22; functional writes not guarded against answering-host = Replit.",
+        "2026-09-26T13:50:50.703Z Attempt 2 (rung 3): review r4 = 2 blocking, both regressions from the r3 fixes (the other being urls.mjs putting the noindex expectation on /admin instead of /blog?page=2, which also hid /admin from A/B compare)."
       ],
-      "startedAt": "2026-09-26T13:22:01.271Z",
-      "lastFailureAt": "2026-09-26T13:22:01.112Z"
+      "startedAt": "2026-09-26T13:50:50.868Z",
+      "lastFailureAt": "2026-09-26T13:50:50.703Z"
     },
     {
       "id": "P1.3",
