@@ -152,3 +152,7 @@
 - 2026-09-26T19:55:35.153Z [P3.4] step in_progress → done — Protection bypass for automation exists (1 entry, automation-bypass); secret only in .scratch (mode 600). The access check is deferred to P5.1 (no deployment yet), per facts.followUps.
 - 2026-09-26T19:55:35.205Z [P3.5] step in_progress → done — Independent read-back 5/5 pass (settings, env names/types, env pull hosts, store connections, target DB version and emptiness).
 - 2026-09-26T19:55:35.255Z gate G3 → passed (by verifier (independent P3.5 read-back)) — SPEC-01 §8 plus A1 C3 all pass; the bypass access check is deferred to P5.1 (recorded)
+- 2026-09-26T19:55:53.188Z [P4.1] step pending → in_progress
+- 2026-09-26T19:55:53.240Z [P4.2] step pending → in_progress
+- 2026-09-26T19:55:53.292Z [P4.3] step pending → in_progress
+- 2026-09-26T19:55:53.347Z [P4.1] Launching P4 (mig-p4-data.js, amended with A1 C2): args dbPath neon-https, dumpPath sandbox-sdk, identity passed at P0.2 (not deferred). Target growmax-db-iad1 PG 18.6, empty.

@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": null,
-  "updatedAt": "2026-09-26T19:55:35.254Z",
+  "currentStep": "P4.3",
+  "updatedAt": "2026-09-26T19:55:53.291Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -818,10 +818,11 @@
       ],
       "gate": "G4",
       "workflow": ".claude/workflows/mig-p4-data.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [],
+      "startedAt": "2026-09-26T19:55:53.187Z"
     },
     {
       "id": "P4.2",
@@ -832,10 +833,11 @@
       ],
       "gate": "G4",
       "workflow": ".claude/workflows/mig-p4-data.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [],
+      "startedAt": "2026-09-26T19:55:53.239Z"
     },
     {
       "id": "P4.3",
@@ -846,10 +848,11 @@
       ],
       "gate": "G4",
       "workflow": ".claude/workflows/mig-p4-data.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [],
+      "startedAt": "2026-09-26T19:55:53.291Z"
     },
     {
       "id": "P5.1",
