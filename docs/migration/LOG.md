@@ -106,3 +106,5 @@
 - 2026-09-26T14:53:22.418Z [P3.4] step pending → in_progress
 - 2026-09-26T14:53:22.482Z [P3.5] step pending → in_progress
 - 2026-09-26T14:53:22.533Z Launching P2 (mig-p2-code.js) and P3 (mig-p3-infra.js) in parallel per A1 C11. P3 args: teamId, pgMajor 16, vercelApi cli.
+- 2026-09-26T14:53:46.633Z set facts.runs.p2
+- 2026-09-26T14:53:46.691Z set facts.runs.p3
