@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": null,
-  "updatedAt": "2026-09-26T10:20:58.147Z",
+  "updatedAt": "2026-09-26T10:23:23.252Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -68,10 +68,12 @@
   "blockers": [],
   "gates": {
     "G0": {
-      "status": "pending",
-      "evidence": [],
-      "by": null,
-      "at": null,
+      "status": "passed",
+      "evidence": [
+        "docs/migration/evidence/P0.2-vercel.json"
+      ],
+      "by": "scout",
+      "at": "2026-09-26T10:23:23.252Z",
       "note": null
     },
     "G1": {
@@ -175,14 +177,16 @@
       "attempts": 1,
       "evidence": [
         "docs/migration/evidence/P0.2-secrets.json",
-        "docs/migration/evidence/P0.2-network.json"
+        "docs/migration/evidence/P0.2-network.json",
+        "docs/migration/evidence/P0.2-vercel.json"
       ],
       "notes": [
         "2026-09-26T10:20:26.482Z All required secrets present: REPLIT_DATABASE_URL (Neon), VERCEL_TOKEN, ADMIN_PASSWORD, and optional SESSION_SECRET (valid). No blockers.",
-        "2026-09-26T10:20:58.147Z Network matrix determined: all paths routed through Vercel Sandbox due to restrictive egress proxy"
+        "2026-09-26T10:20:58.147Z Network matrix determined: all paths routed through Vercel Sandbox due to restrictive egress proxy",
+        "2026-09-26T10:23:20.247Z Vercel access check completed: MCP on team growmax1 confirmed, VERCEL_TOKEN valid, billing plan hobby (flagged for A2), Neon integration not installed (will install via Marketplace)"
       ],
       "startedAt": "2026-09-26T10:19:22.160Z",
-      "completedAt": "2026-09-26T10:20:58.147Z"
+      "completedAt": "2026-09-26T10:23:20.246Z"
     },
     {
       "id": "P1.1",
