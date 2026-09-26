@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best Dynamics 365 Commerce Alternatives for B2B Manufacturers (2026) | Growmax',
+  title: 'Best Dynamics 365 Commerce Alternatives for B2B Manufacturers (2026)',
   description: 'Looking for Microsoft Dynamics 365 Commerce alternatives? Compare the top B2B commerce platforms for manufacturers with faster deployment and lower TCO.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/dynamics-365-commerce-alternatives' },
   openGraph: { title: 'Best Dynamics 365 Commerce Alternatives (2026)', description: 'Compare top Dynamics 365 Commerce alternatives for B2B manufacturers.', url: 'https://www.growmax.io/comparisons/dynamics-365-commerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

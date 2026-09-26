@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Automotive Aftermarket Distributors | Growmax',
+  title: 'B2B eCommerce for Automotive Aftermarket Distributors',
   description: 'Revenue operations platform for automotive aftermarket distributors. Part number lookup, fitment guides, garage portals, and ERP integration for auto parts distribution.',
   alternates: { canonical: 'https://www.growmax.io/industries/automotive-aftermarket' },
   openGraph: { title: 'B2B eCommerce for Automotive Aftermarket Distributors | Growmax', description: 'Revenue operations platform for automotive aftermarket distributors.', url: 'https://www.growmax.io/industries/automotive-aftermarket', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

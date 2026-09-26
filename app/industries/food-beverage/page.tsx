@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Food & Beverage Distributors | Growmax',
+  title: 'B2B eCommerce for Food & Beverage Distributors',
   description: 'Revenue operations platform for food & beverage distributors. Route management, recurring orders, customer-specific pricing, and ERP integration for food service distribution.',
   alternates: { canonical: 'https://www.growmax.io/industries/food-beverage' },
   openGraph: { title: 'B2B eCommerce for Food & Beverage Distributors | Growmax', description: 'Revenue operations platform for food & beverage distributors.', url: 'https://www.growmax.io/industries/food-beverage', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

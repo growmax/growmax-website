@@ -22,6 +22,10 @@ export default function Footer() {
               <ul className="space-y-4">
                 <li><Link href="/revenue-platform" className="hover:text-growmax-red transition-colors block">Growmax Enterprise</Link></li>
                 <li><Link href="/solutions/spare-parts-ecommerce" className="hover:text-growmax-red transition-colors block">Spare Parts eCommerce</Link></li>
+                <li><Link href="/minori-ai" className="hover:text-growmax-red transition-colors block">Minori AI</Link></li>
+                <li><Link href="/minori-ai/commerce-agents" className="hover:text-growmax-red transition-colors block">AI Commerce</Link></li>
+                <li><Link href="/minori-ai/connect" className="hover:text-growmax-red transition-colors block">Connect Minori AI</Link></li>
+                <li><Link href="/minori-ai/how-it-works" className="hover:text-growmax-red transition-colors block">How It Works <span className="text-[9px] text-gray-500">(Private Beta)</span></Link></li>
               </ul>
             </div>
             <div>

@@ -1,0 +1,1 @@
+- [Stable Next.js preview](stable-next-preview.md) — serve the visible app with a production build; proxied dev HMR caused recurring truncated chunks and reload loops.

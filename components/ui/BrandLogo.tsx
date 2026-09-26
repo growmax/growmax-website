@@ -30,7 +30,7 @@ export default function BrandLogo({ variant = 'horizontal', dark = false, crossf
         />
         <Image
           src="/logo-white.png"
-          alt=""
+          alt="Growmax"
           aria-hidden="true"
           width={150}
           height={32}

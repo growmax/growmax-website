@@ -4,11 +4,12 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "next dev -p 5000 --hostname 0.0.0.0",
-    "build": "next build",
+    "dev": "next dev --turbopack -p 5000 --hostname 0.0.0.0",
+    "build": "rm -rf .next && next build",
     "start": "next start -p 5000 --hostname 0.0.0.0",
     "check": "tsc",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "seed:arc-ai-article": "tsx scripts/seed-arc-ai-article.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

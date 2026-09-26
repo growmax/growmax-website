@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best NetSuite SuiteCommerce Alternatives for B2B Manufacturers (2026) | Growmax',
+  title: 'Best NetSuite SuiteCommerce Alternatives for B2B Manufacturers (2026)',
   description: 'Looking for NetSuite SuiteCommerce alternatives? Compare top B2B commerce platforms for manufacturers with SAP integration support and partner ecosystem management.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/netsuite-suitecommerce-alternatives' },
   openGraph: { title: 'Best NetSuite SuiteCommerce Alternatives (2026)', description: 'Compare top NetSuite SuiteCommerce alternatives for B2B manufacturers.', url: 'https://www.growmax.io/comparisons/netsuite-suitecommerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

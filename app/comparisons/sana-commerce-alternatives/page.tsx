@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best Sana Commerce Alternatives for SAP-Integrated B2B Commerce (2026) | Growmax',
+  title: 'Best Sana Commerce Alternatives for SAP-Integrated B2B Commerce (2026)',
   description: 'Looking for Sana Commerce alternatives? Compare the top SAP-integrated B2B commerce platforms. See why manufacturers choose Growmax Enterprise over Sana Commerce.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/sana-commerce-alternatives' },
   openGraph: { title: 'Best Sana Commerce Alternatives (2026)', description: 'Compare top SAP-integrated B2B commerce alternatives to Sana Commerce.', url: 'https://www.growmax.io/comparisons/sana-commerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

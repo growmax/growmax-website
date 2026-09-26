@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best Oracle Commerce / ATG Alternatives for B2B Manufacturers (2026) | Growmax',
+  title: 'Best Oracle Commerce / ATG Alternatives for B2B Manufacturers (2026)',
   description: 'Oracle Commerce and ATG are expensive legacy platforms. Compare the best modern alternatives for B2B manufacturers with faster deployment and lower TCO.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/oracle-commerce-alternatives' },
   openGraph: { title: 'Best Oracle Commerce Alternatives (2026)', description: 'Compare top Oracle Commerce alternatives for B2B manufacturers.', url: 'https://www.growmax.io/comparisons/oracle-commerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

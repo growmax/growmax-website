@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -9,15 +9,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Cpu, Fingerprint, ArrowRight, CheckCircle, Loader2 } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
 import { apiRequest } from '@/lib/queryClient'
+import { trackEvent } from '@/lib/analytics'
 
-export default function DemoClient({ schema }: { schema?: string }) {
+export default function DemoClient({ schema, initialModules = [], conversionSource }: { schema?: string; initialModules?: string[]; conversionSource?: 'minori-ai-v1' | 'minori-ai-v2' }) {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [company, setCompany] = useState('')
   const [companySize, setCompanySize] = useState('')
-  const [modules, setModules] = useState<string[]>([])
+  const [modules, setModules] = useState<string[]>(initialModules)
   const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    if (conversionSource) {
+      trackEvent('minori_demo_page_viewed', { variant: conversionSource })
+    }
+  }, [conversionSource])
 
   const toggleModule = (mod: string) => setModules(prev => prev.includes(mod) ? prev.filter(m => m !== mod) : [...prev, mod])
 
@@ -25,6 +32,14 @@ export default function DemoClient({ schema }: { schema?: string }) {
     mutationFn: async () => {
       const res = await apiRequest('POST', '/api/demo-requests', { firstName, lastName, email, company, companySize, modules, message: message || null })
       return res.json()
+    },
+    onSuccess: () => {
+      trackEvent('demo_request_submitted', {
+        location: 'demo_page',
+        company_size: companySize,
+        module_count: modules.length,
+        ...(conversionSource ? { variant: conversionSource } : {}),
+      })
     },
   })
 
@@ -88,7 +103,7 @@ export default function DemoClient({ schema }: { schema?: string }) {
                 <div className="space-y-4 pt-6 border-t border-gray-100">
                   <Label className="font-mono text-xs uppercase text-gray-800">Target Modules (Select applicable)</Label>
                   <div className="grid sm:grid-cols-2 gap-4">
-                    {[{ id: 'dealer', label: 'Dealer/Partner Portal' },{ id: 'quote', label: 'Quote-to-Cash Automation' },{ id: 'spares', label: 'Spares/Parts Portal' },{ id: 'sap', label: 'SAP ECC Integration' }].map(mod => (
+                    {[{ id: 'dealer', label: 'Dealer/Partner Portal' },{ id: 'quote', label: 'Quote-to-Cash Automation' },{ id: 'spares', label: 'Spares/Parts Portal' },{ id: 'sap', label: 'SAP ECC Integration' },{ id: 'minori-beta', label: 'Minori AI (private beta)' }].map(mod => (
                       <div key={mod.id} className="flex items-center space-x-3 bg-gray-50 p-3 border border-gray-200 hover:border-growmax-red transition-colors">
                         <Checkbox id={mod.id} data-testid={`checkbox-${mod.id}`} checked={modules.includes(mod.id)} onCheckedChange={() => toggleModule(mod.id)} className="rounded-none data-[state=checked]:bg-growmax-red data-[state=checked]:text-white" />
                         <label htmlFor={mod.id} className="text-sm font-medium leading-none cursor-pointer">{mod.label}</label>

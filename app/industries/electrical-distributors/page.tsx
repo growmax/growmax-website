@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Electrical Distributors | Growmax',
+  title: 'B2B eCommerce for Electrical Distributors',
   description: 'Revenue operations platform for electrical distributors. Multi-tier pricing, multi-warehouse inventory, contractor portals, and SAP integration for electrical wholesale.',
   alternates: { canonical: 'https://www.growmax.io/industries/electrical-distributors' },
   openGraph: { title: 'B2B eCommerce for Electrical Distributors | Growmax', description: 'Revenue operations platform for electrical distributors.', url: 'https://www.growmax.io/industries/electrical-distributors', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

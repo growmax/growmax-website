@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Building Materials Distributors | Growmax',
+  title: 'B2B eCommerce for Building Materials Distributors',
   description: 'Revenue operations platform for building materials distributors. Complex contractor pricing, project-based quoting, and multi-warehouse management for roofing, lumber, and construction supply.',
   alternates: { canonical: 'https://www.growmax.io/industries/building-materials' },
   openGraph: { title: 'B2B eCommerce for Building Materials Distributors | Growmax', description: 'Revenue operations platform for building materials distributors.', url: 'https://www.growmax.io/industries/building-materials', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

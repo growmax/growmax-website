@@ -16,6 +16,8 @@ export function SiemensLogo({ className = '', variant = 'dark', size = 'md' }: C
       <img
         src="/images/siemens-logo.svg"
         alt="Siemens"
+        width="1000"
+        height="159"
         className={`${sizeMap[size]} w-auto object-contain ${variant === 'light' ? 'brightness-0 invert' : ''}`}
         data-testid="img-logo-siemens"
       />
@@ -29,6 +31,8 @@ export function SchwingSttetterLogo({ className = '', variant = 'dark', size = '
       <img
         src="/images/schwing-stetter-logo.png"
         alt="Schwing Stetter"
+        width="1024"
+        height="334"
         className={`${sizeMap[size]} w-auto object-contain ${variant === 'light' ? 'brightness-0 invert' : ''}`}
         data-testid="img-logo-schwing-stetter"
       />
@@ -42,6 +46,8 @@ export function OBOBettermannLogo({ className = '', variant = 'dark', size = 'md
       <img
         src="/images/obo-bettermann-logo.svg"
         alt="OBO Bettermann"
+        width="692"
+        height="425"
         className={`${sizeMap[size]} w-auto object-contain ${variant === 'light' ? 'brightness-0 invert' : ''}`}
         data-testid="img-logo-obo-bettermann"
       />

@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best OroCommerce Alternatives for B2B Manufacturers (2026) | Growmax',
+  title: 'Best OroCommerce Alternatives for B2B Manufacturers (2026)',
   description: 'Looking for OroCommerce alternatives? Compare top B2B commerce platforms for manufacturers. See why industrial companies choose Growmax Enterprise over OroCommerce.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/orocommerce-alternatives' },
   openGraph: { title: 'Best OroCommerce Alternatives (2026)', description: 'Compare top B2B commerce alternatives to OroCommerce.', url: 'https://www.growmax.io/comparisons/orocommerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

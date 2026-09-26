@@ -1,0 +1,72 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "P5hhKfgPjJQCrCNlXMHvV"
+uri = "file://screenshots/minori-ai-home.jpg"
+type = "image"
+title = "Minori AI landing page"
+description = "Fresh production-preview capture of the rewritten customer-facing Minori AI hub."
+logical_id = "09ebfe7e-bc60-4a15-8e13-28de0e71b923"
+content_hash = "sha256:a046c8b07ff7f8cc72615d66fe87f39ed5d17765295f3f73d2d100081d6c86a1"
+size = 109390
+mtime_ms = 1788628412028
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:0a72e6d7-54c1-47f5-94d3-baceac326366/09ebfe7e-bc60-4a15-8e13-28de0e71b923/b7711fd7-852a-41e3-8e81-48cd963435a5"
+storage_version_token = "1788628431211180"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "a9fNNDjY5Sgu28zn-Q7dx"
+uri = "file://screenshots/minori-ai-how-it-works.jpg"
+type = "image"
+title = "Minori AI workflows page"
+description = "Fresh production-preview capture of the private-beta workflow and approval story."
+logical_id = "1e9dcf48-f0aa-4eae-be63-2cbf82c24316"
+content_hash = "sha256:226208e2a215bc6235e0fe86ec37afbacd2c5c8d35657fca30149b46c570a11c"
+size = 108388
+mtime_ms = 1788628413996
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:0a72e6d7-54c1-47f5-94d3-baceac326366/1e9dcf48-f0aa-4eae-be63-2cbf82c24316/3164ea89-1f63-4f31-8ec7-12dd20518002"
+storage_version_token = "1788628432948324"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "GskPm1QaP7gt_wNeqmA93"
+uri = "file://screenshots/minori-ai-v2-final.jpg"
+type = "image"
+title = "Minori AI Variant 2"
+description = "Default conversion-focused landing page with the full promise, approval cue, CTA, and three outcomes visible above the fold."
+logical_id = "e9c1a55d-1388-4ada-94a8-1e26c5ff3979"
+content_hash = "sha256:f0cd6cf61460bdd177bb88416d27fa4af0bc7620cde3840a1adee8539945f01b"
+size = 116628
+mtime_ms = 1788629155660
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:0a72e6d7-54c1-47f5-94d3-baceac326366/e9c1a55d-1388-4ada-94a8-1e26c5ff3979/7bad0746-9a96-4c8c-b42e-abb2a5c4454f"
+storage_version_token = "1788629305596690"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "TrkrQisM7b4zQwF6Q7SoU"
+uri = "file://screenshots/minori-ai-v1-control.jpg"
+type = "image"
+title = "Minori AI original control"
+description = "Preserved original landing page for comparison at /minori-ai/original."
+logical_id = "ec3c5f5d-e7e2-4c6f-a185-af558057c0a2"
+content_hash = "sha256:cc0d2ce8205f5ad2cfd5d2609b33cba76dc1e4a688397c8c5796d3f918477aef"
+size = 105854
+mtime_ms = 1788629042621
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:0a72e6d7-54c1-47f5-94d3-baceac326366/ec3c5f5d-e7e2-4c6f-a185-af558057c0a2/8bcc93eb-4748-4f2b-a1a5-77d093fe27e3"
+storage_version_token = "1788629308390091"
+content_type = "image/jpeg"
+
+[[outputs]]
+id = "eF-f82B9mZcNqW-JIbiMw"
+uri = "file://screenshots/minori-ai-walkthrough.jpg"
+type = "image"
+title = "Minori AI video-style walkthrough"
+description = "Live production-preview capture of the autoplaying request-to-review experience embedded on the Minori AI landing page."
+logical_id = "480ef20b-c8f4-450d-9752-74afd45790a9"
+content_hash = "sha256:70580dab051cbd7ff40bb08b40eb3029ff9bb18556a036ea5f59853b06374b27"
+size = 74748
+mtime_ms = 1789891474036
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:0a72e6d7-54c1-47f5-94d3-baceac326366/480ef20b-c8f4-450d-9752-74afd45790a9/3d89d4df-f6a5-4bca-a90a-eaeb9773c441"
+storage_version_token = "1789891485873354"
+content_type = "image/jpeg"

@@ -28,9 +28,20 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Blog pagination: /blog?page=N (N>1) -> noindex,follow (canonical already points to /blog)
+  if (pathname === '/blog') {
+    const pageParam = request.nextUrl.searchParams.get('page')
+    const pageNum = pageParam ? parseInt(pageParam, 10) : 1
+    if (Number.isFinite(pageNum) && pageNum > 1) {
+      const paged = NextResponse.next()
+      paged.headers.set('X-Robots-Tag', 'noindex, follow')
+      return paged
+    }
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/blog/:path*'],
+  matcher: ['/blog', '/blog/:path*'],
 }

@@ -7,6 +7,7 @@ import {
 } from './schema'
 import { db } from './db'
 import { eq, desc } from 'drizzle-orm'
+import { ARC_AI_ARTICLE_SLUG, arcAiArticleFallback } from './arcAiArticle'
 
 export interface IStorage {
   createDemoRequest(data: InsertDemoRequest): Promise<DemoRequest>
@@ -37,14 +38,15 @@ export class DatabaseStorage implements IStorage {
     return result
   }
   async getPublishedBlogPosts(): Promise<BlogPost[]> {
-    return db.select().from(blogPosts).where(eq(blogPosts.published, true)).orderBy(desc(blogPosts.createdAt))
+    const posts = await db.select().from(blogPosts).where(eq(blogPosts.published, true)).orderBy(desc(blogPosts.createdAt))
+    return posts.some(post => post.slug === ARC_AI_ARTICLE_SLUG) ? posts : [arcAiArticleFallback, ...posts]
   }
   async getAllBlogPosts(): Promise<BlogPost[]> {
     return db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt))
   }
   async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
     const [result] = await db.select().from(blogPosts).where(eq(blogPosts.slug, slug)).limit(1)
-    return result
+    return result ?? (slug === ARC_AI_ARTICLE_SLUG ? arcAiArticleFallback : undefined)
   }
   async getBlogPostById(id: number): Promise<BlogPost | undefined> {
     const [result] = await db.select().from(blogPosts).where(eq(blogPosts.id, id)).limit(1)

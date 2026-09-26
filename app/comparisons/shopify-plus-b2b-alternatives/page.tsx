@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best Shopify Plus B2B Alternatives for Industrial Manufacturers (2026) | Growmax',
+  title: 'Best Shopify Plus B2B Alternatives for Industrial Manufacturers (2026)',
   description: 'Looking for Shopify Plus B2B alternatives? Compare the top B2B commerce platforms built for industrial manufacturers and distributors with complex pricing and ERP needs.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/shopify-plus-b2b-alternatives' },
   openGraph: { title: 'Best Shopify Plus B2B Alternatives (2026)', description: 'Compare top Shopify Plus B2B alternatives for industrial manufacturers.', url: 'https://www.growmax.io/comparisons/shopify-plus-b2b-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

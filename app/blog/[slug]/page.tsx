@@ -9,7 +9,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   try {
     const post = await storage.getBlogPostBySlug(slug)
-    if (!post) return { title: 'Article Not Found | Growmax Intelligence' }
+    if (!post) return { title: 'Article Not Found | Growmax Intelligence', robots: { index: false, follow: false } }
     return {
       title: `${post.title} | Growmax Intelligence`,
       description: post.excerpt,
@@ -33,7 +33,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     post = await storage.getBlogPostBySlug(slug)
   } catch {}
   if (!post) {
-    return <QueryProvider><BlogPostClient slug={slug} post={null} /></QueryProvider>
+    // Missing slug -> real HTTP 404 (was 200 soft 404)
+    notFound()
   }
   const schema = JSON.stringify(articleSchema({ title: post.title, description: post.excerpt, slug: post.slug, date: post.date, author: post.author }))
   const postData = { ...post, relatedSlugs: post.relatedSlugs ?? [] }

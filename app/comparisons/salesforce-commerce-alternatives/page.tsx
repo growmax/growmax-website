@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best Salesforce B2B Commerce Alternatives for Industrial Manufacturers (2026) | Growmax',
+  title: 'Best Salesforce B2B Commerce Alternatives for Industrial Manufacturers (2026)',
   description: 'Looking for Salesforce B2B Commerce alternatives? Compare top platforms for industrial manufacturers. Faster deployment, lower cost, and native ERP integration.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/salesforce-commerce-alternatives' },
   openGraph: { title: 'Best Salesforce B2B Commerce Alternatives (2026)', description: 'Compare top Salesforce B2B Commerce alternatives for manufacturers.', url: 'https://www.growmax.io/comparisons/salesforce-commerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

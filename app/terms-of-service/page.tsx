@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | Growmax',
+  title: 'Terms of Service',
   description: 'Growmax Enterprise Terms of Service — terms and conditions for using our cloud-based B2B revenue operations platform.',
   alternates: { canonical: 'https://www.growmax.io/terms-of-service' },
 }

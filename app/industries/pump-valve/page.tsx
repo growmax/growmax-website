@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Pump & Valve Distributors | Growmax',
+  title: 'B2B eCommerce for Pump & Valve Distributors',
   description: 'Revenue operations platform for pump and valve distributors. Engineered-to-order quoting, spare parts portals, OEM dealer management, and SAP integration.',
   alternates: { canonical: 'https://www.growmax.io/industries/pump-valve' },
   openGraph: { title: 'B2B eCommerce for Pump & Valve Distributors | Growmax', description: 'Revenue operations platform for pump and valve distributors.', url: 'https://www.growmax.io/industries/pump-valve', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

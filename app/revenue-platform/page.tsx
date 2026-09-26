@@ -6,7 +6,7 @@ import { softwareApplicationSchema } from '@/lib/structuredData'
 import { SiemensLogo, SchwingSttetterLogo, OBOBettermannLogo } from '@/components/ui/ClientLogos'
 
 export const metadata: Metadata = {
-  title: 'Growmax Enterprise | Intelligent Revenue Operations Platform | Growmax',
+  title: 'Growmax Enterprise | Intelligent Revenue Operations Platform',
   description: 'Connect your sales reps, partners, and customers on one intelligent platform. Multi-party revenue ecosystem with native SAP integration, multi-version quotes, partner commerce, and dealer portals.',
   alternates: { canonical: 'https://www.growmax.io/revenue-platform' },
   openGraph: { title: 'Growmax Enterprise | Intelligent Revenue Operations Platform', description: 'Connect your sales reps, partners, and customers on one intelligent platform.', url: 'https://www.growmax.io/revenue-platform', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

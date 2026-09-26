@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Industrial Manufacturers | Growmax',
+  title: 'B2B eCommerce for Industrial Manufacturers',
   description: 'Revenue operations platform for industrial manufacturers. Connect sales reps, dealer networks, and customers with SAP integration, multi-version quotes, and partner commerce portals.',
   alternates: { canonical: 'https://www.growmax.io/industries/industrial-manufacturing' },
   openGraph: { title: 'B2B eCommerce for Industrial Manufacturers | Growmax', description: 'Revenue operations platform for industrial manufacturers.', url: 'https://www.growmax.io/industries/industrial-manufacturing', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

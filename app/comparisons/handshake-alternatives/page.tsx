@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best Handshake Alternatives for B2B Distributors (2026) | Growmax',
+  title: 'Best Handshake Alternatives for B2B Distributors (2026)',
   description: 'Looking for Handshake alternatives? Compare the top B2B sales platforms for distributors and manufacturers. See why industrial companies choose Growmax Enterprise over Handshake.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/handshake-alternatives' },
   openGraph: { title: 'Best Handshake Alternatives for B2B Distributors (2026)', description: 'Compare top Handshake alternatives for industrial distributors.', url: 'https://www.growmax.io/comparisons/handshake-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

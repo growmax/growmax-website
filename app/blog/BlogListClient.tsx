@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Search, ArrowRight, CheckCircle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
 import { apiRequest } from '@/lib/queryClient'
+import { trackEvent } from '@/lib/analytics'
 
 const POSTS_PER_PAGE = 18
 
@@ -17,7 +18,7 @@ interface BlogPost { id: number; title: string; category: string; date: string; 
 
 function FeaturedPost({ post }: { post: BlogPost }) {
   return (
-    <Link href={`/blog/${post.slug}`} className="group block border-2 border-growmax-black bg-white hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all mb-12" data-testid="link-featured-post">
+    <Link href={`/blog/${post.slug}`} onClick={() => trackEvent('blog_article_selected', { location: 'featured', article_slug: post.slug, category: post.category })} className="group block border-2 border-growmax-black bg-white hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all mb-12" data-testid="link-featured-post">
       <div className="p-8 md:p-12">
         <div className="flex items-center gap-3 mb-6">
           <span className="font-mono text-[11px] uppercase tracking-widest text-white bg-growmax-red px-3 py-1 font-bold">Featured</span>
@@ -36,7 +37,7 @@ function FeaturedPost({ post }: { post: BlogPost }) {
 
 function PostCard({ post, index }: { post: BlogPost; index: number }) {
   return (
-    <Link href={`/blog/${post.slug}`} className="group block border border-gray-200 bg-white hover:border-growmax-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all" data-testid={`link-blog-post-${index}`}>
+    <Link href={`/blog/${post.slug}`} onClick={() => trackEvent('blog_article_selected', { location: 'grid', article_slug: post.slug, category: post.category, position: index + 1 })} className="group block border border-gray-200 bg-white hover:border-growmax-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all" data-testid={`link-blog-post-${index}`}>
       <div className="p-6">
         <div className="flex items-center gap-3 mb-4">
           <span className="font-mono text-[10px] uppercase tracking-widest text-gray-500 bg-gray-100 px-2 py-0.5 border border-gray-200">{post.category}</span>
@@ -66,7 +67,10 @@ function BlogListContent({ initialPosts }: { initialPosts: BlogPost[] }) {
 
   const subMutation = useMutation({
     mutationFn: async () => { const res = await apiRequest('POST', '/api/newsletter', { email: subEmail }); return res.json() },
-    onSuccess: () => setSubEmail(''),
+    onSuccess: () => {
+      trackEvent('newsletter_subscribed', { location: 'blog_footer' })
+      setSubEmail('')
+    },
   })
 
   const filteredPosts = posts.filter(post => {
@@ -178,9 +182,32 @@ function BlogListContent({ initialPosts }: { initialPosts: BlogPost[] }) {
   )
 }
 
+// Server-rendered shell for the Suspense boundary: keeps a real <h1> and intro copy
+// in the initial HTML for crawlers (the list needs useSearchParams on the client).
+function BlogListFallback() {
+  return (
+    <div className="min-h-screen bg-white pt-16">
+      <section className="pt-24 pb-16 border-b border-gray-200">
+        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+          <div className="font-mono text-xs font-bold text-growmax-red uppercase tracking-widest mb-6 border-l-2 border-growmax-red pl-3">Growmax Intelligence</div>
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-growmax-black leading-[1.05] mb-4" data-testid="text-blog-title-fallback">
+            Insights for B2B <span className="text-gray-400">distributors &amp; manufacturers.</span>
+          </h1>
+          <p className="text-lg text-gray-500 max-w-2xl mt-4 leading-relaxed">
+            Guides, case studies, and practical strategies for industrial distribution, eCommerce, partner engagement, and revenue operations.
+          </p>
+        </div>
+      </section>
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-growmax-red" />
+      </div>
+    </div>
+  )
+}
+
 export default function BlogListClient({ initialPosts }: { initialPosts: BlogPost[] }) {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-growmax-red" /></div>}>
+    <Suspense fallback={<BlogListFallback />}>
       <BlogListContent initialPosts={initialPosts} />
     </Suspense>
   )

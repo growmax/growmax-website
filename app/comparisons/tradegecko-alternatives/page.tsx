@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best TradeGecko / QuickBooks Commerce Alternatives (2026) | Growmax',
+  title: 'Best TradeGecko / QuickBooks Commerce Alternatives (2026)',
   description: 'TradeGecko was discontinued and became QuickBooks Commerce. Compare the best alternatives for B2B distributors and manufacturers needing a modern platform.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/tradegecko-alternatives' },
   openGraph: { title: 'Best TradeGecko Alternatives (2026)', description: 'Compare the best TradeGecko / QuickBooks Commerce alternatives for B2B distributors.', url: 'https://www.growmax.io/comparisons/tradegecko-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

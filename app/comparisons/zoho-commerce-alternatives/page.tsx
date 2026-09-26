@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best Zoho Commerce Alternatives for B2B Manufacturers (2026) | Growmax',
+  title: 'Best Zoho Commerce Alternatives for B2B Manufacturers (2026)',
   description: 'Zoho Commerce lacks the enterprise B2B depth for industrial distributors. Compare the best alternatives with native ERP integration, partner portals, and complex pricing.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/zoho-commerce-alternatives' },
   openGraph: { title: 'Best Zoho Commerce Alternatives (2026)', description: 'Compare top Zoho Commerce alternatives for B2B manufacturers.', url: 'https://www.growmax.io/comparisons/zoho-commerce-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import BrandLogo from '@/components/ui/BrandLogo'
 import { ChevronDown, Menu, X } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
 
 interface DropdownItem {
   label: string
@@ -25,6 +26,17 @@ const navDropdowns: NavDropdown[] = [
       { label: 'Partner Commerce', href: '/revenue-platform/partner-commerce' },
       { label: 'Spares Portals', href: '/revenue-platform/spares-portals' },
       { label: 'SAP Integration', href: '/revenue-platform/sap-integration' },
+    ],
+  },
+  {
+    label: 'Minori AI',
+    items: [
+      { label: 'Overview', href: '/minori-ai' },
+      { label: 'Create Quotes', href: '/minori-ai#create-quotes' },
+      { label: 'Orders', href: '/minori-ai#orders' },
+      { label: 'Product Data', href: '/minori-ai#product-data' },
+      { label: 'How It Works', href: '/minori-ai/how-it-works' },
+      { label: 'Connect Minori AI', href: '/minori-ai/connect' },
     ],
   },
   {
@@ -88,7 +100,7 @@ function DesktopDropdown({ dropdown }: { dropdown: NavDropdown }) {
             item.type === 'section' ? (
               <div key={`section-${i}`} className="px-6 py-2 font-mono text-[10px] uppercase tracking-widest text-growmax-red bg-gray-50 border-b border-growmax-gray">{item.label}</div>
             ) : (
-              <Link key={item.href} href={item.href!} className="block px-6 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors" onClick={() => setOpen(false)} data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+              <Link key={item.href} href={item.href!} className="block px-6 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors" onClick={() => { if (dropdown.label === 'Minori AI') trackEvent('minori_nav_selected', { item: item.label.toLowerCase().replace(/\s+/g, '_'), device: 'desktop' }); setOpen(false) }} data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
                 {item.label}
               </Link>
             )
@@ -123,7 +135,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
                   item.type === 'section' ? (
                     <div key={`section-${i}`} className="px-10 py-2 font-mono text-[10px] uppercase tracking-widest text-growmax-red bg-gray-100 border-b border-growmax-gray">{item.label}</div>
                   ) : (
-                    <Link key={item.href} href={item.href!} className="block px-10 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors" onClick={onClose} data-testid={`mobile-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>{item.label}</Link>
+                    <Link key={item.href} href={item.href!} className="block px-10 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors" onClick={() => { if (dropdown.label === 'Minori AI') trackEvent('minori_nav_selected', { item: item.label.toLowerCase().replace(/\s+/g, '_'), device: 'mobile' }); onClose() }} data-testid={`mobile-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>{item.label}</Link>
                   )
                 )}
               </div>
@@ -131,7 +143,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
           </div>
         ))}
         <div className="border-b border-growmax-gray"><Link href="/company/about" className="block px-6 py-4 font-mono text-sm uppercase tracking-widest hover:bg-growmax-black hover:text-white transition-colors" onClick={onClose} data-testid="mobile-link-about-us">About Us</Link></div>
-        <div className="p-6"><Link href="/demo" className="block w-full text-center px-8 py-4 bg-growmax-red text-white font-mono text-sm uppercase tracking-widest font-bold hover:bg-growmax-black transition-colors border-2 border-growmax-black" onClick={onClose} data-testid="mobile-link-demo">Book a Demo</Link></div>
+        <div className="p-6"><Link href="/demo" className="block w-full text-center px-8 py-4 bg-growmax-red text-white font-mono text-sm uppercase tracking-widest font-bold hover:bg-growmax-black transition-colors border-2 border-growmax-black" onClick={() => { trackEvent('demo_cta_clicked', { location: 'navbar_mobile' }); onClose() }} data-testid="mobile-link-demo">Book a Demo</Link></div>
       </div>
     </div>
   )
@@ -156,7 +168,7 @@ export default function Navbar() {
           </div>
           <div className="flex-1 lg:flex-none flex justify-end">
             <button className="flex lg:hidden items-center justify-center w-16 border-l border-growmax-gray hover:bg-growmax-black hover:text-white transition-colors" onClick={() => setMobileOpen(true)} data-testid="mobile-menu-open"><Menu className="h-5 w-5" /></button>
-            <Link href="/demo" className="flex items-center px-4 sm:px-8 bg-growmax-red text-white font-bold hover:bg-growmax-black transition-colors border-l-2 border-growmax-black whitespace-nowrap" data-testid="nav-link-demo">
+            <Link href="/demo" onClick={() => trackEvent('demo_cta_clicked', { location: 'navbar_desktop' })} className="flex items-center px-4 sm:px-8 bg-growmax-red text-white font-bold hover:bg-growmax-black transition-colors border-l-2 border-growmax-black whitespace-nowrap" data-testid="nav-link-demo">
               <span className="hidden sm:inline">Book a Demo</span>
               <span className="sm:hidden">Demo</span>
             </Link>

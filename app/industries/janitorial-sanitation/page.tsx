@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Janitorial & Sanitation Distributors | Growmax',
+  title: 'B2B eCommerce for Janitorial & Sanitation Distributors',
   description: 'Revenue operations platform for jan-san distributors. Facility-based ordering, contract management, and ERP integration for janitorial supply and sanitation distribution.',
   alternates: { canonical: 'https://www.growmax.io/industries/janitorial-sanitation' },
   openGraph: { title: 'B2B eCommerce for Janitorial & Sanitation Distributors | Growmax', description: 'Revenue operations platform for jan-san distributors.', url: 'https://www.growmax.io/industries/janitorial-sanitation', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

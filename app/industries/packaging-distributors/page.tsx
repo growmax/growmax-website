@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Packaging Distributors | Growmax',
+  title: 'B2B eCommerce for Packaging Distributors',
   description: 'Revenue operations platform for packaging distributors. Custom packaging quoting, print procurement, inventory management, and ERP integration for packaging supply distribution.',
   alternates: { canonical: 'https://www.growmax.io/industries/packaging-distributors' },
   openGraph: { title: 'B2B eCommerce for Packaging Distributors | Growmax', description: 'Revenue operations platform for packaging distributors.', url: 'https://www.growmax.io/industries/packaging-distributors', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

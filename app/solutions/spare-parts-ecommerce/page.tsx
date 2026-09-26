@@ -6,7 +6,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Spare Parts eCommerce Platform for Manufacturers & Distributors | Growmax',
+  title: 'Spare Parts eCommerce Platform for Manufacturers & Distributors',
   description: 'Spare parts eCommerce platform built for manufacturers and aftermarket distributors. Equipment-linked catalogs, serial number lookup, dealer portals, and ERP integration for aftermarket revenue growth.',
   alternates: { canonical: 'https://www.growmax.io/solutions/spare-parts-ecommerce' },
   openGraph: {

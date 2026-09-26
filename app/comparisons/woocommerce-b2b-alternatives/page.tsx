@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best WooCommerce B2B Alternatives for Industrial Distributors (2026) | Growmax',
+  title: 'Best WooCommerce B2B Alternatives for Industrial Distributors (2026)',
   description: 'WooCommerce B2B struggles with scale and complex pricing. Compare the best alternatives for industrial distributors needing ERP integration and enterprise B2B capabilities.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/woocommerce-b2b-alternatives' },
   openGraph: { title: 'Best WooCommerce B2B Alternatives (2026)', description: 'Compare top WooCommerce B2B alternatives for industrial distributors.', url: 'https://www.growmax.io/comparisons/woocommerce-b2b-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

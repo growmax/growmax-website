@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Growmax',
+  title: 'Privacy Policy',
   description: 'Growmax privacy policy. Learn how we collect, use, and protect your data.',
   alternates: { canonical: 'https://www.growmax.io/privacy' },
 }

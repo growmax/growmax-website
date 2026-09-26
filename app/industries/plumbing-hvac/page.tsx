@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'B2B eCommerce for Plumbing & HVAC Distributors | Growmax',
+  title: 'B2B eCommerce for Plumbing & HVAC Distributors',
   description: 'Revenue operations platform for plumbing and HVAC distributors. Contractor pricing, emergency orders, will-call management, and ERP integration for mechanical wholesale.',
   alternates: { canonical: 'https://www.growmax.io/industries/plumbing-hvac' },
   openGraph: { title: 'B2B eCommerce for Plumbing & HVAC Distributors | Growmax', description: 'Revenue operations platform for plumbing and HVAC distributors.', url: 'https://www.growmax.io/industries/plumbing-hvac', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},

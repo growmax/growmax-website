@@ -1,0 +1,195 @@
+# Build brief: "Claude Commerce Agents, for B2B" hub on growmax.io
+
+## Who this is for
+Owners, managing directors, heads of sales and heads of operations at manufacturers and
+distributors (industrial, electrical, building materials, spares, MRO). They run on quotes,
+price lists, credit terms and reps. They have heard "AI agents will change commerce" and are
+asking one question: **what does that mean for a business like mine, this year?**
+Write every line for that reader. If a sentence would only make sense to a developer, cut it.
+
+## The story in one breath
+Anthropic (the company behind Claude) just published the playbook for how AI agents will
+shop and how they will help merchants run their business. That playbook is built for retail.
+Growmax ARC brings it to B2B: your pricing, your credit terms, your approvals, your reps,
+already in the system, so an AI assistant can quote, order and answer for your business
+without ever going around your rules. **Nothing happens without a human saying yes.**
+
+Tone: confident, plain, specific. Short sentences. Real B2B situations. No hype words
+("revolutionary", "seamless"), no jargon (no "MCP", "OAuth", "tool registry", "proposal card"
+in customer copy). Use the site's existing voice: direct, uppercase display headlines, red
+full stops.
+
+Primary CTA everywhere: **Book a Demo → /demo?source=arc-ai-hub**
+Secondary CTA: **Join the Copilot early-access list → /demo?source=arc-ai-hub&module=copilot-beta**
+(add an "ARC Copilot early access" checkbox to /demo Target Modules; pre-tick when the URL has it)
+
+## Visual system
+Reuse the site's existing tokens and blocks exactly: IBM Plex Sans uppercase display, IBM
+Plex Mono eyebrows and buttons, ink #0D0D0D on #FAFAFA, red rgb(230,26,26), square corners,
+grid-paper hero. Reuse the hero, the "assumes / needs" two-column block, the numbered 01–06
+list, the comparison table shell from /arc/compare/*, and the closing Book-a-Demo block.
+
+---
+
+## Page A — /arc/ai  · the landing page
+
+**Eyebrow:** `AI FOR B2B SELLERS`
+**Hero:** `YOUR CUSTOMERS ARE ABOUT TO ORDER THROUGH AI. BE THE SUPPLIER THEY CAN.`
+**Sub:** Claude, ChatGPT and the assistants your customers already use can now place orders,
+check stock and ask for quotes. Growmax ARC makes your business answerable to them, on your
+prices, your terms and your approval.
+**CTAs:** Book a Demo · Watch a real session
+
+### Block 1 · "WHAT CHANGES FOR YOU" (three plain outcome tiles)
+- **Quotes in minutes, not afternoons.** A rep types "quote Al Baker for 40 cases of salmon,
+  their usual terms" and gets a priced, ready-to-send quote. The price comes from your price
+  list and your quantity breaks, never from the AI's imagination.
+- **Customers served at 9 pm without a phone call.** A buyer asks their assistant "do they
+  have NW-1001 in stock, and what's my price?" and gets your answer, for their account only.
+- **Nothing moves without a yes.** Every quote, order, stock change or price change is shown
+  to a person first. Approve it, or don't. Undo is one click.
+
+### Block 2 · "RETAIL AI ASSUMES. B2B NEEDS." (existing two-column block)
+| Retail AI assumes | Your business needs |
+| One price for everyone | Customer-specific prices and pack-size breaks |
+| Add to cart, pay by card | Quote, approval, purchase order, invoice, Net 30/45/60 |
+| Anonymous shoppers | Named accounts with credit limits and a rep who owns them |
+| One warehouse | Branches and warehouses that each ship their own orders |
+| "Someone else will add the rules" | The rules are already in ARC |
+Line under the table: Anthropic's own playbook says the merchant must supply the backend and
+the business rules. For B2B, that backend is ARC.
+
+### Block 3 · "WATCH A REAL SESSION" (replay player, spec in Appendix B)
+Three tabs, named for the outcome, not the feature:
+1. **"Quote 40 cases, priced right, in 90 seconds"**
+2. **"A customer's assistant places an order, and waits for your approval"**
+3. **"A supplier price list becomes 26 products before lunch"**
+Caption, verbatim: *Recorded from a live AI session on Growmax's test environment, using the
+demo company MCP Demo Trading Co (South Africa, prices in ZAR). Replayed exactly as it
+happened.*
+
+### Block 4 · "HOW IT STAYS SAFE" (numbered 01–04, one sentence each)
+01 It only sees what that person is allowed to see. 02 It proposes; it never just does.
+03 Every figure is calculated by your pricing engine, not guessed by the AI.
+04 Approved changes can be undone.
+
+### Block 5 · "WORKS WITH THE ASSISTANTS YOUR CUSTOMERS ALREADY USE"
+Logo row: Claude · ChatGPT · (others as supplied). One line: connect once, and your customers
+and reps can work with your business from the assistant they already have.
+
+### Block 6 · plain-truth strip (mono, small)
+ARC Copilot, the assistant inside your Growmax console, is in early access. The connection
+that lets Claude and ChatGPT work with your business is available now.
+
+### Block 7 · closing CTA block (existing), headline `SEE IT WITH YOUR OWN PRICE LIST.`
+Sub: Bring a real quote and a real price list. We'll show you both flows live, on your data.
+
+---
+
+## Page B — /arc/ai/claude-commerce-agents · "Claude Commerce Agents, explained for B2B"
+Purpose: the page a sales director finds after reading the news. Explain, then reassure.
+
+**Hero:** `THE AI COMMERCE PLAYBOOK IS PUBLIC. HERE'S WHAT IT MEANS FOR B2B.`
+1. **"What Anthropic released"** (5 short lines, plain): a free, open playbook for two kinds of
+   AI helper: one that helps a customer find, compare and buy; one that helps the merchant
+   watch sales, fix listings, manage stock and prices. It is written for retail. It expects
+   the merchant to supply everything underneath: catalog, prices, orders, rules, permissions.
+2. **"Why retail's version doesn't fit a distributor"** (the same two-column block as Page A,
+   shorter).
+3. **"What you get with ARC, mapped to the playbook"** (table shell from /arc/compare/*,
+   columns: *The playbook expects you to provide* | *What ARC gives you on day one*).
+   Rows in customer words: Your catalog and stock, searchable · Customer-specific prices ·
+   Quotes with approval and versions · Orders that respect credit terms · Purchase orders and
+   goods receipt · Stock across branches · Returns and credit notes · A human approval step on
+   every change · The connection to Claude and ChatGPT · An in-console assistant (early access).
+4. **"Use both"**: if your team wants to build on Anthropic's playbook, ARC is the backend it
+   plugs into. Your customers' assistants can already read your public catalog.
+5. FAQ (with FAQ schema): Is this Anthropic's product? (No. It is Growmax ARC, built in line
+   with Anthropic's open playbook.) · Do I need Claude to use ARC? (No.) · Can my customers use
+   ChatGPT instead? (Yes.) · What is "early access"? · Can the AI change a price on its own?
+   (No. Never without a person approving.)
+6. Footnote: Facts about the playbook are from Anthropic's published materials, reviewed
+   5 September 2026. Anthropic reports carts up to 35% larger and 60% higher completion for
+   retail; those are Anthropic's figures for their retail examples, not ours.
+
+---
+
+## Page C — /arc/ai/connect · "Let your customers order from Claude or ChatGPT"
+Written for the customer's buyer AND for your sales team. No technical steps in the body.
+**Hero:** `YOUR BUYER SAYS "REORDER LAST MONTH." YOU GET A CLEAN ORDER.`
+1. "What your customer does" (3 steps, screenshots later): add Growmax to their assistant,
+   sign in with the login you gave them, ask in plain language.
+2. "What they can do": check their price and stock, ask for a quote, reorder, track an order.
+   Only their account, only what you allow.
+3. "What your team does": approve or decline, in the console or from the assistant.
+4. "What your IT team will ask" (collapsible, short, plain): sign-in uses the same
+   permissions as the console; access can be revoked any time; nothing is written without
+   approval; a link to the technical guide at help.growmaxai.com/mcp.
+CTA: Book a Demo.
+
+---
+
+## Page D — /arc/ai/copilot · "ARC Copilot · early access"
+**Hero:** `RUN YOUR BACK OFFICE BY ASKING.`
+1. Five things people ask it, as chat bubbles: "Which quotes expire this week?" · "Turn this
+   supplier spreadsheet into products" · "Draft a quote for Al Baker, 40 cases" · "Who is over
+   their credit limit?" · "Fill in the missing specs on these 30 products".
+2. "You stay in charge" (the 01–04 safety list again, illustrated with one proposal card).
+3. "When it says no": three real refusals rewritten plainly, e.g. *"That price is from last
+   week. I've refreshed it; please check before approving."* Frame: an assistant that refuses
+   correctly is one you can trust with money.
+4. Early-access CTA: "We're onboarding a small number of distributors. Tell us about your
+   catalog and we'll be in touch."
+
+---
+
+## Site plumbing
+- Nav: under "Growmax Enterprise" add "AI for B2B" → /arc/ai. Footer links to all four.
+- Page titles: A "AI for B2B sellers | Growmax ARC" · B "Claude Commerce Agents, explained
+  for B2B | Growmax" · C "Let customers order from Claude or ChatGPT | Growmax ARC" ·
+  D "ARC Copilot early access | Growmax".
+- OG image per page in site style; sitemap; canonical; FAQ schema on Page B.
+- Blog (Insights, "AI Insights"): "Anthropic just published the AI commerce playbook. Here is
+  what a distributor should do about it." Same argument, long form, links to Page B.
+- All CTAs carry `source=arc-ai-hub`.
+
+## Acceptance checklist
+[ ] Read every page aloud as a distributor's MD. Any sentence you'd have to explain, rewrite.
+[ ] No "vs", "beats", "better than"; Anthropic always described respectfully.
+[ ] "Early access" on every Copilot mention; the Claude/ChatGPT connection described as available.
+[ ] No prices, plans or credit amounts; no counts of features or tools.
+[ ] Anthropic's numbers attributed to Anthropic; ours carry "on Growmax's test environment".
+[ ] ZAR and "MCP Demo Trading Co, South Africa" visible on the player caption.
+[ ] Player shows "Recording coming soon" cleanly when no recording files exist. Never invent
+    transcript text.
+[ ] Lighthouse ≥ 90 mobile and desktop; no horizontal scroll on mobile.
+
+---
+
+## Appendix A · builder rules (never in customer copy)
+- Do not say ARC "runs on Claude". If a model is ever named, say "frontier models".
+- Do not use these words in customer-facing text: MCP, OAuth, tool, registry, proposal card,
+  state machine, endpoint, schema, token.
+- ARC Copilot is a private beta gated per customer; the external assistant connection is GA.
+
+## Appendix B · replay player (component spec)
+- Static, client-side only. Loads `/replay/index.json` and one `/replay/<scene>.replay.json`
+  per tab. No backend. Files arrive later; until then show "Recording coming soon".
+- Schema v1: bundle {schemaVersion, lane, sceneId, title, tenant{name,currency}, modelTier,
+  recordedAt, totalMs, turns[], cards[], ledger}; turn {turnIndex, user{text,attachments[]},
+  events[], summary}; event {t ms, type ∈ token|thinking|step|tool_call|tool_result|card|
+  question|usage|done, ...}; card {cardId, kind, statusBefore, statusAfter, payload,
+  transitions[{t,status,by}]}.
+- Render as a chat: the person's message → the assistant's reply typed at recorded timing
+  (4× toggle, skip to end) → small "checking price list…" style activity chips for step /
+  tool_call (show a friendly label, never the raw tool name) → a document-style card (quote
+  lines, totals in ZAR, status badge that moves Proposed → Approved → Applied) → an "Approved
+  by Sudhakar" moment → "Undo available".
+- Money as `ZAR 8 250.00`. Show `modelTier` only as Fast / Balanced / High. Never show ids.
+- Keyboard operable; with prefers-reduced-motion render the full transcript instantly;
+  plain-text transcript toggle.
+
+## Appendix C · assets arriving later
+1. `/replay/index.json` + three `*.replay.json` recordings.
+2. Screenshots for Page C (customer's assistant with Growmax added; a question and answer;
+   an order awaiting approval) and one proposal card for Page D.

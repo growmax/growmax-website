@@ -7,7 +7,7 @@ import WhichGrowmax from '@/components/ui/WhichGrowmax'
 import { webPageSchema } from '@/lib/structuredData'
 
 export const metadata: Metadata = {
-  title: 'Best Magento B2B / Adobe Commerce Alternatives (2026) | Growmax',
+  title: 'Best Magento B2B / Adobe Commerce Alternatives (2026)',
   description: 'Looking for Magento B2B or Adobe Commerce alternatives? Compare the top B2B commerce platforms for manufacturers. Lower TCO, faster deployment, and native ERP integration.',
   alternates: { canonical: 'https://www.growmax.io/comparisons/magento-b2b-alternatives' },
   openGraph: { title: 'Best Magento B2B Alternatives (2026)', description: 'Compare top Magento B2B / Adobe Commerce alternatives.', url: 'https://www.growmax.io/comparisons/magento-b2b-alternatives', images: [{ url: '/opengraph.jpg', width: 1200, height: 630, alt: 'Growmax — B2B Revenue Operations Platform' }]},
