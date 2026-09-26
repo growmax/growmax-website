@@ -87,3 +87,13 @@
 - 2026-09-26T14:31:30.470Z [P1.6] step pending → in_progress — A1 advisor (fable/max, run wf_52fb04e5-ba3) running in parallel with the SRC_URL_RO fix (db-operator). The G1 verifier passed rows 1.1-1.6 (inventory/fingerprints byte-identical with the final scripts); its Task B found the readOnlyScopedUrl '+' encoding bug.
 - 2026-09-26T14:38:59.583Z set facts.followUps
 - 2026-09-26T14:38:59.644Z [P1.1] SRC_URL_RO fix (runner.mjs readOnlyScopedUrl: libpq options now %20-encoded) done by the db-operator and independently verified by the G1 verifier: diff scoped; readonly-url self-test 5/5, runner-guards 7/7 with no regression; Sandbox shows default_transaction_read_only=on and CREATE TEMP TABLE is rejected as read-only. P1-G1-verify.json rewritten (rows 1.1-1.6 plus Task B pass; 1.7 = A1); orchestrator redacted a synthetic test URL's userinfo from it.
+- 2026-09-26T14:52:43.548Z set advisor.A1
+- 2026-09-26T14:52:43.604Z set config.neonNote
+- 2026-09-26T14:52:43.657Z set config.neonProjectId
+- 2026-09-26T14:52:43.708Z set config.neonResourceName
+- 2026-09-26T14:52:43.762Z set config.neonPlan
+- 2026-09-26T14:52:43.877Z set facts.neon
+- 2026-09-26T14:52:43.932Z set facts.finalReportNotes
+- 2026-09-26T14:52:43.999Z [P1.6] A1 = GO_WITH_CONDITIONS (fable/max): 12 conditions, tracked individually in STATE advisor.A1. C1 done now (SPEC-01 §3 addendum and §8 C3 bullet, ORCHESTRATOR §9 row, mig-p3-infra ctx rewritten, STATE config, sin1 ids moved to facts.neon.legacySin1). C4 already met. C3/C8/C11 encoded in mig-p3-infra.js and mig-p2-code.js. Plan changes A (compact manifest, C9) and B (no app guard; size monitoring plus the H4 cache proof, C10) approved. PLAN §3 corrections: next.config.ts has no duplicate /arc sources; 7 literal sources overlap GSC sources with different destinations (the GSC list comes first). Dependencies unchanged: P1 -> {P2 || P3} -> P4 -> P5.
+- 2026-09-26T14:52:44.053Z [P1.6] step in_progress → done — A1 GO_WITH_CONDITIONS; conditions tracked in advisor.A1
+- 2026-09-26T14:52:44.126Z gate G1 → passed (by verifier (P1-G1-verify, P1.3 summary) + reviewer (harness review r5) + advisor A1) — Rows 1.1-1.6 verified by migration-verifier (inventory re-derived byte-identical; Task B read-only proof re-run after the fix); 1.3 reviewer r5 approve; 1.7 A1 GO_WITH_CONDITIONS (12 conditions in advisor.A1)

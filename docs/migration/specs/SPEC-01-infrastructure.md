@@ -34,7 +34,14 @@ All operations must be **idempotent**: read first, create only if missing, and c
 
 ## 3. Neon via Vercel Marketplace (P3.2)
 
-1. **Adopt the owner's Neon project. Don't provision another.** On 2026-09-26 the owner installed the Neon integration and created Neon project **`rapid-recipe-07132564`** (`STATE.config.neonProjectId`).
+> **Addendum 2026-09-26 (A1 condition C1, binding; supersedes step 1 below).** The owner's project `rapid-recipe-07132564` (store `store_IsJjgV1qX1w7nvrP`, confusingly named `growmax-website`) is in **sin1**, and region can't be changed after creation. In session the owner authorized a new database and had the Neon installation `icfg_tEtDWAPJTdmHAD8eL9GtfV5H` upgraded to **Launch** (`launch_v3`, applied and read back). So P3.2 **provisions a new resource** with step 2's command, amended:
+> `npx --yes vercel@latest integration add neon --name growmax-db-iad1 -m region=<the iad1 / us-east-1 value from --help> -e production --no-env-pull --scope growmax1`
+> - No `-m version` flag (the Neon metadata schema exposes only region and auth). Neon Auth off. No `--plan` other than confirming the already-applied `launch_v3`: if the CLI shows any purchase or plan-change confirmation, stop with a blocker, and never pick `free`.
+> - PG major ≥ 16 is accepted (17 or 18 expected; A1 C2). Record `facts.neon.pgVersion` from the Neon side. P4.1 adds the collation, region and host checks.
+> - Never delete, modify, connect or pull env from the sin1 resource. Its ids live in `facts.neon.legacySin1`, and it's on the owner's decommission checklist.
+> - Steps 3–6 below apply to `growmax-db-iad1`.
+
+1. **(Superseded by the addendum above.) Adopt the owner's Neon project. Don't provision another.** On 2026-09-26 the owner installed the Neon integration and created Neon project **`rapid-recipe-07132564`** (`STATE.config.neonProjectId`).
    - Find the Marketplace resource backed by that Neon project: `vercel integration list --format json`, or REST `GET /v1/storage/stores?teamId=…` and match the Neon project id in its metadata/`externalResourceId`. Adopt it whatever its name, and record `facts.neon.resourceName`.
    - Record its region and PG major version. If the region isn't AWS us-east-1 / iad1, or the PG major is lower than the source's, **don't recreate it**: log it as a risk for A1 to judge (a lower major version is a blocker only if `pg_restore` fails).
    - Accept whichever Vercel environments the owner connected it to. The ignore guard skips previews anyway.
@@ -103,4 +110,5 @@ Never set `NODE_ENV` or `TZ`. **Build-time requirement:** `lib/db.ts` and `lib/s
 - `SESSION_SECRET`, `ADMIN_PASSWORD`, `GOOGLE_CHAT_WEBHOOK_URL` exist for production (type sensitive).
 - Ignore-step command is exactly the production-only guard in §2.3.
 - Protection bypass secret exists (don't print it); access check results recorded.
+- **A1 C3 (2026-09-26):** `functionDefaultRegions` equals the Neon resource's region (iad1). nodeVersion is 22.x (the bare project started on 24.x), framework nextjs, fluid on, and skew protection on (team is Pro). P3.1's evidence shows the ignore-step command was read back byte-exact **before** Git was connected. The connected Neon resource is `growmax-db-iad1`, not the sin1 store `store_IsJjgV1qX1w7nvrP`.
 - Evidence: `evidence/P3.5-infra-readback.json`.

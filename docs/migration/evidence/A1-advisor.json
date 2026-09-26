@@ -1,0 +1,112 @@
+{
+  "checkpoint": "A1",
+  "verdict": "GO_WITH_CONDITIONS",
+  "conditions": [
+    "C1 (before P3.2 starts): rewrite every 'adopt rapid-recipe-07132564, never provision another' instruction the P3 implementer reads, so it provisions a NEW Neon resource instead: .claude/workflows/mig-p3-infra.js ctx string, a dated addendum to docs/migration/specs/SPEC-01-infrastructure.md §3, STATE.config.neonNote/neonResourceName, and the ORCHESTRATOR §9 row. Exact parameters: name growmax-db-iad1 (must differ from the sin1 resource, which is confusingly named growmax-website), -m region=<the iad1 / us-east-1 enum value read from `integration add neon --help`>, no -m version flag (not exposed), Neon Auth off, on the existing launch_v3 installation, -e production only, --no-env-pull. If the CLI presents any purchase or plan-change confirmation beyond confirming the already-applied launch_v3 plan, stop and raise a blocker; never pick free. Move the current sin1 ids (store_IsJjgV1qX1w7nvrP / rapid-recipe-07132564) to facts.neon.legacySin1 so no later step (env pull, SPEC-07 R3 PITR, decommission) targets them; never delete or modify the sin1 resource.",
+    "C2 (PG-major policy, P3.2/P4.1): accept a target major >= 16 (17 or 18 expected). P3.2 records facts.neon.pgVersion from the Neon side; P4.1 records the exact server_version plus datcollate, datctype and the locale provider of the target database and requires code-point (C / C.UTF-8-equivalent) collation matching the source's C.UTF-8; a non-C locale is a blocker (recreate the resource), not a warning. P4.1 also asserts the unpooled DST host is in us-east-1, is not the source host, and is not the sin1 resource's host. Keep P4.2 exactly as SPEC-03 §4 (pg_dump 16.15 in the Sandbox, pg_restore --exit-on-error --single-transaction) so a restore failure leaves Neon empty. The reverse path stays row-level JSON only; never pg_restore a Neon dump into Replit.",
+    "C3 (P3.1/P3.5): functionDefaultRegions must equal the Neon resource's region (iad1). P3.5's read-back asserts region equality explicitly, plus nodeVersion 22.x (the bare project is on 24.x), framework nextjs, fluid on, skew protection on. P3.1 must read back commandForIgnoringBuildStep byte-exact BEFORE `vercel git connect`, and record that ordering in P3.1 evidence.",
+    "C4 (before P4.1): commit the readOnlyScopedUrl fix with scripts/migration/db/readonly-url.selftest.mjs, and have a verifier OTHER than the db-operator re-run both Sandbox probes (psql \"$SRC_URL_RO\" SHOW default_transaction_read_only -> on; CREATE TEMP TABLE -> rejected) and flip P1-G1-verify.json Task B to pass. The db-operator's own P1.1-src-url-ro-fix.json is not gate evidence. Keep the existing P4.1 read-only proof follow-up; note the option only sets a session default, so the scripts' readOnly transactions remain the real enforcement.",
+    "C5 (SPEC-05/runbook, fix before P6.3): switch the www cutover record from CNAME to an A record with Vercel's recommendedIPv4. www.growmax.io holds the replit-verify TXT, and a CNAME cannot coexist with any other record at the same name (Google Cloud DNS enforces this), so the runbook as written would either be rejected by the DNS host or push the owner to delete the TXT the plan says must survive until decommission. Update SPEC-05 §2 step B, §3 detection ('authoritative www A == recommendedIPv4' counts as SWITCHED), SPEC-07 R2 ('delete the Vercel A record, restore A 34.111.179.208'), CUTOVER-RUNBOOK.md Step B and the rollback section, and the CERT_READY notification text. Name the DNS console correctly: Squarespace Domains (domains.squarespace.com), nameservers Google Cloud DNS.",
+    "C6 (P6.5/P8): render Step C (apex) as RECOMMENDED, because the baseline shows the apex 301-ing to http://www.growmax.io (not https), which is SPEC-05 §2's own criterion for doing Step C. Record facts.dns.apexMoved after cutover. scripts/migration/parity/urls.mjs POST_CUTOVER_ENTRIES assume the apex ends at https://www; if the owner leaves the apex on Squarespace, P8.2 must compare the three apex entries against the P6.5 baseline behavior instead of the fixed expectations. A2 must state which mode applies.",
+    "C7 (P6.3, A2 precondition): capture the AUTHORITATIVE TTLs of the www A record and the apex A records (dig against ns-cloud-a1.googledomains.com from the Sandbox; DoH only shows remaining TTL), plus _dmarc and google._domainkey TXT for the 'never touch' list, and put current TTLs into the runbook. A2 requires www TTL <= 300 observed at the authoritative NS, or a runbook wait of at least the old TTL between Step 0 and Step B. PREFLIGHT R3 asked the owner to lower it; nothing verifies it yet.",
+    "C8 (P2.2 and P5.2): blog ordering is nondeterministic for ties: lib/storage.ts:41 orders by created_at desc with no tiebreaker and 89 of 171 published posts share a created_at with another post (largest group 7; boundary ties affect app/page.tsx's slice(0,4), /blog, /llms.txt, /llms-full.txt and the sitemap). At P2.2, compare the local build's /api/blog slug order (restored from .scratch/blog-tables.dump) with Replit's order in the P1.3 raw baseline and record the result. At P5.2, a diff on those URLs may be allowlisted only with pinned a/b values AND a verifier proof that the diff is entirely a permutation among posts with equal created_at (for '/', that every shown post's created_at >= every non-shown published post's). Any other component is a real failure. No code change in the migration; a secondary sort key is an owner follow-up for FINAL-REPORT.",
+    "C9 (plan change A, before P6.5): compact manifest mode approved, with: same capture code path, /api/blog stored as per-slug sha256 of the canonical JSON (drop the duplicated canonical strings; keep jsonArrayLength and the slug multiset) with raw bodies still in .scratch; compare.mjs must hash a full-mode side on the fly so P5.2 (P1.3 full vs Vercel) and P8.2 (P6.5 compact vs fresh) both work; selftest.mjs re-run in compact mode (all 22 cases, reorder still not detected, determinism 0 diffs); a short opus review of the diff; committed P6.5-baseline-manifest.json < 5 MB with sha256 recorded in evidence and STATE.",
+    "C10 (plan change B): no size guard in app code (it would be a behavior change). Instead: P5.2, P6.2 and P8.2 record /api/blog status, decoded byte size and array length on the Vercel side and warn above 3.5 MB (about 260 posts); P6.2 must prove H4 actually caches on Vercel (second fetch of /api/blog returns x-vercel-cache: HIT), otherwise H4 is not delivering its availability benefit; the SPEC-06 uptime workflow checks /api/blog status and size; FINAL-REPORT lists 'BlogPostClient fetches the full 2.27 MB /api/blog per page load; Vercel body cap 4.5 MB' as a pre-existing issue with the fix (fetch summaries only) as an owner task. Whether the cap applies to streamed App Router responses is unverified, so treat it as binding.",
+    "C11 (P2 || P3 rules): parallel is approved provided only the orchestrator commits (explicit paths, never git add -A), P3's implementer touches no source or package files (.vercel/ is gitignored; .env pulls only into .scratch), P2's implementer never touches .vercel/, and P3.3 keeps extracting the webhook URL from `git show origin/main:app/api/demo-requests/route.ts` (independent of P2's working-tree edits). STATE.json writes are already atomic (tmp+rename) and single-writer (MIG_ORCH=1).",
+    "C12 (runbook/A2): state the rollback TLS window: Replit's Let's Encrypt cert for www expires 2026-11-03 and Replit cannot renew via HTTP-01 once www points at Vercel, so a DNS rollback after that date serves an invalid cert until Replit re-issues. Keep the replit-verify TXT and the Replit custom domain until decommission."
+  ],
+  "risks": [
+    {
+      "risk": "Runbook Step B (CNAME at www) conflicts with the replit-verify TXT at the same name; the DNS host will refuse it or the owner will delete the TXT, weakening the rollback path.",
+      "severity": "high",
+      "mitigation": "C5: use an A record (recommendedIPv4) for www; update SPEC-05, SPEC-07 and the runbook template before P6.3; keep the TXT."
+    },
+    {
+      "risk": "Stale 'adopt rapid-recipe-07132564' instructions in the P3 workflow, SPEC-01 §3, STATE.config and ORCHESTRATOR §9 lead the P3 implementer to connect the sin1 resource or to run `integration add` with an unsupported -m version flag, or to accept a purchase prompt.",
+      "severity": "medium",
+      "mitigation": "C1: rewrite the instructions before P3.2; distinct resource name; stop on any purchase confirmation; sin1 ids moved to facts.neon.legacySin1."
+    },
+    {
+      "risk": "Post-cutover apex expectations in urls.mjs assume the apex moved to Vercel while SPEC-05 leaves Step C optional; if the owner skips it, G8a false-fails and the pre-existing https://growmax.io -> http://www hop persists.",
+      "severity": "medium",
+      "mitigation": "C6: Step C rendered as recommended; facts.dns.apexMoved; conditional apex expectations at P8.2; A2 states the mode."
+    },
+    {
+      "risk": "Order nondeterminism among posts sharing created_at can produce visible-text diffs on /, /blog, /llms*.txt and sitemap at P5.2/P8.2 after the restore (physical order and PG major differ), burning a fix round and a demo-test budget slot.",
+      "severity": "medium",
+      "mitigation": "C8: local order check at P2.2; strict permutation proof before any pinned allowlist entry; no code change."
+    },
+    {
+      "risk": "Newer target major (17/18) with a non-C default collation would silently change text ordering semantics; pg_restore 16 into 17/18 itself is supported.",
+      "severity": "medium",
+      "mitigation": "C2: P4.1 records and requires C.UTF-8-equivalent collation; --exit-on-error --single-transaction keeps a failed restore empty."
+    },
+    {
+      "risk": "www TTL is not in the DNS baseline (only the SOA minimum 300), so propagation and rollback time are unknown; Squarespace's DNS UI may not allow TTL edits.",
+      "severity": "medium",
+      "mitigation": "C7: authoritative TTL capture at P6.3; A2 precondition on TTL or an enforced wait."
+    },
+    {
+      "risk": "SRC_URL_RO fix is proven only by the agent that wrote it (self-certified evidence, the same pattern as the P0 stop-hook incident).",
+      "severity": "low",
+      "mitigation": "C4: independent verifier re-runs both probes before P4.1; P1-G1-verify.json Task B updated."
+    },
+    {
+      "risk": "/api/blog (2.27 MB, fetched client-side per page load) is at ~50% of Vercel's 4.5 MB function body cap; growth or a cache-size limit could break blog pages or make H4 silently uncached.",
+      "severity": "low",
+      "mitigation": "C10: size/count recorded at each gate with a 3.5 MB warning; x-vercel-cache HIT proof at P6.2; owner follow-up in FINAL-REPORT."
+    },
+    {
+      "risk": "Rollback TLS window: Replit's cert (expires 2026-11-03) cannot renew after www moves; a late rollback would serve an invalid cert until Replit re-issues.",
+      "severity": "low",
+      "mitigation": "C12: documented in the runbook; decommission timing aware of it."
+    },
+    {
+      "risk": "Running P2 and P3 in one worktree: a swept-in WIP file or a second `git add -A` (as in commit 9d00d61), or P3.1 connecting Git before the ignore guard is in place (Replit syncs to main).",
+      "severity": "low",
+      "mitigation": "C3 and C11: guard read back before git connect; explicit-path staging; role file boundaries."
+    },
+    {
+      "risk": "blog_redirects data never fires (old_path carries a /blog/ prefix, middleware matches the bare slug); parity-neutral now, but if the owner 'fixes' the data later, 95 currently-200 posts start redirecting.",
+      "severity": "low",
+      "mitigation": "Report as pre-existing in FINAL-REPORT; H1's getRedirect safety net is unaffected because those slugs resolve to posts."
+    },
+    {
+      "risk": "Bare Vercel project defaults (node 24.x, framework null) reach the first build unconverged, or the platform adds x-robots-tag noindex on the protected vercel.app host and an unscoped allowlist entry later hides a production-wide noindex at P8.2.",
+      "severity": "low",
+      "mitigation": "C3 read-back; any robots/x-robots-tag allowlist entry must be scoped to the *.vercel.app host and rejected at P8.2 (existing follow-up)."
+    }
+  ],
+  "planChanges": [
+    "PLAN §4 / D1 / SPEC-01 §3: the Neon target is a NEW Vercel-Marketplace Neon resource growmax-db-iad1 in iad1 (us-east-1) on the launch_v3 installation, connected to production only; the owner's sin1 resource rapid-recipe-07132564 is left untouched and goes on the decommission checklist (owner authorization logged 2026-09-26T11:19:24Z). Record as ADR D1a in LOG.md; PLAN.md stays frozen, STATE/LOG carry the change.",
+    "SPEC-01 §3.2 provisioning command: drop `-m version=…` (not exposed by the Neon metadata schema), use `--name growmax-db-iad1`, region metadata for iad1 from --help, no --plan other than confirming the existing launch_v3 installation plan, `-e production --no-env-pull`; §3.5 records the NEW resource's ids and pgVersion; facts.neon.legacySin1 keeps the old ids.",
+    "SPEC-03 §4 P4.1 pre-checks gain: exact server_version; datcollate/datctype/locale provider must be C.UTF-8-equivalent (code-point order); unpooled host in us-east-1, not the source host, not the sin1 host. PG major policy: target major >= 16 accepted (17/18 expected); reverse sync stays row-level.",
+    "SPEC-01 §2.3 and §8: functionDefaultRegions must equal the Neon resource region (iad1); read-back asserts equality, node 22.x, and that the ignore-step guard was read back byte-exact before Git was connected.",
+    "SPEC-05 §2 step B, §3 detection, SPEC-07 R2, CUTOVER-RUNBOOK.md Step B/rollback and the CERT_READY notification: www switches via an A record to Vercel's recommendedIPv4 (a CNAME cannot coexist with the replit-verify TXT at www); rollback = delete the Vercel A, restore A 34.111.179.208. DNS provider text: Squarespace Domains console, Google Cloud DNS nameservers.",
+    "SPEC-05 §2 step C: rendered as recommended (baseline apex 301 -> http://www meets the spec's own criterion). Add facts.dns.apexMoved; P8.2 apex expectations conditional on it (fixed expectations only when moved, else compare with the P6.5 baseline).",
+    "P6.3 capture adds: authoritative TTLs for www and apex A records, and _dmarc / google._domainkey TXT for the never-touch list. A2 precondition: www TTL <= 300 at the authoritative NS or an enforced wait.",
+    "Plan change A approved (compact hash-based baseline manifest before P6.5) with the requirements in condition C9.",
+    "Plan change B resolved as: no app-code size guard; /api/blog size/count recorded at P5.2, P6.2, P8.2 with a 3.5 MB warning; H4 cache proof (x-vercel-cache: HIT) added to the P6.2 suite; SPEC-06 uptime workflow checks /api/blog status and size; FINAL-REPORT owner follow-up to shrink the client payload.",
+    "P2.2 local verification adds the tie-order check (local /api/blog order vs the P1.3 raw baseline). P5.2 handling of tie-order diffs per condition C8. Owner follow-up (not in scope): a secondary sort key in getPublishedBlogPosts.",
+    "SPEC-02: no additions. memorystore and connect-pg-simple stay untouched (dead deps, no runtime path). PLAN §3 fact corrections to log: next.config.ts has no duplicate /arc sources; 7 literal sources overlap GSC sources with different destinations (GSC list first, first match wins, keep as-is; M5 unchanged); DNS host is Squarespace Domains on Google Cloud DNS nameservers; Vercel is Pro (R5 closed early; skew protection applies at P3.1); Neon launch_v3 (R6 mitigated).",
+    "Runbook adds the rollback TLS window (Replit cert expires 2026-11-03, no renewal after the switch) and keeps the content-freeze and replit-verify-TXT-retention rules.",
+    "Dependencies unchanged: P1 -> {P2 || P3} -> P4 -> P5, with the concurrency rules in condition C11."
+  ],
+  "allowlistApprovals": [
+    {
+      "url": "pattern:^/(blog(\\?page=2)?|llms\\.txt|llms-full\\.txt)?$ (i.e. /, /blog, /blog?page=2, /llms.txt, /llms-full.txt) and /sitemap.xml",
+      "field": "visibleTextHash / text / sitemapEntries",
+      "reason": "CONDITIONAL class approval for P5.2 onward: valid only when the verifier proves the A/B difference is entirely a permutation among posts sharing an identical created_at (boundary tie groups included, e.g. the home page's top 4), and only as entries that pin both observed values (expected.a and expected.b). Re-pinning after a Replit edit reshuffles a tie group needs the same proof attached; any other difference on these URLs is a real failure. Not valid for any other field or URL."
+    },
+    {
+      "url": "pattern:^.*$ on the *.vercel.app production alias only",
+      "field": "x-robots-tag",
+      "reason": "CONDITIONAL: only if the platform itself adds a uniform noindex on the protected generated URL at P5.2/P6.2, and only once compare.mjs supports a base-B host scope; the entry must be scoped to the *.vercel.app host so it can never apply at P8.2 on www.growmax.io. Not expected on a production alias; recorded so it is never approved unscoped."
+    }
+  ],
+  "rationale": "Checked at 2026-09-26T14:44:15Z against PLAN §1/§6/§8, VERIFICATION G1, all 14 evidence files, STATE.json, LOG.md, SPEC-01/02/03/04/05/07, the harness and DB scripts, and the app code. No discovered fact invalidates the data or verification strategy: the source is Neon PG 16.15 with exactly the four Drizzle tables, plpgsql only, GAP_START 1,000,000 correctly derived from max id 174, identity 171/171 against live /api/blog, inventory and fingerprints independently re-derived byte-identical with the final scripts, pg_dump/pg_restore 16.15 proven in the Sandbox, the harness approved after five rounds with 22/22 mutation cases and a 288-URL baseline with zero exhausted retries. The evidence supports its claims; the one G1 failure (Task B) is a real tooling defect whose fix is now in the working tree at scripts/migration/db/runner.mjs:131-156 but is proven only by its author, hence condition C4. Three plan assumptions are invalidated and must be amended precisely: the Neon target (sin1, not iad1; region immutable; owner authorized a new DB and upgraded to Launch), so a new iad1 resource co-located with iad1 functions is the right call, with a newer PG major accepted because a 16 dump restores into 17/18 and the reverse path is row-level JSON, guarded by a P4.1 collation check; the DNS runbook, because www carries the replit-verify TXT that forbids a CNAME at the same name, so the switch must use an A record; and the apex, where the baseline (301 to http://www) meets SPEC-05's own Step C criterion while the harness's fixed post-cutover expectations already assume the apex moves. I also found an app-level nondeterminism the plan does not anticipate: created_at ties across 89 of 171 published posts with no secondary sort key, which can surface as text diffs after the restore; it is handled without a code change via a local pre-check and a strictly conditioned allowlist class. Plan change A (compact manifest) is approved with self-test and mixed-mode requirements; plan change B is resolved as measurement and cache proof rather than app code. Nothing here risks data loss or downtime for proceeding to P2 and P3 in parallel under the single-writer rules, so the verdict is GO_WITH_CONDITIONS; conditions C1-C4 gate P3.2/P4.1, C5-C7 and C12 gate P6.3/A2, C8-C10 shape P2.2/P5.2/P6.2, and C11 governs the parallel run.",
+  "step": "P1.6",
+  "gate": "G1",
+  "checkedAt": "2026-09-26T14:48:27.490Z",
+  "verifier": "migration-advisor (fable/max) via .claude/workflows/mig-advisor.js run wf_52fb04e5-ba3; persisted verbatim by the orchestrator"
+}
