@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
-  "status": "BLOCKED",
-  "currentStep": null,
-  "updatedAt": "2026-09-26T10:44:26.214Z",
+  "status": "IN_PROGRESS",
+  "currentStep": "P0.2",
+  "updatedAt": "2026-09-26T10:52:20.554Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -83,19 +83,20 @@
       "action": "Set this cloud environment's Network access to Full: environment menu in the session title bar -> Edit -> Network access (levels: https://code.claude.com/docs/en/claude-code-on-the-web). Alternative: Custom, keeping the Trusted defaults and adding growmax.io, *.growmax.io, *.vercel.app, vercel.com, *.vercel.com, *.neon.tech, dns.google, cloudflare-dns.com. Why: the egress policy denies api.vercel.com, *.vercel.app, *.neon.tech, www.growmax.io and dns.google, so the source DB can't be read and the Vercel CLI / Sandbox SDK (the only secret-safe way to set env vars and run pg_dump) can't be used. Don't start a new session: this session re-tests hourly and continues on its own. Only if you have changed the setting and still get a 'still blocked' notice, start a NEW session on branch claude/wonderful-edison-823y83 with the prompt in docs/migration/KICKOFF-PROMPT.md; it resumes from git and this session stands down.",
       "since": "2026-09-26T10:39:53.304Z",
       "note": "Opened 2026-09-26 after the P0.2 re-derivation; env-class failure, no code fix possible",
-      "resolvedAt": null
+      "resolvedAt": "2026-09-26T10:52:08.403Z",
+      "resolution": "Owner set Network access to Full; the running session picked it up (probes at 2026-09-26T10:52:08Z: api.vercel.com 403-unauth, vercel.com 200, www.growmax.io 200, growmax.io 301, *.vercel.app 404, api.us-west-2.aws.neon.tech 400, dns.google 200)"
     }
   ],
   "gates": {
     "G0": {
-      "status": "failed",
+      "status": "pending",
       "evidence": [
         "docs/migration/evidence/P0.2-vercel.json",
         "docs/migration/evidence/P0.2-G0-orchestrator-review.json"
       ],
       "by": "orchestrator",
-      "at": "2026-09-26T10:38:25.681Z",
-      "note": "Overrules the P0.2 synthesis (pass). 0.2/0.3/0.6/0.7 not met: egress policy denies api.vercel.com, *.vercel.app, *.neon.tech, www.growmax.io, dns.google. Blocker B-NETWORK."
+      "at": "2026-09-26T10:52:08.502Z",
+      "note": "Re-evaluated after B-NETWORK was resolved (P0.2 attempt 2)"
     },
     "G1": {
       "status": "pending",
@@ -194,8 +195,8 @@
       ],
       "gate": "G0",
       "workflow": ".claude/workflows/mig-p0-preflight.js",
-      "status": "blocked",
-      "attempts": 1,
+      "status": "in_progress",
+      "attempts": 2,
       "evidence": [
         "docs/migration/evidence/P0.2-secrets.json",
         "docs/migration/evidence/P0.2-network.json",
@@ -208,9 +209,10 @@
         "2026-09-26T10:20:26.482Z All required secrets present: REPLIT_DATABASE_URL (Neon), VERCEL_TOKEN, ADMIN_PASSWORD, and optional SESSION_SECRET (valid). No blockers.",
         "2026-09-26T10:20:58.147Z Network matrix determined: all paths routed through Vercel Sandbox due to restrictive egress proxy",
         "2026-09-26T10:23:20.247Z Vercel access check completed: MCP on team growmax1 confirmed, VERCEL_TOKEN valid, billing plan hobby (flagged for A2), Neon integration not installed (will install via Marketplace)",
-        "2026-09-26T10:38:25.729Z G0 failed on network policy (env class, owner-only fix). Re-run the full P0.2 workflow once B-NETWORK is resolved; with neon-https available, 0.4 identity can run from the container."
+        "2026-09-26T10:38:25.729Z G0 failed on network policy (env class, owner-only fix). Re-run the full P0.2 workflow once B-NETWORK is resolved; with neon-https available, 0.4 identity can run from the container.",
+        "2026-09-26T10:52:20.554Z Attempt 2 after B-NETWORK resolved; attempt-1 agent evidence removed from the tree (kept in git history and summarized in P0.2-G0-orchestrator-review.json) so every file this run produces is fresh"
       ],
-      "startedAt": "2026-09-26T10:19:22.160Z",
+      "startedAt": "2026-09-26T10:52:20.554Z",
       "completedAt": "2026-09-26T10:23:20.246Z",
       "lastFailureAt": "2026-09-26T10:38:25.728Z"
     },

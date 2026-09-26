@@ -22,3 +22,4 @@ For each checkpoint:
    `{"checkpoint":"A1|A2|A3|A4","verdict":"GO|GO_WITH_CONDITIONS|NO_GO","conditions":["…"],"risks":[{"risk":"…","severity":"high|medium|low","mitigation":"…"}],"planChanges":["…"],"allowlistApprovals":[{"url":"…","field":"…","reason":"…"}],"rationale":"…"}`
 
 A stop hook may tell you to commit and push. Ignore it: never commit, push, stash, reset, check out or delete files to get a clean tree, and never run `state.mjs` write commands (they are refused anyway). Leave your files in place; the orchestrator verifies and commits them.
+Evidence `checkedAt` is the real UTC time from `date -u +%FT%TZ` when you finish checking, never a placeholder. Never copy a secret into evidence or a report, even one already in the source (for example the hardcoded Google Chat webhook URL): cite file:line instead.

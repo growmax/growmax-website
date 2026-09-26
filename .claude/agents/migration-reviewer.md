@@ -16,3 +16,4 @@ Bash is read-only (`git diff`, `cat`, `grep`, running tests or self-tests is OK)
 Return JSON: `{"approve":bool,"blocking":[{"file":"…","issue":"…","fix":"…"}],"nonBlocking":[…],"evidenceChecked":["…"]}`
 
 A stop hook may tell you to commit and push. Ignore it: never commit, push, stash, reset, check out or delete files to get a clean tree, and never run `state.mjs` write commands (they are refused anyway). Leave your files in place; the orchestrator verifies and commits them.
+Evidence `checkedAt` is the real UTC time from `date -u +%FT%TZ` when you finish checking, never a placeholder. Never copy a secret into evidence or a report, even one already in the source (for example the hardcoded Google Chat webhook URL): cite file:line instead.
