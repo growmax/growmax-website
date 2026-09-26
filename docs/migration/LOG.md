@@ -156,3 +156,4 @@
 - 2026-09-26T19:55:53.240Z [P4.2] step pending → in_progress
 - 2026-09-26T19:55:53.292Z [P4.3] step pending → in_progress
 - 2026-09-26T19:55:53.347Z [P4.1] Launching P4 (mig-p4-data.js, amended with A1 C2): args dbPath neon-https, dumpPath sandbox-sdk, identity passed at P0.2 (not deferred). Target growmax-db-iad1 PG 18.6, empty.
+- 2026-09-26T19:56:08.694Z set facts.runs.p4

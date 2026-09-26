@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P4.3",
-  "updatedAt": "2026-09-26T19:55:53.291Z",
+  "updatedAt": "2026-09-26T19:56:08.693Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -169,6 +169,15 @@
           "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
           "pgMajor": 16,
           "vercelApi": "cli"
+        }
+      },
+      "p4": {
+        "runId": "wf_3eb9f063-ebb",
+        "scriptPath": ".claude/workflows/mig-p4-data.js",
+        "args": {
+          "dbPath": "neon-https",
+          "dumpPath": "sandbox-sdk",
+          "identity": "passed at P0.2 (171/171 published slugs + updated_at vs live /api/blog); not deferred"
         }
       }
     },
