@@ -144,3 +144,11 @@
 - 2026-09-26T19:51:39.468Z [P3.2] step blocked → in_progress — Resource exists (owner-accepted); awaiting the independent P3.5 read-back
 - 2026-09-26T19:51:39.512Z [P3.3] step blocked → in_progress — Vars exist (owner-accepted); awaiting the independent P3.5 read-back
 - 2026-09-26T19:51:39.563Z [P3.5] step blocked → in_progress
+- 2026-09-26T19:55:34.824Z set facts.neon
+- 2026-09-26T19:55:34.915Z set advisor.A1
+- 2026-09-26T19:55:35.005Z set facts.followUps
+- 2026-09-26T19:55:35.054Z [P3.2] step in_progress → done — growmax-db-iad1 (store_5rcRxxSXMtnl4VA2) in iad1 on launch_v3, production only, PG 18.6, empty. Created by the orchestrator after the subagent was refused; accepted by the owner; certified by the independent P3.5 read-back.
+- 2026-09-26T19:55:35.102Z [P3.3] step in_progress → done — SESSION_SECRET, ADMIN_PASSWORD, GOOGLE_CHAT_WEBHOOK_URL sensitive in production; preview empty. Owner-accepted; certified by the P3.5 read-back.
+- 2026-09-26T19:55:35.153Z [P3.4] step in_progress → done — Protection bypass for automation exists (1 entry, automation-bypass); secret only in .scratch (mode 600). The access check is deferred to P5.1 (no deployment yet), per facts.followUps.
+- 2026-09-26T19:55:35.205Z [P3.5] step in_progress → done — Independent read-back 5/5 pass (settings, env names/types, env pull hosts, store connections, target DB version and emptiness).
+- 2026-09-26T19:55:35.255Z gate G3 → passed (by verifier (independent P3.5 read-back)) — SPEC-01 §8 plus A1 C3 all pass; the bypass access check is deferred to P5.1 (recorded)
