@@ -1,0 +1,72 @@
+{
+  "step": "P1",
+  "gate": "G1",
+  "status": "pass",
+  "checkedAt": "2026-09-26T14:27:56Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "checks": [
+    {
+      "name": "1.1 Source inventory + fingerprints committed; non-Drizzle tables listed; GAP_START computed and recorded",
+      "expected": "Fresh, independent re-run of inventory.mjs and fingerprint.mjs (post-fix scripts/migration/db/{lib,sync,runner}.mjs) against $REPLIT_DATABASE_URL matches the committed P1.1-source-inventory.json / P1.1-source-fingerprint.json (any diff explained as new source writes since 11:23Z); only the 4 Drizzle tables exist; GAP_START = max(1000000, 10*maxId) = 1000000",
+      "actual": "Ran `NODE_USE_ENV_PROXY=1 node scripts/migration/db/inventory.mjs --db src --out .../P1.1-source-inventory.fresh.json` and the equivalent fingerprint.mjs at 2026-09-26T14:25Z. `diff <(jq 'del(.checkedAt)' committed) <(jq 'del(.checkedAt)' fresh)` was empty for both inventory and fingerprint (byte-identical apart from the timestamp): blog_posts count=171/md5=50846b34..., blog_redirects count=95/md5=7585ffee..., demo_requests count=32/md5=2ecebe76..., newsletter_subscriptions count=0/md5=d41d8cd9... (empty-table md5). No new demo_requests or newsletter rows since 11:23Z (0 writes to explain). extraTables=[] in both runs; schemas=[_system, public]; only tables public.blog_posts/blog_redirects/demo_requests/newsletter_subscriptions exist (columns, constraints, indexes, sequences match verbatim). serverVersion PostgreSQL 16.15, extensions=[plpgsql 1.0] match. Max id across all 4 tables = 174 (blog_posts.maxId); GAP_START = max(1000000, 10*174=1740) = 1000000, matching STATE.json facts.migration.gapStart=1000000 and the P1 ledger note 'GAP_START=1000000 (max id 174)'.",
+      "pass": true
+    },
+    {
+      "name": "1.2 Harness self-test: every mutation detected, order-insensitive case not flagged, determinism OK",
+      "expected": "All mutation-matrix cases pass (order-insensitive reorder-api-blog-array expectDetected=false and not flagged), determinism-two-captures-60s-apart passes with 0 unexplained diffs; protected-deployment-probe deferral must be allowed by SPEC-04 §5.4",
+      "actual": "P1.2-harness-selftest.json overall=\"pass\". mutation-matrix: 22/22 cases pass, including reorder-api-blog-array (expectDetected=false, detected=false, failedUnallowed=0 -- order-insensitive JSON compare correctly not flagged) and all 21 true-positive cases (title/canonical/json-ld/body-text/image/redirect-status/location variants/removed-url/sitemap-lastmod/admin-session/admin-posts/blog-page2-headers/admin-500/post-cutover-* /text-allowlist) each detected with the required fields. determinism-two-captures-60s-apart: pass, compared=288, failedUnallowed=0, unexplainedCount=0. protected-deployment-probe is pass:null / status:\"deferred\", reason \"No Vercel deployment exists yet (this is P1.2, pre-P3.1/P5.2)\" -- read docs/migration/SPEC-04.md §5.4: deferring this probe until a deployment exists is the documented behavior for a pre-P3 checkpoint, so the deferral is allowed and not counted as a failure.",
+      "pass": true
+    },
+    {
+      "name": "1.3 Reviewer approves the harness (no blocking finding)",
+      "expected": "approve=true, 0 blocking",
+      "actual": "P1.2-harness-review.json: approve=true, blocking=[] (12 nonBlocking items recorded, none of which block G1; one of them -- SRC_URL_RO relies on the options=-c default_transaction_read_only=on startup parameter being a default rather than enforcement -- is independently reproduced and detailed below under 'Task B'). status=\"pass\", history shows r1 13 blocking -> r5 0 blocking.",
+      "pass": true
+    },
+    {
+      "name": "1.4 Baseline captured: >= 250 URLs (or shortfall explained), 0 URLs with exhausted network retries",
+      "expected": ">= 250 URLs or explained shortfall; 0 exhausted-retry URLs",
+      "actual": "P1.3-baseline-summary.json status=\"pass\": 288 URLs (>= 250, no shortfall), re-derived from P1.3-baseline-manifest.json: max(entries[].attempts)==1 across all 288 entries, 0 error fields, status distribution 200:223/308:56/307:5/404:3/401:1 sums to 288. All 203 live sitemap <loc> entries present; all 58 next.config.ts/gsc-indexing-redirects.ts sources present; all 95 blog_redirects DB rows present (via the sitemap source, explained as pre-existing stale sitemap entries, not a coverage gap). Manifest hash independently re-verified: sha256sum of docs/migration/.scratch/evidence-large/P1.3-baseline-manifest.json = 0dc04fb7df42ee8643f9d4b3f2c713e72ee6f7fb7a8c43b40aa8c5e266b9bda1, matching the value given in the task exactly.",
+      "pass": true
+    },
+    {
+      "name": "1.5 DNS baseline: NS, www/apex records, MX, TXT, CAA; apex HTTP(S) behavior; current cert issuer/expiry",
+      "expected": "P1.4-dns-baseline.json (scout-verified) internally consistent and complete; CAA absent or permits letsencrypt.org; cert issuer/expiry recorded",
+      "actual": "P1.4-dns-baseline.json records NS (4x Google Domains ns-cloud-a*), apex A records (4 Replit/Squarespace-fronted IPs), MX (Google Workspace), TXT (SPF), CAA=[] (absent -- satisfies the 'CAA absent or permits letsencrypt.org' condition), www A record + replit-verify TXT, apex/www HTTP(S) behavior, and TLS cert (Let's Encrypt YE1, CN www.growmax.io, notAfter 2026-11-03, 38 days at capture time). P1.4-http-behavior.json corrects an earlier false-403 (container egress proxy artifact, not the site) by re-probing from the Sandbox: apex HTTP 301->www (Squarespace), www HTTP 301->https (Replit/Google Frontend), https apex/www behavior and cert reconfirmed; status=\"pass\". This is scout-role evidence per VERIFICATION.md; verified here for internal consistency and completeness only, not re-derived independently (out of this verifier's scope for 1.5).",
+      "pass": true
+    },
+    {
+      "name": "1.6 Code audit confirms the SPEC-02 list; any addition approved by A1",
+      "expected": "All SPEC-02 M1-M5/H1-H4 items audited and confirmed at their expected pre-implementation state; any addition beyond the SPEC-02 list approved by A1",
+      "actual": "P1.5-code-audit.json status=\"pass\", commitSha=1546c4754144f7334788cc70c9b23f250f86338f (confirmed a real ancestor of current HEAD 1271bdd via `git merge-base --is-ancestor`). All of M1-M5 and H1-H4 confirmed at the expected pending/present state (spec02Coverage.allItemsAccountedFor=true). One informational addition beyond SPEC-02's file list: unused legacy deps memorystore/connect-pg-simple (dead code, zero imports found) -- explicitly non-blocking/informational, not a code change requiring A1 sign-off (A1 has not run yet; row 1.7 is pending, see below). Secret-handling: the audit's own note that it quoted the hardcoded webhook URL was caught by state.mjs scan pre-commit and redacted by the orchestrator (see file's orchestratorEdits); the committed file contains no live secret. This verifier did not re-print or re-derive that value.",
+      "pass": true
+    },
+    {
+      "name": "1.7 Advisor A1 = GO or GO_WITH_CONDITIONS",
+      "expected": "A1-advisor.json present with a GO/GO_WITH_CONDITIONS verdict",
+      "actual": "A1-advisor.json not yet produced; A1 runs after this G1 verification per ORCHESTRATOR.md. Not counted as a G1 pass/fail input per task instructions.",
+      "pass": "pending"
+    },
+    {
+      "name": "Task B: SRC_URL_RO read-only proof (Vercel Sandbox runner)",
+      "expected": "SHOW default_transaction_read_only reports 'on' over a session opened with $SRC_URL_RO, and a harmless write (BEGIN; CREATE TEMP TABLE _ro_probe(x int); ROLLBACK;) fails",
+      "actual": "`NODE_USE_ENV_PROXY=1 node scripts/migration/db/runner.mjs exec -- bash -lc 'psql \"$SRC_URL_RO\" -Atc \"show default_transaction_read_only\"'` did NOT connect at all: psql failed with `FATAL: unrecognized configuration parameter \"+default_transaction_read_only\"` (exit code 2), before any query ran. Root cause reproduced independently: readOnlyScopedUrl (scripts/migration/db/runner.mjs:123-134, specifically line 128 `u.searchParams.set(\"options\", ...)`) builds SRC_URL_RO by setting the `options` query parameter via WHATWG URL/URLSearchParams, which percent-encodes the required space in `-c default_transaction_read_only=on` as `+` (application/x-www-form-urlencoded convention: confirmed by re-running the same `new URL(...).searchParams.set(...)` construction locally, producing `options=-c+default_transaction_read_only%3Don`). libpq's connection-URI parser only percent-decodes `%XX` sequences in query values and does not treat a literal `+` as a space, so the server receives the single malformed token `-c+default_transaction_read_only=on`/`+default_transaction_read_only` and rejects it outright at connection time. Net effect: SRC_URL_RO as currently constructed cannot open a session at all over psql/libpq -- it is not merely 'a default, not enforcement' (the P1.2 review's characterization); the read-only scoping is completely non-functional for any client that parses the URI the standard libpq way. This is the carry-forward nonBlocking finding in P1.2-harness-review.json (file: scripts/migration/db/runner.mjs, 'SRC_URL_RO relies on the startup parameter... no recorded proof that the Neon proxy honours it'), now confirmed to be worse than described. No connection string was printed; all output above was masked (://user:pass@ -> ://***:***@) before being surfaced.",
+      "pass": false
+    }
+  ],
+  "artifacts": {
+    "freshInventory": "docs/migration/.scratch/g1-verify/P1.1-source-inventory.fresh.json",
+    "freshFingerprint": "docs/migration/.scratch/g1-verify/P1.1-source-fingerprint.fresh.json",
+    "committedInventory": "docs/migration/evidence/P1.1-source-inventory.json",
+    "committedFingerprint": "docs/migration/evidence/P1.1-source-fingerprint.json",
+    "harnessSelftest": "docs/migration/evidence/P1.2-harness-selftest.json",
+    "harnessReview": "docs/migration/evidence/P1.2-harness-review.json",
+    "urlInventory": "docs/migration/evidence/P1.3-url-inventory.json",
+    "baselineSummary": "docs/migration/evidence/P1.3-baseline-summary.json",
+    "baselineManifest": "docs/migration/.scratch/evidence-large/P1.3-baseline-manifest.json",
+    "dnsBaseline": "docs/migration/evidence/P1.4-dns-baseline.json",
+    "httpBehavior": "docs/migration/evidence/P1.4-http-behavior.json",
+    "codeAudit": "docs/migration/evidence/P1.5-code-audit.json"
+  },
+  "notes": "1.1-1.6 all independently confirmed and passing; gate status is 'pass' per the task's rule that only 1.1-1.6 gate the G1 status. Row 1.7 (A1) is pending, not a failure. The one genuine failing finding is Task B (SRC_URL_RO connection fails outright due to a URL-encoding bug in readOnlyScopedUrl), which is a known, already-recorded nonBlocking carry-forward from the P1.2 harness review (approved with 0 blocking findings) rather than a new G1 defect; it is reported here with a stronger/more precise root cause (complete connection failure, not merely unenforced) for whoever picks it up before it is relied on (e.g. before G4's read-only source access proof)."
+}
