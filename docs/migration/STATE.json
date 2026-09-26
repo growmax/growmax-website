@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": "P1.3",
-  "updatedAt": "2026-09-26T13:06:43.284Z",
+  "currentStep": "P1.2",
+  "updatedAt": "2026-09-26T13:22:01.431Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -76,7 +76,7 @@
       "p1": {
         "runId": "wf_be59e661-e9c",
         "scriptPath": ".claude/workflows/mig-p1-discovery.js",
-        "note": "resume with these exact args (key order matters for the cache)",
+        "note": "resume with these exact args (key order matters for the cache); maxRounds/extraFixesFile added for rung 3",
         "args": {
           "only": [
             "P1.1",
@@ -98,7 +98,9 @@
               "rules": "This bare project exists only to host the Sandbox. Do NOT link Git, deploy, add env vars, or change its settings (P3.1 owns that). Name the Sandbox growmax-migration-runner."
             },
             "carryForward": "Before producing any pg_dump fixture, the runner must prove pg_dump and pg_restore major >= 16 inside the Sandbox (source is PostgreSQL 16.15), and record the versions in the P1.1 evidence."
-          }
+          },
+          "maxRounds": 4,
+          "extraFixesFile": "docs/migration/evidence/P1.2-harness-review-r3.json"
         }
       }
     }
@@ -281,10 +283,13 @@
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
       "status": "in_progress",
-      "attempts": 1,
+      "attempts": 2,
       "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T11:02:52.821Z"
+      "notes": [
+        "2026-09-26T13:22:01.037Z Attempt 1: final review r3 still blocking in scripts/migration/db (sync.mjs delta can resurrect target-deleted rows via the late-commit branch; runner.mjs exec --with-dst skips the full-refresh/cutover guards). Inventory/fingerprints/fixtures/GAP_START=1000000 produced; Sandbox pg_dump/pg_restore 16.15 proven."
+      ],
+      "startedAt": "2026-09-26T13:22:01.209Z",
+      "lastFailureAt": "2026-09-26T13:22:01.036Z"
     },
     {
       "id": "P1.2",
@@ -296,10 +301,15 @@
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
       "status": "in_progress",
-      "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T11:02:52.869Z"
+      "attempts": 2,
+      "evidence": [
+        "docs/migration/evidence/P1.2-harness-review-r3.json"
+      ],
+      "notes": [
+        "2026-09-26T13:22:01.112Z Attempt 1: final review r3 = 6 blocking (4 harness, 2 DB) after two fix rounds (13 -> 7 -> 6). Harness: allowlist value-pinning for text/jsonBySlug; no expected-value post-cutover assertions; --resolve broken on Node 22; functional writes not guarded against answering-host = Replit."
+      ],
+      "startedAt": "2026-09-26T13:22:01.271Z",
+      "lastFailureAt": "2026-09-26T13:22:01.112Z"
     },
     {
       "id": "P1.3",
@@ -326,11 +336,17 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T11:02:52.915Z"
+      "evidence": [
+        "docs/migration/evidence/P1.4-dns-baseline.json",
+        "docs/migration/evidence/P1.4-http-behavior.json"
+      ],
+      "notes": [
+        "2026-09-26T13:22:00.984Z DNS on Google Cloud DNS (Google Domains/Squarespace NS); www A 34.111.179.208 (Replit) + replit-verify TXT; apex A = Squarespace; MX Google Workspace; SPF TXT; no CAA; cert LE YE1 until 2026-11-03. Plain-HTTP behavior re-probed from the Sandbox (the container proxy is HTTPS-only)."
+      ],
+      "startedAt": "2026-09-26T11:02:52.915Z",
+      "completedAt": "2026-09-26T13:22:00.984Z"
     },
     {
       "id": "P1.5",

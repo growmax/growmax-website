@@ -62,25 +62,35 @@ await parallel(Object.keys(tasks).filter(k => only.includes(k)).map(k => async (
 phase('Review')
 // Mandatory adversarial review of BOTH the harness and the DB scripts, after both are built (no race).
 const needReview = only.includes('P1.1') || only.includes('P1.2')
+// args.maxRounds (default 3) lets the orchestrator add fix+review rounds (escalation ladder rung 3) by resuming a
+// run: rounds 1-3 keep byte-identical prompts, so their completed agents replay from the cache.
+const maxRounds = a.maxRounds || 3
 let review = null
-for (let round = 1; needReview && round <= 3; round++) {
+for (let round = 1; needReview && round <= maxRounds; round++) {
+  const prevBlocking = review?.blocking || []
+  const converge = round >= 4
+    ? ` Round ${round} is a convergence round. First check that each blocking finding from the previous round is really fixed and that the fixes introduced no regression: ${JSON.stringify(prevBlocking)}. Then re-scan both the harness and the DB scripts. Count as BLOCKING only defects that could (a) let parity pass while the sites differ in a way users or search engines would notice, (b) lose, duplicate, corrupt or resurrect data, (c) write to the source DB, (d) bypass a safety guard (read-only source, full-refresh/cutover guards, targeting of test writes), or (e) leak a secret or PII; everything else goes in nonBlocking. Your role is read-only, so return the review JSON; the orchestrator persists it as ${EV}/P1.2-harness-review.json.`
+    : ''
   review = await agent(role('reviewer') +
-    `Adversarially review (round ${round}): (1) the parity harness scripts/migration/{parity,functional,visual,perf} against docs/migration/specs/SPEC-04-verification.md and ${EV}/P1.2-harness-selftest.json — can it PASS while www.growmax.io and the Vercel deployment differ in a way users or search engines would notice? (2) scripts/migration/db/*.mjs against SPEC-03 §0/§1/§5 and ${EV}/P1.1-sync-selftest.json — read-only enforcement on the source, secrets only via env (runner.mjs must use the @vercel/sandbox SDK, never MCP), masking, idempotency, watermark/late-commit/natural-key/target-deletion rules, gap handling, the full-refresh guard, and reverse-delta write guards. Write ${EV}/P1.2-harness-review.json. For each blocking finding set file so it can be routed.`,
+    `Adversarially review (round ${round}): (1) the parity harness scripts/migration/{parity,functional,visual,perf} against docs/migration/specs/SPEC-04-verification.md and ${EV}/P1.2-harness-selftest.json — can it PASS while www.growmax.io and the Vercel deployment differ in a way users or search engines would notice? (2) scripts/migration/db/*.mjs against SPEC-03 §0/§1/§5 and ${EV}/P1.1-sync-selftest.json — read-only enforcement on the source, secrets only via env (runner.mjs must use the @vercel/sandbox SDK, never MCP), masking, idempotency, watermark/late-commit/natural-key/target-deletion rules, gap handling, the full-refresh guard, and reverse-delta write guards. Write ${EV}/P1.2-harness-review.json. For each blocking finding set file so it can be routed.` + converge,
     { label: `P1 review r${round}`, phase: 'Review', model: 'opus', effort: 'high', schema: REVIEW, ...RT })
   if (!review) break
   if (review.approve && !review.blocking.length) break
-  if (round === 3) break
+  if (round === maxRounds) break
+  const extra = round >= 3 && a.extraFixesFile
+    ? ` Also read the nonBlocking findings in ${a.extraFixesFile} and fix the ones in your directory, unless a fix would conflict with the spec or reach outside your directory; list any you skip and why.`
+    : ''
   const dbFix = review.blocking.filter(b => (b.file || '').includes('scripts/migration/db'))
   const hFix = review.blocking.filter(b => !(b.file || '').includes('scripts/migration/db'))
   await parallel([
-    ...(dbFix.length ? [() => agent(role('db-operator') + runnerNote + `Fix these blocking review findings in scripts/migration/db/ and re-run the sync self-test (${EV}/P1.1-sync-selftest.json): ${JSON.stringify(dbFix)}`,
+    ...(dbFix.length || extra ? [() => agent(role('db-operator') + runnerNote + `Fix these blocking review findings in scripts/migration/db/ and re-run the sync self-test (${EV}/P1.1-sync-selftest.json): ${JSON.stringify(dbFix)}` + extra,
       { label: `P1.1 fix r${round}`, phase: 'Review', model: 'sonnet', effort: 'high', schema: RESULT })] : []),
-    ...(hFix.length ? [() => agent(role('implementer') + runnerNote + `Fix these blocking review findings in the parity harness, re-run selftest.mjs and rewrite ${EV}/P1.2-harness-selftest.json: ${JSON.stringify(hFix)}`,
+    ...(hFix.length || extra ? [() => agent(role('implementer') + runnerNote + `Fix these blocking review findings in the parity harness, re-run selftest.mjs and rewrite ${EV}/P1.2-harness-selftest.json: ${JSON.stringify(hFix)}` + extra,
       { label: `P1.2 fix r${round}`, phase: 'Review', model: 'sonnet', effort: 'high', schema: RESULT })] : []),
   ])
 }
 const reviewOk = !needReview || (review && review.approve && !review.blocking.length)
-if (needReview && !reviewOk) log('P1 review still has blocking findings after 2 fix rounds — P1.3 skipped, orchestrator must escalate')
+if (needReview && !reviewOk) log(`P1 review still has blocking findings after ${maxRounds - 1} fix rounds — P1.3 skipped, orchestrator must escalate`)
 
 phase('Baseline')
 let baseline = null

@@ -1,0 +1,15 @@
+{
+  "step": "P1.4",
+  "gate": "G1",
+  "status": "pass",
+  "checkedAt": "2026-09-26T13:20:45Z",
+  "verifier": "orchestrator (addendum to the scout's P1.4-dns-baseline.json; probed from the Vercel Sandbox growmax-migration-runner via runner.mjs exec)",
+  "summary": "P1.4-dns-baseline.json records plain-HTTP behavior as 403 host_not_allowed. That was the container egress proxy (HTTPS CONNECT only), not the site. Re-probed from the Sandbox, which has open egress.",
+  "checks": [
+    {"name": "http://growmax.io/ (apex, plain HTTP)", "expected": "observed site behavior", "actual": "301 Location: http://www.growmax.io (Server: Squarespace)", "pass": true},
+    {"name": "http://www.growmax.io/ (www, plain HTTP)", "expected": "observed site behavior", "actual": "301 Location: https://www.growmax.io:443/ (Replit / Google Frontend)", "pass": true},
+    {"name": "https apex/www (from the scout's baseline)", "expected": "recorded", "actual": "https://growmax.io/ 301 -> http://www.growmax.io (Squarespace); https://www.growmax.io/ 200 (Google Frontend, Next.js); cert Let's Encrypt YE1, CN www.growmax.io, notAfter 2026-11-03", "pass": true}
+  ],
+  "artifacts": {"base": "docs/migration/evidence/P1.4-dns-baseline.json"},
+  "notes": "Current apex chain: growmax.io (http or https) -> 301 http://www.growmax.io -> 301 https://www.growmax.io:443/ -> 200. After cutover, Vercel should serve apex -> 308 https://www.growmax.io and http -> https in one hop each; the parity allowlist will need the Location format change (no :443, 301 -> 308)."
+}

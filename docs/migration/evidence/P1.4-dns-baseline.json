@@ -1,0 +1,88 @@
+{
+  "checkedAt": "2026-09-26T11:27:25Z",
+  "dnsProvider": "Google Domains",
+  "ns": [
+    "ns-cloud-a1.googledomains.com",
+    "ns-cloud-a2.googledomains.com",
+    "ns-cloud-a3.googledomains.com",
+    "ns-cloud-a4.googledomains.com"
+  ],
+  "soa": {
+    "primary": "ns-cloud-a1.googledomains.com",
+    "hostmaster": "cloud-dns-hostmaster.google.com",
+    "serial": 41,
+    "refresh": 21600,
+    "retry": 3600,
+    "expire": 259200,
+    "minTtl": 300
+  },
+  "apexRecords": {
+    "A": [
+      "198.49.23.145",
+      "198.185.159.144",
+      "198.49.23.144",
+      "198.185.159.145"
+    ],
+    "AAAA": [],
+    "MX": [
+      { "priority": 1, "host": "aspmx.l.google.com" },
+      { "priority": 5, "host": "alt1.aspmx.l.google.com" },
+      { "priority": 5, "host": "alt2.aspmx.l.google.com" },
+      { "priority": 10, "host": "alt3.aspmx.l.google.com" },
+      { "priority": 10, "host": "alt4.aspmx.l.google.com" }
+    ],
+    "TXT": [
+      "v=spf1 include:_spf.google.com ~all"
+    ],
+    "CAA": []
+  },
+  "wwwRecords": {
+    "A": ["34.111.179.208"],
+    "AAAA": [],
+    "CNAME": null,
+    "TXT": ["replit-verify=0a72e6d7-54c1-47f5-94d3-baceac326366"]
+  },
+  "apexBehavior": {
+    "http": {
+      "status": 403,
+      "reason": "host_not_allowed",
+      "server": "N/A"
+    },
+    "https": {
+      "status": 301,
+      "location": "http://www.growmax.io",
+      "server": "Squarespace"
+    }
+  },
+  "wwwBehavior": {
+    "http": {
+      "status": 403,
+      "reason": "host_not_allowed",
+      "server": "N/A"
+    },
+    "https": {
+      "status": 200,
+      "server": "Google Frontend",
+      "xPoweredBy": "Next.js"
+    }
+  },
+  "tlsCertificate": {
+    "subject": "CN=www.growmax.io",
+    "issuer": "C=US; O=Let's Encrypt; CN=YE1",
+    "notBefore": "2026-08-05T19:23:43Z",
+    "notAfter": "2026-11-03T19:23:42Z",
+    "subjectAltNames": ["www.growmax.io"],
+    "publicKeyType": "EC/prime256v1",
+    "publicKeyBits": 256,
+    "signatureAlgorithm": "ecdsa-with-SHA384",
+    "chainVerification": "ok",
+    "daysUntilExpiry": 38,
+    "tlsVersion": "TLSv1.3"
+  },
+  "notes": {
+    "summary": "DNS hosted by Google Domains; apex resolves to 4 Replit IPs (202X A records); www resolves to Replit IP 34.111.179.208. HTTPS apex redirects to HTTP www (via Squarespace). HTTPS www serves 200 from Google Frontend/Next.js. TLS certificate from Let's Encrypt YE1, valid Aug 5 - Nov 3 2026. Google Workspace MX configured. Replit verification TXT record present on www subdomain.",
+    "httpBehavior": "HTTP (non-TLS) returns 403 for both apex and www, indicating forced HTTPS policy",
+    "tlsStatus": "Certificate valid and properly configured",
+    "dnsStatus": "All DNS records consistent with current Replit hosting"
+  }
+}
