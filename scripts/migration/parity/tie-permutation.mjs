@@ -23,11 +23,12 @@
 //      exactly where B had it) and requires the result to be BYTE-IDENTICAL to A's own text.
 //      This fails on any difference beyond pure reordering — a changed post block, a changed
 //      unrelated part of the page, a block miscount — never just the order signal.
-// /blog is a fully client-rendered page (BlogPostClient fetches /api/blog itself; the
-// initial HTML only embeds that same JSON as an RSC prop, with no independently-diffable
-// per-post markup), so it has no byte-reconstructable block structure; its residual check
-// (checkBlogPageResidual) instead requires per-slug content-hash equality against A's and
-// B's own captured /api/blog entries for exactly the slugs the order check agreed on.
+// /blog (and /blog?page=N) is a fully client-rendered page: the server embeds the full post
+// list as a Next.js RSC prop and the browser renders/paginates it in JS, so it has no
+// byte-reconstructable block structure. Its order AND residual checks both use
+// capture.mjs's extractEmbeddedBlogPosts() to read the PAGE'S OWN embedded post objects
+// directly — never /api/blog's — so a stale cached /blog that disagrees with a fresh
+// /api/blog is still caught even though nothing else on the page would show it.
 // lib/storage.ts also unconditionally PREPENDS a fixed fallback post (lib/arcAiArticle.ts's
 // ARC_AI_ARTICLE_SLUG) whenever the real table has no row for it, which can put it ahead of
 // strictly newer posts — checkPageTiePermutation detects that signature and requires it sit
@@ -47,6 +48,7 @@
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
+import { extractEmbeddedBlogPosts, sha256Text, canonicalStringify } from './lib/extract.mjs'
 
 // lib/arcAiArticle.ts's ARC_AI_ARTICLE_SLUG. Never imported from the .ts source — this
 // toolkit statically references known app constants rather than importing TypeScript,
@@ -205,11 +207,20 @@ export function checkTiePermutation({ postsA, postsB, topN } = {}) {
 
 // --- Per-URL-kind slug/chunk extraction, straight from a captured raw body. ---
 
+/** Per review: each home-page card is exactly ONE `<a ...>...</a>` (verified live — no
+ *  nested anchors), so bound its block to that closing tag — never open-ended to the next
+ *  match or end-of-text, which used to let the page's tail (everything after the last card:
+ *  a "View all articles" CTA, the footer, closing scripts) travel along with whichever post
+ *  ended up last after a reorder, corrupting the residual check for content that was never
+ *  actually part of any post. */
 function findHrefMatches(text) {
   const re = /<a\b[^>]*\bhref="\/blog\/([a-zA-Z0-9_-]+)"/g
   const out = []
   let m
-  while ((m = re.exec(text))) out.push({ slug: m[1], start: m.index })
+  while ((m = re.exec(text))) {
+    const closeIdx = text.indexOf('</a>', m.index)
+    out.push({ slug: m[1], start: m.index, end: closeIdx === -1 ? undefined : closeIdx + '</a>'.length })
+  }
   return out
 }
 
@@ -234,11 +245,17 @@ function findSitemapMatches(text) {
   return out
 }
 
+/** Per review: bound each post to its own LINE (through the trailing newline, or end-of-text
+ *  for a final line with none) — never open-ended to the next match/end-of-text, which used
+ *  to let anything after the last bullet (the file's tail) travel with the last post. */
 function findLlmsLineMatches(text) {
   const re = /^- \[[^\]]*\]\(https?:\/\/[^)]*\/blog\/([a-zA-Z0-9_-]+)\)/gm
   const out = []
   let m
-  while ((m = re.exec(text))) out.push({ slug: m[1], start: m.index })
+  while ((m = re.exec(text))) {
+    const nlIdx = text.indexOf('\n', m.index)
+    out.push({ slug: m[1], start: m.index, end: nlIdx === -1 ? text.length : nlIdx + 1 })
+  }
   return out
 }
 
@@ -251,17 +268,17 @@ function findLlmsSectionMatches(text) {
     const srcMatch = lookahead.match(/Source:\s*https?:\/\/[^\s)]*\/blog\/([a-zA-Z0-9_-]+)/)
     if (srcMatch) out.push({ slug: srcMatch[1], start: m.index })
   }
-  return out
-}
-
-/** /blog is a client-rendered page whose initial HTML embeds the /api/blog array verbatim
- *  as an RSC prop, with the JSON's double quotes backslash-escaped inside the surrounding
- *  script string (optional backslash handles either form). */
-function findBlogEmbeddedJsonMatches(text) {
-  const re = /\\?"slug\\?":\s*\\?"([a-zA-Z0-9_-]+)\\?"/g
-  const out = []
-  let m
-  while ((m = re.exec(text))) out.push({ slug: m[1], start: m.index })
+  // Per review: bound the LAST section at the next level-2 '## ' header (a new major
+  // section), if one follows it, instead of leaving it open to end-of-text — so any trailing
+  // content after the blog section can't silently travel with the last post on a reorder.
+  // Today the file's last blog section already runs to true end-of-file (confirmed live, no
+  // '## ' follows it), so this is a no-op in practice; it's here in case that ever changes.
+  if (out.length > 0) {
+    const last = out[out.length - 1]
+    const searchFrom = last.start + 1 // skip the section's own leading '### ' line
+    const nextH2Rel = text.slice(searchFrom).search(/\n## /)
+    if (nextH2Rel !== -1) last.end = searchFrom + nextH2Rel
+  }
   return out
 }
 
@@ -270,12 +287,15 @@ const KIND_MATCHERS = {
   sitemap: findSitemapMatches,
   'llms-line': findLlmsLineMatches,
   'llms-section': findLlmsSectionMatches,
-  'blog-embedded-json': findBlogEmbeddedJsonMatches,
 }
 
 /** URL -> extraction kind, for the URLs SPEC-04/A1 C8 names (home page, sitemap, llms*.txt).
- *  '/blog' is intentionally absent (see checkBlogPageResidual) — its residual check is
- *  content-hash-based, not a text reconstruction. */
+ *  '/blog' (and /blog?page=N) are intentionally absent — they're handled entirely separately
+ *  (see checkPageTiePermutation's 'blog-embedded-json' branch and checkBlogPageResidual),
+ *  using capture.mjs's own extractEmbeddedBlogPosts() rather than a text-block matcher: /blog
+ *  has no independently-diffable block structure to reconstruct (it's a client render of an
+ *  RSC prop), so its residual check is content-hash-based on the PAGE'S OWN embedded post
+ *  objects, never /api/blog's. */
 export const URL_KINDS = Object.freeze({
   '/': 'href',
   '/sitemap.xml': 'sitemap',
@@ -352,14 +372,55 @@ function reconstructWithOrder(chunksB, slugOrderA) {
  * `createdAtBySlug` must come from A's /api/blog only (never a per-side map).
  */
 export function checkPageTiePermutation({ url, kind, rawTextA, rawTextB, createdAtBySlug, topN } = {}) {
-  const matcher = KIND_MATCHERS[kind]
-  if (!matcher) return { pass: false, reason: 'unknown-kind', detail: { url, kind } }
   if (typeof rawTextA !== 'string' || typeof rawTextB !== 'string') {
     return { pass: false, reason: 'invalid-input', detail: { url, kind, message: 'rawTextA/rawTextB must be strings' } }
   }
   if (!createdAtBySlug || typeof createdAtBySlug !== 'object') {
     return { pass: false, reason: 'invalid-input', detail: { url, kind, message: 'createdAtBySlug (from A\'s /api/blog) is required' } }
   }
+
+  if (kind === 'blog-embedded-json') {
+    // /blog + /blog?page=N: no text-block matcher — extract the PAGE'S OWN embedded post
+    // objects (capture.mjs's extractEmbeddedBlogPosts, same code path a real capture uses)
+    // and run both the order check and the residual check against THEM, never /api/blog's.
+    let postsA, postsB
+    try {
+      postsA = extractEmbeddedBlogPosts(rawTextA)
+    } catch (err) {
+      return { pass: false, reason: 'embedded-posts-parse-error-a', detail: { url, kind, message: String(err.message || err) } }
+    }
+    try {
+      postsB = extractEmbeddedBlogPosts(rawTextB)
+    } catch (err) {
+      return { pass: false, reason: 'embedded-posts-parse-error-b', detail: { url, kind, message: String(err.message || err) } }
+    }
+    let slugOrderA = postsA.map((p) => p.slug)
+    let slugOrderB = postsB.map((p) => p.slug)
+    if (slugOrderA.length === 0) return { pass: false, reason: 'no-posts-found-in-a', detail: { url, kind } }
+
+    const pin = applyPinnedFallback(slugOrderA, slugOrderB, createdAtBySlug, url, kind)
+    if (pin.error) return pin.error
+    slugOrderA = pin.slugOrderA
+    slugOrderB = pin.slugOrderB
+    const { pinnedFallback } = pin
+
+    const missingCreatedAt = [...new Set([...slugOrderA, ...slugOrderB])].filter((s) => createdAtBySlug[s] === undefined)
+    if (missingCreatedAt.length > 0) {
+      return { pass: false, reason: 'missing-created-at', detail: { url, kind, missingCreatedAt: missingCreatedAt.slice(0, 20) } }
+    }
+    const toPost = (slug) => ({ slug, createdAt: new Date(createdAtBySlug[slug]).getTime(), published: true })
+    const coarse = checkTiePermutation({ postsA: slugOrderA.map(toPost), postsB: slugOrderB.map(toPost), topN })
+    if (!coarse.pass) {
+      return { pass: false, reason: coarse.reason, detail: { url, kind, pinnedFallback, coarse: coarse.detail } }
+    }
+
+    const fullSlugOrderA = pinnedFallback ? [pinnedFallback, ...slugOrderA] : slugOrderA
+    const residual = checkBlogPageResidual({ postsA, postsB, slugOrder: fullSlugOrderA })
+    return { pass: residual.pass, reason: residual.reason, detail: { url, kind, pinnedFallback, coarse: coarse.detail, residual: residual.detail } }
+  }
+
+  const matcher = KIND_MATCHERS[kind]
+  if (!matcher) return { pass: false, reason: 'unknown-kind', detail: { url, kind } }
 
   let slugOrderA = dedupeByFirstOccurrence(matcher(rawTextA)).map((m) => m.slug)
   const matchesBRaw = dedupeByFirstOccurrence(matcher(rawTextB))
@@ -369,27 +430,11 @@ export function checkPageTiePermutation({ url, kind, rawTextA, rawTextB, created
     return { pass: false, reason: 'no-posts-found-in-a', detail: { url, kind } }
   }
 
-  // Pinned-fallback handling (see file header): detect the forced-prepend signature in A —
-  // it's first AND older than the post right after it (a real ORDER BY created_at DESC would
-  // never place it there) — then require the identical position in B and strip it from both
-  // before the general algorithm runs.
-  let pinnedFallback = null
-  if (slugOrderA[0] === PINNED_FALLBACK_SLUG && slugOrderA.length > 1) {
-    const pinnedCreatedAt = createdAtBySlug[PINNED_FALLBACK_SLUG]
-    const nextCreatedAt = createdAtBySlug[slugOrderA[1]]
-    if (pinnedCreatedAt !== undefined && nextCreatedAt !== undefined && pinnedCreatedAt < nextCreatedAt) {
-      if (slugOrderB[0] !== PINNED_FALLBACK_SLUG) {
-        return {
-          pass: false,
-          reason: 'pinned-fallback-position-mismatch',
-          detail: { url, kind, expectedSlug: PINNED_FALLBACK_SLUG, aPosition: 0, bFirstSlug: slugOrderB[0] ?? null },
-        }
-      }
-      pinnedFallback = PINNED_FALLBACK_SLUG
-      slugOrderA = slugOrderA.slice(1)
-      slugOrderB = slugOrderB.slice(1)
-    }
-  }
+  const pin = applyPinnedFallback(slugOrderA, slugOrderB, createdAtBySlug, url, kind)
+  if (pin.error) return pin.error
+  slugOrderA = pin.slugOrderA
+  slugOrderB = pin.slugOrderB
+  const { pinnedFallback } = pin
 
   const missingCreatedAt = [...new Set([...slugOrderA, ...slugOrderB])].filter((s) => createdAtBySlug[s] === undefined)
   if (missingCreatedAt.length > 0) {
@@ -400,21 +445,6 @@ export function checkPageTiePermutation({ url, kind, rawTextA, rawTextB, created
   const coarse = checkTiePermutation({ postsA: slugOrderA.map(toPost), postsB: slugOrderB.map(toPost), topN })
   if (!coarse.pass) {
     return { pass: false, reason: coarse.reason, detail: { url, kind, pinnedFallback, coarse: coarse.detail } }
-  }
-
-  if (kind === 'blog-embedded-json') {
-    // No independently-diffable block structure to reconstruct — see checkBlogPageResidual.
-    return {
-      pass: true,
-      reason: null,
-      detail: {
-        url,
-        kind,
-        pinnedFallback,
-        coarse: coarse.detail,
-        residual: { skipped: true, reason: 'blog-embedded-json has no byte-reconstructable block structure; use checkBlogPageResidual against /api/blog per-slug hashes instead' },
-      },
-    }
   }
 
   const fullSlugOrderA = pinnedFallback ? [pinnedFallback, ...slugOrderA] : slugOrderA
@@ -440,31 +470,84 @@ export function checkPageTiePermutation({ url, kind, rawTextA, rawTextB, created
   }
 }
 
-/**
- * /blog's residual check (see the file header): it embeds /api/blog's own JSON with no
- * independently-diffable markup, so instead of a text reconstruction this requires per-slug
- * content-hash equality — for exactly the slugs the order check (above) agreed on — against
- * A's and B's own captured /api/blog entries (jsonBySlugHash in compact mode, or a
- * caller-supplied hash of jsonBySlug in full mode; either way the caller passes plain
- * slug->hash maps here, so this stays mode-agnostic and duplicates no hashing logic).
- */
-export function checkBlogPageResidual({ slugOrderA, perSlugHashA, perSlugHashB }) {
-  if (!Array.isArray(slugOrderA)) return { pass: false, reason: 'invalid-input', detail: { message: 'slugOrderA must be an array' } }
-  const mismatches = []
-  for (const slug of slugOrderA) {
-    const ha = perSlugHashA?.[slug]
-    const hb = perSlugHashB?.[slug]
-    if (ha === undefined || hb === undefined) {
-      mismatches.push({ slug, reason: 'missing-hash', a: ha ?? null, b: hb ?? null })
-    } else if (ha !== hb) {
-      mismatches.push({ slug, reason: 'hash-mismatch', a: ha, b: hb })
+/** Pinned-fallback handling shared by every kind (see the file header): detect the
+ *  forced-prepend signature in A — it's first AND older than the post right after it (a real
+ *  ORDER BY created_at DESC would never place it there) — then require the identical
+ *  position in B and strip it from both before the general algorithm runs. Returns
+ *  `{error}` (a ready-to-return result) on a position mismatch, else the adjusted orders. */
+function applyPinnedFallback(slugOrderA, slugOrderB, createdAtBySlug, url, kind) {
+  if (slugOrderA[0] === PINNED_FALLBACK_SLUG && slugOrderA.length > 1) {
+    const pinnedCreatedAt = createdAtBySlug[PINNED_FALLBACK_SLUG]
+    const nextCreatedAt = createdAtBySlug[slugOrderA[1]]
+    if (pinnedCreatedAt !== undefined && nextCreatedAt !== undefined && pinnedCreatedAt < nextCreatedAt) {
+      if (slugOrderB[0] !== PINNED_FALLBACK_SLUG) {
+        return {
+          error: {
+            pass: false,
+            reason: 'pinned-fallback-position-mismatch',
+            detail: { url, kind, expectedSlug: PINNED_FALLBACK_SLUG, aPosition: 0, bFirstSlug: slugOrderB[0] ?? null },
+          },
+        }
+      }
+      return { pinnedFallback: PINNED_FALLBACK_SLUG, slugOrderA: slugOrderA.slice(1), slugOrderB: slugOrderB.slice(1) }
     }
+  }
+  return { pinnedFallback: null, slugOrderA, slugOrderB }
+}
+
+/**
+ * /blog's residual check (see the file header): it embeds its OWN post objects as an RSC
+ * prop with no independently-diffable byte structure to reconstruct, so instead of a text
+ * reconstruction this requires per-slug content-hash equality directly between A's and B's
+ * OWN extracted embedded objects (postsA/postsB — from extractEmbeddedBlogPosts, never
+ * /api/blog) — for exactly the slugs the order check (above) agreed on ("every field exact").
+ */
+export function checkBlogPageResidual({ postsA, postsB, slugOrder }) {
+  if (!Array.isArray(postsA) || !Array.isArray(postsB) || !Array.isArray(slugOrder)) {
+    return { pass: false, reason: 'invalid-input', detail: { message: 'postsA, postsB and slugOrder must all be arrays' } }
+  }
+  const bySlugA = new Map(postsA.filter((p) => p?.slug).map((p) => [p.slug, p]))
+  const bySlugB = new Map(postsB.filter((p) => p?.slug).map((p) => [p.slug, p]))
+  const mismatches = []
+  for (const slug of slugOrder) {
+    const pa = bySlugA.get(slug)
+    const pb = bySlugB.get(slug)
+    if (!pa || !pb) {
+      mismatches.push({ slug, reason: 'missing', aPresent: !!pa, bPresent: !!pb })
+      continue
+    }
+    const ha = sha256Text(canonicalStringify(pa))
+    const hb = sha256Text(canonicalStringify(pb))
+    if (ha !== hb) mismatches.push({ slug, reason: 'hash-mismatch', a: ha, b: hb })
   }
   return {
     pass: mismatches.length === 0,
     reason: mismatches.length === 0 ? null : 'per-slug-content-mismatch',
-    detail: { comparedSlugs: slugOrderA.length, mismatches: mismatches.slice(0, 20) },
+    detail: { comparedSlugs: slugOrder.length, mismatches: mismatches.slice(0, 20) },
   }
+}
+
+/** Testing/tooling utility: the ordered slug list a given kind's matcher extracts from a raw
+ *  body (deduplicated to first occurrence), exposed so a caller (e.g. a self-test) can build
+ *  a REAL, legitimate tie-permutation fixture from live captured data via buildReorderedText,
+ *  without duplicating this module's own extraction regexes. */
+export function extractOrderedSlugs(kind, text) {
+  const matcher = KIND_MATCHERS[kind]
+  if (!matcher) throw new Error(`unknown kind: ${kind}`)
+  return dedupeByFirstOccurrence(matcher(text)).map((m) => m.slug)
+}
+
+/** Testing/tooling utility: rebuild `text` with its own per-post blocks reassigned to
+ *  `slugOrder` (a permutation of extractOrderedSlugs(kind, text)) — the exact same
+ *  chunk-split-and-reconstruct machinery checkPageTiePermutation's residual check uses, so a
+ *  caller can construct a REAL "pure tie permutation" (or a permutation plus an edit) fixture
+ *  from a live capture instead of a synthetic string. */
+export function buildReorderedText(kind, text, slugOrder) {
+  const matcher = KIND_MATCHERS[kind]
+  if (!matcher) throw new Error(`unknown kind: ${kind}`)
+  const matches = withEnds(dedupeByFirstOccurrence(matcher(text)), text.length)
+  const chunks = splitIntoChunks(text, matches)
+  return reconstructWithOrder(chunks, slugOrder)
 }
 
 function parseArgs(argv) {

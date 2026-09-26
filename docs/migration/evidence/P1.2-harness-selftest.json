@@ -1,29 +1,29 @@
 {
   "step": "P1.2",
   "gate": "G1",
-  "checkedAt": "2026-09-26T16:11:06Z",
+  "checkedAt": "2026-09-26T16:58:22Z",
   "base": "https://www.growmax.io",
   "git": {
-    "sha": "e6518dd2f854b70e2d744b6d0525a9919436d76e",
+    "sha": "ae99b2d574d1c48d69ba88de93521c25e6ba91da",
     "dirtyHarnessFiles": [
       "M scripts/migration/functional/run.mjs",
       " M scripts/migration/parity/capture.mjs",
       " M scripts/migration/parity/compare.mjs",
+      " M scripts/migration/parity/lib/extract.mjs",
       " M scripts/migration/parity/selftest.mjs",
-      " M scripts/migration/parity/urls.mjs",
-      "?? scripts/migration/parity/tie-permutation.mjs"
+      " M scripts/migration/parity/tie-permutation.mjs"
     ]
   },
   "harnessFileHashes": {
-    "scripts/migration/parity/capture.mjs": "35ac1fa00314326189545d22c0b12ebd3ffa2f52c42c0699313fb1b344377df9",
-    "scripts/migration/parity/compare.mjs": "e697aa76a7f7dbfee69df085f85444a6158f8dd3972285b4a174026516db4e66",
+    "scripts/migration/parity/capture.mjs": "eb6bf8e563f95da2884fd4ce95eafe62ca16327275e514cc97435c400a11ee0e",
+    "scripts/migration/parity/compare.mjs": "0d3c207d7898a65e6974db764f9e253db0248ec5ffb26c64c559b3667e0ab2ea",
     "scripts/migration/parity/lib/diff.mjs": "f061d69f3d9450013ace6384b623f44ba0c7ebb623b240e6fd78dc19f673f421",
-    "scripts/migration/parity/lib/extract.mjs": "7207eff611e4691a08d1dfba1ac6ec989c23d21e5d62b6ae60abeac303bf1645",
+    "scripts/migration/parity/lib/extract.mjs": "90b83d7e4be1e9436269d021c0697d5ec4d5f6c025026b6b635c9ea819f6652e",
     "scripts/migration/parity/lib/fetcher.mjs": "a73205f41129949f08f32d38d06a702a76d7aef6ac2753d0c1492ddbb611cd3d",
-    "scripts/migration/parity/selftest.mjs": "47dc864bf6b87096f1f86790bf9fa30c257e2442fe4dbcbe85e21faba9192937",
-    "scripts/migration/parity/tie-permutation.mjs": "cc282c70e0f412a6700ae16b3dafdf906c04132faa695fafbd5ed91a3d0d4a41",
+    "scripts/migration/parity/selftest.mjs": "d9b136e9079cfb5360fe07bc87aeae454760a3dfe9e5ddfde399cfc6215304fa",
+    "scripts/migration/parity/tie-permutation.mjs": "b8a502ea7cf6d90032e7de5ccef74ef60f37330d4d21bca63abf12b84f1c7c00",
     "scripts/migration/parity/urls.mjs": "f5532df1a775a9462829db092fe1a9c2d0814cfee4feba406cb8d7357294867e",
-    "scripts/migration/functional/run.mjs": "f8cf71396e3fdd08fd0e7bb7de1de11c3c563c76fbf2fc9be93d7af91f86daa1",
+    "scripts/migration/functional/run.mjs": "31d54352399f0883397ee4569f439ccb547996797d6e209e655e3cd74b58d5d6",
     "scripts/migration/visual/run.mjs": "2b7c892dc71e1bafc5d1234ff82028929ab97effe014f6cf0335a24f01fcf373",
     "scripts/migration/perf/run.mjs": "9f633137515ebc0b28244474e55ee81655880195faa821193e283339b0a5671e"
   },
@@ -51,10 +51,10 @@
       "fetchErrors": 0
     },
     "compactManifestA": {
-      "bytes": 1303476
+      "bytes": 1360642
     },
     "compactManifestB": {
-      "bytes": 1303480
+      "bytes": 1360641
     }
   },
   "checks": [
@@ -245,6 +245,48 @@
           "failedUnallowed": 1,
           "detectedFields": [
             "jsonBySlug.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-excerpt-edited",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-date-changed",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-missing-post",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "embeddedPosts.<order>",
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-extra-post",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "embeddedPosts.<order>",
+            "embeddedPosts.claude-commerce-agents-b2b-migration-selftest-extra"
           ],
           "pass": true
         },
@@ -496,6 +538,51 @@
       }
     },
     {
+      "name": "tie-swap-real-data",
+      "pass": true,
+      "detail": {
+        "swappedSlugs": [
+          "b2b-sales-tips-strategies-distributors",
+          "integrating-zoho-crm-b2b-ecommerce-guide"
+        ],
+        "legitSwap": {
+          "pass": true,
+          "reason": null
+        },
+        "swapPlusEdit": {
+          "pass": false,
+          "reason": "residual-content-difference"
+        }
+      }
+    },
+    {
+      "name": "embedded-posts-coverage-guard",
+      "pass": true,
+      "detail": {
+        "problems": [],
+        "sameErrorDetected": true,
+        "missingBothDetected": true,
+        "oldManifestNotFlagged": true
+      }
+    },
+    {
+      "name": "flight-row-batching-robustness",
+      "pass": true,
+      "detail": {
+        "realPostCount": 172,
+        "merged": {
+          "pass": true,
+          "extractedCount": 172,
+          "error": null
+        },
+        "splitAcrossChunks": {
+          "pass": true,
+          "extractedCount": 172,
+          "error": null
+        }
+      }
+    },
+    {
       "name": "mutation-matrix-compact",
       "pass": true,
       "detail": [
@@ -624,6 +711,48 @@
           "failedUnallowed": 1,
           "detectedFields": [
             "jsonBySlug.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-excerpt-edited",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-date-changed",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-missing-post",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "embeddedPosts.<order>",
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-extra-post",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "embeddedPosts.<order>",
+            "embeddedPosts.claude-commerce-agents-b2b-migration-selftest-extra"
           ],
           "pass": true
         },
@@ -860,6 +989,48 @@
         "compactAToFullBTextEdit": {
           "detected": true,
           "failedUnallowed": 1
+        },
+        "embeddedPosts": {
+          "excerpt-edited": {
+            "fullAToCompactB": {
+              "detected": true,
+              "failedUnallowed": 1
+            },
+            "compactAToFullB": {
+              "detected": true,
+              "failedUnallowed": 1
+            }
+          },
+          "date-changed": {
+            "fullAToCompactB": {
+              "detected": true,
+              "failedUnallowed": 1
+            },
+            "compactAToFullB": {
+              "detected": true,
+              "failedUnallowed": 1
+            }
+          },
+          "missing-post": {
+            "fullAToCompactB": {
+              "detected": true,
+              "failedUnallowed": 2
+            },
+            "compactAToFullB": {
+              "detected": true,
+              "failedUnallowed": 2
+            }
+          },
+          "extra-post": {
+            "fullAToCompactB": {
+              "detected": true,
+              "failedUnallowed": 2
+            },
+            "compactAToFullB": {
+              "detected": true,
+              "failedUnallowed": 2
+            }
+          }
         }
       }
     },
@@ -867,7 +1038,7 @@
       "name": "real-compact-capture-path",
       "pass": true,
       "detail": {
-        "urlsCaptured": 2,
+        "urlsCaptured": 3,
         "fetchErrors": 0,
         "problems": []
       }

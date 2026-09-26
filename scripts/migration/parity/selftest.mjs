@@ -21,11 +21,18 @@ import { fileURLToPath } from 'node:url'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { execSync } from 'node:child_process'
 import { buildInventory, POST_CUTOVER_ENTRIES } from './urls.mjs'
-import { capture, buildCompactBlogArrayFields, buildCompactTextFields } from './capture.mjs'
+import {
+  capture,
+  buildCompactBlogArrayFields,
+  buildCompactTextFields,
+  buildFullEmbeddedPostsFields,
+  buildCompactEmbeddedPostsFields,
+} from './capture.mjs'
 import { compareManifests } from './compare.mjs'
 import {
   extractHtml,
   extractSitemap,
+  extractEmbeddedBlogPosts,
   canonicalStringify,
   safeFileName,
   sha256,
@@ -39,6 +46,8 @@ import {
   checkPageTiePermutation,
   checkBlogPageResidual,
   postsFromApiBlogBody,
+  extractOrderedSlugs,
+  buildReorderedText,
   URL_KINDS,
 } from './tie-permutation.mjs'
 
@@ -86,6 +95,49 @@ const REQUIRED_CASE_NAMES = [
   'post-cutover-missing-on-b',
   'text-allowlist-pinned-covers-reviewed-diff',
   'text-allowlist-pinned-rejects-other-diff',
+  // SPEC-04 addendum: /blog's embedded post list (capture.mjs's extractEmbeddedBlogPosts).
+  'embedded-posts-excerpt-edited',
+  'embedded-posts-date-changed',
+  'embedded-posts-missing-post',
+  'embedded-posts-extra-post',
+]
+
+/**
+ * SPEC-04 addendum: the 4 required embedded-post-list mutations, as pure transforms over the
+ * REAL parsed posts array (from extractEmbeddedBlogPosts on /blog's raw body) — shared by
+ * buildMutationCases (full/compact mode, via REQUIRED_CASE_NAMES above) and main()'s
+ * mixed-mode-mutation-cases check (full-vs-compact, both directions), so all three modes
+ * exercise the exact same 4 mutations rather than duplicating them per mode.
+ */
+const EMBEDDED_POSTS_MUTATIONS = [
+  {
+    name: 'excerpt-edited',
+    transform: (posts) => {
+      if (posts.length === 0) throw new Error('embedded-posts-excerpt-edited: /blog has zero embedded posts')
+      return posts.map((p, i) => (i === 0 ? { ...p, excerpt: `${p.excerpt ?? ''} MIGRATION-SELFTEST-MUTATED` } : p))
+    },
+  },
+  {
+    name: 'date-changed',
+    transform: (posts) => {
+      if (posts.length === 0) throw new Error('embedded-posts-date-changed: /blog has zero embedded posts')
+      return posts.map((p, i) => (i === 0 ? { ...p, date: 'Jan 1, 1999' } : p))
+    },
+  },
+  {
+    name: 'missing-post',
+    transform: (posts) => {
+      if (posts.length < 2) throw new Error('embedded-posts-missing-post: /blog has fewer than 2 embedded posts')
+      return posts.slice(1)
+    },
+  },
+  {
+    name: 'extra-post',
+    transform: (posts) => {
+      if (posts.length === 0) throw new Error('embedded-posts-extra-post: /blog has zero embedded posts')
+      return [...posts, { ...posts[0], slug: `${posts[0].slug}-migration-selftest-extra`, id: -999999 }]
+    },
+  },
 ]
 
 // SPEC-04 §2.4/§2.6/§2.8: the only URLs that carry a fixed `expect` block. Checked against
@@ -374,6 +426,27 @@ async function buildMutationCases(manifest, { rawDir, base, compact = false }) {
           const mutated = parsed.map((item, i) => (i === 0 ? { ...item, title: `${item.title ?? ''} MUTATED` } : item))
           const e = findEntry(m, (x) => x.url === '/api/blog')
           applyApiBlogFields(e, mutated)
+        },
+      })
+    }
+  }
+
+  const blogEmbedded = findEntry(manifest, (e) => e.url === '/blog' && (e.embeddedPostsBySlug || e.embeddedPostsBySlugHash))
+  if (blogEmbedded) {
+    const applyEmbeddedPostsFields = (e, posts) => {
+      delete e.embeddedPostsBySlug
+      delete e.embeddedPostsBySlugHash
+      delete e.embeddedPostsSlugOrder
+      Object.assign(e, compact ? buildCompactEmbeddedPostsFields(posts) : buildFullEmbeddedPostsFields(posts))
+    }
+    for (const { name, transform } of EMBEDDED_POSTS_MUTATIONS) {
+      cases.push({
+        name: `embedded-posts-${name}`,
+        expectDetected: true,
+        mutate: async (m) => {
+          const raw = (await readRawBin(rawDir, '/blog')).toString('utf8')
+          const posts = extractEmbeddedBlogPosts(raw)
+          applyEmbeddedPostsFields(findEntry(m, (x) => x.url === '/blog'), transform(posts))
         },
       })
     }
@@ -830,6 +903,12 @@ async function toCompactManifest(fullManifest, rawDir) {
       delete e.text
       Object.assign(e, fields)
     }
+    if (e.embeddedPostsBySlug) {
+      const raw = (await readRawBin(rawDir, e.url)).toString('utf8')
+      const posts = extractEmbeddedBlogPosts(raw)
+      delete e.embeddedPostsBySlug
+      Object.assign(e, buildCompactEmbeddedPostsFields(posts))
+    }
   }
   return clone
 }
@@ -978,19 +1057,17 @@ async function testTiePermutationRealData(rawDir) {
       rawTextB: blogNormalized,
       createdAtBySlug,
     })
-    if (!blogSelf.pass) problems.push(`/blog: order self-compare did not pass (${blogSelf.reason})`)
+    if (!blogSelf.pass) problems.push(`/blog: order+residual self-compare did not pass (${blogSelf.reason})`)
 
-    const perSlugHash = {}
-    for (const p of posts) {
-      const item = apiBlogRaw.find((x) => x.slug === p.slug)
-      perSlugHash[p.slug] = sha256Text(canonicalStringify(item))
-    }
-    const slugOrderA = posts.map((p) => p.slug)
-    const residualSelf = checkBlogPageResidual({ slugOrderA, perSlugHashA: perSlugHash, perSlugHashB: perSlugHash })
+    // checkBlogPageResidual on its own (per review: uses the PAGE'S OWN embedded objects,
+    // never /api/blog's), with a real edit on one field.
+    const blogPosts = extractEmbeddedBlogPosts(blogNormalized)
+    const slugOrderA = blogPosts.map((p) => p.slug)
+    const residualSelf = checkBlogPageResidual({ postsA: blogPosts, postsB: blogPosts, slugOrder: slugOrderA })
     if (!residualSelf.pass) problems.push('/blog: residual self-compare did not pass')
 
-    const mutatedHash = { ...perSlugHash, [slugOrderA[0]]: 'MUTATED-HASH' }
-    const residualMutated = checkBlogPageResidual({ slugOrderA, perSlugHashA: perSlugHash, perSlugHashB: mutatedHash })
+    const editedPosts = blogPosts.map((p, i) => (i === 0 ? { ...p, excerpt: `${p.excerpt ?? ''} MUTATED` } : p))
+    const residualMutated = checkBlogPageResidual({ postsA: blogPosts, postsB: editedPosts, slugOrder: slugOrderA })
     if (residualMutated.pass) problems.push('/blog: residual A-vs-(A+edit) unexpectedly passed')
 
     details['/blog'] = {
@@ -1004,6 +1081,170 @@ async function testTiePermutationRealData(rawDir) {
   }
 
   return { pass: problems.length === 0, detail: { problems, cases: details } }
+}
+
+/**
+ * A1 C8, per review: a REAL tie-swap fixture — two posts sharing the exact SAME created_at
+ * in A's own /llms.txt order, physically swapped (a genuine within-tie-group permutation,
+ * the kind a nondeterministic restore could produce) — must PASS; the same swap plus one
+ * extra edit must FAIL. Built via tie-permutation.mjs's own extractOrderedSlugs/
+ * buildReorderedText (the exact machinery the real check itself uses), never a synthetic
+ * string built by hand.
+ */
+async function testTieSwapRealData(rawDir) {
+  const apiBlogRaw = JSON.parse((await readRawBin(rawDir, '/api/blog')).toString('utf8'))
+  const posts = postsFromApiBlogBody(apiBlogRaw)
+  const createdAtBySlug = Object.fromEntries(posts.map((p) => [p.slug, p.createdAt]))
+  const rawText = normalizeText((await readRawBin(rawDir, '/llms.txt')).toString('utf8'))
+  const order = extractOrderedSlugs('llms-line', rawText)
+
+  const byCreatedAt = new Map()
+  order.forEach((slug, i) => {
+    if (i === 0) return // skip the pinned-fallback slot (see tie-permutation.mjs's header)
+    const ca = createdAtBySlug[slug]
+    if (ca === undefined) return
+    if (!byCreatedAt.has(ca)) byCreatedAt.set(ca, [])
+    byCreatedAt.get(ca).push(i)
+  })
+  let pair = null
+  for (const idxs of byCreatedAt.values()) {
+    if (idxs.length >= 2) {
+      pair = [idxs[0], idxs[1]]
+      break
+    }
+  }
+  if (!pair) {
+    return { pass: false, detail: { error: 'no tie group with >=2 members found in /llms.txt to build a real swap fixture' } }
+  }
+
+  const swappedOrder = [...order]
+  ;[swappedOrder[pair[0]], swappedOrder[pair[1]]] = [swappedOrder[pair[1]], swappedOrder[pair[0]]]
+  const swappedText = buildReorderedText('llms-line', rawText, swappedOrder)
+
+  const legit = checkPageTiePermutation({ url: '/llms.txt', kind: 'llms-line', rawTextA: rawText, rawTextB: swappedText, createdAtBySlug })
+  const swappedPlusEditedText = `${swappedText}\n<!-- migration-selftest tie-swap-plus-edit -->`
+  const swapPlusEdit = checkPageTiePermutation({
+    url: '/llms.txt',
+    kind: 'llms-line',
+    rawTextA: rawText,
+    rawTextB: swappedPlusEditedText,
+    createdAtBySlug,
+  })
+
+  return {
+    pass: legit.pass === true && swapPlusEdit.pass === false,
+    detail: {
+      swappedSlugs: [order[pair[0]], order[pair[1]]],
+      legitSwap: { pass: legit.pass, reason: legit.reason },
+      swapPlusEdit: { pass: swapPlusEdit.pass, reason: swapPlusEdit.reason },
+    },
+  }
+}
+
+/** Build one `self.__next_f.push([1,"<data>"])` <script> tag whose recovered string is
+ *  exactly `text` — matching how a real Next.js page embeds each flight chunk. */
+function buildFlightPushScript(text) {
+  return `<script>self.__next_f.push([1,${JSON.stringify(text)}])</script>`
+}
+
+/**
+ * A1 C9/addendum, per review (non-blocking): extractEmbeddedBlogPosts must parse correctly
+ * regardless of how Next.js batches rows into push() calls — a real live capture had 6 of 13
+ * push() calls each holding SEVERAL rows, and this proves the extractor handles that AND the
+ * reverse (one row split across two calls), using the REAL 172-post row recovered from a live
+ * /blog capture, not a synthetic array.
+ */
+async function testFlightRowBatchingRobustness(rawDir) {
+  const raw = (await readRawBin(rawDir, '/blog')).toString('utf8')
+  const realPosts = extractEmbeddedBlogPosts(raw)
+  const postsRowData = `6:${JSON.stringify(realPosts)}`
+
+  // Case 1: the posts row MERGED into one push() call alongside other (non-JSON) rows
+  // before and after it — exactly the batching shape found live.
+  const mergedJoined = `5:I[123,[],""]\n${postsRowData}\n7:I[456,[],""]\n`
+  const mergedHtml = `<!doctype html><html><body>${buildFlightPushScript(mergedJoined)}</body></html>`
+  let mergedPosts = null
+  let mergedError = null
+  try {
+    mergedPosts = extractEmbeddedBlogPosts(mergedHtml)
+  } catch (err) {
+    mergedError = String(err.message || err)
+  }
+
+  // Case 2: the SAME posts row's payload split across TWO push() calls, mid-JSON.
+  const splitPoint = Math.floor(postsRowData.length / 2)
+  const splitJoined1 = `5:I[123,[],""]\n${postsRowData.slice(0, splitPoint)}`
+  const splitJoined2 = `${postsRowData.slice(splitPoint)}\n7:I[456,[],""]\n`
+  const splitHtml = `<!doctype html><html><body>${buildFlightPushScript(splitJoined1)}${buildFlightPushScript(splitJoined2)}</body></html>`
+  let splitPosts = null
+  let splitError = null
+  try {
+    splitPosts = extractEmbeddedBlogPosts(splitHtml)
+  } catch (err) {
+    splitError = String(err.message || err)
+  }
+
+  const realSlugs = realPosts.map((p) => p.slug)
+  const mergedOk = mergedPosts !== null && mergedPosts.length === realPosts.length && JSON.stringify(mergedPosts.map((p) => p.slug)) === JSON.stringify(realSlugs)
+  const splitOk = splitPosts !== null && splitPosts.length === realPosts.length && JSON.stringify(splitPosts.map((p) => p.slug)) === JSON.stringify(realSlugs)
+
+  return {
+    pass: mergedOk && splitOk,
+    detail: {
+      realPostCount: realPosts.length,
+      merged: { pass: mergedOk, extractedCount: mergedPosts?.length ?? null, error: mergedError },
+      splitAcrossChunks: { pass: splitOk, extractedCount: splitPosts?.length ?? null, error: splitError },
+    },
+  }
+}
+
+/**
+ * Blocking fix (round 3 review): compareEntry() used to only diff embeddedPostsError when
+ * the two sides' errors DIFFERED, so A and B failing identically produced NO diff at all
+ * (failedUnallowed stayed 0) and the listing silently dropped out of parity. Also proves
+ * checkEmbeddedPostsCoverage()'s manifest-level `harness.embeddedPosts` marker: a 2xx /blog
+ * entry with neither the embeddedPosts* fields nor an error must fail ONLY when the manifest
+ * declares it ran the new capture code, never for an older manifest without that marker.
+ */
+async function testEmbeddedPostsCoverageGuard() {
+  const problems = []
+
+  const mkManifest = (entry, harness) => ({ entries: [entry], assets: {}, harness })
+  const errorEntry = (message) => ({
+    url: '/blog',
+    status: 200,
+    contentType: 'text/html',
+    headers: {},
+    html: {},
+    embeddedPostsError: message,
+  })
+  const bareEntry = { url: '/blog', status: 200, contentType: 'text/html', headers: {}, html: {} }
+
+  const sameError = await compareManifests(
+    mkManifest(errorEntry('same parse failure'), { embeddedPosts: 1 }),
+    mkManifest(errorEntry('same parse failure'), { embeddedPosts: 1 }),
+    {},
+  )
+  const sameErrorDetected = sameError.failedUnallowed >= 1 && sameError.diffs.some((d) => d.field === 'embeddedPostsError')
+  if (!sameErrorDetected) problems.push('same embeddedPostsError on both sides was not detected as a failing diff')
+
+  const missingBothNewCode = await compareManifests(mkManifest(bareEntry, { embeddedPosts: 1 }), mkManifest(bareEntry, { embeddedPosts: 1 }), {})
+  const missingBothDetected = missingBothNewCode.failedUnallowed >= 1 && missingBothNewCode.diffs.some((d) => d.field === 'embeddedPostsMissing')
+  if (!missingBothDetected) problems.push('a new-code 2xx /blog entry with neither fields nor error was not detected')
+
+  const missingBothOldManifest = await compareManifests(mkManifest(bareEntry, undefined), mkManifest(bareEntry, undefined), {})
+  const oldManifestNotFlagged = !missingBothOldManifest.diffs.some((d) => d.field === 'embeddedPostsMissing')
+  if (!oldManifestNotFlagged) problems.push('an OLD manifest (no harness.embeddedPosts marker) was wrongly flagged by embeddedPostsMissing')
+
+  return {
+    pass: problems.length === 0,
+    detail: {
+      problems,
+      sameErrorDetected,
+      missingBothDetected,
+      oldManifestNotFlagged,
+    },
+  }
 }
 
 function nowUtc() {
@@ -1195,6 +1436,26 @@ async function main() {
   const tiePermutationReal = await testTiePermutationRealData(rawDirA)
   checks.push({ name: 'tie-permutation-real-data', pass: tiePermutationReal.pass, detail: tiePermutationReal.detail })
 
+  // --- Check 7c (per review): a REAL legitimate tie swap (must pass) and that same swap
+  // plus an edit (must fail), built from live /llms.txt + /api/blog data. ---
+  console.log('[selftest] testing a real legitimate tie swap (and swap+edit) ...')
+  const tieSwap = await testTieSwapRealData(rawDirA)
+  checks.push({ name: 'tie-swap-real-data', pass: tieSwap.pass, detail: tieSwap.detail })
+
+  // --- Check 7d (BLOCKING, round 3 review): compareEntry must diff embeddedPostsError even
+  // when both sides have the SAME error, and checkEmbeddedPostsCoverage's harness marker
+  // guard must fire only for a new-code manifest. ---
+  console.log('[selftest] testing the embeddedPosts coverage guard (same-error + missing-marker) ...')
+  const embeddedPostsGuard = await testEmbeddedPostsCoverageGuard()
+  checks.push({ name: 'embedded-posts-coverage-guard', pass: embeddedPostsGuard.pass, detail: embeddedPostsGuard.detail })
+
+  // --- Check 7e (per review, non-blocking): extractEmbeddedBlogPosts's row parser must
+  // survive Next.js batching several rows into one push() call, and a single row split
+  // across two push() calls — using the REAL 172-post row from a live /blog capture. ---
+  console.log('[selftest] testing flight-row batching robustness (merged + split chunks) ...')
+  const flightRowRobustness = await testFlightRowBatchingRobustness(rawDirA)
+  checks.push({ name: 'flight-row-batching-robustness', pass: flightRowRobustness.pass, detail: flightRowRobustness.detail })
+
   // --- Check 8: compact manifest mode (A1 C9). All derived offline from manifestA/B's
   // already-saved raw bodies (toCompactManifest), through the exact same compaction
   // functions real --compact capture calls — never a third/fourth live capture. ---
@@ -1294,6 +1555,20 @@ async function main() {
     else e.text = normalized
     return clone
   }
+  /** SPEC-04 addendum: apply one of EMBEDDED_POSTS_MUTATIONS to a cloned manifest's /blog
+   *  entry, rebuilding whichever mode's fields `compact` asks for from the REAL parsed
+   *  posts array (extractEmbeddedBlogPosts on the raw body), same as buildMutationCases. */
+  async function mutateEmbeddedPosts(manifest, { rawDir, compact, transform }) {
+    const clone = structuredClone(manifest)
+    const raw = (await readRawBin(rawDir, '/blog')).toString('utf8')
+    const posts = extractEmbeddedBlogPosts(raw)
+    const e = findEntry(clone, (x) => x.url === '/blog')
+    delete e.embeddedPostsBySlug
+    delete e.embeddedPostsBySlugHash
+    delete e.embeddedPostsSlugOrder
+    Object.assign(e, compact ? buildCompactEmbeddedPostsFields(transform(posts)) : buildFullEmbeddedPostsFields(transform(posts)))
+    return clone
+  }
   const isDetected = (diff) => {
     const unallowed = diff.diffs.filter((d) => !d.reportOnly && !d.allowlisted)
     return unallowed.length >= 1 && diff.failedUnallowed >= 1
@@ -1309,39 +1584,69 @@ async function main() {
   const mixedCfText = await mutateRobotsText(manifestA, { rawDir: rawDirA, compact: false })
   const mixedCfTextDiff = await compareManifests(compactManifestA, mixedCfText, { rawDirA, rawDirB: rawDirA })
 
+  // SPEC-04 addendum: the same 4 required embedded-post-list mutations, mixed mode, both
+  // directions (8 sub-cases in total) — proving all 4 are detected regardless of which side
+  // is compact.
+  const embeddedPostsMixedResults = {}
+  for (const { name, transform } of EMBEDDED_POSTS_MUTATIONS) {
+    const fc = await mutateEmbeddedPosts(compactManifestA, { rawDir: rawDirA, compact: true, transform })
+    const fcDiff = await compareManifests(manifestA, fc, { rawDirA, rawDirB: rawDirA })
+    const cf = await mutateEmbeddedPosts(manifestA, { rawDir: rawDirA, compact: false, transform })
+    const cfDiff = await compareManifests(compactManifestA, cf, { rawDirA, rawDirB: rawDirA })
+    embeddedPostsMixedResults[name] = {
+      fullAToCompactB: { detected: isDetected(fcDiff), failedUnallowed: fcDiff.failedUnallowed },
+      compactAToFullB: { detected: isDetected(cfDiff), failedUnallowed: cfDiff.failedUnallowed },
+    }
+  }
+  const embeddedPostsMixedAllDetected = Object.values(embeddedPostsMixedResults).every(
+    (r) => r.fullAToCompactB.detected && r.compactAToFullB.detected,
+  )
+
   checks.push({
     name: 'mixed-mode-mutation-cases',
-    pass: isDetected(mixedFcFieldDiff) && isDetected(mixedCfFieldDiff) && isDetected(mixedFcTextDiff) && isDetected(mixedCfTextDiff),
+    pass:
+      isDetected(mixedFcFieldDiff) &&
+      isDetected(mixedCfFieldDiff) &&
+      isDetected(mixedFcTextDiff) &&
+      isDetected(mixedCfTextDiff) &&
+      embeddedPostsMixedAllDetected,
     detail: {
       fullAToCompactBFieldChange: { detected: isDetected(mixedFcFieldDiff), failedUnallowed: mixedFcFieldDiff.failedUnallowed },
       compactAToFullBFieldChange: { detected: isDetected(mixedCfFieldDiff), failedUnallowed: mixedCfFieldDiff.failedUnallowed },
       fullAToCompactBTextEdit: { detected: isDetected(mixedFcTextDiff), failedUnallowed: mixedFcTextDiff.failedUnallowed },
       compactAToFullBTextEdit: { detected: isDetected(mixedCfTextDiff), failedUnallowed: mixedCfTextDiff.failedUnallowed },
+      embeddedPosts: embeddedPostsMixedResults,
     },
   })
 
-  // --- Check 10 (per review): the REAL --compact capture path, exercised once (cheap — 2
+  // --- Check 10 (per review): the REAL --compact capture path, exercised once (cheap — 3
   // URLs), not just the offline toCompactManifest() derivation used above. ---
-  console.log('[selftest] exercising the real capture({compact:true}) path (2 URLs) ...')
+  console.log('[selftest] exercising the real capture({compact:true}) path (3 URLs) ...')
   const realCompactRawDir = path.join(scratchRoot, 'raw-real-compact')
   const realCompactManifest = await capture({
     base,
     urls: [
       { url: '/api/blog', source: 'special-api' },
       { url: '/robots.txt', source: 'special' },
+      { url: '/blog', source: 'special' },
     ],
     rawDir: realCompactRawDir,
-    concurrency: 2,
+    concurrency: 3,
     compact: true,
   })
   const realApiBlog = findEntry(realCompactManifest, (e) => e.url === '/api/blog')
   const realRobots = findEntry(realCompactManifest, (e) => e.url === '/robots.txt')
+  const realBlog = findEntry(realCompactManifest, (e) => e.url === '/blog')
   const realCompactProblems = []
   if (!realCompactManifest.compact) realCompactProblems.push('manifest.compact is not true')
   if (!realApiBlog?.jsonBySlugHash || typeof realApiBlog.jsonArrayLength !== 'number') realCompactProblems.push('/api/blog missing jsonBySlugHash/jsonArrayLength')
   if (realApiBlog?.jsonBySlug || realApiBlog?.jsonCanonical) realCompactProblems.push('/api/blog unexpectedly carries full-mode jsonBySlug/jsonCanonical')
   if (!realRobots?.textHash || typeof realRobots.textPreview !== 'string') realCompactProblems.push('/robots.txt missing textHash/textPreview')
   if (realRobots?.text !== undefined) realCompactProblems.push('/robots.txt unexpectedly carries full-mode text')
+  if (!realBlog?.embeddedPostsBySlugHash || !Array.isArray(realBlog.embeddedPostsSlugOrder))
+    realCompactProblems.push('/blog missing embeddedPostsBySlugHash/embeddedPostsSlugOrder')
+  if (realBlog?.embeddedPostsBySlug) realCompactProblems.push('/blog unexpectedly carries full-mode embeddedPostsBySlug')
+  if (realBlog?.embeddedPostsError) realCompactProblems.push(`/blog embeddedPostsError: ${realBlog.embeddedPostsError}`)
   checks.push({
     name: 'real-compact-capture-path',
     pass: realCompactProblems.length === 0,

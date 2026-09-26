@@ -6,6 +6,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { createTwoFilesPatch, firstNLines } from './lib/diff.mjs'
 import { sha256Text, normalizeText, safeFileName } from './lib/extract.mjs'
+import { EMBEDDED_POST_LIST_URL_RE } from './capture.mjs'
 
 // A1 C10: /api/blog is ~50% of Vercel's 4.5MB function body cap at 171 posts (~2.27MB); a
 // WARNING (never a failure) above this threshold at ~260 posts gives advance notice. Exact
@@ -225,6 +226,48 @@ function compareEntry(a, b, opts) {
     const refsB = normalizeAssetRefList(b.assetRefs)
     if (!multisetsEqual(multisetOf(refsA), multisetOf(refsB)))
       diffs.push({ field: 'assetRefs', category: 'content', a: refsA, b: refsB })
+
+    // SPEC-04 addendum: /blog and /blog?page=N's embedded post list (capture.mjs's
+    // extractEmbeddedBlogPosts) — the PAGE'S OWN client-rendered content, compared directly
+    // rather than delegated to /api/blog (a stale cached page could disagree with a fresh
+    // /api/blog with nothing else on the page showing it). A capture-time extraction failure
+    // on either side is itself a comparable, unallowlistable-by-omission signal.
+    //
+    // Blocking fix (round 3 review): this used to only diff when the two errors DIFFERED,
+    // so A and B failing with the SAME embeddedPostsError produced no diff at all and the
+    // listing silently dropped out of parity (confirmed: failedUnallowed stayed 0). Diff
+    // whenever EITHER side has an error, regardless of equality — 'embeddedPostsError' is
+    // in FORBIDDEN_ALLOWLIST_FIELDS below, so this can never be allowlisted away either.
+    if (a.embeddedPostsError !== undefined || b.embeddedPostsError !== undefined) {
+      diffs.push({ field: 'embeddedPostsError', category: 'other', a: a.embeddedPostsError ?? null, b: b.embeddedPostsError ?? null })
+    }
+    if (a.embeddedPostsBySlug || b.embeddedPostsBySlug || a.embeddedPostsBySlugHash || b.embeddedPostsBySlugHash) {
+      // Mode-agnostic per-slug hash, same on-the-fly-hash-a-full-side pattern as /api/blog's
+      // jsonBySlug/jsonBySlugHash above.
+      const perSlugHash = (side, slug) => {
+        if (side?.embeddedPostsBySlugHash && slug in side.embeddedPostsBySlugHash) return side.embeddedPostsBySlugHash[slug]
+        if (side?.embeddedPostsBySlug && slug in side.embeddedPostsBySlug) return sha256Text(side.embeddedPostsBySlug[slug])
+        return undefined
+      }
+      const orderA = a.embeddedPostsSlugOrder || []
+      const orderB = b.embeddedPostsSlugOrder || []
+      for (const slug of new Set([...orderA, ...orderB])) {
+        const va = perSlugHash(a, slug)
+        const vb = perSlugHash(b, slug)
+        if (va === undefined || vb === undefined) {
+          diffs.push({ field: `embeddedPosts.${slug}`, category: 'content', a: va ?? 'missing', b: vb ?? 'missing' })
+        } else if (va !== vb) {
+          diffs.push({ field: `embeddedPosts.${slug}`, category: 'content', a: va, b: vb })
+        }
+      }
+      // Order is a FAILING field by default here — UNLIKE /api/blog's slug-set-only compare
+      // (which is deliberately order-insensitive per SPEC-04 §3). A legitimate tie-order
+      // permutation can only be reconciled by an allowlist entry backed by a
+      // tie-permutation.mjs proof (A1 C8), never silently accepted in this comparison.
+      if (!isEqualJson(orderA, orderB)) {
+        diffs.push({ field: 'embeddedPosts.<order>', category: 'content', a: orderA, b: orderB })
+      }
+    }
   }
 
   if (a.sitemapEntries || b.sitemapEntries) {
@@ -369,7 +412,12 @@ const ISO_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/
  * not *which* values are being suppressed, so it can silently cover a real, different diff
  * that happens to land within budget.
  */
-const FORBIDDEN_ALLOWLIST_FIELDS = new Set(['presence', 'status'])
+// SPEC-04 addendum (round 3 review, blocking): 'embeddedPostsError' (a capture-time failure
+// to extract /blog's embedded post list) and 'embeddedPostsMissing' (a 2xx /blog-like entry
+// with neither the embeddedPosts* fields nor an error — see checkEmbeddedPostsCoverage) are
+// both harness-integrity signals, never a cosmetic content difference an allowlist entry
+// should be able to hide.
+const FORBIDDEN_ALLOWLIST_FIELDS = new Set(['presence', 'status', 'embeddedPostsError', 'embeddedPostsMissing'])
 
 // The `text` and `jsonBySlug.<slug>` fields used to pin the constant string '<diff>' as
 // their observed a/b values (see compareEntry), which made `expected: {a:'<diff>', b:'<diff>'}`
@@ -597,30 +645,81 @@ function compareAssetMaps(assetsA = {}, assetsB = {}) {
   return diffs
 }
 
-async function readRawText(rawDir, url) {
-  if (!rawDir) return null
+/**
+ * Read a rawDir artifact for a text-diff fallback and VERIFY it against the manifest's own
+ * stored hash before trusting it (per review): a stale `.text.txt`/`.bin` left over from a
+ * DIFFERENT capture run (rawDir is caller-supplied and long-lived — nothing here guarantees
+ * it's the exact same run as the manifest being compared) would otherwise silently produce a
+ * unified diff against the WRONG content. Returns `{ text, verified }`: `text` is null and
+ * `verified` is false whenever the file is missing/unreadable OR its hash doesn't match
+ * `expectedHash` — the caller then falls back to the short preview and records that the
+ * verification failed, rather than trusting an unverified file.
+ */
+async function readVerifiedRawFile(filePath, decode, expectedHash) {
+  let text
   try {
-    return await readFile(path.join(rawDir, `${safeFileName(url)}.text.txt`), 'utf8')
+    const buf = await readFile(filePath)
+    text = decode(buf)
   } catch {
-    return null
+    return { text: null, verified: false, mismatch: false }
   }
+  if (expectedHash === undefined || expectedHash === null) return { text, verified: true, mismatch: false }
+  if (sha256Text(text) !== expectedHash) return { text: null, verified: false, mismatch: true }
+  return { text, verified: true, mismatch: false }
+}
+
+/** `.text.txt` is HTML's visibleTextHash artifact (see capture.mjs), verified against it. */
+async function readRawText(rawDir, url, expectedHash) {
+  if (!rawDir) return { text: null, verified: false, mismatch: false }
+  return readVerifiedRawFile(path.join(rawDir, `${safeFileName(url)}.text.txt`), (buf) => buf.toString('utf8'), expectedHash)
 }
 
 /** Per review (A1 C9): capture.mjs writes every URL's raw response body to `--raw-dir`
  *  regardless of --compact (only the derived `.text`/`.textHash` MANIFEST field differs by
  *  mode) — so when a text/plain side is compact (no `.text`), fall back to that raw `.bin`
  *  file, run it through the exact same normalizeText() capture.mjs itself applies, and use
- *  the result for a real unified diff and a real classifyTextDiff instead of just a preview.
- *  Returns null (never throws) when the raw file doesn't exist, so the caller can fall back
- *  further to the short textPreview. */
-async function readRawTextPlainBody(rawDir, url) {
-  if (!rawDir) return null
-  try {
-    const buf = await readFile(path.join(rawDir, `${safeFileName(url)}.bin`))
-    return normalizeText(buf.toString('utf8'))
-  } catch {
-    return null
+ *  the result for a real unified diff and a real classifyTextDiff instead of just a preview —
+ *  but only once verified against `expectedHash` (the manifest's own textHash for that side). */
+async function readRawTextPlainBody(rawDir, url, expectedHash) {
+  if (!rawDir) return { text: null, verified: false, mismatch: false }
+  return readVerifiedRawFile(path.join(rawDir, `${safeFileName(url)}.bin`), (buf) => normalizeText(buf.toString('utf8')), expectedHash)
+}
+
+/**
+ * Blocking fix (round 3 review): a 2xx /blog(-like) entry with NEITHER embeddedPosts* fields
+ * NOR an embeddedPostsError is invisible to the per-slug/order comparison in compareEntry —
+ * this can only happen when the capture code itself never attempted the extraction (a bug,
+ * or a manifest from before this feature existed). Checked ONLY for a manifest that
+ * DECLARES it ran the new capture code (`harness.embeddedPosts === 1`, set by capture.mjs's
+ * capture()), so an older manifest without that marker is never wrongly judged by a rule it
+ * couldn't have satisfied. Returns diffs in the same {url, field, category, a, b} shape
+ * compareAssetMaps uses, for the same top-level (non-compareEntry) treatment.
+ */
+function checkEmbeddedPostsCoverage(manifestA, manifestB) {
+  const diffs = []
+  for (const [side, manifest] of [
+    ['a', manifestA],
+    ['b', manifestB],
+  ]) {
+    if (manifest?.harness?.embeddedPosts !== 1) continue
+    for (const e of manifest.entries || []) {
+      if (!EMBEDDED_POST_LIST_URL_RE.test(e.url)) continue
+      const isSuccess2xx = !e.error && typeof e.status === 'number' && e.status >= 200 && e.status < 300
+      if (!isSuccess2xx) continue
+      const hasFields = !!(e.embeddedPostsBySlug || e.embeddedPostsBySlugHash)
+      const hasError = e.embeddedPostsError !== undefined
+      if (!hasFields && !hasError) {
+        diffs.push({
+          url: e.url,
+          field: 'embeddedPostsMissing',
+          category: 'other',
+          a: side === 'a' ? 'missing-both-fields-and-error' : null,
+          b: side === 'b' ? 'missing-both-fields-and-error' : null,
+        })
+      }
+    }
   }
+  return diffs
 }
 
 export async function compareManifests(
@@ -679,8 +778,21 @@ export async function compareManifests(
         // `_inlineTextA`/B ever set for it) keeps using `.text.txt` via readRawText,
         // unaffected.
         const rawTextReader = d.field === 'text' ? readRawTextPlainBody : readRawText
-        const textA = '_inlineTextA' in d ? d._inlineTextA : await rawTextReader(rawDirA, url)
-        const textB = '_inlineTextB' in d ? d._inlineTextB : await rawTextReader(rawDirB, url)
+        let textA, textB
+        if ('_inlineTextA' in d) {
+          textA = d._inlineTextA
+        } else {
+          const r = await rawTextReader(rawDirA, url, d.a)
+          textA = r.text
+          if (r.mismatch) d.rawVerificationFailedA = true
+        }
+        if ('_inlineTextB' in d) {
+          textB = d._inlineTextB
+        } else {
+          const r = await rawTextReader(rawDirB, url, d.b)
+          textB = r.text
+          if (r.mismatch) d.rawVerificationFailedB = true
+        }
         const previewA = d._previewA
         const previewB = d._previewB
         delete d._inlineTextA
@@ -738,6 +850,24 @@ export async function compareManifests(
       allDiffs.push(d)
       continue
     }
+    const allowed = matchAllowlist(allowlist, d.url, d.field, { a: d.a, b: d.b }, usageCounts)
+    const entryDiff = { ...d }
+    if (allowed) {
+      entryDiff.allowlisted = true
+      entryDiff.approvedBy = allowed.entry.approvedBy
+      if (!allowlistHits.has(allowed.index)) allowlistHits.set(allowed.index, new Set())
+      allowlistHits.get(allowed.index).add(d.url)
+      allowlisted++
+    } else {
+      failedUnallowed++
+    }
+    byCategory[d.category] = (byCategory[d.category] || 0) + 1
+    allDiffs.push(entryDiff)
+  }
+
+  // Blocking fix (round 3): embeddedPostsMissing is in FORBIDDEN_ALLOWLIST_FIELDS, so
+  // matchAllowlist below can never find a covering entry for it — it always fails.
+  for (const d of checkEmbeddedPostsCoverage(manifestA, manifestB)) {
     const allowed = matchAllowlist(allowlist, d.url, d.field, { a: d.a, b: d.b }, usageCounts)
     const entryDiff = { ...d }
     if (allowed) {

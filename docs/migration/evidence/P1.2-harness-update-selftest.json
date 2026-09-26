@@ -1,58 +1,109 @@
 {
   "step": "P1.2-update",
   "gate": "G1",
-  "purpose": "SPEC-04 §2 addendum (2026-09-26) coverage + A1 conditions C8/C9/C10, FIX ROUND after opus review did not approve the first pass.",
-  "checkedAt": "2026-09-26T16:06:48Z",
-  "gitShaAtImplementation": "e6518dd2f854b70e2d744b6d0525a9919436d76e",
+  "purpose": "SPEC-04 §2 addendum (2026-09-26) coverage + A1 conditions C8/C9/C10, FIX ROUND 3: a blocking gap in round 2's /blog fix (compareEntry never diffed embeddedPostsError when both sides had the SAME error — the listing could silently drop out of parity) plus 4 robustness notes.",
+  "checkedAt": "2026-09-26T16:53:40Z",
+  "gitShaAtImplementation": "ae99b2d574d1c48d69ba88de93521c25e6ba91da",
+  "fixRound3": {
+    "note": "Round 2 (fixRound2 below, git sha 4f532b0) was reviewed a third time before being committed; that review (recorded by the orchestrator as ae99b2d, LOG.md/STATE.json only — no code was committed) found one BLOCKING issue in the /blog change plus 4 robustness notes. All fixed and re-verified live below.",
+    "blocking": {
+      "gap": "compareEntry() only pushed an embeddedPostsError diff when a.embeddedPostsError !== b.embeddedPostsError. If BOTH sides failed /blog extraction with the SAME error message (e.g. the same Next.js version on both, hitting the same parser edge case), no diff was recorded at all and the reviewer confirmed failedUnallowed stayed 0 — the entire /blog listing would silently drop out of parity exactly when the harness itself was most likely to be blind (a shared extraction failure).",
+      "fix": [
+        "compare.mjs: the embeddedPostsError check now pushes a diff whenever EITHER side has an error, unconditionally (not gated on inequality). 'embeddedPostsError' is now in FORBIDDEN_ALLOWLIST_FIELDS (alongside the new 'embeddedPostsMissing'), so it can never be allowlisted away either — verified live: a synthetic same-error-both-sides manifest pair now produces failedUnallowed=1.",
+        "compare.mjs: new checkEmbeddedPostsCoverage(manifestA, manifestB) — a 2xx /blog(-like) entry with NEITHER embeddedPosts* fields NOR embeddedPostsError (the capture code never even attempted extraction) now fails as field 'embeddedPostsMissing'. Gated on a NEW manifest-level marker (capture.mjs's capture() now returns `harness: {embeddedPosts: 1}`) so an OLDER manifest captured before this feature existed is never wrongly judged by a rule it couldn't have satisfied — verified live with 3 synthetic cases: same-error-both-sides fails; a new-code (marker present) bare 2xx /blog entry on both sides fails; the identical bare entry on an OLD manifest (no marker) does NOT fail."
+      ],
+      "selfTestCasesAdded": "'embedded-posts-coverage-guard': both sides with the same embeddedPostsError must fail (verified); a new-code 2xx /blog entry with neither fields nor error must fail (verified); the same case on an old (unmarked) manifest must NOT fail (verified) — all 3 passed live."
+    },
+    "nonBlockingFixed": [
+      "lib/extract.mjs's RSC flight parser rewritten to JOIN all self.__next_f.push() strings in document order FIRST, then split the joined buffer into rows (id:data, newline-terminated, except 'T' text rows which use an explicit hex BYTE-length prefix and can contain literal newlines in their own payload) — instead of treating each push() call as exactly one row, which silently skipped 6 of 13 live push() calls that actually held several rows each. Also found and fixed a real edge case while verifying: some rows have an EMPTY id (a bare ':HL[...]' hint row) — my first cut's row-id regex required at least one hex digit and stopped parsing dead at the first one, undercounting rows 42 vs the reviewer's 49; fixed with an optional hex-digit id. Verified live: the join-then-split parser now finds exactly 49 rows, consumes the ENTIRE joined buffer (byte-exact), and finds exactly one 172-post array — matching the reviewer's own test exactly. extractEmbeddedBlogPosts() now also requires EXACTLY ONE candidate array (throws on >1, not 'keep the longest'), matching its own docstring.",
+      "New self-test 'flight-row-batching-robustness': using the REAL 172-post row recovered from a live /blog capture, (1) merged into one push() call alongside other non-JSON rows before and after it, and (2) split mid-JSON across two separate push() calls — both still extract all 172 posts in the same order. Both passed live.",
+      "functional/run.mjs: fetchWithTimeout() now wraps the body read (arrayBuffer()) inside the same AbortController deadline as the fetch() call itself, not just the headers — previously the abort only covered the connection/header phase, and a response that started streaming promptly but never finished could still hang past the intended 20s deadline.",
+      "tie-permutation.mjs: /llms-full.txt's LAST section is now bounded at the next level-2 '## ' header if one follows it (searched from just past the section's own '### ' line), instead of always running open to end-of-text. Verified live the real file's self-compare is unaffected (its last blog section genuinely runs to true end-of-file, confirmed again this round), and with a synthetic trailing '## Other stuff' section appended, a reorder of the real sections no longer drags that trailing content along with whichever section ends up last."
+    ]
+  },
+  "fixRound2": {
+    "note": "Round 1 (fixRound below, git sha e6518dd) was approved and committed as 4f532b0. This round adds the reviewer's follow-up: extracting and comparing /blog's own embedded post-list data, plus 4 smaller review notes on top of that.",
+    "mainItem": {
+      "gap": "/blog and /blog?page=N (BlogPostClient) fetch nothing server-side — the server embeds the FULL post list as a Next.js RSC ('flight') prop and the browser renders/paginates it in JS. Verified live: 0 of 172 post titles land in /blog's extracted visible text and 0 /blog/<slug> links are found (extractHtml strips <script> content before hashing visible text, and the embedded data is never HTML markup). So the listing's titles, excerpts, rendered dates, order and count were entirely invisible to parity — a stale cached /blog or a Vercel date-rendering difference would have passed unnoticed.",
+      "fix": [
+        "lib/extract.mjs: new extractEmbeddedBlogPosts(rawHtml). Every `self.__next_f.push([<n>,\"<data>\"])` call's <data> is exactly a JSON string literal (JSON.parse('\"<data>\"') recovers it byte-for-byte, verified against the live site including a doubly-escaped ld+json script's innerHTML); each recovered `<segmentId>:<value>` is parsed as JSON where possible (some are non-JSON 'I[...]' import directives — skipped, not an error), then recursively searched for an array of plain objects that ALL carry a string `slug` field (the shape of the embedded post list, found live at initialPosts — a prop name deliberately not hardcoded). ALWAYS THROWS (never returns []) when it can't find exactly one qualifying array — verified live: /blog and /blog?page=2 both yield exactly 172 posts in the SAME order as /api/blog, with fields {id, title, category, date, slug, author, excerpt, published} (a trimmed subset of /api/blog's own fields — NOT identical, confirmed live); the home page ('/') correctly throws (no such array embedded there at all, since its 4 posts are real server-rendered links, not client-hydrated).",
+        "capture.mjs: EMBEDDED_POST_LIST_URL_RE scopes this to exactly '/blog' and '/blog?page=<N>' (never any other page — verified live that no other page embeds a qualifying array, so this can't misfire). Full mode records embeddedPostsSlugOrder (ordered, duplicates preserved) + embeddedPostsBySlug (slug -> canonical JSON, 'every field exact'); compact mode records embeddedPostsSlugOrder + embeddedPostsBySlugHash (slug -> sha256), mirroring buildCompactBlogArrayFields's shape for /api/blog. A parse failure sets its OWN embeddedPostsError field (never silently omits the fields as if the page had zero posts) without discarding the rest of `record.html` that DID extract successfully.",
+        "compare.mjs: new comparison block (inside the existing is2xxHtml guard) — per-slug hash equality (every field exact, mode-agnostic via the same on-the-fly-hash-a-full-side pattern as /api/blog) PLUS a strict order-array equality check (embeddedPosts.<order>), both as ordinary FAILING fields. Unlike /api/blog's deliberately order-insensitive compare, a pure reorder here fails by default — a legitimate tie permutation can only be reconciled via an allowlist entry backed by a tie-permutation.mjs proof (A1 C8), never silently accepted. An asymmetric embeddedPostsError between sides is its own comparable field.",
+        "tie-permutation.mjs: the 'blog-embedded-json' kind (used for /blog) now calls lib/extract.mjs's extractEmbeddedBlogPosts() directly for BOTH the order check and the residual check (checkBlogPageResidual, now taking {postsA, postsB, slugOrder} — the page's own parsed objects — instead of the old {perSlugHashA, perSlugHashB} sourced from /api/blog). This is the exact fix the reviewer asked for: 'make tie-permutation's /blog residual use the page's own embedded objects instead of /api/blog.'"
+      ],
+      "verifiedLive": [
+        "extractEmbeddedBlogPosts on /blog and /blog?page=2 each yield exactly 172 posts in identical order to /api/blog and to each other.",
+        "capture({compact:false}) and capture({compact:true}) both scoped correctly: embeddedPostsSlugOrder/By Slug(Hash) present ONLY for /blog and /blog?page=2 among 3 test URLs ('/', '/blog', '/blog?page=2'); '/' has neither field nor an error (correctly not attempted).",
+        "checkBlogPageResidual with a mutated excerpt correctly fails with reason per-slug-content-mismatch.",
+        "Full self-test (see selfTestRun below): all 4 required embedded-post-list mutations (excerpt edited, date changed, missing post, extra post) detected in FULL mode, COMPACT mode, and BOTH mixed-mode directions (8/8 mixed sub-cases); A-vs-A (self-compare-zero-diffs, determinism-two-captures-60s-apart, determinism-compact-mode, mixed-mode-compare-both-directions) all still 0 unexplained diffs with the new fields present."
+      ]
+    },
+    "smallNotesFixed": [
+      "tie-permutation.mjs: findHrefMatches ('/') and findLlmsLineMatches ('/llms.txt') now bound each post's block to its own card (its closing </a>) or line (through the trailing newline) instead of leaving it open-ended to the next match/end-of-text — verified live that a reorder's reconstruction no longer drags the page's tail (a 'View all articles' CTA + footer on '/', anything after the last bullet on /llms.txt) along with whichever post ends up last. /sitemap.xml (explicit <url>...</url> bounds) and /llms-full.txt (the file's last blog section already runs to true end-of-file, confirmed live — no real tail exists there) needed no change.",
+      "compare.mjs: readRawText()/readRawTextPlainBody() now VERIFY sha256Text(normalizeText(raw)) (or the .text.txt content's hash) against the manifest's own stored hash (d.a/d.b) before trusting the rawDir file; on a mismatch they report {verified:false, mismatch:true} and the diff gets rawVerificationFailedA/B:true, falling back to the short preview instead of building a unified diff from unverified (possibly stale/from-a-different-run) content. Verified live: corrupting a compact side's raw .bin file without updating its stored hash correctly sets rawVerificationFailedB:true and falls back to preview.",
+      "selftest.mjs: new 'tie-swap-real-data' check — finds a REAL pair of posts sharing the exact same created_at in A's own live /llms.txt order (excluding the pinned-fallback slot), swaps them via tie-permutation.mjs's own extractOrderedSlugs/buildReorderedText (new exported utilities, the exact machinery the real residual check itself uses — never a synthetic string), and confirms the swap alone PASSES while the same swap plus one extra edit FAILS. Verified live: swapped 'b2b-sales-tips-strategies-distributors' <-> 'integrating-zoho-crm-b2b-ecommerce-guide' (a genuine tie pair); legit swap passed, swap+edit failed with reason residual-content-difference.",
+      "functional/run.mjs: checkCacheHit's two fetches now go through fetchWithTimeout() (AbortController, 20s), and the whole function is wrapped in a try/catch returning {pass:false, detail:{error}} on a timeout/abort instead of letting it hang or crash the suite."
+    ]
+  },
   "fixRound": {
-    "note": "This supersedes the round-1 evidence written earlier in this file (git sha ae42c88c6b7fc79941f2a6909e8615e226896cec). The opus review found tie-permutation.mjs invalid as an A1 C8 proof (it operated on abstract post lists, never the real page) plus 6 non-blocking issues. All are fixed below; nothing from round 1 is left unaddressed.",
+    "note": "This supersedes the round-1 evidence written earlier in this file (git sha ae42c88c6b7fc79941f2a6909e8615e226896cec). The opus review found tie-permutation.mjs invalid as an A1 C8 proof (it operated on abstract post lists, never the real page) plus 6 non-blocking issues. All were fixed and this round's result (git sha e6518dd) was approved and committed as 4f532b0.",
     "blockingFixed": [
-      "tie-permutation.mjs rewritten: checkPageTiePermutation(url, kind, rawTextA, rawTextB, createdAtBySlug, topN) now extracts each side's OWN /blog/<slug> occurrence order directly from a real captured page body — an <a href> for '/', <url><loc> document order for /sitemap.xml (not lib/extract.mjs's sorted extractSitemap), a markdown list line for /llms.txt, a '### '-headed section (with a nearby 'Source: .../blog/<slug>' line) for /llms-full.txt — using ONE createdAt map built from A's /api/blog only. Runs the coarse group/multiset permutation check against that real order, then a residual check: reconstructs B's own text with its per-post blocks put back into A's exact slug order (every non-post byte of B stays exactly where B had it) and requires the result BYTE-IDENTICAL to A's own text, failing on any other difference. /blog is a fully client-rendered page (embeds /api/blog's own JSON as an RSC prop, no independently-diffable markup), so its residual check (checkBlogPageResidual) instead requires per-slug content-hash equality against A's/B's own captured /api/blog entries for the slugs the order check agreed on. The top-N boundary is now a RELATIVE test: B's shown slug SET may differ from A's only by members of the ONE tie group straddling the cutoff (never an absolute value comparison). lib/storage.ts's getPublishedBlogPosts() unconditionally prepends lib/arcAiArticle.ts's ARC_AI_ARTICLE_SLUG ('claude-commerce-agents-b2b') whenever the DB has no row for it — confirmed live (it currently sits first in /api/blog with an OLDER created_at, 2026-09-05, than the post right after it, which a real ORDER BY created_at DESC would never do); the checker detects that exact signature, requires the identical position on both sides, and excludes it from the rest of the analysis. The file header now states exactly what the tool proves.",
-      "Added self-test cases built from REAL captured data (docs/migration/evidence carries none of this raw data; it lives only in .scratch — see selftest results below): 'tie-permutation-real-data' runs checkPageTiePermutation/checkBlogPageResidual against the live captured raw bodies for /, /sitemap.xml, /llms.txt, /llms-full.txt and /blog — A-vs-A (self) passes for every one, and A-vs-(A + one extra text edit) fails for every one, with the residual check correctly attributing the failure to 'residual-content-difference' (or, for /blog, 'per-slug-content-mismatch')."
+      "tie-permutation.mjs rewritten: checkPageTiePermutation(url, kind, rawTextA, rawTextB, createdAtBySlug, topN) extracts each side's OWN /blog/<slug> occurrence order directly from a real captured page body, checks it against ONE createdAt map built from A's /api/blog only, then (for non-/blog kinds) a byte-identical residual reconstruction. The top-N boundary is a RELATIVE test (B's shown set may differ from A's only within the boundary tie group). Handles lib/storage.ts's pinned ARC AI fallback article.",
+      "Added self-test cases built from REAL captured data: 'tie-permutation-real-data' (A-vs-A passes, A-vs-(A+edit) fails, for /, /sitemap.xml, /llms.txt, /llms-full.txt and /blog)."
     ],
     "nonBlockingFixed": [
-      "tie-permutation.mjs: checkTiePermutation() now fails loudly (reason 'unpublished-item-present') on any published:false item instead of silently filtering it out; slug-set comparison is now a true multiset (Map of counts), not a Set+length check (which could hide e.g. A=[x,x,y] vs B=[x,y,y]); the CLI rejects a non-numeric/non-positive --top-n with an explicit FAIL and exit 2; every result carries tieGranularity:'millisecond' so a caller never mistakes calendar-day proximity for a tie.",
-      "urls.mjs source 1c (sitemap-b): fetchSitemapPaths() now takes an optional bypassSecret, sent ONLY as x-vercel-protection-bypass and ONLY to baseB's own sitemap.xml fetch (verified with a fake fetchImpl: A's sitemap/api-blog fetches never receive it, only B's does). buildInventory() now fetches 1b/1c's data early (still hard-fail-loudly) but defers the actual record() calls for 'blog-api-slug'/'sitemap-b' until AFTER every expect-bearing source (section 4's /api/admin/session /api/admin/posts, section 6's /blog?page=2), so a URL collision can never let a non-expect source silently shadow an expect block via push()'s first-write-wins dedupe. CLI gained --bypass-secret-file (read via readFile+trim, matching capture.mjs's own convention).",
-      "functional/run.mjs's checkCacheHit now also requires the second fetch to be status 200 with a non-empty decoded body, not just x-vercel-cache: HIT (a cached error page or empty body would otherwise still pass).",
-      "compare.mjs (A1 C10): checkBlogApiSize() (renamed from checkBlogApiSizeWarnings) now ALWAYS returns both sides' bytes/jsonArrayLength in the result (result.blogApiSize.sizes.{a,b}), not only when over threshold; the CLI logs them on every run. Threshold changed from 3.5*1024*1024 (3,670,016) to the exact 3,500,000 bytes the advisor text uses.",
-      "compare.mjs: the 'text' field's needsTextDiff handling now falls back to the raw .bin body in --raw-dir (via a new readRawTextPlainBody(), through the same normalizeText() capture.mjs applies) to build a REAL unified diff + classifyTextDiff when that side is compact and the raw file exists — verified with a live /robots.txt capture (mutating the compact side's stored textHash to a hash of an edited body and confirming compare.mjs's diff.preview is a real unified-diff string, not the {a,b} preview fallback). Falls back further to the short textPreview (or the other side's own available text) only when no raw file is available.",
-      "selftest.mjs: added 'mixed-mode-mutation-cases' — a field change (one /api/blog item's title) and a text edit (robots.txt), each run in BOTH directions (full-A vs compact-B, compact-A vs full-B) and each required to be DETECTED, not just that unmutated sides agree (which the existing 'mixed-mode-compare-both-directions' determinism-style check already covered). Added 'real-compact-capture-path': the REAL capture({compact:true}) code path exercised once live (2 URLs: /api/blog + /robots.txt — cheap), asserting the resulting manifest actually carries jsonBySlugHash/textHash (never the full-mode jsonBySlug/jsonCanonical/text fields)."
+      "tie-permutation.mjs: fails loudly on published:false; true multiset slug-set comparison; CLI rejects non-numeric --top-n; tieGranularity:'millisecond' noted.",
+      "urls.mjs source 1c: bypassSecret sent ONLY to baseB; 1b/1c recorded AFTER all expect-bearing sources.",
+      "functional/run.mjs's checkCacheHit also requires status 200 + non-empty body.",
+      "compare.mjs (A1 C10): checkBlogApiSize() always emits both sides' bytes/jsonArrayLength; threshold is exactly 3,500,000 bytes.",
+      "compare.mjs: readRawTextPlainBody() raw-.bin-through-normalizeText() fallback for a compact 'text' field, for a real unified diff instead of only a preview.",
+      "selftest.mjs: 'mixed-mode-mutation-cases' (field change + text edit, both directions) and 'real-compact-capture-path' (the real capture({compact:true}) path exercised once live)."
     ]
   },
   "changedFiles": [
     {
-      "path": "scripts/migration/parity/urls.mjs",
-      "sha256": "f5532df1a775a9462829db092fe1a9c2d0814cfee4feba406cb8d7357294867e",
-      "change": "Fix round: fetchSitemapPaths() takes an optional bypassSecret (x-vercel-protection-bypass only); buildInventory() takes baseBBypassSecret (sent only to baseB); 1b/1c's record() calls moved to after all expect-bearing sources (still fetched early, still hard-fail-loudly on error). CLI gained --bypass-secret-file. (Round 1 additions — sources 1b 'blog-api-slug' and 1c 'sitemap-b', both hard-failing on fetch error — are otherwise unchanged.)"
+      "path": "scripts/migration/parity/lib/extract.mjs",
+      "sha256": "90b83d7e4be1e9436269d021c0697d5ec4d5f6c025026b6b635c9ea819f6652e",
+      "change": "Round 3: the RSC flight parser rewritten to join-then-split (joinFlightPushStrings + splitFlightRows, replacing the old one-row-per-push()-call extractFlightSegments), with 'T' text-row byte-length handling and an empty-id ('bare :HL[...]') fix. extractEmbeddedBlogPosts() now requires EXACTLY ONE candidate array (throws on >1). (Round 2's collectSlugArrays/extractQuotedJsStringAt helpers are otherwise unchanged.)"
     },
     {
       "path": "scripts/migration/parity/capture.mjs",
-      "sha256": "35ac1fa00314326189545d22c0b12ebd3ffa2f52c42c0699313fb1b344377df9",
-      "change": "Unchanged since round 1 (no review finding against it): --compact flag, buildCompactBlogArrayFields()/buildCompactTextFields(), compact /api/blog (jsonArrayLength+jsonBySlugHash+slugMultiset) and text/plain (textHash+textPreview) fields, full mode byte-identical to pre-update."
+      "sha256": "eb6bf8e563f95da2884fd4ce95eafe62ca16327275e514cc97435c400a11ee0e",
+      "change": "Round 3: EMBEDDED_POST_LIST_URL_RE now exported (reused by compare.mjs's checkEmbeddedPostsCoverage). capture()'s returned manifest now carries a `harness: {embeddedPosts: 1}` marker. (Round 2's buildFullEmbeddedPostsFields/buildCompactEmbeddedPostsFields and captureOne wiring are otherwise unchanged.)"
     },
     {
       "path": "scripts/migration/parity/compare.mjs",
-      "sha256": "e697aa76a7f7dbfee69df085f85444a6158f8dd3972285b4a174026516db4e66",
-      "change": "Fix round: checkBlogApiSize() always emits both sides' bytes/jsonArrayLength (not gated on the threshold); threshold changed to the exact 3,500,000 bytes; new readRawTextPlainBody() raw-body-through-normalizeText() fallback for the 'text' field when a side is compact, producing a real unified diff/classification instead of only a short preview when the raw file is available. (Round 1's mode-agnostic perSlugHash()/textHashOf() logic is otherwise unchanged.)"
+      "sha256": "0d3c207d7898a65e6974db764f9e253db0248ec5ffb26c64c559b3667e0ab2ea",
+      "change": "BLOCKING fix (round 3): the embeddedPostsError diff now fires whenever EITHER side has an error, unconditionally — no longer gated on the two errors differing. New checkEmbeddedPostsCoverage() fails a 2xx /blog(-like) entry with neither embeddedPosts* fields nor an error, gated on the manifest's new harness.embeddedPosts marker. 'embeddedPostsError' and 'embeddedPostsMissing' both added to FORBIDDEN_ALLOWLIST_FIELDS. Imports EMBEDDED_POST_LIST_URL_RE from capture.mjs. (Round 2's per-slug/order comparison and the raw-dir hash-verification fallback are otherwise unchanged.)"
     },
     {
       "path": "scripts/migration/parity/tie-permutation.mjs",
-      "sha256": "cc282c70e0f412a6700ae16b3dafdf906c04132faa695fafbd5ed91a3d0d4a41",
-      "change": "Rewritten (round 1's version worked on abstract post lists and was rejected as not a valid page-URL proof). New primary entry point checkPageTiePermutation() operates on real captured page bodies per URL kind (href/sitemap/llms-line/llms-section/blog-embedded-json), with a byte-identical residual reconstruction check and pinned-fallback-article handling (see the file header and the fixRound.blockingFixed entry above). checkTiePermutation() (the core algorithm) gained the multiset/published-item/millisecond-note fixes. checkBlogPageResidual() added for /blog. CLI usage changed to the new page-based invocation and rejects a non-numeric --top-n."
+      "sha256": "b8a502ea7cf6d90032e7de5ccef74ef60f37330d4d21bca63abf12b84f1c7c00",
+      "change": "Round 3: findLlmsSectionMatches's last section is now bounded at the next level-2 '## ' header if one follows it, instead of always open to end-of-text. (Round 2's blog-embedded-json branch, checkBlogPageResidual signature, and card/line bounding for '/'/'/llms.txt' are otherwise unchanged.)"
+    },
+    {
+      "path": "scripts/migration/parity/selftest.mjs",
+      "sha256": "d9b136e9079cfb5360fe07bc87aeae454760a3dfe9e5ddfde399cfc6215304fa",
+      "change": "Round 3: new 'embedded-posts-coverage-guard' check (same-error-both-sides must fail; new-code missing-both must fail; old-manifest missing-both must NOT fail) and new 'flight-row-batching-robustness' check (a real 172-post row merged into one push() call, and split across two, both still extract all 172). (Round 2's embeddedPosts mutation cases, tie-swap-real-data and real-compact-capture-path are otherwise unchanged.)"
     },
     {
       "path": "scripts/migration/functional/run.mjs",
-      "sha256": "f8cf71396e3fdd08fd0e7bb7de1de11c3c563c76fbf2fc9be93d7af91f86daa1",
-      "change": "Fix round: checkCacheHit() also requires the second response to be status 200 with a non-empty body. (Round 1's --expect-cache-hit flag and opt-in behavior are otherwise unchanged.)"
+      "sha256": "31d54352399f0883397ee4569f439ccb547996797d6e209e655e3cd74b58d5d6",
+      "change": "Round 3: fetchWithTimeout() now wraps the body read (arrayBuffer()) inside the same timeout deadline as the fetch() call, returning {res, body} — not just the headers/connection phase. (Round 2's 20s timeout + try/catch wrapping is otherwise unchanged.)"
+    },
+    {
+      "path": "scripts/migration/parity/urls.mjs",
+      "sha256": "f5532df1a775a9462829db092fe1a9c2d0814cfee4feba406cb8d7357294867e",
+      "change": "Unchanged since round 1 (no finding against it in any round) — hash identical."
     }
   ],
   "notScopedAsBulky": {
-    "note": "SPEC-04 addendum item 2 says 'other bulky fields (text, html) should become hashes as well'. Interpreted as: record.text (text/plain bodies, e.g. llms-full.txt) and /api/blog's whole-array/per-slug JSON (the actual multi-MB duplication C9 names). HTML pages already never store raw HTML or the extracted visibleText in the manifest (only visibleTextHash, plus moderate-size field/link/asset arrays) in EITHER mode, so there was no additional bulky HTML-derived manifest field left to compact without reducing per-field SEO/content diagnostic fidelity."
+    "note": "SPEC-04 addendum item 2 says 'other bulky fields (text, html) should become hashes as well'. Interpreted as: record.text (text/plain bodies, e.g. llms-full.txt) and /api/blog's whole-array/per-slug JSON, PLUS (as of this round) /blog's embedded post-list JSON. HTML pages otherwise never store raw HTML or the extracted visibleText in the manifest (only visibleTextHash, plus moderate-size field/link/asset arrays) in EITHER mode."
   },
   "selfTestRun": {
-    "command": "NODE_USE_ENV_PROXY=1 node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out docs/migration/.scratch/selftest-fix/P1.2-harness-selftest.json",
+    "command": "NODE_USE_ENV_PROXY=1 node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out docs/migration/.scratch/selftest-fix3/P1.2-harness-selftest.json",
     "note": "Written to .scratch (not the committed docs/migration/evidence/P1.2-harness-selftest.json) — this session's scope is limited to scripts/migration/{parity,functional,perf} plus this evidence file; the orchestrator/reviewer should re-run selftest.mjs to refresh the committed file from this code.",
-    "checkedAt": "2026-09-26T16:06:12Z",
+    "checkedAt": "2026-09-26T16:53:40Z",
     "overall": "pass",
     "urlInventoryCount": 297,
     "checks": [
@@ -61,57 +112,84 @@
       { "name": "extractor-sanity-home", "pass": true },
       { "name": "reachability-floor-sitemap", "pass": true },
       { "name": "resolve-dispatcher-pinned-fetch", "pass": true },
-      { "name": "mutation-matrix", "pass": true, "detail": "24/24 cases pass; reorder-api-blog-array correctly NOT detected" },
+      {
+        "name": "mutation-matrix",
+        "pass": true,
+        "detail": "28/28 cases pass (the prior 24 + the 4 new embedded-posts-* cases); reorder-api-blog-array correctly NOT detected"
+      },
       { "name": "determinism-two-captures-60s-apart", "pass": true },
-      { "name": "coverage-sources", "pass": true, "detail": "blog-api-slug covers a sitemap-missing slug; failed /api/blog and failed B-sitemap fetches both throw; a B-only sitemap URL lands tagged sitemap-b" },
-      { "name": "tie-permutation-checker", "pass": true, "detail": "core algorithm, synthetic sequences: pure tie permutation passes, cross-group reorder fails" },
+      { "name": "coverage-sources", "pass": true },
+      { "name": "tie-permutation-checker", "pass": true, "detail": "core algorithm, synthetic sequences" },
       {
         "name": "tie-permutation-real-data",
         "pass": true,
-        "detail": "REAL captured bodies for /, /sitemap.xml, /llms.txt, /llms-full.txt, /blog: A-vs-A passes for every one; A-vs-(A+edit) fails for every one (reason residual-content-difference, or per-slug-content-mismatch for /blog's hash-based residual check). This is the actual A1 C8 page-URL proof."
+        "detail": "REAL captured bodies for /, /sitemap.xml, /llms.txt, /llms-full.txt, /blog: A-vs-A passes for every one (/blog's residual now via checkBlogPageResidual against ITS OWN embedded objects); A-vs-(A+edit) fails for every one."
       },
-      { "name": "mutation-matrix-compact", "pass": true, "detail": "26/26 cases pass (the 24 + 2 compact-only signal cases); reorder still correctly NOT detected in compact mode" },
-      { "name": "determinism-compact-mode", "pass": true, "detail": "0 unexplained diffs, two compact-derived manifests ~60s apart" },
-      { "name": "mixed-mode-compare-both-directions", "pass": true, "detail": "0 unexplained diffs both directions (full-A/compact-B and compact-A/full-B) between the same two ~60s-apart live captures" },
+      {
+        "name": "tie-swap-real-data",
+        "pass": true,
+        "detail": "A genuine tie pair found live in /llms.txt (b2b-sales-tips-strategies-distributors <-> integrating-zoho-crm-b2b-ecommerce-guide, same created_at): the swap alone passes; swap + one extra edit fails with reason residual-content-difference."
+      },
+      {
+        "name": "embedded-posts-coverage-guard",
+        "pass": true,
+        "detail": "NEW (round 3, blocking-fix regression check). Same embeddedPostsError on both sides -> failedUnallowed>=1 with an embeddedPostsError diff (sameErrorDetected:true). A new-code (harness.embeddedPosts:1) bare 2xx /blog entry on both sides -> failedUnallowed>=1 with an embeddedPostsMissing diff (missingBothDetected:true). The identical bare entry on an OLD manifest (no harness marker) -> NOT flagged (oldManifestNotFlagged:true)."
+      },
+      {
+        "name": "flight-row-batching-robustness",
+        "pass": true,
+        "detail": "NEW (round 3). The REAL 172-post row from a live /blog capture, (1) merged into one push() call with other non-JSON rows before/after it, and (2) split mid-JSON across two push() calls — both extract all 172 posts, same order."
+      },
+      {
+        "name": "mutation-matrix-compact",
+        "pass": true,
+        "detail": "30/30 cases pass (28 + the 2 compact-only signal cases); reorder still correctly NOT detected"
+      },
+      { "name": "determinism-compact-mode", "pass": true, "detail": "0 unexplained diffs, two compact-derived manifests ~60s apart (now including /blog's embedded fields)" },
+      { "name": "mixed-mode-compare-both-directions", "pass": true, "detail": "0 unexplained diffs both directions" },
       {
         "name": "mixed-mode-mutation-cases",
         "pass": true,
-        "detail": "a field change and a text edit, each detected in BOTH directions (full-A vs compact-B, compact-A vs full-B) — 4/4 sub-cases detected"
+        "detail": "NEW: the field-change/text-edit sub-cases (4/4, as before) PLUS all 4 embedded-posts mutations (excerpt edited, date changed, missing post, extra post) each detected in BOTH mixed-mode directions — 8/8 new sub-cases detected"
       },
       {
         "name": "real-compact-capture-path",
         "pass": true,
-        "detail": "the REAL capture({compact:true}) path exercised live for /api/blog + /robots.txt: jsonBySlugHash/jsonArrayLength and textHash/textPreview present, full-mode jsonBySlug/jsonCanonical/text absent, manifest.compact === true"
+        "detail": "NEW: now captures 3 URLs (/api/blog, /robots.txt, /blog); /blog's embeddedPostsBySlugHash/embeddedPostsSlugOrder present, full-mode embeddedPostsBySlug absent, no embeddedPostsError"
       },
       { "name": "protected-deployment-probe", "pass": null, "detail": "deferred: no Vercel deployment exists yet (runs at P5.2), unchanged" }
     ]
   },
   "compactManifest": {
-    "command": "NODE_USE_ENV_PROXY=1 node scripts/migration/parity/capture.mjs --base https://www.growmax.io --urls <297-url live inventory> --out docs/migration/.scratch/selftest-fix/compact-manifest.json --raw-dir docs/migration/.scratch/selftest-fix/raw-compact --compact",
+    "command": "NODE_USE_ENV_PROXY=1 node scripts/migration/parity/capture.mjs --base https://www.growmax.io --urls <297-url live inventory> --out docs/migration/.scratch/selftest-fix3/compact-manifest.json --raw-dir docs/migration/.scratch/selftest-fix3/raw-compact --compact",
     "urlsCaptured": 297,
     "fetchErrors": 0,
-    "bytes": 1605039,
-    "sha256": "c0c12944c7d591a505862dea91dffde51f23a3362ff1ddb99bd78e7f2e689c1a",
+    "bytes": 1668812,
+    "sha256": "f66dd4883ecfea4a67d99be03f28a51d2193c639e41c141c7e7e4cfad27e38e1",
     "under5MB": true,
-    "apiBlogEntry": {
-      "status": 200,
-      "bytesDecoded": 2322293,
-      "jsonArrayLength": 172,
-      "note": "2.27MB at 172 posts, below the 3,500,000-byte A1 C10 warning threshold — no WARNING expected yet; checkBlogApiSize()'s WARNING path was separately verified with a synthetic 3.6MB-side manifest pair (see blogApiSizeSynthTest)."
-    }
+    "note": "Essentially unchanged from round 2's 1,668,766 bytes (+46 bytes — the manifest.harness marker is the only new content; the flight-parser rewrite changes HOW extraction works, not what's stored).",
+    "blogEntry": { "embeddedPostsSlugOrderLength": 172, "embeddedPostsBySlugHashKeys": 172, "embeddedPostsError": null }
   },
   "blogApiSizeSynthTest": {
-    "note": "Live /api/blog (2.27MB) doesn't cross the 3,500,000-byte threshold, so both the always-emit-sizes behavior and the WARNING path were verified with a synthetic manifest pair.",
+    "note": "Unchanged this round; live /api/blog (2.27MB) still doesn't cross the 3,500,000-byte threshold.",
     "sizesAlwaysEmitted": { "a": { "present": true, "bytes": 3600000, "jsonArrayLength": 260 }, "b": { "present": true, "bytes": 2300000, "jsonArrayLength": 171 } },
     "warnings": [{ "side": "a", "url": "/api/blog", "bytes": 3600000, "arrayLength": 260, "thresholdBytes": 3500000 }]
   },
   "sitemapBBypassHeaderTest": {
-    "note": "Verified with a fake fetchImpl recording every call's URL and bypassSecret: buildInventory({base:'https://a.invalid', baseB:'https://b.invalid', baseBBypassSecret:'SECRET123', fetchImpl})",
+    "note": "Unchanged this round (urls.mjs not touched).",
     "calls": [
       { "url": "https://a.invalid/sitemap.xml", "bypassSecretSent": false },
       { "url": "https://a.invalid/api/blog", "bypassSecretSent": false },
       { "url": "https://b.invalid/sitemap.xml", "bypassSecretSent": true }
     ]
+  },
+  "rawVerificationFallbackTest": {
+    "note": "New this round. Captured /robots.txt full + compact, then corrupted the compact side's raw .bin file on disk WITHOUT updating its stored textHash (simulating a stale/wrong rawDir file), and separately forced a detectable textHash difference.",
+    "result": { "rawVerificationFailedB": true, "fellBackToPreview": true }
+  },
+  "embeddedBlogTailBoundingTest": {
+    "note": "New this round. Verified live that reordering '/' 's 4 home-page cards leaves the post-list tail (the 'View All Articles' CTA + everything after it) byte-identical in the reconstruction, where before the fix it would have traveled with whichever card ended up last.",
+    "result": { "tailByteIdentical": true, "lengthUnchanged": true }
   },
   "newInventoryCounts": {
     "command": "NODE_USE_ENV_PROXY=1 buildInventory({ base: 'https://www.growmax.io' }) (no --base-b in this pre-P5.2 run)",
@@ -127,19 +205,19 @@
       "blog-api-slug": 9,
       "negative": 2
     },
-    "note": "Same total/counts as round 1; only the RECORDING ORDER of blog-api-slug changed (now after the expect-bearing sources), which does not change per-source counts, only their resilience to a future URL collision.",
+    "note": "Unchanged this round (urls.mjs not touched) — same as round 1's counts.",
     "priorTotal": 288,
-    "allApiBlogSlugsCovered": {
-      "apiBlogSlugTotal": 172,
-      "missingFromInventory": 0,
-      "note": "Every one of the 172 live /api/blog slugs' /blog/<slug> URL is present in the inventory (163 via 'sitemap', 9 via 'blog-api-slug')."
-    }
+    "allApiBlogSlugsCovered": { "apiBlogSlugTotal": 172, "missingFromInventory": 0 }
   },
   "reviewerChecklist": [
-    "Confirm checkPageTiePermutation()'s per-kind extraction regexes (href/sitemap/llms-line/llms-section/blog-embedded-json) against the actual current page markup, and that the residual reconstruction (reconstructWithOrder) genuinely can't pass on a content difference disguised as a reorder — the tie-permutation-real-data self-test case is the regression check for this.",
-    "Confirm the pinned-fallback-article handling (PINNED_FALLBACK_SLUG) matches lib/storage.ts:getPublishedBlogPosts() + lib/arcAiArticle.ts's actual current behavior, and re-check it if that code changes.",
-    "Confirm urls.mjs never sends baseBBypassSecret to A or any third-party host (sitemapBBypassHeaderTest above), and that 1b/1c really are recorded after every expect-bearing source (read the code directly, not just this evidence).",
-    "Confirm compare.mjs's readRawTextPlainBody() only ever activates for the 'text' field (never visibleTextHash, which must keep using its own .text.txt artifact).",
+    "Confirm compareEntry()'s embeddedPostsError diff now fires unconditionally whenever either side has an error (not gated on the two errors differing), and that 'embeddedPostsError'/'embeddedPostsMissing' are both genuinely unallowlistable (validateAllowlistEntry throws for them) — this was the blocking gap.",
+    "Confirm checkEmbeddedPostsCoverage()'s harness.embeddedPosts marker gating: it must fire for a manifest capture.mjs's capture() produced, and must NOT fire for one that lacks the marker (e.g. a manifest built by hand, or from before this feature existed).",
+    "Confirm the new join-then-split RSC parser (joinFlightPushStrings/splitFlightRows) against the actual current /blog markup, and that it still fails loudly (never []) if Next.js changes the flight format — re-run flight-row-batching-robustness and the embedded-posts-* mutation cases as the regression check.",
+    "Confirm extractEmbeddedBlogPosts() now genuinely requires exactly one candidate array (throws on >1), matching its docstring.",
+    "Confirm the embeddedPosts comparison in compare.mjs is genuinely order-STRICT by default (unlike /api/blog's jsonBySlug) and that only an advisor-approved allowlist entry (backed by a tie-permutation.mjs C8 proof) can cover a legitimate tie reorder there.",
+    "Confirm checkBlogPageResidual() takes the page's OWN embedded objects (postsA/postsB/slugOrder), never anything derived from /api/blog.",
+    "Confirm readRawText()/readRawTextPlainBody()'s hash verification actually blocks a stale rawDir file from producing a misleading unified diff.",
+    "Confirm functional/run.mjs's fetchWithTimeout() timeout now covers the body read, not just the fetch() call.",
     "Re-run selftest.mjs for real against https://www.growmax.io (NODE_USE_ENV_PROXY=1) and confirm all checks reproduce, then let it write the committed docs/migration/evidence/P1.2-harness-selftest.json (this session did not touch that file, by design).",
     "Verify no changes outside scripts/migration/{parity,functional,perf} and this evidence file (git status).",
     "Run `node scripts/migration/state.mjs scan` before any commit, per CLAUDE.md."

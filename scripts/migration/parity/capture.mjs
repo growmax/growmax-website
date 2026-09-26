@@ -17,6 +17,7 @@ import { fetchOnce, buildResolveDispatcher, normalizeLocation } from './lib/fetc
 import {
   extractHtml,
   extractSitemap,
+  extractEmbeddedBlogPosts,
   normalizeText,
   sha256,
   sha256Text,
@@ -50,6 +51,35 @@ export function buildCompactBlogArrayFields(parsed) {
  *  comparison plus a short preview for diagnostics, instead of the full normalized text. */
 export function buildCompactTextFields(normalizedText) {
   return { textHash: sha256Text(normalizedText), textPreview: normalizedText.slice(0, COMPACT_TEXT_PREVIEW_CHARS) }
+}
+
+// SPEC-04 addendum (pre-existing coverage gap, reviewer recommendation before P5.2): /blog
+// and /blog?page=N (and no other page — verified: the home page embeds no such array) render
+// their post list entirely client-side from an RSC-embedded prop. Scoped narrowly to these
+// two URL shapes so this never runs (and never risks a false ambiguous-array error) on any
+// other page.
+// Exported so compare.mjs's checkEmbeddedPostsCoverage() checks the SAME URL shape a real
+// capture attempted extraction on, rather than a second, potentially-drifting copy.
+export const EMBEDDED_POST_LIST_URL_RE = /^\/blog(?:\?page=\d+)?$/
+
+/** Full-mode fields for a page's embedded post list: the ordered slug list plus a per-slug
+ *  canonical-JSON map, mirroring buildCompactBlogArrayFields's shape for /api/blog so
+ *  compare.mjs can reuse the same "hash a full-mode side on the fly" pattern. Exported (like
+ *  buildCompactEmbeddedPostsFields) so selftest.mjs can build both modes' mutation fixtures
+ *  through this exact same code path. */
+export function buildFullEmbeddedPostsFields(posts) {
+  const embeddedPostsBySlug = {}
+  for (const item of posts) if (item && item.slug) embeddedPostsBySlug[item.slug] = canonicalStringify(item)
+  return { embeddedPostsSlugOrder: posts.map((p) => p.slug), embeddedPostsBySlug }
+}
+
+/** Compact-mode fields for a page's embedded post list: the ordered slug list plus a
+ *  per-slug sha256 map, instead of the full canonical JSON per post. Exported so selftest.mjs
+ *  can derive a compact manifest offline through this exact same code path. */
+export function buildCompactEmbeddedPostsFields(posts) {
+  const embeddedPostsBySlugHash = {}
+  for (const item of posts) if (item && item.slug) embeddedPostsBySlugHash[item.slug] = sha256Text(canonicalStringify(item))
+  return { embeddedPostsSlugOrder: posts.map((p) => p.slug), embeddedPostsBySlugHash }
 }
 
 const KNOWN_HOSTS = ['www.growmax.io', 'growmax.io', '*.vercel.app']
@@ -158,6 +188,20 @@ async function captureOne(entry, base, opts) {
         const safeName = safeFileName(entry.url)
         record.rawTextFile = `${safeName}.text.txt`
         await writeFile(path.join(rawDir, `${safeName}.text.txt`), extracted.visibleText)
+      }
+
+      // SPEC-04 addendum: /blog + /blog?page=N embed their post list as an RSC prop, never
+      // as HTML the rest of this extraction can see (0/172 titles, 0 /blog/<slug> links).
+      // A parse failure here is its OWN error field, separate from htmlError, so it can
+      // never be silently absent the way an empty [] would be — and it never discards the
+      // rest of `record.html` that DID extract successfully.
+      if (EMBEDDED_POST_LIST_URL_RE.test(entry.url)) {
+        try {
+          const posts = extractEmbeddedBlogPosts(html)
+          Object.assign(record, compact ? buildCompactEmbeddedPostsFields(posts) : buildFullEmbeddedPostsFields(posts))
+        } catch (err) {
+          record.embeddedPostsError = String(err.message || err)
+        }
       }
     } catch (err) {
       record.htmlError = String(err.message || err)
@@ -294,6 +338,11 @@ export async function capture({ base, urls, rawDir, bypassSecretFile, resolve, c
     entries: results,
     assets,
     compact: !!compact,
+    // Manifest-level marker (per review): declares this manifest came from capture code
+    // that ATTEMPTS embeddedPosts extraction for /blog-like URLs, so compare.mjs's
+    // checkEmbeddedPostsCoverage() can require it there without misjudging an OLDER
+    // manifest (captured before this feature existed) by a rule it couldn't have satisfied.
+    harness: { embeddedPosts: 1 },
   }
 }
 

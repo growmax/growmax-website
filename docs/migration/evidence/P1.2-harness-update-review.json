@@ -2,37 +2,40 @@
   "step": "P1.2",
   "gate": "G1",
   "status": "pass",
-  "checkedAt": "2026-09-26T16:13:58Z",
-  "verifier": "migration-reviewer (opus/high), harness-update review round 2; summarized by the orchestrator from the reviewer's hand-back (the reviewer role is read-only)",
+  "checkedAt": "2026-09-26T16:58:34Z",
+  "verifier": "migration-reviewer (opus/high), harness-update review round 4 (final); summarized by the orchestrator from the reviewer hand-back (the reviewer role is read-only)",
   "approve": true,
   "blocking": [],
   "nonBlocking": [
-    "BEFORE P5.2: /blog content is not compared at all (pre-existing harness gap). The page renders its post list client-side from embedded React data that the harness drops (0/172 titles in visible text, 0 /blog/<slug> links), so a stale cached /blog or a date-rendering difference would pass parity. Fix: extract the embedded per-post objects from the /blog raw body, compare them per slug on both sides, and use them in the tie checker's /blog residual too",
-    "tie-permutation on /: the relative top-N test never runs (4 cards minus the fallback = 3), and the byte-level residual on raw HTML will likely fail on a real Replit/Vercel pair (asset hashes, embedded data). It fails safe but may be unusable; comparing extracted visible text blocks would make / provable",
-    "tie-permutation: the last post block carries the page tail (a contrived layout change could pass); bound blocks to their card or line for / and /llms.txt",
-    "compare.mjs: the raw-dir fallback does not verify sha256Text(normalizeText(raw)) against the manifest textHash; verify it, else fall back to the preview (the HTML .text.txt path has the same pre-existing behavior)",
-    "selftest: add real-data tie-swap and tie-swap-plus-edit cases (the reviewer verified both by hand)",
-    "functional checkCacheHit: add a fetch timeout"
+    "If /blog returns the same non-2xx on both sides, compare passes without comparing the listing (existing equal-status behavior); a fixed expect {status:200} on /blog and /blog?page=2 in urls.mjs would close it",
+    "splitFlightRows stops quietly at the first unparsable row (fails closed via \"no embedded post array\"); the error should say how many rows parsed and where it stopped",
+    "tie-permutation llms-section mode: non-last sections run to the next \"### \" with a Source line, so a \"## \" header between posts moves with the preceding post (contrived); the / boundary-tie case still fails closed"
   ],
   "checks": [
     {
-      "name": "Round-1 blocking finding fixed (page-level tie proof for /, /sitemap.xml, /llms.txt, /llms-full.txt)",
-      "expected": "no real content change can pass",
-      "actual": "reviewer could not get a content change past the checker on any of them (edited title/header, dropped post, extra draft, duplicate or injected line, lastmod/priority/changefreq change, character edits); a legitimate tie swap passes; A vs A passes",
+      "name": "r3 blocking fixed (no silent /blog drop)",
+      "expected": "every route fails loudly",
+      "actual": "same error both sides, fields missing on one or both sides, marker on one side, /blog?page=2 missing, text/plain /blog: all fail; old/old unmarked is 0 by design",
       "pass": true
     },
     {
-      "name": "Non-blocking round-1 fixes",
-      "expected": "each verified",
-      "actual": "multiset, unpublished and --top-n checks; sitemap-b bypass sent only to B, recorded after the expect sources; cache-hit needs 200 plus a body; size always emitted, 3,500,000-byte threshold; raw-dir diff fallback; mixed-mode mutation cases; real compact capture",
+      "name": "RSC parser robustness",
+      "expected": "exactly one 172-post array on the live body; merged and split chunks ok; a second array throws",
+      "actual": "49 rows, one array of 172; merged/split/4-way/one-push/997-char variants all 172; any second slug array throws; malformed rows before the posts throw",
+      "pass": true
+    },
+    {
+      "name": "No regressions vs r2/r3",
+      "expected": "all earlier adversarial suites hold",
+      "actual": "mixed-mode, embedded-post matrix, tie swaps, determinism: all unchanged",
       "pass": true
     },
     {
       "name": "Reviewer's own live self-test",
       "expected": "overall pass",
-      "actual": "overall pass: 15 checks pass, protected-deployment-probe deferred; mutation matrix 24/24, compact 26/26, mixed-mode 4/4; output sha256 f4ae8720...",
+      "actual": "18 pass, protected-deployment-probe deferred; matrix 28/28, compact 30/30; sha256 d68adc77...",
       "pass": true
     }
   ],
-  "history": "r1 (15:44Z): 1 blocking (tie-permutation not page-level) + 8 non-blocking -> implementer fix round -> r2 approve"
+  "history": "r1 (15:44Z) 1 blocking -> fix -> r2 (16:13Z) approve [committed 4f532b0] -> /blog coverage fix -> r3 (16:41Z) 1 blocking -> fix -> r4 (16:58Z) approve"
 }

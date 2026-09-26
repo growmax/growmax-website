@@ -459,28 +459,53 @@ async function runTests({ base, mode, runLabel, bypassSecret, allowDemoTest, tar
  * to (a misconfigured/absent cache would otherwise silently drop /api/blog's availability
  * benefit). Never sends the bypass cookie-setting header, matching the rest of this harness.
  */
+const CACHE_HIT_FETCH_TIMEOUT_MS = 20000
+
+/** A fetch with a hard timeout (per review): without one, a hung connection would leave
+ *  checkCacheHit — and the whole functional suite — stuck indefinitely instead of failing.
+ *  Per review (round 3): the timeout must cover the BODY read too, not just headers — a
+ *  response whose headers arrive promptly but whose body streams forever (or never
+ *  completes) would otherwise still hang past the intended deadline. Returns `{res, body}`;
+ *  `body` is null if the body read itself fails (e.g. aborted), same as the old
+ *  `.arrayBuffer().catch(() => null)` pattern this replaces. */
+async function fetchWithTimeout(target, init, timeoutMs) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const res = await fetch(target, { ...init, signal: controller.signal })
+    const body = await res.arrayBuffer().catch(() => null)
+    return { res, body }
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 async function checkCacheHit(base, bypassSecret, targetPath) {
   const headers = bypassSecret ? { 'x-vercel-protection-bypass': bypassSecret } : {}
   const target = new URL(targetPath, base).toString()
-  const first = await fetch(target, { headers, redirect: 'manual' })
-  await first.arrayBuffer().catch(() => {})
-  const second = await fetch(target, { headers, redirect: 'manual' })
-  const secondBody = await second.arrayBuffer().catch(() => null)
-  const secondCacheHeader = second.headers.get('x-vercel-cache')
-  const secondBodyBytes = secondBody ? secondBody.byteLength : 0
-  // Per review: a HIT header alone doesn't prove H4 is actually serving usable content — a
-  // cached error page or an empty body would still carry x-vercel-cache: HIT. Require the
-  // second response to also be status 200 with a non-empty body.
-  return {
-    pass: secondCacheHeader === 'HIT' && second.status === 200 && secondBodyBytes > 0,
-    detail: {
-      path: targetPath,
-      firstStatus: first.status,
-      secondStatus: second.status,
-      firstCacheHeader: first.headers.get('x-vercel-cache'),
-      secondCacheHeader,
-      secondBodyBytes,
-    },
+  try {
+    const { res: first } = await fetchWithTimeout(target, { headers, redirect: 'manual' }, CACHE_HIT_FETCH_TIMEOUT_MS)
+    const { res: second, body: secondBody } = await fetchWithTimeout(target, { headers, redirect: 'manual' }, CACHE_HIT_FETCH_TIMEOUT_MS)
+    const secondCacheHeader = second.headers.get('x-vercel-cache')
+    const secondBodyBytes = secondBody ? secondBody.byteLength : 0
+    // Per review: a HIT header alone doesn't prove H4 is actually serving usable content — a
+    // cached error page or an empty body would still carry x-vercel-cache: HIT. Require the
+    // second response to also be status 200 with a non-empty body.
+    return {
+      pass: secondCacheHeader === 'HIT' && second.status === 200 && secondBodyBytes > 0,
+      detail: {
+        path: targetPath,
+        firstStatus: first.status,
+        secondStatus: second.status,
+        firstCacheHeader: first.headers.get('x-vercel-cache'),
+        secondCacheHeader,
+        secondBodyBytes,
+      },
+    }
+  } catch (err) {
+    // A timed-out or otherwise failed fetch is a real failure (e.g. a hung connection),
+    // never a silent pass — reported the same way every other check here reports an error.
+    return { pass: false, detail: { path: targetPath, error: String(err.message || err) } }
   }
 }
 

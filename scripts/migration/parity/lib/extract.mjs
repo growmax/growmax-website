@@ -401,3 +401,181 @@ export function normalizeText(raw) {
 export function safeFileName(url) {
   return url.replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 150)
 }
+
+// --- SPEC-04 addendum: /blog and /blog?page=N's embedded post-list extraction. ---
+//
+// /blog and /blog?page=N render their post list entirely CLIENT-SIDE: BlogPostClient fetches
+// nothing itself at request time — the server embeds the full post list as a Next.js RSC
+// ("flight") prop, and the browser paginates/renders it in JS. Neither page's server-rendered
+// HTML contains a single post title, excerpt or /blog/<slug> link (confirmed empirically: 0
+// of 172 titles land in /blog's extracted visible text, 0 /blog/<slug> links are found), so
+// without extracting this embedded data, the entire listing's content, order and count are
+// invisible to parity — a stale cached /blog or a date-rendering difference on Vercel would
+// pass unnoticed.
+
+/**
+ * Extract a `self.__next_f.push([<n>,"<data>"])` call's <data> argument as the RAW quoted JS
+ * string literal (including its surrounding quotes), starting at `openQuoteIndex` (the
+ * position of the opening `"`). Returns null (never throws) on an unterminated string, so
+ * the caller can report a clear parse failure instead of an unrelated exception.
+ */
+function extractQuotedJsStringAt(text, openQuoteIndex) {
+  let i = openQuoteIndex + 1
+  while (i < text.length) {
+    const ch = text[i]
+    if (ch === '\\') {
+      i += 2
+      continue
+    }
+    if (ch === '"') return text.slice(openQuoteIndex, i + 1)
+    i++
+  }
+  return null
+}
+
+/**
+ * Every `self.__next_f.push([<n>,"<data>"])` call's <data> is EXACTLY a JSON string literal
+ * (JSON.parse('"<data>"') recovers it byte-for-byte, including doubly-escaped nested JSON
+ * like a ld+json script's innerHTML — verified against the live site). The browser APPENDS
+ * each pushed chunk to one growing buffer in document order and parses THAT as a sequence of
+ * `<hexId>:<row>` "rows" — a chunk is NOT one row per push() call: Next.js freely batches
+ * several rows into one push() call and splits a single row across two calls (confirmed
+ * live: 6 of 13 push() calls each held multiple rows). Treating each push() call as exactly
+ * one row — as an earlier version of this function did — silently skipped every batched
+ * call whose leading row wasn't valid JSON on its own, which is fragile: a harmless batching
+ * change on Vercel's build could make the extraction throw on both sides for the wrong
+ * reason. So: join every push() call's recovered string in order first, then split THAT
+ * into rows.
+ */
+function joinFlightPushStrings(rawHtml) {
+  const re = /self\.__next_f\.push\(\[\d+,"/g
+  let joined = ''
+  let m
+  while ((m = re.exec(rawHtml))) {
+    const openQuoteIndex = m.index + m[0].length - 1
+    const literal = extractQuotedJsStringAt(rawHtml, openQuoteIndex)
+    if (literal === null) continue
+    let text
+    try {
+      text = JSON.parse(literal)
+    } catch {
+      continue
+    }
+    if (typeof text === 'string') joined += text
+  }
+  return joined
+}
+
+/**
+ * Split the joined flight buffer into `{id, type, data}` rows. Most rows are simply
+ * `<hexId>:<data>` terminated by the next newline (a JSON value row, an "I[...]" import
+ * instruction, an "HL[...]" hint, etc. — untyped here, just whatever's between the colon and
+ * the newline). A "T" row is different: React's flight protocol gives it an explicit BYTE
+ * length so its own payload can itself contain literal newlines without being mistaken for a
+ * row boundary — `<hexId>:T<hexByteLength>,<payload of exactly hexByteLength UTF-8 bytes>`,
+ * with no newline required to terminate it (one may still follow; skipped if present).
+ * Malformed input (a row that doesn't start `<hex>:`, or a truncated "T" row) stops parsing
+ * at that point rather than throwing — the caller decides what to do with however many rows
+ * were recovered before that.
+ */
+function splitFlightRows(joined) {
+  const rows = []
+  let pos = 0
+  const len = joined.length
+  while (pos < len) {
+    // The id may be EMPTY (a bare `:HL[...]` hint row, not tied to any chunk id) — confirmed
+    // live; requiring at least one hex digit here used to stop parsing dead at the first one.
+    const idMatch = /^([0-9a-fA-F]*):/.exec(joined.slice(pos, pos + 32))
+    if (!idMatch) break
+    const id = idMatch[1]
+    const afterId = pos + idMatch[0].length
+    if (joined[afterId] === 'T') {
+      const lenMatch = /^T([0-9a-fA-F]+),/.exec(joined.slice(afterId, afterId + 32))
+      if (!lenMatch) break
+      const byteLen = parseInt(lenMatch[1], 16)
+      const payloadStart = afterId + lenMatch[0].length
+      const payloadBuf = Buffer.from(joined.slice(payloadStart), 'utf8').subarray(0, byteLen)
+      if (payloadBuf.length < byteLen) break // truncated input; stop rather than misparse
+      const data = payloadBuf.toString('utf8')
+      rows.push({ id, type: 'T', data })
+      let next = payloadStart + data.length
+      if (joined[next] === '\n') next++
+      pos = next
+    } else {
+      const nlIdx = joined.indexOf('\n', afterId)
+      const end = nlIdx === -1 ? len : nlIdx
+      rows.push({ id, type: null, data: joined.slice(afterId, end) })
+      pos = nlIdx === -1 ? len : nlIdx + 1
+    }
+  }
+  return rows
+}
+
+/**
+ * The parsed JSON value of every row that has one (skips "T" text rows — react's flight
+ * protocol uses them for literal text content, never a JSON value — and any row whose data
+ * isn't valid JSON, e.g. an "I[...]" import instruction: not page data, silently not a
+ * candidate, never an error by itself — only SOME rows carry page data, and finding zero
+ * qualifying arrays across ALL of them is reported by the caller, not here).
+ */
+function extractFlightSegments(rawHtml) {
+  const rows = splitFlightRows(joinFlightPushStrings(rawHtml))
+  const segments = []
+  for (const row of rows) {
+    if (row.type === 'T') continue
+    try {
+      segments.push(JSON.parse(row.data))
+    } catch {
+      // not a JSON-valued row — skip
+    }
+  }
+  return segments
+}
+
+/** Recursively search a parsed flight segment for an array of plain objects that ALL carry a
+ *  string `slug` field — the shape of an embedded blog-post list, wherever it sits in the
+ *  segment's React-tree-shaped JSON (a prop name like "initialPosts" is an implementation
+ *  detail this deliberately does not hardcode). */
+function collectSlugArrays(node, out) {
+  if (Array.isArray(node)) {
+    if (node.length > 0 && node.every((x) => x && typeof x === 'object' && !Array.isArray(x) && typeof x.slug === 'string')) {
+      out.push(node)
+    }
+    for (const child of node) collectSlugArrays(child, out)
+  } else if (node && typeof node === 'object') {
+    for (const key of Object.keys(node)) collectSlugArrays(node[key], out)
+  }
+}
+
+/**
+ * Extract the ORDERED list of embedded post objects from a raw HTML body (unmodified — no
+ * build-hash noise appears inside this data, so normalizeHtmlNoise is neither needed nor
+ * applied here) for a page that renders its post list client-side from an RSC-embedded prop.
+ *
+ * ALWAYS THROWS rather than returning [] when it can't find exactly one qualifying embedded
+ * array — a silent [] would be indistinguishable from "this page genuinely has zero posts,"
+ * hiding the entire listing from parity. Every returned item is the FULL parsed object
+ * (whatever fields the page actually embeds — verified live: id, title, category, date,
+ * slug, author, excerpt, published; NOT the same field set as /api/blog, which also embeds
+ * authorTeam/readTime/sections/relatedSlugs/legacyUrl/createdAt/updatedAt), so a caller
+ * comparing "every field exact" compares exactly what this page embeds, nothing assumed.
+ */
+export function extractEmbeddedBlogPosts(rawHtml) {
+  const segments = extractFlightSegments(rawHtml)
+  if (segments.length === 0) {
+    throw new Error('no parseable Next.js RSC flight rows (self.__next_f.push(...)) found in the raw body')
+  }
+  const candidates = []
+  for (const seg of segments) collectSlugArrays(seg, candidates)
+  if (candidates.length === 0) {
+    throw new Error('found RSC flight rows but no embedded post array (objects with a string slug field) inside them')
+  }
+  // Per review: require EXACTLY one candidate — keeping "the longest" used to silently
+  // guess when more than one array qualified, which the docstring above never promised.
+  if (candidates.length > 1) {
+    throw new Error(
+      `found ${candidates.length} candidate embedded post arrays (lengths: ${candidates.map((c) => c.length).join(', ')}); refusing to guess which is the real listing`,
+    )
+  }
+  return candidates[0]
+}
