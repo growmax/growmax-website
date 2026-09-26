@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": null,
-  "updatedAt": "2026-09-26T11:01:34.561Z",
+  "currentStep": "P1.3",
+  "updatedAt": "2026-09-26T11:02:52.964Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -37,7 +37,10 @@
       "planAtPlanTime": "hobby",
       "plan": "hobby",
       "projectsOnTeamAtP0": 0,
-      "cli": "ok: VERCEL_TOKEN lists growmax1 (hobby)"
+      "cli": "ok: VERCEL_TOKEN lists growmax1 (hobby)",
+      "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+      "projectName": "growmax-website",
+      "projectState": "bare: created before P3.1 via vercel project add, only so the P1.1 runner can create a Sandbox. No Git link, no deployments, framework null, node 24.x, SSO all_except_custom_domains. P3.1 reuses it by name, converges settings, sets the ignored-build-step guard, and only then connects Git"
     },
     "neon": {
       "integrationConfigId": "icfg_tEtDWAPJTdmHAD8eL9GtfV5H",
@@ -241,10 +244,11 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [],
+      "startedAt": "2026-09-26T11:02:52.821Z"
     },
     {
       "id": "P1.2",
@@ -255,10 +259,11 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [],
+      "startedAt": "2026-09-26T11:02:52.869Z"
     },
     {
       "id": "P1.3",
@@ -270,10 +275,11 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [],
+      "startedAt": "2026-09-26T11:02:52.964Z"
     },
     {
       "id": "P1.4",
@@ -284,10 +290,11 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [],
+      "startedAt": "2026-09-26T11:02:52.915Z"
     },
     {
       "id": "P1.5",

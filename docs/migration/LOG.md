@@ -38,3 +38,11 @@
 - 2026-09-26T11:01:34.455Z set facts.source.tablesAtP0
 - 2026-09-26T11:01:34.512Z set facts.source.publishedPostsAtP0
 - 2026-09-26T11:01:34.562Z set facts.vercel.cli
+- 2026-09-26T11:02:52.621Z set facts.vercel.projectId
+- 2026-09-26T11:02:52.667Z set facts.vercel.projectName
+- 2026-09-26T11:02:52.723Z set facts.vercel.projectState
+- 2026-09-26T11:02:52.772Z [P1.1] Decision (orchestrator): created the bare Vercel project growmax-website (prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu) ahead of P3.1 (pre-approved). With TCP 5432 blocked, P1.1 can only pg_dump fixtures inside a Vercel Sandbox, and Sandboxes need a project. Kept unlinked so no branch push or Replit sync to main can trigger a build before P3.1 installs the ignore guard.
+- 2026-09-26T11:02:52.822Z [P1.1] step pending → in_progress
+- 2026-09-26T11:02:52.870Z [P1.2] step pending → in_progress
+- 2026-09-26T11:02:52.916Z [P1.4] step pending → in_progress
+- 2026-09-26T11:02:52.965Z [P1.3] step pending → in_progress
