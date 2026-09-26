@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": null,
-  "updatedAt": "2026-09-26T10:20:26.482Z",
+  "updatedAt": "2026-09-26T10:20:58.147Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -174,13 +174,15 @@
       "status": "done",
       "attempts": 1,
       "evidence": [
-        "docs/migration/evidence/P0.2-secrets.json"
+        "docs/migration/evidence/P0.2-secrets.json",
+        "docs/migration/evidence/P0.2-network.json"
       ],
       "notes": [
-        "2026-09-26T10:20:26.482Z All required secrets present: REPLIT_DATABASE_URL (Neon), VERCEL_TOKEN, ADMIN_PASSWORD, and optional SESSION_SECRET (valid). No blockers."
+        "2026-09-26T10:20:26.482Z All required secrets present: REPLIT_DATABASE_URL (Neon), VERCEL_TOKEN, ADMIN_PASSWORD, and optional SESSION_SECRET (valid). No blockers.",
+        "2026-09-26T10:20:58.147Z Network matrix determined: all paths routed through Vercel Sandbox due to restrictive egress proxy"
       ],
       "startedAt": "2026-09-26T10:19:22.160Z",
-      "completedAt": "2026-09-26T10:20:26.482Z"
+      "completedAt": "2026-09-26T10:20:58.147Z"
     },
     {
       "id": "P1.1",
