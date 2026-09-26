@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P1.3",
-  "updatedAt": "2026-09-26T12:45:12.500Z",
+  "updatedAt": "2026-09-26T13:06:43.284Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -71,7 +71,37 @@
       "state": null,
       "detectedAt": null
     },
-    "runner": {}
+    "runner": {},
+    "runs": {
+      "p1": {
+        "runId": "wf_be59e661-e9c",
+        "scriptPath": ".claude/workflows/mig-p1-discovery.js",
+        "note": "resume with these exact args (key order matters for the cache)",
+        "args": {
+          "only": [
+            "P1.1",
+            "P1.2",
+            "P1.3",
+            "P1.4"
+          ],
+          "paths": {
+            "web": "container",
+            "db": "neon-https",
+            "dump": "sandbox-sdk",
+            "vercelApi": "cli",
+            "visual": "container",
+            "note": "raw TCP 5432 from the container is blocked, so pg_dump/pg_restore run only inside the Vercel Sandbox via scripts/migration/db/runner.mjs (@vercel/sandbox SDK, VERCEL_TOKEN from env)",
+            "runner": {
+              "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
+              "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+              "projectName": "growmax-website",
+              "rules": "This bare project exists only to host the Sandbox. Do NOT link Git, deploy, add env vars, or change its settings (P3.1 owns that). Name the Sandbox growmax-migration-runner."
+            },
+            "carryForward": "Before producing any pg_dump fixture, the runner must prove pg_dump and pg_restore major >= 16 inside the Sandbox (source is PostgreSQL 16.15), and record the versions in the P1.1 evidence."
+          }
+        }
+      }
+    }
   },
   "flags": {
     "demoTestsSent": 0,
