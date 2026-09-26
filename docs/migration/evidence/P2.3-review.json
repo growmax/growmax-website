@@ -1,0 +1,37 @@
+{
+  "step": "P2.3",
+  "gate": "G2",
+  "status": "pass",
+  "checkedAt": "2026-09-26T15:12:38Z",
+  "verifier": "migration-reviewer (opus/high), P2.3 review round 2; persisted verbatim by the orchestrator (the reviewer role is read-only)",
+  "approve": true,
+  "blocking": [],
+  "nonBlocking": [
+    {
+      "file": "app/api/demo-requests/route.ts",
+      "issue": "The hardcoded Google Chat webhook key and token are gone from the working tree, but they are still in git history (HEAD:app/api/demo-requests/route.ts, the old line 13). The owner should rotate or regenerate the webhook before or at cutover and store the new URL only in env vars. Not blocking for P2.3 because rotation is an owner action, but it should go in the owner-actions list."
+    },
+    {
+      "file": "app/api/demo-requests/route.ts",
+      "issue": "Rollback risk on Replit: when this code runs on Replit without GOOGLE_CHAT_WEBHOOK_URL in Replit Secrets, sales notifications stop without an error, apart from a console.warn. The owner must set GOOGLE_CHAT_WEBHOOK_URL in both Replit Secrets and the Vercel env (Production and Preview as intended) before this code is deployed on either platform."
+    },
+    {
+      "file": "package-lock.json",
+      "issue": "@vercel/functions@3.9.9 brings in 22 new transitive packages (@vercel/oidc, @vercel/cli-exec, @vercel/cli-config with a nested zod@4.1.11, execa@5, cross-spawn, which, and others). All lockfile hunks only add lines: no existing package is removed, re-hoisted or bumped. The root zod@3 is untouched because zod@4 is nested under @vercel/cli-config. This is what the dependency itself requires, not unrelated churn."
+    },
+    {
+      "file": "docs/migration/evidence/P2.3-review.json",
+      "issue": "The reviewer role has no Write tool and Bash is read-only, so this reviewer could not write the P2.3 evidence file. The orchestrator must save this verdict JSON as docs/migration/evidence/P2.3-review.json (round 2), with checkedAt 2026-09-26T15:12:38Z."
+    }
+  ],
+  "evidenceChecked": "[\"git status: modified only app/api/demo-requests/route.ts, lib/db.ts, package.json, package-lock.json; untracked only evidence P2.1/P2.2. .gitignore, next.config.ts, middleware.ts, tsconfig.tsbuildinfo unchanged (M5 no-change holds). No formatting churn in the diff.\", \"M1: package.json adds engines.node 22.x and @vercel/functions ^3.9.9; the lockfile root mirrors both; installed node_modules/@vercel/functions is 3.9.9; dev/start scripts still use port 5000 (package.json:10,12).\", \"M2: lib/db.ts matches the spec snippet exactly; attachDatabasePool is imported from @vercel/functions and guarded by process.env.VERCEL. middleware.ts does not import lib/db (it uses @neondatabase/serverless), so the Edge bundle is unaffected.\", \"M3: after is imported from next/server (next pinned 15.5.18); URL comes from process.env.GOOGLE_CHAT_WEBHOOK_URL; the text template line is byte-identical to HEAD (diff of whitespace-stripped lines is empty); logs are '[webhook] delivered' on res.ok and '[webhook] Failed:' with the status or message otherwise; try/catch inside after, so nothing throws out of it; the unset branch warns with the exact spec string; 201/400/500 responses and bodies are unchanged.\", \"Secret scan: grep -rn chat.googleapis.com app lib components returns nothing (rc=1); node scripts/migration/state.mjs scan reports clean for 6 files; the P2.1/P2.2 evidence files mention only the hostname, never a key or token.\", \"M4: .gitignore lines 9-15 contain .vercel, .env, .env*.local, docs/migration/.scratch/, *.dump.\", \"The P2.2 verifier result (npm ci, check and build pass; 40/40 routes; 58/58 redirects; webhook mock set/unset behavior) was cross-checked against the diff; the source diff is unchanged since round 1.\", \"checkedAt 2026-09-26T15:12:38Z\"]",
+  "checks": [
+    {
+      "name": "G2 2.1 diff limited to SPEC-02 M1-M4; webhook text byte-identical; no chat.googleapis.com left in app code",
+      "expected": "reviewer approve, 0 blocking",
+      "actual": "approve=true, 0 blocking; round 1 found tsconfig.tsbuildinfo scope creep, fixed in round 2",
+      "pass": true
+    }
+  ],
+  "rounds": 2
+}

@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import pg from 'pg'
+import { attachDatabasePool } from '@vercel/functions'
 import * as schema from './schema'
 
 const { Pool } = pg
@@ -9,4 +10,6 @@ if (!process.env.DATABASE_URL) {
 }
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+// Release idle clients before a Vercel Fluid compute instance suspends.
+if (process.env.VERCEL) attachDatabasePool(pool)
 export const db = drizzle(pool, { schema })

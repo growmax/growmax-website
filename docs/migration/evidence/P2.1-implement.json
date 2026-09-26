@@ -1,0 +1,85 @@
+{
+  "step": "P2.1",
+  "role": "migration-implementer",
+  "checkedAt": "2026-09-26T15:05:14Z",
+  "spec": "docs/migration/specs/SPEC-02-code-changes.md#m-series-minimal-required",
+  "summary": "Implemented M1-M4 from SPEC-02 exactly as specified. M5 is an audit-only confirmation (no code change required); findings recorded below.",
+  "filesChanged": [
+    {
+      "path": "package.json",
+      "change": "Added \"engines\": { \"node\": \"22.x\" } after \"license\". No other fields touched.",
+      "spec": "M1"
+    },
+    {
+      "path": "package-lock.json",
+      "change": "npm install @vercel/functions@^3 --save. Installed version 3.9.9 (matches the plan's pinned verified version). 295 packages added transitively; no other direct dependency was bumped.",
+      "spec": "M1"
+    },
+    {
+      "path": "lib/db.ts",
+      "change": "Imported attachDatabasePool from @vercel/functions; call attachDatabasePool(pool) guarded by `if (process.env.VERCEL)` right after Pool construction, before drizzle(pool, { schema }). Local/Replit path (process.env.VERCEL unset) is unchanged.",
+      "spec": "M2"
+    },
+    {
+      "path": "app/api/demo-requests/route.ts",
+      "change": "Switched import to `NextResponse, after` from 'next/server'. Deleted the hardcoded Google Chat webhook URL (key+token) from source; the URL now comes only from process.env.GOOGLE_CHAT_WEBHOOK_URL. When set, the same POST (byte-identical `text` template, same headers/body shape) now runs inside after(async () => {...}), logging console.log('[webhook] delivered', res.status) on res.ok and console.error('[webhook] Failed:', res.status) otherwise, with a try/catch around the fetch so after() never throws (catch logs console.error('[webhook] Failed:', message)). When unset, logs console.warn('[webhook] GOOGLE_CHAT_WEBHOOK_URL not set; skipping notification'). Response codes/bodies (201 + created row, 400 validation, 500 on error) are unchanged; the success response no longer waits on the webhook fetch (it didn't await it before either).",
+      "spec": "M3"
+    }
+  ],
+  "filesAudited": [
+    {
+      "path": ".gitignore",
+      "finding": "Already contains .vercel, .env, .env*.local, docs/migration/.scratch/, *.dump (added by the plan-authoring commit). No change made.",
+      "spec": "M4"
+    }
+  ],
+  "m5Confirmations": [
+    {
+      "item": "next.config.ts redirects",
+      "confirmed": true,
+      "note": "Confirmed the duplication: gsc-indexing-redirects.ts:8-9 defines '/arc' -> '/revenue-platform' and '/arc/ai/connect' -> '/minori-ai/connect', both spread first (...gscIndexingRedirects) in next.config.ts's redirects() array, ahead of next.config.ts's own '/arc' -> '/' (line 10) and '/arc/ai/connect' -> '/minori-ai/connect' (line 20) entries. Next.js redirects() applies first match in array order, so the gsc-indexing-redirects.ts destinations win for those two paths; the next.config.ts entries are dead but harmless. Left as-is per spec. allowedDevOrigins (['*.replit.dev', '*.repl.co', '*.kirk.replit.dev']) is dev-only and harmless per spec; left unchanged.",
+      "file": "next.config.ts"
+    },
+    {
+      "item": "middleware.ts works unchanged on Edge runtime with a Neon URL",
+      "confirmed": true,
+      "note": "Uses @neondatabase/serverless's neon() (HTTP-based, Edge-compatible) against process.env.DATABASE_URL, with a try/catch fail-open on the blog_redirects lookup. No change made here; the only change scheduled for this file is H3 (later step, not in scope for P2.1).",
+      "file": "middleware.ts"
+    },
+    {
+      "item": "No app/, components/ or lib/ code reads attached_assets/ or screenshots/",
+      "confirmed": true,
+      "note": "grep -rn 'attached_assets|screenshots' across app, lib, components, scripts found only scripts/import-missing-blogs.ts:6 (reads attached_assets/*.csv) and scripts/migration/visual/run.mjs (comment mentioning 'screenshots' re: Playwright visual diff tooling, not a data-directory read). Neither is part of the Next.js build.",
+      "file": "scripts/import-missing-blogs.ts"
+    },
+    {
+      "item": "app/layout.tsx fonts fetched at build via next/font/google",
+      "confirmed": true,
+      "note": "IBM_Plex_Sans and IBM_Plex_Mono are loaded via next/font/google in app/layout.tsx; Vercel builders have network access to Google Fonts. No change made.",
+      "file": "app/layout.tsx"
+    }
+  ],
+  "secretScan": {
+    "command": "grep -rn \"chat.googleapis.com\" app lib components",
+    "result": "no matches (exit 1) - hardcoded webhook URL fully removed from source"
+  },
+  "sanityChecks": {
+    "npmCi": "not run in this step (npm install --save was used per M1, adding the new dependency; full npm ci + build verification is P2.2, out of scope for P2.1)",
+    "tscCheck": "npm run check (tsc) passed with no errors after all M-series edits",
+    "note": "Fix applied per P2.3 review finding: `npm run check` had regenerated tsconfig.tsbuildinfo (a tracked tsc incremental build cache), which is not one of the M1-M5 files and was scope creep against the review checklist's 'diff touches only the files named above' item. Reverted with `git checkout -- tsconfig.tsbuildinfo`; confirmed back to HEAD content (md5 e35dc219892a02fc0f1a41361b8e5bea, `git status --porcelain` empty for this path). Re-ran the sanity typecheck with `npx tsc --noEmit --incremental false` (rc=0, tsconfig.tsbuildinfo md5 unchanged), which is the safe command to use for future sanity typechecks since it doesn't write the incremental-cache file."
+  },
+  "notTouched": [
+    ".vercel/",
+    "docs/migration/.scratch/.env*",
+    "docs/migration/STATE.json",
+    "docs/migration/LOG.md",
+    "scripts/seed-*",
+    "content files",
+    "the design system"
+  ],
+  "commit": "not performed (implementer never commits; orchestrator commits per role rules)",
+  "checksForVerifier": [
+    "P2.2 local verification per SPEC-02 lines 90-121: npm ci + npm run check, local PG16 build+smoke suite, M3 mock-webhook behavior (both with and without GOOGLE_CHAT_WEBHOOK_URL set), per the spec's exact steps.",
+    "P2.3 review checklist per SPEC-02 lines 123-130: diff now touches only package.json/package-lock.json/lib/db.ts/app/api/demo-requests/route.ts (tsconfig.tsbuildinfo churn from the earlier `npm run check` run has been reverted, see sanityChecks.note); webhook text template byte-identical; secret grep clean; after from next/server; attachDatabasePool guarded by process.env.VERCEL; package-lock.json consistent with npm ci."
+  ]
+}
