@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "BLOCKED",
-  "currentStep": "P1.5",
-  "updatedAt": "2026-09-26T10:40:36.272Z",
+  "currentStep": null,
+  "updatedAt": "2026-09-26T10:44:26.214Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -280,13 +280,17 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [
-        "2026-09-26T10:40:36.272Z Run ahead of its nominal dep (P0.2 blocked on B-NETWORK) as independent work: a local, read-only code audit that needs no network, DB or Vercel access. Workflow mig-p1-discovery with only=[P1.5]."
+      "evidence": [
+        "docs/migration/evidence/P1.5-code-audit.json"
       ],
-      "startedAt": "2026-09-26T10:40:36.272Z"
+      "notes": [
+        "2026-09-26T10:40:36.272Z Run ahead of its nominal dep (P0.2 blocked on B-NETWORK) as independent work: a local, read-only code audit that needs no network, DB or Vercel access. Workflow mig-p1-discovery with only=[P1.5].",
+        "2026-09-26T10:44:26.214Z Audit of 1546c47 confirms SPEC-02 M1-M5 and H1-H4 as described. One addition for A1: memorystore and connect-pg-simple are unused deps (informational, out of SPEC-02 scope). Orchestrator redacted a quoted Google Chat webhook URL from the evidence (scan blocked it) and fixed the placeholder checkedAt."
+      ],
+      "startedAt": "2026-09-26T10:40:36.272Z",
+      "completedAt": "2026-09-26T10:44:26.214Z"
     },
     {
       "id": "P1.6",
