@@ -1,0 +1,25 @@
+{
+  "step": "P1.2",
+  "gate": "G1",
+  "status": "fail",
+  "checkedAt": "2026-09-26T15:44:22Z",
+  "verifier": "migration-reviewer (opus/high), harness-update review round 1; summarized by the orchestrator from the reviewer's hand-back report (the reviewer role is read-only and cannot write files)",
+  "approve": false,
+  "blocking": [
+    {"file": "scripts/migration/parity/tie-permutation.mjs", "issue": "Not a valid A1 C8 proof for page URLs: it compares only two /api/blog bodies, never the page/text/sitemap diff an allowlist entry would cover, so other real changes captured alongside would be allowlisted with it. '/' and /llms*.txt run their own queries. The absolute top-N boundary check fails on live data (A vs A, topN=4) because lib/storage.ts prepends the fallback article claude-commerce-agents-b2b.", "fix": "Work on each page's own raw bodies (ordered slug sequences), use one created_at map from A, require the residual text to be byte-identical after tie-group reordering, use a relative top-N test that accounts for the fallback post, and add real-data self-test cases (A vs A passes; A vs A plus one text edit fails)."}
+  ],
+  "nonBlocking": [
+    "tie-permutation: ignores published:false items and compares Sets instead of multisets; --top-n NaN is silently skipped; created_at ties are ms-level",
+    "urls.mjs 1c (sitemap-b) cannot send the protection-bypass header, so it would get a 401 at P5.2 (fails loudly); 1b/1c are recorded before the expect-bearing sources (could shadow counts or expect blocks)",
+    "compare.mjs: full/full isn't byte-identical to before (the missing-slug diff now pins sha256, an improvement; additive keys); the jsonBySlug.<slugs> diff format differs between paths (fails closed)",
+    "compare.mjs: a compact text/plain side falls back to 300-char previews instead of the raw-dir body (fails closed)",
+    "selftest: no mixed-mode mutation cases; the real --compact capture path isn't in the self-test",
+    "functional --expect-cache-hit passes on HIT regardless of status (a cached 404 would pass)",
+    "C10 threshold is 3.5 MiB, not 3.5 MB; size and array length are emitted only above the threshold",
+    "SPEC-04 §3/§4 don't describe compact mode, the size warning or the tie checker (the orchestrator fixed the spec text in the same commit as this file)"
+  ],
+  "checks": [
+    {"name": "Harness update review (A1 C8/C9/C10 + SPEC-04 §2 addendum)", "expected": "approve, 0 blocking", "actual": "approve=false, 1 blocking (tie-permutation.mjs), 8 non-blocking; reviewer's own live self-test overall pass (24/24 full, 26/26 compact, determinism both modes, mixed-mode 0 false diffs, coverage sources pass)", "pass": false}
+  ],
+  "artifacts": {"reviewerSelftestOutput": "docs/migration/.scratch/selftest-review/P1.2-harness-selftest.json (sha256 51c86ca3c9cec89daf8981bde1d727d758c2ffb630933d5a29130eb1d63f9840)"}
+}

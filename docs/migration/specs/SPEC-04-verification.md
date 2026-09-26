@@ -67,6 +67,8 @@ Expect at least 250 URLs. Log the count per source. A shrinking inventory betwee
 - **JSON:** canonical stringify with sorted keys. `/api/blog` is compared per slug, with **every** field (ids and timestamps are preserved by the copy).
 - **Text** (`robots.txt`, `llms*.txt`): exact after normalizing line endings.
 - **Binary:** sha256.
+- **Compact mode** (`--compact`; addendum 2026-09-26, A1 C9): same capture path. `/api/blog` is stored as `jsonArrayLength`, a per-slug sha256 of each item's canonical JSON (`jsonBySlugHash`) and the slug multiset. The duplicated canonical strings are dropped. Large text bodies are stored as a hash plus a short preview. Raw bodies still go to `--raw-dir`. Use it for any manifest that must be committed (the P6.5 baseline) and stay under 5 MB.
+- **`/api/blog` size** (A1 C10): every capture records its status, decoded byte size and array length.
 
 ## 4. Compare (`compare.mjs`) rules
 
@@ -87,6 +89,10 @@ Expect at least 250 URLs. Log the count per source. A shrinking inventory betwee
 - Output:
   - `diff.json`: `{urlsA, urlsB, compared, passed, failedUnallowed, allowlisted, byCategory, diffs:[…≤200]}`. The committed copy stays under 200 KB; the full copy goes to `.scratch/`.
   - Exit code 0 only if `failedUnallowed == 0`.
+- **Addendum 2026-09-26 (A1 C8–C10):**
+  - **Mixed modes:** compare works for full/full, compact/full and full/compact. A full side is hashed on the fly with exactly the canonicalization compact capture uses, and sha256 allowlist pins work in every mode. When a text side is compact, the diff is built from the raw body in `--raw-dir` if it's present.
+  - **`/api/blog` size:** the output always reports bytes and array length for both sides. Above 3,500,000 bytes it prints a WARNING, which never changes pass/fail.
+  - **Tie order:** a diff on `/`, `/blog`, `/llms.txt`, `/llms-full.txt` or `/sitemap.xml` may be allowlisted only when `parity/tie-permutation.mjs` proves, on the page's own raw bodies, that B differs from A only by reordering posts with an identical `created_at`, and the residual text check is byte-identical. The entry must pin both observed values.
 
 ## 5. Self-test (`selftest.mjs`), required before G1
 
