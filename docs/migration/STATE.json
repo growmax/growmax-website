@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P4.3",
-  "updatedAt": "2026-09-26T19:59:42.576Z",
+  "updatedAt": "2026-09-26T20:03:34.411Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -207,7 +207,8 @@
       "Harness (review r2): functional checkCacheHit: add a fetch timeout",
       "P5.2: run mig-verify-suite with baseA=https://www.growmax.io (a fresh capture of live Replit taken minutes apart from B with the current harness), not the P1.3 manifest: that was captured by older code without embeddedPosts fields and would fail /blog by construction (review r3)",
       "Harness (review r4, minor): add a fixed expect {status:200} for /blog and /blog?page=2 in urls.mjs (equal non-2xx on both sides otherwise skips the listing); make splitFlightRows report the row count and stop position in its error; bound non-last llms-full.txt sections at \"## \" headers",
-      "P5.1: P3.4 access check on the production alias: GET / without the bypass header -> 401/403, with x-vercel-protection-bypass -> 200 (deferred at P3.4: no deployment existed)"
+      "P5.1: P3.4 access check on the production alias: GET / without the bypass header -> 401/403, with x-vercel-protection-bypass -> 200 (deferred at P3.4: no deployment existed)",
+      "P5.1: make sure the explicit by-SHA production deploy becomes the aliased production deployment (the earlier failed git production build dpl_EAGE1AULX1P1xY2vKtDBUMRhcmw7 must not be confused with it). P5.2 log review: the pg sslmode verify-full notice is informational, not an unexplained error"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",
