@@ -131,7 +131,7 @@ function installGitGuards() {
     '  echo "Leave your files where they are and finish your task; the orchestrator verifies and commits them." >&2\n' +
     '  exit 1\n' +
     'fi\n'
-  const want = { 'pre-commit': guard + 'exec node scripts/migration/state.mjs scan\n', 'pre-push': guard }
+  const want = { 'pre-commit': guard + 'exec node scripts/migration/state.mjs scan --staged\n', 'pre-push': guard }
   try {
     mkdirSync(dir, { recursive: true })
     for (const [name, body] of Object.entries(want)) {
@@ -305,12 +305,23 @@ function isBinary(path) {
   return buf.subarray(0, n).includes(0)
 }
 
-function cmdScan() {
+// Staged blob content from the index (what a commit will actually contain), or null if unreadable.
+function stagedContent(rel) {
+  try { return execFileSync('git', ['show', `:${rel}`], { cwd: ROOT, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 }) } catch { return null }
+}
+
+function cmdScan(a) {
+  // --staged (used by the pre-commit guard): scan only what is being committed, read from the index,
+  // so an agent's unfinished working-tree files never block an unrelated orchestrator commit.
+  const staged = !!flag(a, 'staged')
   const files = new Set()
   const add = out => out.split('\n').map(x => x.trim()).filter(Boolean).forEach(f => files.add(f))
-  add(git(['diff', '--name-only', 'HEAD']))
-  add(git(['diff', '--name-only', '--cached']))
-  add(git(['ls-files', '--others', '--exclude-standard']))
+  if (staged) add(git(['diff', '--name-only', '--cached', '--diff-filter=ACMR']))
+  else {
+    add(git(['diff', '--name-only', 'HEAD']))
+    add(git(['diff', '--name-only', '--cached']))
+    add(git(['ls-files', '--others', '--exclude-standard']))
+  }
   const patterns = [
     [/postgres(?:ql)?:\/\/[^\s:@\/'"`]+:[^\s@'"`]+@/i, 'Postgres URL with embedded password'],
     [/\bvc[pk]_[A-Za-z0-9]{20,}/, 'Vercel token'],
@@ -332,9 +343,17 @@ function cmdScan() {
     if (rel.startsWith('docs/migration/.scratch/')) { findings.push(`${rel}: scratch file must never be committed`); continue }
     if (/\.(dump|sql\.gz|backup)$/i.test(rel)) { findings.push(`${rel}: database dump must never be committed`); continue }
     if (/(^|\/)\.env(\.|$)/.test(rel)) { findings.push(`${rel}: .env file must never be committed`); continue }
-    if (!existsSync(abs) || !statSync(abs).isFile() || isBinary(abs)) continue
-    if (statSync(abs).size > 5 * 1024 * 1024) { findings.push(`${rel}: larger than 5 MB (evidence must stay compact)`); continue }
-    const text = readFileSync(abs, 'utf8')
+    let text
+    if (staged) {
+      const buf = stagedContent(rel)
+      if (!buf || buf.subarray(0, 8192).includes(0)) continue
+      if (buf.length > 5 * 1024 * 1024) { findings.push(`${rel}: larger than 5 MB (evidence must stay compact)`); continue }
+      text = buf.toString('utf8')
+    } else {
+      if (!existsSync(abs) || !statSync(abs).isFile() || isBinary(abs)) continue
+      if (statSync(abs).size > 5 * 1024 * 1024) { findings.push(`${rel}: larger than 5 MB (evidence must stay compact)`); continue }
+      text = readFileSync(abs, 'utf8')
+    }
     const lines = text.split('\n')
     lines.forEach((line, i) => {
       for (const [re, label] of patterns) if (re.test(line)) findings.push(`${rel}:${i + 1}: ${label}`)
@@ -348,7 +367,7 @@ function cmdScan() {
     console.error(`scan: ${findings.length} finding(s) — do NOT commit until fixed:\n` + findings.map(f => '  ' + f).join('\n'))
     process.exit(1)
   }
-  console.log(`scan: clean (${files.size} changed/untracked file(s) checked)`)
+  console.log(`scan: clean (${files.size} ${staged ? 'staged' : 'changed/untracked'} file(s) checked)`)
 }
 
 function cmdValidate() {
