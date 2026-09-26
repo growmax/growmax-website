@@ -59,3 +59,4 @@
 - 2026-09-26T12:26:19.192Z set facts.neon.plan
 - 2026-09-26T12:45:12.446Z OWNER ACTION (2026-09-26T12:45:12Z): the owner upgraded Vercel team growmax1 to Pro themselves (they declined the orchestrator's buy_pro call; no charge was made by automation). Verified: vercel teams ls shows growmax1 = pro. The A2 'upgrade to Pro' condition (risk R5) is satisfied; SPEC-01 §2.3 skew protection now applies at P3.1.
 - 2026-09-26T12:45:12.501Z set facts.vercel.plan
+- 2026-09-26T13:06:24.373Z [P1.2] Container restarted ~13:05Z (uptime 0 min; filesystem and workflow journal persisted). The P1 run wf_be59e661-e9c had died during 'P1 review r3' (after r1: 13 blocking, r2: 7 blocking, both fixed). Resumed the same run with identical args: 8 completed agents replayed from cache, only review r3 (and the baseline if approved) re-runs. No other orchestrator session on origin.
