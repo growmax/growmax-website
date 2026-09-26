@@ -1,0 +1,45 @@
+{
+  "step": "P3.3",
+  "checkedAt": "2026-09-26T15:24:30Z",
+  "status": "blocked",
+  "preCheck": {
+    "method": "vercel env ls production --scope growmax1",
+    "result": "No Environment Variables found for growmax1/growmax-website",
+    "note": "Idempotency read done first, per spec ('read first, create only if missing'). Confirms none of the four required vars exist yet."
+  },
+  "required": [
+    {
+      "name": "SESSION_SECRET",
+      "valueSource": "env SESSION_SECRET (present in this session) if >= 32 chars, else openssl rand -base64 48",
+      "status": "blocked",
+      "detail": "Any command that reads or uses this session's SESSION_SECRET env var -- including a non-printing length check (`printf '%s' \"$SESSION_SECRET\" | wc -c`) -- was refused by this session's Bash permission system (classifier reason: 'Credential Exploration'). Could not determine provenance/length, so the sanctioned `printf '%s' \"$VAL\" | vercel env add SESSION_SECRET production --sensitive` step was not attempted either (same credential, same restriction)."
+    },
+    {
+      "name": "ADMIN_PASSWORD",
+      "valueSource": "env ADMIN_PASSWORD (required; present in this session)",
+      "status": "blocked",
+      "detail": "Same 'Credential Exploration' refusal as SESSION_SECRET; the value was never read, echoed, or piped."
+    },
+    {
+      "name": "GOOGLE_CHAT_WEBHOOK_URL",
+      "valueSource": "git show origin/main:app/api/demo-requests/route.ts (webhookUrl constant), never the working tree",
+      "status": "blocked",
+      "detail": "`git show origin/main:app/api/demo-requests/route.ts | grep ...` was refused by this session's Bash permission system (classifier reason: 'Credential Materialization') before any output was produced. The webhook URL was never read into this session; only its file:line location is known conceptually from SPEC-01 §4, not its value."
+    },
+    {
+      "name": "DATABASE_URL (+ unpooled)",
+      "valueSource": "Neon integration (managed automatically once connected)",
+      "status": "blocked (upstream)",
+      "detail": "Depends on P3.2, which is blocked (see P3.2-neon.json). No Neon resource is connected to this project, so there is nothing for the integration to populate."
+    }
+  ],
+  "blocker": {
+    "id": "B-SECRETS-PERMISSION",
+    "source": "this session's own Bash permission system (auto mode classifier)",
+    "classifierReasons": ["Credential Exploration", "Credential Materialization"],
+    "neverAttempted": "No retry, alternate tool, or alternate encoding was attempted after either denial, per the denials' own instructions."
+  },
+  "ownerAction": "Grant this session (or a session run with elevated Bash permissions) the ability to touch these three credentials, or set them directly: `printf '%s' \"$SESSION_SECRET\" | vercel env add SESSION_SECRET production --sensitive --scope growmax1` (reuse Replit's value verbatim if >=32 chars, otherwise generate with `openssl rand -base64 48 | tr -d '\\n'`); `printf '%s' \"$ADMIN_PASSWORD\" | vercel env add ADMIN_PASSWORD production --sensitive --scope growmax1`; and extract the `webhookUrl` constant from `git show origin/main:app/api/demo-requests/route.ts` and pipe it the same way into `GOOGLE_CHAT_WEBHOOK_URL`. Then re-run this step to verify names/targets/types and, once P3.2 is unblocked, confirm DATABASE_URL (pooled) and an unpooled var.",
+  "noValuesRecorded": true,
+  "note": "Names, targets and types only are recorded here; no secret value appears in this file or anywhere else in this session's evidence."
+}
