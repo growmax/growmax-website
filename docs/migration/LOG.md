@@ -178,3 +178,4 @@
 - 2026-09-26T20:48:33.524Z [P5.2] step pending → in_progress — Child mig-verify-suite from the P5.1 workflow: fresh A capture of https://www.growmax.io vs the production alias with the bypass header; SPEC-04 §5.4 probe first; one labeled demo request (F2); runLabel p5-20260926T2047Z. Allowlist starts empty ([]): nothing is advisor-approved for P5.2 yet.
 - 2026-09-26T20:48:33.578Z set flags.demoTestsSent
 - 2026-09-26T20:48:33.626Z [P5.2] Demo-request budget: reserved test 1 of 3 for P5.2 attempt 1 (runLabel p5-20260926T2047Z) before launch, so a crash cannot hide a sent test. Corrected afterwards if F2 did not run.
+- 2026-09-26T20:48:54.043Z set facts.runs

@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P5.2",
-  "updatedAt": "2026-09-26T20:48:33.577Z",
+  "updatedAt": "2026-09-26T20:48:54.042Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -194,6 +194,30 @@
         "args": null,
         "startedAt": "2026-09-26T20:25:30Z",
         "note": "ad-hoc: schema-diff fix r1 (sonnet/high) -> review (opus/high, <=3 rounds) -> fresh P4.3 verify (sonnet/medium); resume with resumeFromRunId in this session"
+      },
+      "p5": {
+        "runId": "wf_b7822bd7-7ee",
+        "scriptPath": ".claude/workflows/mig-p5-deploy-verify.js",
+        "startedAt": "2026-09-26T20:48:53Z",
+        "note": "resume with these exact args (key order matters for the cache)",
+        "args": {
+          "step": "P5.1",
+          "sha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+          "runLabel": "p5-20260926T2047Z",
+          "deployMode": "git",
+          "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+          "baseA": "https://www.growmax.io",
+          "allowDemoTest": true,
+          "paths": {
+            "web": "container",
+            "db": "neon-https",
+            "dump": "sandbox-sdk",
+            "vercelApi": "cli",
+            "visual": "container",
+            "decidedAt": "2026-09-26T10:57:33Z",
+            "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
+          }
+        }
       }
     },
     "followUps": [
