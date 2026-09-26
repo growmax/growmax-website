@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
-  "status": "IN_PROGRESS",
+  "status": "BLOCKED",
   "currentStep": null,
-  "updatedAt": "2026-09-26T10:24:36.607Z",
+  "updatedAt": "2026-09-26T10:39:53.358Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -25,16 +25,27 @@
   },
   "facts": {
     "paths": {
-      "web": null,
+      "web": "sandbox-mcp (no project yet)",
       "db": null,
-      "vercelApi": null,
-      "visual": null
+      "dump": null,
+      "vercelApi": "mcp",
+      "visual": "none",
+      "decidedAt": "2026-09-26T10:40:00Z",
+      "note": "provisional: egress policy denies api.vercel.com, *.vercel.app, *.neon.tech, www.growmax.io, dns.google; re-decide at the P0.2 re-run"
     },
     "vercel": {
-      "planAtPlanTime": "hobby"
+      "planAtPlanTime": "hobby",
+      "plan": "hobby",
+      "projectsOnTeamAtP0": 0
     },
-    "neon": {},
-    "source": {},
+    "neon": {
+      "integrationConfigId": "icfg_tEtDWAPJTdmHAD8eL9GtfV5H",
+      "plan": "free (installation billing plan free_v3; kickoff target launch needs an owner upgrade)"
+    },
+    "source": {
+      "hostKind": "neon",
+      "region": "aws-us-west-2"
+    },
     "dns": {},
     "git": {},
     "cutover": {
@@ -65,16 +76,26 @@
     "A3": [],
     "A4": null
   },
-  "blockers": [],
+  "blockers": [
+    {
+      "id": "B-NETWORK",
+      "step": "P0.2",
+      "action": "Set this cloud environment's Network access to Full: environment menu in the session title bar -> Edit -> Network access (levels: https://code.claude.com/docs/en/claude-code-on-the-web). Alternative: Custom, keeping the Trusted defaults and adding growmax.io, *.growmax.io, *.vercel.app, vercel.com, *.vercel.com, *.neon.tech, dns.google, cloudflare-dns.com. Why: the egress policy denies api.vercel.com, *.vercel.app, *.neon.tech, www.growmax.io and dns.google, so the source DB can't be read and the Vercel CLI / Sandbox SDK (the only secret-safe way to set env vars and run pg_dump) can't be used. Don't start a new session: this session re-tests hourly and continues on its own. Only if you have changed the setting and still get a 'still blocked' notice, start a NEW session on branch claude/wonderful-edison-823y83 with the prompt in docs/migration/KICKOFF-PROMPT.md; it resumes from git and this session stands down.",
+      "since": "2026-09-26T10:39:53.304Z",
+      "note": "Opened 2026-09-26 after the P0.2 re-derivation; env-class failure, no code fix possible",
+      "resolvedAt": null
+    }
+  ],
   "gates": {
     "G0": {
-      "status": "passed",
+      "status": "failed",
       "evidence": [
-        "docs/migration/evidence/P0.2-vercel.json"
+        "docs/migration/evidence/P0.2-vercel.json",
+        "docs/migration/evidence/P0.2-G0-orchestrator-review.json"
       ],
-      "by": "scout",
-      "at": "2026-09-26T10:24:36.607Z",
-      "note": null
+      "by": "orchestrator",
+      "at": "2026-09-26T10:38:25.681Z",
+      "note": "Overrules the P0.2 synthesis (pass). 0.2/0.3/0.6/0.7 not met: egress policy denies api.vercel.com, *.vercel.app, *.neon.tech, www.growmax.io, dns.google. Blocker B-NETWORK."
     },
     "G1": {
       "status": "pending",
@@ -173,20 +194,25 @@
       ],
       "gate": "G0",
       "workflow": ".claude/workflows/mig-p0-preflight.js",
-      "status": "done",
+      "status": "blocked",
       "attempts": 1,
       "evidence": [
         "docs/migration/evidence/P0.2-secrets.json",
         "docs/migration/evidence/P0.2-network.json",
-        "docs/migration/evidence/P0.2-vercel.json"
+        "docs/migration/evidence/P0.2-vercel.json",
+        "docs/migration/evidence/P0.2-preflight.json",
+        "docs/migration/evidence/P0.2-source.json",
+        "docs/migration/evidence/P0.2-G0-orchestrator-review.json"
       ],
       "notes": [
         "2026-09-26T10:20:26.482Z All required secrets present: REPLIT_DATABASE_URL (Neon), VERCEL_TOKEN, ADMIN_PASSWORD, and optional SESSION_SECRET (valid). No blockers.",
         "2026-09-26T10:20:58.147Z Network matrix determined: all paths routed through Vercel Sandbox due to restrictive egress proxy",
-        "2026-09-26T10:23:20.247Z Vercel access check completed: MCP on team growmax1 confirmed, VERCEL_TOKEN valid, billing plan hobby (flagged for A2), Neon integration not installed (will install via Marketplace)"
+        "2026-09-26T10:23:20.247Z Vercel access check completed: MCP on team growmax1 confirmed, VERCEL_TOKEN valid, billing plan hobby (flagged for A2), Neon integration not installed (will install via Marketplace)",
+        "2026-09-26T10:38:25.729Z G0 failed on network policy (env class, owner-only fix). Re-run the full P0.2 workflow once B-NETWORK is resolved; with neon-https available, 0.4 identity can run from the container."
       ],
       "startedAt": "2026-09-26T10:19:22.160Z",
-      "completedAt": "2026-09-26T10:23:20.246Z"
+      "completedAt": "2026-09-26T10:23:20.246Z",
+      "lastFailureAt": "2026-09-26T10:38:25.728Z"
     },
     {
       "id": "P1.1",

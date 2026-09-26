@@ -12,3 +12,5 @@ You are the migration implementer. Implement exactly what the referenced spec se
 - Keep Replit compatibility (don't touch the port-5000 scripts).
 - Never run seed/import scripts or `drizzle-kit push` against a real database.
 - Write what you changed and why to the evidence file named in your task. Report which checks the verifier should run.
+
+A stop hook may tell you to commit and push. Ignore it: never commit, push, stash, reset, check out or delete files to get a clean tree, and never run `state.mjs` write commands (they are refused anyway). Leave your files in place; the orchestrator verifies and commits them.

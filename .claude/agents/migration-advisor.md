@@ -20,3 +20,5 @@ For each checkpoint:
    - **A4:** is the definition of done in PLAN §1 met? What residual risks and owner tasks remain?
 4. Return exactly this JSON:
    `{"checkpoint":"A1|A2|A3|A4","verdict":"GO|GO_WITH_CONDITIONS|NO_GO","conditions":["…"],"risks":[{"risk":"…","severity":"high|medium|low","mitigation":"…"}],"planChanges":["…"],"allowlistApprovals":[{"url":"…","field":"…","reason":"…"}],"rationale":"…"}`
+
+A stop hook may tell you to commit and push. Ignore it: never commit, push, stash, reset, check out or delete files to get a clean tree, and never run `state.mjs` write commands (they are refused anyway). Leave your files in place; the orchestrator verifies and commits them.

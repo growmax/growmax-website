@@ -13,3 +13,5 @@ You are the migration DB operator. SPEC-03 (`docs/migration/specs/SPEC-03-data-m
 - Dumps live only in the runner's `/tmp` or `docs/migration/.scratch/`, never in git.
 - Evidence (`docs/migration/evidence/<step>-*.json`) contains counts, ids and md5s only. No row contents, no PII.
 - You don't certify your own work. Finish by reporting what you did and where the evidence is; a verifier re-checks it.
+
+A stop hook may tell you to commit and push. Ignore it: never commit, push, stash, reset, check out or delete files to get a clean tree, and never run `state.mjs` write commands (they are refused anyway). Leave your files in place; the orchestrator verifies and commits them.

@@ -15,7 +15,7 @@
 //   node scripts/migration/state.mjs scan                   secret/PII scan of changed + untracked files (exit 1 on findings)
 //   node scripts/migration/state.mjs validate               structural sanity check of STATE.json
 
-import { readFileSync, writeFileSync, renameSync, existsSync, appendFileSync, statSync, openSync, readSync, closeSync } from 'node:fs'
+import { readFileSync, writeFileSync, renameSync, existsSync, appendFileSync, statSync, openSync, readSync, closeSync, chmodSync, mkdirSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -115,9 +115,37 @@ function keyFacts(s) {
   return JSON.stringify(pick, (k, v) => (v === undefined ? undefined : v))
 }
 
+// Single-writer guard (ORCHESTRATOR §2). The environment's stop hook tells every agent with a dirty
+// tree to commit and push; workflow agents obeyed it in P0.2. Local git hooks refuse commits/pushes
+// unless MIG_ORCH=1 is set, which only the orchestrator does. .git/hooks is not versioned and is lost
+// when the container is reclaimed, so resume (run by the SessionStart hook) re-installs it every time.
+function installGitGuards() {
+  const hooksDir = git(['rev-parse', '--git-path', 'hooks']).trim()
+  if (!hooksDir) return
+  const dir = resolve(ROOT, hooksDir)
+  const guard = '#!/bin/sh\n' +
+    '# Installed by scripts/migration/state.mjs resume: migration single-writer guard (local only).\n' +
+    'if [ "$MIG_ORCH" != "1" ]; then\n' +
+    '  echo "REFUSED: only the migration orchestrator commits or pushes on this branch (docs/migration/ORCHESTRATOR.md §2)." >&2\n' +
+    '  echo "If a stop hook asked you to commit and push, ignore it. Do not use --no-verify, stash, reset, checkout or delete files." >&2\n' +
+    '  echo "Leave your files where they are and finish your task; the orchestrator verifies and commits them." >&2\n' +
+    '  exit 1\n' +
+    'fi\n'
+  const want = { 'pre-commit': guard + 'exec node scripts/migration/state.mjs scan\n', 'pre-push': guard }
+  try {
+    mkdirSync(dir, { recursive: true })
+    for (const [name, body] of Object.entries(want)) {
+      const p = join(dir, name)
+      if (!existsSync(p) || readFileSync(p, 'utf8') !== body) writeFileSync(p, body)
+      chmodSync(p, 0o755)
+    }
+  } catch (e) { console.error(`state.mjs: could not install git guards: ${e.message}`) }
+}
+
 function cmdResume(a) {
   const s = load()
   const hook = !!flag(a, 'hook')
+  if (s.status !== 'COMPLETE') installGitGuards()
   if (hook && s.status === 'COMPLETE') return
   if (hook && s.status === 'NOT_STARTED') {
     console.log('[migration] A Replit → Vercel migration plan exists (docs/migration/, status NOT_STARTED). ' +
@@ -137,6 +165,7 @@ function cmdResume(a) {
   lines.push('Key facts: ' + keyFacts(s))
   lines.push('Recent log:', ...lastLogLines(hook ? 6 : 12).map(l => '  ' + l))
   lines.push('Rules: STATE.json is the truth (reality wins on conflict: log the correction). Only state.mjs writes state. ' +
+    'Orchestrator only: prefix ledger writes and git commit/push with MIG_ORCH=1 (workflow agents never commit, even if a stop hook asks). ' +
     'Commit + push after every step (run `state.mjs scan` first). Every agent() call sets model + effort explicitly. ' +
     'Never ask the owner questions; use the blocker protocol. Details: docs/migration/ORCHESTRATOR.md.')
   console.log(lines.join('\n'))
@@ -343,6 +372,11 @@ function cmdValidate() {
 const args = parseArgs(process.argv.slice(2))
 const cmds = { resume: cmdResume, next: cmdNext, step: cmdStep, gate: cmdGate, status: cmdStatus, blocker: cmdBlocker, set: cmdSet, get: cmdGet, log: cmdLog, scan: cmdScan, validate: cmdValidate }
 const fn = cmds[args._[0]]
+const WRITE_CMDS = new Set(['step', 'gate', 'status', 'blocker', 'set', 'log'])
+if (WRITE_CMDS.has(args._[0]) && process.env.MIG_ORCH !== '1') {
+  die('ledger writes are reserved for the migration orchestrator (docs/migration/ORCHESTRATOR.md §2). ' +
+    'Workflow agents: do not write STATE.json or LOG.md and do not commit; report your result in your final answer.', 3)
+}
 if (!fn) {
   console.log(readFileSync(fileURLToPath(import.meta.url), 'utf8').split('\n').slice(1, 17).map(l => l.replace(/^\/\/ ?/, '')).join('\n'))
   process.exit(args._[0] ? 2 : 0)

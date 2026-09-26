@@ -28,6 +28,8 @@ Then read only what the next step needs: its row in `PLAN.md §7`, the reference
 **Commit protocol (every step):**
 `node scripts/migration/state.mjs scan` (secret/PII scan of staged + untracked files; must exit 0) → `git add -A` → `git commit -m "migration(<step>): <result>"` + trailer lines → `git push -u origin claude/wonderful-edison-823y83`. On network failure, retry up to 4× with 2s/4s/8s/16s backoff.
 
+**Single-writer guard (added in P0.2 after an incident).** The environment's stop hook tells *every* agent with a dirty tree to commit and push, and workflow agents obeyed it. So `state.mjs` refuses its write commands (`step`, `gate`, `status`, `blocker`, `set`, `log`) unless `MIG_ORCH=1` is set, and `state.mjs resume` (re)installs local `pre-commit` (guard + `scan`) and `pre-push` hooks that refuse without it. The orchestrator sets `MIG_ORCH=1` per command (`MIG_ORCH=1 node scripts/migration/state.mjs …`, `MIG_ORCH=1 git commit …`, `MIG_ORCH=1 git push …`). Never export it, and never put it in an agent prompt. Before each commit, read `git status` and account for every changed file.
+
 Commit trailer (required, from session attribution):
 ```
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
@@ -121,6 +123,8 @@ When progress needs something only the owner can do (credentials, connector re-a
 Use `mcp__Claude_Code_Remote__send_later` with `name: "growmax-migration-checkin"`, `delay_minutes` from the SPEC-05 §4 cadence, and a message like:
 `"[migration check-in] Run the ORCHESTRATOR §1 resume, then do the current step's check-in routine (SPEC-05 §4). If nothing changed: re-arm silently and end the turn."`
 Don't store the trigger id in the ledger (that would dirty git on every wake). Find the pending check-in with `mcp__Claude_Code_Remote__list_triggers` (name `growmax-migration-checkin`). Keep exactly **one** pending check-in: before arming a new one, make sure the previous one fired or was deleted. Stop check-ins at P9.2.
+
+**One orchestrator at a time.** At every check-in, right after the §1 fetch and pull: if any commit newer than your own most recent commit carries a `Claude-Session:` trailer that isn't yours, another orchestrator session has taken over (for example because the owner started a fresh session to pick up changed environment settings). Stand down: delete your own pending check-in, commit nothing, and end the turn. A session that finds another session's pending `growmax-migration-checkin` deletes it before arming its own.
 
 Container reclaim during waits is normal. Everything you need is in git, and the scratchpad is disposable.
 
