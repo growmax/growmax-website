@@ -138,3 +138,9 @@
 - 2026-09-26T17:06:21.614Z set facts.ownerActions
 - 2026-09-26T17:06:21.671Z [P6.3] A1 C5/C6/C12 docs done and the C7 early capture recorded: www A and apex A TTL are 14400 s at the authoritative NS (not the 300 s SOA minimum the P1.4 baseline showed). Owner action OA-TTL: lower them to 300 s at least 24 h before cutover. Also aligned SPEC-01 §6.3 and mig-p6b-ready.js to recommendedIPv4 for www.
 - 2026-09-26T18:48:34.614Z Check-in 18:47Z: B-PERM-P3 still open, no owner reply. Sent one reminder push (with the OA-TTL note); next check-in 2026-09-27T18:49Z (24 h). Container had restarted; nothing was running; tree clean; no other orchestrator on origin.
+- 2026-09-26T19:51:39.279Z [P3.2] OWNER DECISION (2026-09-26T19:51:39Z, in session): 'Keep the new DB and secrets, continue.' The owner accepts Neon resource growmax-db-iad1 (store_5rcRxxSXMtnl4VA2 / morning-fog-77978305, launch_v3, production only) and the sensitive production vars SESSION_SECRET, ADMIN_PASSWORD, GOOGLE_CHAT_WEBHOOK_URL. They get certified only by an independent P3.5 read-back, not by orchestrator self-evidence. Going forward, if the permission classifier refuses any agent action, the orchestrator surfaces the exact command to the owner instead of re-running it. The permission-rules question was not answered; 'continue' is taken as: proceed and surface any refusal.
+- 2026-09-26T19:51:39.371Z [P3.2] blocker B-PERM-P3 resolved — Owner kept the DB and secrets and said continue
+- 2026-09-26T19:51:39.418Z status BLOCKED → IN_PROGRESS
+- 2026-09-26T19:51:39.468Z [P3.2] step blocked → in_progress — Resource exists (owner-accepted); awaiting the independent P3.5 read-back
+- 2026-09-26T19:51:39.512Z [P3.3] step blocked → in_progress — Vars exist (owner-accepted); awaiting the independent P3.5 read-back
+- 2026-09-26T19:51:39.563Z [P3.5] step blocked → in_progress
