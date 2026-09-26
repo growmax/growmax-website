@@ -24,6 +24,8 @@ Install with `npm --prefix scripts/migration ci`. Node's `fetch` must use the pr
 
 Build the union of the following sources, deduplicated, and store it as `evidence/P1.3-url-inventory.json`. URLs are public, so they're safe to commit.
 
+> **Addendum 2026-09-26 (orchestrator; makes coverage stricter).** Replit's `/sitemap.xml` is a build-time snapshot: its newest `lastmod` was ~2026-09-22T01:56Z, so it lacked 9 posts published later, and 7 of them were missing from the P1.3 inventory. So two sources are added: **1b.** every published slug in A's live `/api/blog`, as `/blog/<slug>` (tagged `blog-api-slug`); **1c.** from P5.2 on, every `<loc>` in B's `/sitemap.xml` too (tagged `sitemap-b`). The compact baseline-manifest mode (advisor A1 C9) is described in §3 (capture) and §4 (compare).
+
 1. Every `<loc>` in the live `/sitemap.xml`, converted to paths.
 2. Every `source` in `gsc-indexing-redirects.ts` and in `next.config.ts` `redirects()`. Parse the files statically. Don't import `next.config.ts`.
 3. Every DB redirect as `/blog/<old_path>`. The list comes from P1.1: `old_path → new_path` pairs are public URL fragments and may be committed.
