@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "BLOCKED",
   "currentStep": "P3.5",
-  "updatedAt": "2026-09-26T16:15:23.835Z",
+  "updatedAt": "2026-09-26T16:42:56.858Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -174,7 +174,8 @@
       "Harness (review r2): tie-permutation: the last post block carries the page tail (a contrived layout change could pass); bound blocks to their card or line for / and /llms.txt",
       "Harness (review r2): compare.mjs: the raw-dir fallback does not verify sha256Text(normalizeText(raw)) against the manifest textHash; verify it, else fall back to the preview (the HTML .text.txt path has the same pre-existing behavior)",
       "Harness (review r2): selftest: add real-data tie-swap and tie-swap-plus-edit cases (the reviewer verified both by hand)",
-      "Harness (review r2): functional checkCacheHit: add a fetch timeout"
+      "Harness (review r2): functional checkCacheHit: add a fetch timeout",
+      "P5.2: run mig-verify-suite with baseA=https://www.growmax.io (a fresh capture of live Replit taken minutes apart from B with the current harness), not the P1.3 manifest: that was captured by older code without embeddedPosts fields and would fail /blog by construction (review r3)"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",

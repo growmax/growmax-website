@@ -129,3 +129,5 @@
 - 2026-09-26T16:15:23.733Z set facts.followUps
 - 2026-09-26T16:15:23.836Z set advisor.A1
 - 2026-09-26T16:15:23.887Z [P1.2] Harness update (SPEC-04 §2 sources 1b/1c; A1 C8 tie proof, C9 compact manifest, C10 size and cache checks) approved in opus review r2 (0 blocking, 6 non-blocking recorded as follow-ups). Committed P1.2-harness-selftest.json refreshed from the reviewer's own live run (15 pass, 1 deferred). Inventory is now 297 URLs, including all 172 /api/blog slugs. Before P5.2: fix the pre-existing /blog embedded-data coverage gap.
+- 2026-09-26T16:42:56.859Z set facts.followUps
+- 2026-09-26T16:42:56.910Z [P1.2] Harness /blog fix review r3 (opus): not approved. 1 blocking: both sides failing /blog extraction with the same error produced no diff (silent listing drop). Non-blocking: parse RSC by joined rows and require exactly one candidate array, extend the body-read timeout, bound the llms-full.txt tail. Fix round 3 sent to the implementer. Decision: P5.2 uses a fresh A capture (baseA=www.growmax.io), not the P1.3 manifest.
