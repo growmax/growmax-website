@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "BLOCKED",
   "currentStep": "P3.5",
-  "updatedAt": "2026-09-26T16:59:51.803Z",
+  "updatedAt": "2026-09-26T17:06:21.613Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -95,7 +95,15 @@
         "plpgsql 1.0"
       ]
     },
-    "dns": {},
+    "dns": {
+      "ttlPrecheck": {
+        "at": "2026-09-26T17:01:14Z",
+        "ns": "ns-cloud-a1.googledomains.com",
+        "wwwA": 14400,
+        "apexA": 14400,
+        "evidence": "docs/migration/evidence/P6.3-ttl-precheck.json"
+      }
+    },
     "git": {
       "mSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d"
     },
@@ -187,6 +195,14 @@
       "Pre-existing: unused dependencies memorystore and connect-pg-simple (left untouched per A1)",
       "Owner cleanup: the unused sin1 Neon resource rapid-recipe-07132564 / store_IsJjgV1qX1w7nvrP (now billed under Launch; near zero while idle)",
       "Pre-existing: app/sitemap.ts is generated at build time (no revalidate), so Replit's sitemap lacked the 9 posts published after its last build (2026-09-22..25). Its catch {} also swallows DB errors, so a DB outage during a build ships a sitemap with no blog posts. Owner fix: revalidate the sitemap and fail the build on DB errors"
+    ],
+    "ownerActions": [
+      {
+        "id": "OA-TTL",
+        "status": "open",
+        "action": "At Squarespace Domains (domains.squarespace.com) -> growmax.io -> DNS: set the TTL of the www A record (and the 4 apex A records) to 300 s, at least 24 h before the DNS switch. Today they are 14400 s (4 h), so without this a switch or rollback takes up to 4 h to propagate and the runbook must wait >= 4 h between Step 0 and Step B",
+        "since": "2026-09-26T17:05:00Z"
+      }
     ]
   },
   "flags": {
@@ -239,19 +255,19 @@
         {
           "id": "C5",
           "step": "before P6.3",
-          "status": "open",
+          "status": "done 2026-09-26 (SPEC-05 §2 B and §3, SPEC-07 R2, CUTOVER-RUNBOOK B, rollback and CERT_READY use an A record = recommendedIPv4; SPEC-01 §6.3 and mig-p6b-ready.js capture recommendedIPv4 for www)",
           "summary": "www cutover via an A record to the Vercel recommendedIPv4 (a CNAME cannot coexist with the replit-verify TXT): update SPEC-05 §2 step B and §3 detection, SPEC-07 R2, CUTOVER-RUNBOOK Step B and rollback, and the CERT_READY text; DNS console = Squarespace Domains, NS = Google Cloud DNS"
         },
         {
           "id": "C6",
           "step": "P6.5/P8",
-          "status": "open",
+          "status": "docs done (Step C RECOMMENDED; facts.dns.apexMoved; P8.2 apex expectations conditional); remaining: A2 states the mode, P8 records apexMoved",
           "summary": "apex Step C rendered RECOMMENDED (the apex 301s to http://www); record facts.dns.apexMoved; P8.2 apex expectations conditional on it; A2 states the mode"
         },
         {
           "id": "C7",
           "step": "P6.3 (A2 precondition)",
-          "status": "open",
+          "status": "early capture 2026-09-26T17:01Z: www A TTL 14400 s, apex A TTL 14400 s at ns-cloud-a1 (P6.3-ttl-precheck.json); _dmarc and google._domainkey TXT on the never-touch list. Owner should lower www (and apex) TTL to 300; P6.3 re-captures; A2 needs <= 300 or an enforced >= 14400 s wait",
           "summary": "authoritative TTLs of the www and apex A records via dig @ns-cloud-a1.googledomains.com from the Sandbox, plus _dmarc and google._domainkey TXT for the never-touch list; the runbook shows the TTLs; A2 needs www TTL <= 300 or an enforced wait"
         },
         {
@@ -281,7 +297,7 @@
         {
           "id": "C12",
           "step": "runbook/A2",
-          "status": "open",
+          "status": "done 2026-09-26 (SPEC-07 R2 step 5 and runbook rollback item 4)",
           "summary": "state the rollback TLS window: Replit's cert expires 2026-11-03 and cannot renew once www points at Vercel; keep the replit-verify TXT and the Replit custom domain until decommission"
         }
       ]

@@ -11,6 +11,7 @@ Terminology: "READY FOR DNS" is the **notification** sent at P6.6. The ledger st
 - Domains added to the project. Recommended records and ACME challenges captured.
 - `CUTOVER-RUNBOOK.md` filled in with **live** values (no placeholders left: `grep -c '{{' == 0`).
 - Advisor A2 verdict is `GO` or `GO_WITH_CONDITIONS` (the conditions are written into the runbook as owner prerequisites, for example "upgrade to Vercel Pro first").
+- A2's TTL precondition: the `www` A record's TTL, captured authoritatively at the DNS host (`docs/migration/evidence/P6.3-ttl-precheck.json`; DoH shows only remaining TTL, not the record's own value, so it can't be used for this check), is **<= 300 s**, or the runbook enforces a wait of at least the pre-existing TTL between Step 0 and Step B.
 
 ## 2. Owner's DNS steps (the runbook renders these with live values)
 
@@ -18,9 +19,13 @@ Terminology: "READY FOR DNS" is the **notification** sent at P6.6. The ledger st
 |---|---|---|---|
 | 0 | ≥ 24 h before cutover (ideally at pre-flight) | Lower the TTL of the `www` record, and of the apex records if you'll change them, to **300 s** | none |
 | A | Any time after READY | Add the TXT records `_acme-challenge.www` (and `_acme-challenge` for the apex) with the values shown, plus a `_vercel` TXT **only** if the runbook lists one | none |
-| B | After the orchestrator says "certificate ready" (or right away, if you accept a possible TLS warning for a few minutes) | `www`: delete `A 34.111.179.208`, then add `CNAME www → <recommendedCNAME>` | cutover |
-| C (optional) | With B, or later | Apex: **only if** the P1.4 baseline shows the apex *not* already redirecting cleanly over HTTPS to `https://www.growmax.io`. Replace the four Squarespace `A` records with Vercel's recommended IPv4; Vercel then answers 308 → `www` | apex only |
+| B | After the orchestrator says "certificate ready" (or right away, if you accept a possible TLS warning for a few minutes) | `www`: delete `A 34.111.179.208`, then add `A <recommendedIPv4>` (**not** a CNAME: `www.growmax.io` also holds the Replit verification TXT, and Google Cloud DNS refuses a CNAME coexisting with any other record at the same name) | cutover |
+| C (RECOMMENDED) | With B, or later | Apex: the P1.4 baseline shows `https://growmax.io` already 301-ing to `http://www.growmax.io` — that redirect-to-www is SPEC-05's own criterion for doing this step, so do it unless the owner has a specific reason not to. Replace the four Squarespace `A` records with Vercel's recommended IPv4; Vercel then answers 308 → `www`. Record `facts.dns.apexMoved` (true once done) after cutover. | apex only |
 | Never | n/a | Don't touch MX, SPF/DKIM/DMARC TXT, Google/Microsoft verification TXT, or Replit's verification TXT (needed for rollback until decommission) | n/a |
+
+DNS host: **Squarespace Domains** (`domains.squarespace.com`), with nameservers on **Google Cloud DNS** (`ns-cloud-a1..a4.googledomains.com`). The owner makes record changes in the Squarespace Domains console; Google Cloud DNS is the authoritative name service behind it.
+
+`facts.dns.apexMoved`: set once Step C is done (apex A records replaced with Vercel's recommended IPv4). P8.2's apex expectations in `scripts/migration/parity/urls.mjs` (`POST_CUTOVER_ENTRIES`) assume the apex ends at `https://www` — those fixed expectations apply only when `facts.dns.apexMoved` is true. If the owner leaves the apex on Squarespace, P8.2 instead compares the apex entries against the P6.5 baseline behavior (apex 301 → `http://www.growmax.io`) rather than the fixed post-move expectations. A2 states which mode applies.
 
 ## 3. Detection state machine (evaluated at every check-in)
 
@@ -31,7 +36,7 @@ DOMAIN_UNVERIFIED ──(project domains verified: vercel domains verify / get_p
 WAITING_TXT ──(_acme-challenge TXT visible on both DoH resolvers)──▶ TXT_PRESENT
 TXT_PRESENT ──(vercel certs issue www.growmax.io growmax.io succeeds;
                curl --resolve www.growmax.io:443:<vercel-ip> shows a valid cert, from the Sandbox)──▶ CERT_READY  [notify owner: "switch www now"]
-{WAITING_TXT, TXT_PRESENT, CERT_READY} ──(authoritative www answer → Vercel target)──▶ SWITCHED  [set facts.cutover.detectedAt; status POST_CUTOVER]
+{WAITING_TXT, TXT_PRESENT, CERT_READY} ──(authoritative www A == recommendedIPv4)──▶ SWITCHED  [set facts.cutover.detectedAt; status POST_CUTOVER]
 SWITCHED ──(public resolvers mixed)──▶ PROPAGATING
 PROPAGATING ──(both public resolvers → Vercel on 2 consecutive check-ins)──▶ PROPAGATED
 ```
@@ -69,7 +74,7 @@ Each wake:
 | Event | Message essentials |
 |---|---|
 | READY_FOR_DNS | "Vercel is verified and ready. Open docs/migration/CUTOVER-RUNBOOK.md. Step A first (TXT records), then wait for the 'certificate ready' notice." Include any A2 conditions (e.g. upgrade to Pro). |
-| CERT_READY | "TLS certificate for www.growmax.io is live on Vercel. Do step B now: CNAME www → `<value>`." |
+| CERT_READY | "TLS certificate for www.growmax.io is live on Vercel. Do step B now: delete `www` A `34.111.179.208`, add `www` A `<recommendedIPv4>`." |
 | SWITCHED | "DNS switch detected at `<time>`. Post-cutover verification running." |
 | SEV1/SEV2 incident | What broke, current impact, and the rollback instruction (SPEC-07 R2) if it's warranted |
 | G8 passed | "72 h reconciliation complete, zero data loss, site healthy. Remaining owner tasks: …" |

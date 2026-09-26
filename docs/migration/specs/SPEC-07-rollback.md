@@ -14,13 +14,14 @@ Nothing to roll back, because users are still on Replit. To abandon the migratio
 
 ## R2: Full rollback to Replit (owner action; minutes)
 
-1. At the DNS host, **restore `www` to `A 34.111.179.208`**: delete the Vercel CNAME. Restore the apex records from `evidence/P1.4-dns-baseline.json` if they were changed. TTL 300 s means most clients move within minutes.
+1. At the DNS host (Squarespace Domains, `domains.squarespace.com`; nameservers on Google Cloud DNS, `ns-cloud-a1..a4.googledomains.com`), **delete the Vercel `www` A record** (Vercel's `recommendedIPv4`) and **restore `www` A `34.111.179.208`**. `www` is an A record, not a CNAME, throughout — a CNAME can't coexist with the Replit verification TXT that also lives at `www`. Restore the apex records from `evidence/P1.4-dns-baseline.json` if they were changed. TTL 300 s (once lowered per Step 0) means most clients move within minutes; see the TLS caveat below if TTL wasn't lowered or rollback happens after 2026-11-03.
 2. Replit still has the domain and its certificate configured, because nothing on Replit was touched. Traffic resumes there.
 3. **Data written on Vercel after cutover** has ids ≥ `GAP_START` and stays safe in Neon. It is **not** copied back automatically.
    - At the next check-in the orchestrator detects `www` back on Replit and sets status `ROLLED_BACK`.
    - It runs `sync.mjs reverse-delta --dry-run` and notifies the owner with the counts per table, without printing PII.
    - The actual `reverse-delta` (a write to Replit) runs **only** when the owner explicitly asks for it in a session prompt. It then uses `--i-understand-this-writes-to-replit` + `ALLOW_SOURCE_WRITES=1`, and verifies afterwards that every Neon row with id ≥ `GAP_START` exists in Replit.
 4. The ids can't collide because Replit ids stay below `GAP_START`.
+5. **Rollback TLS window:** Replit's Let's Encrypt certificate for `www.growmax.io` expires **2026-11-03**. Once `www` points at Vercel, Replit can no longer renew that certificate via HTTP-01 (the HTTP-01 challenge resolves to Vercel, not Replit). A DNS rollback executed **after 2026-11-03** serves an invalid/expired certificate on Replit until Replit re-issues one (which itself requires `www` to resolve back to Replit long enough for HTTP-01 to succeed — expect a short window of TLS warnings immediately after rollback in that case). Rolling back before 2026-11-03 avoids this entirely. Keep the `replit-verify` TXT record and the Replit custom domain configured until decommission (SPEC-07 §5) regardless of when rollback happens.
 
 ## R3: Data problem in Neon
 

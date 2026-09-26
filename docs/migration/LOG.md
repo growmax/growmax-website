@@ -133,3 +133,7 @@
 - 2026-09-26T16:42:56.910Z [P1.2] Harness /blog fix review r3 (opus): not approved. 1 blocking: both sides failing /blog extraction with the same error produced no diff (silent listing drop). Non-blocking: parse RSC by joined rows and require exactly one candidate array, extend the body-read timeout, bound the llms-full.txt tail. Fix round 3 sent to the implementer. Decision: P5.2 uses a fresh A capture (baseA=www.growmax.io), not the P1.3 manifest.
 - 2026-09-26T16:59:51.804Z set facts.followUps
 - 2026-09-26T16:59:51.855Z [P1.2] Harness /blog coverage fix approved in opus review r4 (r3 had 1 blocking: silent drop when both sides failed extraction identically). /blog and /blog?page=2 embedded post lists (172) are now compared per slug and by order in full/compact/mixed modes; the RSC parser joins pushes and requires exactly one post array. Self-test evidence refreshed from the reviewer's own r4 run (18 pass, 1 deferred). The harness is ready for P5.2 (fresh A capture).
+- 2026-09-26T17:06:21.454Z set advisor.A1
+- 2026-09-26T17:06:21.505Z set facts.dns.ttlPrecheck
+- 2026-09-26T17:06:21.614Z set facts.ownerActions
+- 2026-09-26T17:06:21.671Z [P6.3] A1 C5/C6/C12 docs done and the C7 early capture recorded: www A and apex A TTL are 14400 s at the authoritative NS (not the 300 s SOA minimum the P1.4 baseline showed). Owner action OA-TTL: lower them to 300 s at least 24 h before cutover. Also aligned SPEC-01 §6.3 and mig-p6b-ready.js to recommendedIPv4 for www.
