@@ -1,0 +1,92 @@
+{
+  "step": "P4.3",
+  "gate": "G4",
+  "status": "pass",
+  "round": 2,
+  "checkedAt": "2026-09-26T20:13:45Z",
+  "verifier": "migration-verifier (sonnet, effort=medium)",
+  "checks": [
+    {
+      "name": "4.0 source identity passed (at P0.2, or at P4.1 if deferred)",
+      "expected": "not deferred, or re-run and pass",
+      "actual": "not deferred: passed at P0.2 (evidence/P0.2-source.json check 0.4, 171/171 published slugs + updated_at equal live /api/blog); P4.1-prechecks.json confirms 'not re-run' since it was not deferred; unchanged since round 1",
+      "pass": true
+    },
+    {
+      "name": "4.1 identical table sets in public",
+      "expected": "source and target public schema list the same tables",
+      "actual": "fresh (round 2) sync.mjs verify: tableSetsEqual=true, 4 tables both sides (blog_posts, blog_redirects, demo_requests, newsletter_subscriptions); fresh (round 2) inventory.mjs snapshots agree (schema-diff.mjs reports no table_missing_in_a/b diffs for the public schema)",
+      "pass": true
+    },
+    {
+      "name": "4.2 for every table srcCount==dstCount and srcMd5==dstMd5 (fresh verifier run)",
+      "expected": "counts and md5 fingerprints equal for all 4 tables",
+      "actual": {
+        "command": "node --env-file=docs/migration/.scratch/.env.production --import=<in-process SRC_URL/DST_URL/DST_URL_UNPOOLED name mapping, no values printed> scripts/migration/db/sync.mjs verify --out docs/migration/.scratch/p43r2-verify-raw.json (SRC_URL/DST_URL, transport neon-https, NODE_USE_ENV_PROXY=1)",
+        "blog_redirects": {"srcCount": 95, "dstCount": 95, "matched": 95, "mismatchCount": 0},
+        "blog_posts": {"srcCount": 171, "dstCount": 171, "matched": 171, "mismatchCount": 0},
+        "newsletter_subscriptions": {"srcCount": 0, "dstCount": 0, "matched": 0, "mismatchCount": 0},
+        "demo_requests": {"srcCount": 32, "dstCount": 32, "matched": 32, "mismatchCount": 0},
+        "overallMismatchCount": 0,
+        "scriptPass": true,
+        "checkedAt": "2026-09-26T20:12:31.755Z"
+      },
+      "pass": true
+    },
+    {
+      "name": "4.4 every sequence's next value > the table's max id; extensions match",
+      "expected": "nextval semantics safe for all 4 owned sequences; source/target extension sets equal",
+      "actual": {
+        "method": "fresh ad-hoc query against DST_URL_UNPOOLED (neon-https, readOnly:true): max(id) per table vs sequence last_value/is_called; pg_extension listing on both sides (readOnly:true)",
+        "blog_posts_id_seq": {"maxId": 174, "lastValue": 174, "isCalled": true, "nextVal": 175, "safe": true},
+        "blog_redirects_id_seq": {"maxId": 95, "lastValue": 95, "isCalled": true, "nextVal": 96, "safe": true},
+        "demo_requests_id_seq": {"maxId": 32, "lastValue": 32, "isCalled": true, "nextVal": 33, "safe": true},
+        "newsletter_subscriptions_id_seq": {"maxId": 0, "lastValue": 1, "isCalled": false, "nextVal": 1, "safe": true, "note": "not yet called; nextval() will return 1 > max(id)=0 (table empty)"},
+        "extensions": {"source": ["plpgsql 1.0"], "target": ["plpgsql 1.0"], "equal": true}
+      },
+      "pass": true
+    },
+    {
+      "name": "4.5 source accessed read-only (script log shows default_transaction_read_only=on)",
+      "expected": "P4.2-copy.json shows default_transaction_read_only=on for pg_dump/all container source sessions, and this verifier's own reads used readOnly:true",
+      "actual": "P4.2-copy.json.readOnlyProof unchanged since round 1 (srcUrlRoSession.default_transaction_read_only=on, write refused). Independently re-proved this round via runner.mjs exec against $SRC_URL_RO: 'show default_transaction_read_only'/'show transaction_read_only' both returned 'on' (server_version_num 160015), and a probe write (BEGIN; CREATE TEMP TABLE _ro_probe_r2(x int); ROLLBACK) was refused with 'ERROR: cannot execute CREATE TABLE in a read-only transaction'. This verifier's own sync.mjs verify / inventory.mjs / ad-hoc precheck queries this round all opened SRC_URL with readOnly:true (neon-https transaction {readOnly:true, isolationLevel:RepeatableRead}); no write attempted or possible against source in this pass.",
+      "pass": true
+    }
+  ],
+  "p41Rederivation": {
+    "purpose": "Independent re-derivation of P4.1-prechecks.json's A1 C2 (target major/collation) and store-identity claims, run fresh this round rather than trusted from the operator's evidence.",
+    "target": {
+      "server_version": "18.6 (6569466)",
+      "server_version_num": 180006,
+      "datcollate": "C.UTF-8",
+      "datctype": "C.UTF-8",
+      "datlocprovider": "b",
+      "datlocproviderMeaning": "b = builtin provider",
+      "datlocale": "C.UTF-8",
+      "daticurules": null,
+      "neon_project_id": "morning-fog-77978305",
+      "host": "ep-snowy-hill-b832dtrk.c-14.us-east-1.aws.neon.tech (DST_URL_UNPOOLED)"
+    },
+    "source": {
+      "server_version": "16.15 (eb11870)",
+      "neon_project_id": "lucky-cell-24818900",
+      "host": "ep-icy-night-a6yalid4.us-west-2.aws.neon.tech (SRC_URL)"
+    },
+    "checks": [
+      {"name": "target PG major >= 16 and >= source major (16)", "expected": ">=16", "actual": "server_version_num=180006 (PG 18)", "pass": true},
+      {"name": "target locale is code-point (C / C.UTF-8-equivalent); non-C would be a BLOCKER", "expected": "datcollate/datctype = C.UTF-8, builtin provider", "actual": "datcollate=C.UTF-8, datctype=C.UTF-8, datlocprovider=b (builtin), matches source's C.UTF-8", "pass": true},
+      {"name": "target host in us-east-1 and differs from source host", "expected": "*.us-east-1.aws.neon.tech, != source host", "actual": "target host is ep-snowy-hill-b832dtrk.c-14.us-east-1.aws.neon.tech; source host is ep-icy-night-a6yalid4.us-west-2.aws.neon.tech; different", "pass": true},
+      {"name": "connected store is growmax-db-iad1 (morning-fog-77978305), not sin1 store_IsJjgV1qX1w7nvrP (rapid-recipe-07132564)", "expected": "neon.project_id == morning-fog-77978305, != rapid-recipe-07132564", "actual": "current_setting('neon.project_id') on DST_URL_UNPOOLED == morning-fog-77978305", "pass": true},
+      {"name": "Sandbox pg_dump/pg_restore/psql major >= 16 (independent re-check, P0 carry-forward)", "expected": "16.x", "actual": {"pg_dump": "16.15 (Ubuntu 16.15-1.pgdg26.04+2)", "pg_restore": "16.15 (Ubuntu 16.15-1.pgdg26.04+2)", "psql": "16.15 (Ubuntu 16.15-1.pgdg26.04+2)", "checkedAt": "2026-09-26T20:13:16.862Z"}, "pass": true}
+    ],
+    "conclusion": "A1 C2 (binding) satisfied on a fresh, independent re-derivation: target is code-point/builtin C.UTF-8 collation (not a blocker), target host is us-east-1 and differs from the source host, and the connected store is confirmed to be growmax-db-iad1 / morning-fog-77978305, not the legacy sin1 store rapid-recipe-07132564. All values match P4.1-prechecks.json's operator-recorded figures; nothing here contradicts it."
+  },
+  "artifacts": {
+    "syncVerifyRaw": "docs/migration/.scratch/p43r2-verify-raw.json",
+    "inventorySrc": "docs/migration/.scratch/p43r2-inv-src.json",
+    "inventoryDst": "docs/migration/.scratch/p43r2-inv-dst.json",
+    "schemaDiffEvidence": "docs/migration/evidence/P4.3-schema-diff.json",
+    "schemaDiffRaw": "docs/migration/.scratch/p43r2-schema-diff-raw.json"
+  },
+  "notes": "Round 2 (fresh, independent re-run, superseding the round-1 checkedAt 2026-09-26T20:05:33Z evidence with the same file paths). Data-copy fingerprint/count/sequence/read-only checks (4.0, 4.1, 4.2, 4.4, 4.5) all pass again on a fresh run, with identical results to round 1 (no drift; the harness and the copied data have not changed between rounds). Also independently re-derived P4.1's A1 C2 target pre-checks (collation, region, store identity) and the P0 pg_dump/pg_restore toolchain check; all match the operator's P4.1-prechecks.json figures. Check 4.3 (schema-diff) is reported separately in P4.3-schema-diff.json because the raw diff is still not empty (unchanged: same 29 diffs as round 1); see that file for classification. This file does not certify 4.3."
+}

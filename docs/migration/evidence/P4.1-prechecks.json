@@ -1,0 +1,198 @@
+{
+  "step": "P4.1",
+  "checkedAt": "2026-09-26T20:00:10Z",
+  "operator": "migration-db-operator",
+  "status": "pass",
+  "transport": {
+    "db": "neon-https (NODE_USE_ENV_PROXY=1, readOnly RepeatableRead transactions on BOTH sides)",
+    "sandbox": "sandbox-sdk via scripts/migration/db/runner.mjs (growmax-migration-runner)"
+  },
+  "envMapping": "DST_URL <- DATABASE_URL (pooled), DST_URL_UNPOOLED <- DATABASE_URL_UNPOOLED from docs/migration/.scratch/.env.production, mapped in-process by a node --import preload; SRC from REPLIT_DATABASE_URL. No value printed.",
+  "checks": [
+    {
+      "name": "identity check (SPEC-03 §2)",
+      "expected": "passed at P0.2, or run here first if deferred",
+      "actual": "not deferred: passed at P0.2 (171/171 published slugs + updated_at equal live /api/blog), evidence/P0.2-source.json check 0.4 pass=true; not re-run",
+      "pass": true
+    },
+    {
+      "name": "target reachable via DST_URL_UNPOOLED",
+      "expected": "connects",
+      "actual": "connected over neon-https in 574 ms; db=neondb",
+      "pass": true
+    },
+    {
+      "name": "target server_version (A1 C2: PG major >= 16; >= source major)",
+      "expected": ">=16 and >= source 16",
+      "actual": {
+        "server_version": "18.6 (6569466)",
+        "server_version_num": 180006,
+        "version": "PostgreSQL 18.6 (6569466) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+        "sourceServerVersionNum": 160015
+      },
+      "pass": true
+    },
+    {
+      "name": "target locale is code-point (C / C.UTF-8-equivalent); non-C would be a BLOCKER",
+      "expected": "datcollate/datctype C or C.UTF-8 and code-point ordering",
+      "actual": {
+        "datcollate": "C.UTF-8",
+        "datctype": "C.UTF-8",
+        "datlocprovider": "b",
+        "datlocproviderMeaning": "b = builtin provider",
+        "datlocale": "C.UTF-8",
+        "daticurules": null,
+        "datcollversion": "1",
+        "encoding": "UTF8",
+        "defaultOrderEqualsCollateC": true,
+        "defaultOrderEqualsUtf8ByteOrder": true,
+        "a_lt_B": false
+      },
+      "pass": true
+    },
+    {
+      "name": "source locale (reference)",
+      "expected": "C.UTF-8 (P1.1 inventory)",
+      "actual": {
+        "datcollate": "C.UTF-8",
+        "datctype": "C.UTF-8",
+        "datlocprovider": "c",
+        "datlocproviderMeaning": "c = libc",
+        "daticulocale": null,
+        "encoding": "UTF8",
+        "defaultOrderEqualsCollateC": false,
+        "a_lt_B": false,
+        "caseMapMd5EqualsTarget": true
+      },
+      "pass": true,
+      "note": "Source libc C.UTF-8 (glibc 2.28, Debian 10 build) orders ASCII and all BMP test strings exactly by code point, but sorts a non-BMP character (emoji U+1F600) before everything; the target builtin C.UTF-8 is strict code point. Only affects ORDER BY/btree order of text containing non-BMP characters. Source unique text keys and blog titles contain 0 non-BMP characters (counts: blog_posts.slug 0, blog_posts.title 0, blog_redirects.old_path 0, newsletter_subscriptions.email 0). Equality/uniqueness semantics are identical (both deterministic). Upper/lower mapping of the probe string matched (md5 equal)."
+    },
+    {
+      "name": "unpooled DST host in us-east-1, not a pooler, differs from source",
+      "expected": "*.us-east-1.aws.neon.tech, != source host",
+      "actual": {
+        "dstUnpooledHost": "ep-snowy-hill-b832dtrk.c-14.us-east-1.aws.neon.tech",
+        "dstPooledHost": "ep-snowy-hill-b832dtrk-pooler.c-14.us-east-1.aws.neon.tech",
+        "srcHost": "ep-icy-night-a6yalid4.us-west-2.aws.neon.tech",
+        "unpooledInUsEast1": true,
+        "unpooledIsNotPooler": true,
+        "unpooledMatchesState": true,
+        "pooledMatchesState": true,
+        "dstHostDiffersFromSource": true,
+        "dstIdentityDiffersFromSource": true,
+        "neonProjectIdIsIad1Store": true,
+        "neonProjectIdIsNotSin1Store": true
+      },
+      "pass": true
+    },
+    {
+      "name": "connected store is growmax-db-iad1 (store_5rcRxxSXMtnl4VA2 / morning-fog-77978305), not sin1 store_IsJjgV1qX1w7nvrP (rapid-recipe-07132564)",
+      "expected": "neon.project_id == morning-fog-77978305",
+      "actual": {
+        "serverGuc_neon_project_id": "morning-fog-77978305",
+        "serverGuc_neon_endpoint_id": "ep-snowy-hill-b832dtrk",
+        "envFile_NEON_PROJECT_ID": "morning-fog-77978305",
+        "sourceNeonProjectId": "lucky-cell-24818900"
+      },
+      "pass": true
+    },
+    {
+      "name": "target public schema has no user tables (initial load)",
+      "expected": "0 relations in public",
+      "actual": {
+        "publicRelations": 0,
+        "publicFunctions": 0,
+        "publicTypes": 0,
+        "nonSystemSchemas": [
+          "public"
+        ],
+        "_migrationSchemaPresent": false
+      },
+      "pass": true
+    },
+    {
+      "name": "every non-plpgsql source extension is creatable",
+      "expected": "CREATE EXTENSION IF NOT EXISTS succeeds for each",
+      "actual": {
+        "sourceExtensions": [
+          "plpgsql 1.0"
+        ],
+        "targetExtensions": [
+          "plpgsql 1.0"
+        ],
+        "nonPlpgsqlToCreate": 0
+      },
+      "pass": true,
+      "note": "source has only plpgsql (already present on target); nothing to create"
+    },
+    {
+      "name": "Sandbox pg_dump/pg_restore major >= 16 (P0 carry-forward)",
+      "expected": "16.x",
+      "actual": {
+        "pg_dump": "pg_dump (PostgreSQL) 16.15 (Ubuntu 16.15-1.pgdg26.04+2)",
+        "pg_restore": "pg_restore (PostgreSQL) 16.15 (Ubuntu 16.15-1.pgdg26.04+2)",
+        "psql": "psql (PostgreSQL) 16.15 (Ubuntu 16.15-1.pgdg26.04+2)",
+        "at": "2026-09-26T19:59:25.555Z"
+      },
+      "pass": true
+    },
+    {
+      "name": "SRC_URL_RO session read-only and rejects a write (P1 follow-up)",
+      "expected": "default_transaction_read_only=on; write refused",
+      "actual": {
+        "command_show": "node scripts/migration/db/runner.mjs exec -- bash -lc 'psql \"$SRC_URL_RO\" -X -Atc \"show default_transaction_read_only\" -c \"show transaction_read_only\" ...'",
+        "show": {
+          "exitCode": 0,
+          "default_transaction_read_only": "on",
+          "transaction_read_only": "on",
+          "server_version_num": 160015
+        },
+        "command_write": "node scripts/migration/db/runner.mjs exec -- bash -lc 'psql \"$SRC_URL_RO\" -X -v ON_ERROR_STOP=1 -c BEGIN -c \"CREATE TEMP TABLE _ro_probe(x int)\" -c ROLLBACK'",
+        "write": {
+          "exitCode": 1,
+          "stderr": "ERROR:  cannot execute CREATE TABLE in a read-only transaction"
+        },
+        "note": "probe is a session-local temp table inside BEGIN..ROLLBACK; it could not persist even if accepted, and it was refused"
+      },
+      "pass": true
+    },
+    {
+      "name": "pre-cutover DNS guard (own check)",
+      "expected": "www.growmax.io -> 34.111.179.208 on dns.google, cloudflare-dns and getaddrinfo",
+      "actual": {
+        "dnsGoogle": "34.111.179.208",
+        "cloudflare": "34.111.179.208",
+        "getaddrinfo": "34.111.179.208"
+      },
+      "pass": true
+    },
+    {
+      "name": "STATE guards",
+      "expected": "status not POST_CUTOVER/ROLLED_BACK/COMPLETE; facts.cutover.detectedAt null",
+      "actual": {
+        "status": "IN_PROGRESS",
+        "detectedAt": null
+      },
+      "pass": true
+    }
+  ],
+  "durationsMs": {
+    "catalogChecksBothSides": 2262,
+    "sandboxVersions": 1382,
+    "roProbes": 2833
+  },
+  "scratch": [
+    "docs/migration/.scratch/p41-checks.json",
+    "docs/migration/.scratch/p41-collation.json",
+    "docs/migration/.scratch/p42-versions.json",
+    "docs/migration/.scratch/p42-ro-show.json",
+    "docs/migration/.scratch/p42-ro-write.json"
+  ],
+  "constraints": {
+    "sourceReadOnly": true,
+    "noSecretsPrinted": true,
+    "noSeedImportEnhanceOrDbPush": true,
+    "noStateOrLogEdits": true,
+    "noCommit": true
+  }
+}

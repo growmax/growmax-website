@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P4.3",
-  "updatedAt": "2026-09-26T20:03:34.411Z",
+  "updatedAt": "2026-09-26T20:21:29.263Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -836,11 +836,16 @@
       ],
       "gate": "G4",
       "workflow": ".claude/workflows/mig-p4-data.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T19:55:53.187Z"
+      "evidence": [
+        "docs/migration/evidence/P4.1-prechecks.json"
+      ],
+      "notes": [
+        "2026-09-26T20:21:29.156Z Target pre-checks 13/13 pass (A1 C2): empty public schema, PG 18.6, collation C.UTF-8 with the builtin provider (code-point, matches the source), unpooled host in us-east-1 and not the source, store not the sin1 store, Sandbox pg tools 16.15, SRC_URL_RO read-only proven. Re-derived independently by the P4.3 verifier."
+      ],
+      "startedAt": "2026-09-26T19:55:53.187Z",
+      "completedAt": "2026-09-26T20:21:29.155Z"
     },
     {
       "id": "P4.2",
@@ -851,11 +856,16 @@
       ],
       "gate": "G4",
       "workflow": ".claude/workflows/mig-p4-data.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T19:55:53.239Z"
+      "evidence": [
+        "docs/migration/evidence/P4.2-copy.json"
+      ],
+      "notes": [
+        "2026-09-26T20:21:29.212Z Full copy: pg_dump 16.15 (read-only, --schema=public) -> pg_restore --exit-on-error --single-transaction in the Sandbox, then ANALYZE. blog_posts 171, blog_redirects 95, demo_requests 32, newsletter_subscriptions 0; count+md5 equal on all 4 tables and 0 differing ids (row-level); sequences safe. Independently confirmed by the P4.3 verifier (2 rounds)."
+      ],
+      "startedAt": "2026-09-26T19:55:53.239Z",
+      "completedAt": "2026-09-26T20:21:29.211Z"
     },
     {
       "id": "P4.3",
@@ -866,11 +876,17 @@
       ],
       "gate": "G4",
       "workflow": ".claude/workflows/mig-p4-data.js",
-      "status": "in_progress",
+      "status": "failed",
       "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T19:55:53.291Z"
+      "evidence": [
+        "docs/migration/evidence/P4.3-verify.json",
+        "docs/migration/evidence/P4.3-schema-diff.json"
+      ],
+      "notes": [
+        "2026-09-26T20:21:29.263Z Attempt 1 (wf_3eb9f063-ebb: 2 verifier rounds plus 1 DB-operator diagnosis). G4 4.0, 4.1, 4.2, 4.4, 4.5 pass. 4.3 fails on 29 raw schema-diff entries, all classified as tool artifacts, none a data or schema defect: pgMajor 16 vs 18 (accepted by A1 C2); the source-only _system schema (Replit platform bookkeeping replit_database_migrations_v1, outside the SPEC-03 pg_dump --schema=public scope, no public dependants since the --exit-on-error restore succeeded); 27 contype=n NOT NULL constraint rows that PG 18 stores in pg_constraint and PG 16 does not (the same 27 NOT NULL columns on both sides). Escalation rung 3: fix schema-diff.mjs to compare NOT NULL semantics across majors, treat the Replit platform schema like the Neon-managed ones (SPEC-03 §1 tool table), and accept a PG major upgrade only through an explicit flag; opus review; then an independent P4.3 re-run."
+      ],
+      "startedAt": "2026-09-26T19:55:53.291Z",
+      "lastFailureAt": "2026-09-26T20:21:29.262Z"
     },
     {
       "id": "P5.1",
