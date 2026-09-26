@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
-  "status": "NOT_STARTED",
-  "currentStep": null,
-  "updatedAt": "2026-09-26T00:00:00.000Z",
+  "status": "IN_PROGRESS",
+  "currentStep": "P0.2",
+  "updatedAt": "2026-09-26T10:19:22.160Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -57,7 +57,7 @@
   },
   "checkins": {
     "lastCheckAt": null,
-    "cadence": "see SPEC-05 \u00a74"
+    "cadence": "see SPEC-05 §4"
   },
   "advisor": {
     "A1": null,
@@ -153,10 +153,14 @@
       "deps": [],
       "gate": null,
       "workflow": null,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-26T10:19:06.387Z Branch checked out and current (37b57a5); ORCHESTRATOR.md read; resume run; env has REPLIT_DATABASE_URL, VERCEL_TOKEN, ADMIN_PASSWORD, SESSION_SECRET (presence only)"
+      ],
+      "startedAt": "2026-09-26T10:18:52.948Z",
+      "completedAt": "2026-09-26T10:19:06.387Z"
     },
     {
       "id": "P0.2",
@@ -167,10 +171,11 @@
       ],
       "gate": "G0",
       "workflow": ".claude/workflows/mig-p0-preflight.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [],
+      "startedAt": "2026-09-26T10:19:22.160Z"
     },
     {
       "id": "P1.1",
