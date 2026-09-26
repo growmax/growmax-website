@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "BLOCKED",
   "currentStep": "P3.5",
-  "updatedAt": "2026-09-26T15:33:58.085Z",
+  "updatedAt": "2026-09-26T16:15:23.835Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -168,7 +168,13 @@
       "functional/run.mjs: on VercelOriginError record the test row label so any residue can be cleaned by hand",
       "Before any Replit redeploy from new main and before the PR merges: the owner must set GOOGLE_CHAT_WEBHOOK_URL in Replit Secrets, or Replit demo-request notifications stop silently (M3 moved the URL to an env var). Goes into the PR description, the runbook and FINAL-REPORT",
       "Before P5.2 (plan change, orchestrator 2026-09-26): SPEC-04 §2 gains a source 1b: every published slug in the live /api/blog as /blog/<slug>. At P5.2+ it also takes the union with the B-side sitemap locs. The Replit sitemap is a stale build-time snapshot (newest lastmod ~2026-09-22T01:56Z), so 7 of the 9 posts published since then are missing from the P1.3 inventory. Bundled with C9 (compact manifest) in one implementer pass plus one opus review",
-      "P5.2: expect /sitemap.xml to differ by exactly those 9 post URLs (present on Vercel, absent from the stale Replit snapshot). That needs an allowlist entry pinning both sides plus advisor approval; it is not covered by A1's tie-order class approval. Also check /llms.txt and /llms-full.txt for the same staleness"
+      "P5.2: expect /sitemap.xml to differ by exactly those 9 post URLs (present on Vercel, absent from the stale Replit snapshot). That needs an allowlist entry pinning both sides plus advisor approval; it is not covered by A1's tie-order class approval. Also check /llms.txt and /llms-full.txt for the same staleness",
+      "Harness (review r2): BEFORE P5.2: /blog content is not compared at all (pre-existing harness gap). The page renders its post list client-side from embedded React data that the harness drops (0/172 titles in visible text, 0 /blog/<slug> links), so a stale cached /blog or a date-rendering difference would pass parity. Fix: extract the embedded per-post objects from the /blog raw body, compare them per slug on both sides, and use them in the tie checker's /blog residual too",
+      "Harness (review r2): tie-permutation on /: the relative top-N test never runs (4 cards minus the fallback = 3), and the byte-level residual on raw HTML will likely fail on a real Replit/Vercel pair (asset hashes, embedded data). It fails safe but may be unusable; comparing extracted visible text blocks would make / provable",
+      "Harness (review r2): tie-permutation: the last post block carries the page tail (a contrived layout change could pass); bound blocks to their card or line for / and /llms.txt",
+      "Harness (review r2): compare.mjs: the raw-dir fallback does not verify sha256Text(normalizeText(raw)) against the manifest textHash; verify it, else fall back to the preview (the HTML .text.txt path has the same pre-existing behavior)",
+      "Harness (review r2): selftest: add real-data tie-swap and tie-swap-plus-edit cases (the reviewer verified both by hand)",
+      "Harness (review r2): functional checkCacheHit: add a fetch timeout"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",
@@ -249,19 +255,19 @@
         {
           "id": "C8",
           "step": "P2.2/P5.2",
-          "status": "open (P2.2 encoded in mig-p2-code.js)",
+          "status": "P2.2 tie order MATCH; page-level tie proof tool implemented + reviewed (it fails safe; / may be unprovable in practice); apply at P5.2 only if tie diffs appear",
           "summary": "created_at tie order: P2.2 compares the local /api/blog slug order with the P1.3 raw baseline; at P5.2 a diff may be allowlisted only with pinned a/b values and a verifier proof that it is a permutation among posts with equal created_at (for /, every shown post >= every non-shown one); owner follow-up: a secondary sort key"
         },
         {
           "id": "C9",
           "step": "before P6.5",
-          "status": "open",
+          "status": "implemented + opus-reviewed (compact capture 1.6 MB); remaining: use it for the P6.5 baseline and record the sha256",
           "summary": "compact manifest mode: same capture path; /api/blog as per-slug sha256 (keep jsonArrayLength and the slug multiset); compare.mjs hashes a full-mode side on the fly; selftest in compact mode (22 cases, reorder not detected, determinism 0 diffs); short opus review; P6.5 manifest < 5 MB with its sha256 in evidence and STATE"
         },
         {
           "id": "C10",
           "step": "P5.2/P6.2/P8.2 + SPEC-06 + FINAL-REPORT",
-          "status": "open",
+          "status": "harness parts implemented + reviewed (size always reported, 3,500,000-byte warning, --expect-cache-hit); remaining: run at P5.2/P6.2/P8.2, uptime workflow, FINAL-REPORT",
           "summary": "record /api/blog status, decoded size and array length on the Vercel side and warn above 3.5 MB; P6.2 proves H4 caches (x-vercel-cache: HIT on the second fetch); the uptime workflow checks /api/blog status and size; FINAL-REPORT lists the pre-existing issue"
         },
         {

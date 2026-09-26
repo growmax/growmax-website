@@ -5,7 +5,34 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { createTwoFilesPatch, firstNLines } from './lib/diff.mjs'
-import { sha256Text } from './lib/extract.mjs'
+import { sha256Text, normalizeText, safeFileName } from './lib/extract.mjs'
+
+// A1 C10: /api/blog is ~50% of Vercel's 4.5MB function body cap at 171 posts (~2.27MB); a
+// WARNING (never a failure) above this threshold at ~260 posts gives advance notice. Exact
+// value from the advisor text (A1-advisor.json condition C10's "3.5MB"), not an approximation.
+const BLOG_API_SIZE_WARNING_BYTES = 3_500_000
+
+/** A1 C10: always record /api/blog's decoded byte size + array length for BOTH sides (never
+ *  only when over the threshold — the reviewer needs the numbers to judge trend, not just a
+ *  boolean), and warn (never fail) whichever side(s) exceed the threshold. `bytes` and
+ *  `jsonArrayLength` are captured in both full and compact mode (see capture.mjs), so this
+ *  needs no mode awareness. */
+function checkBlogApiSize(manifestA, manifestB) {
+  const sizes = {}
+  const warnings = []
+  for (const [side, manifest] of [['a', manifestA], ['b', manifestB]]) {
+    const e = manifest?.entries?.find((entry) => entry.url === '/api/blog')
+    sizes[side] = {
+      present: !!e,
+      bytes: typeof e?.bytes === 'number' ? e.bytes : null,
+      jsonArrayLength: typeof e?.jsonArrayLength === 'number' ? e.jsonArrayLength : null,
+    }
+    if (e && typeof e.bytes === 'number' && e.bytes > BLOG_API_SIZE_WARNING_BYTES) {
+      warnings.push({ side, url: '/api/blog', bytes: e.bytes, arrayLength: e.jsonArrayLength ?? null, thresholdBytes: BLOG_API_SIZE_WARNING_BYTES })
+    }
+  }
+  return { sizes, warnings, thresholdBytes: BLOG_API_SIZE_WARNING_BYTES }
+}
 
 const REPORT_ONLY_HEADERS = new Set([
   'cache-control',
@@ -212,39 +239,72 @@ function compareEntry(a, b, opts) {
   // so a different later diff produces different a/b values and is never silently covered.
   // needsTextDiff (handled in compareManifests) also writes a unified diff + preview to
   // .scratch, same as visibleTextHash, so an approver can see what they're approving.
-  if (a.text !== undefined || b.text !== undefined) {
-    const ta = a.text ?? null
-    const tb = b.text ?? null
-    if (ta !== tb) {
+  //
+  // A1 C9 (compact manifest mode): a side may carry `textHash`/`textPreview` instead of the
+  // full `text` (see capture.mjs). textHashOf() hashes a full-mode side ON THE FLY with the
+  // exact same sha256Text() a compact-mode side already applied, so full-vs-full,
+  // compact-vs-full and full-vs-compact all compare correctly without a mode flag here.
+  if (a.text !== undefined || b.text !== undefined || a.textHash !== undefined || b.textHash !== undefined) {
+    const textHashOf = (side) => {
+      if (side?.textHash !== undefined) return side.textHash
+      if (side?.text !== undefined) return sha256Text(side.text)
+      return null
+    }
+    const ha = textHashOf(a)
+    const hb = textHashOf(b)
+    if (ha !== hb) {
       diffs.push({
         field: 'text',
         category: null, // resolved after the diff/preview is built, see compareManifests
-        a: ta != null ? sha256Text(ta) : null,
-        b: tb != null ? sha256Text(tb) : null,
+        a: ha,
+        b: hb,
         needsTextDiff: true,
-        // Carried only so compareManifests can build the diff without a rawDir (this
-        // harness has the full text in-memory already); stripped before the diff is kept.
-        _inlineTextA: ta,
-        _inlineTextB: tb,
+        // Carried only so compareManifests can build the diff without re-reading a rawDir
+        // when full text is already in memory (full mode). Left UNSET (not even `null`) when
+        // this side is compact (no `.text`), so compareManifests's `'_inlineTextA' in d`
+        // check falls through to its raw-body-from-rawDir fallback instead of treating a
+        // missing text as a confirmed "no text available".
+        ...(a.text !== undefined ? { _inlineTextA: a.text } : {}),
+        ...(b.text !== undefined ? { _inlineTextB: b.text } : {}),
+        // Compact-mode diagnostics (see capture.mjs's buildCompactTextFields): a short
+        // preview to fall back on when no raw body is available either.
+        _previewA: a.textPreview,
+        _previewB: b.textPreview,
       })
     }
   }
 
   // JSON: /api/blog is compared per-slug (order-insensitive), everything else whole-document.
-  if (a.jsonBySlug || b.jsonBySlug) {
-    const slugsA = Object.keys(a.jsonBySlug || {})
-    const slugsB = Object.keys(b.jsonBySlug || {})
+  //
+  // A1 C9: a side may carry `jsonBySlugHash` (compact mode: slug -> sha256 of the canonical
+  // per-slug JSON) instead of `jsonBySlug` (full mode: slug -> the canonical JSON itself).
+  // perSlugHash() hashes a full-mode side's canonical string ON THE FLY with the exact same
+  // canonicalStringify()+sha256Text() a compact-mode side already applied, so every
+  // full/compact combination compares correctly. `slugMultiset` (compact only) is a true
+  // multiset (it can represent a duplicated slug, unlike Object.keys of either map, which
+  // can't); used when at least one side has it, otherwise falls back to the prior
+  // Object.keys-based comparison unchanged.
+  const hasBlogFields = a.jsonBySlug || b.jsonBySlug || a.jsonBySlugHash || b.jsonBySlugHash
+  if (hasBlogFields) {
+    const perSlugHash = (side, slug) => {
+      if (side?.jsonBySlugHash && slug in side.jsonBySlugHash) return side.jsonBySlugHash[slug]
+      if (side?.jsonBySlug && slug in side.jsonBySlug) return sha256Text(side.jsonBySlug[slug])
+      return undefined
+    }
+    const keysOf = (side) => Object.keys(side?.jsonBySlugHash || side?.jsonBySlug || {})
+    const slugsA = keysOf(a)
+    const slugsB = keysOf(b)
     const allSlugs = new Set([...slugsA, ...slugsB])
     for (const slug of allSlugs) {
-      const va = a.jsonBySlug?.[slug]
-      const vb = b.jsonBySlug?.[slug]
+      const va = perSlugHash(a, slug)
+      const vb = perSlugHash(b, slug)
       if (va === undefined || vb === undefined) {
         diffs.push({ field: `jsonBySlug.${slug}`, category: 'content', a: va ?? 'missing', b: vb ?? 'missing' })
       } else if (va !== vb) {
         // Same fix as `text` above: pin the sha256 of the canonical per-slug JSON, never the
         // constant '<diff>' placeholder, so an approval can't silently cover a later, different
         // diff on the same slug+field.
-        diffs.push({ field: `jsonBySlug.${slug}`, category: 'content', a: sha256Text(va), b: sha256Text(vb) })
+        diffs.push({ field: `jsonBySlug.${slug}`, category: 'content', a: va, b: vb })
       }
     }
     if (slugsA.length > 0 || slugsB.length > 0) {
@@ -253,8 +313,20 @@ function compareEntry(a, b, opts) {
       // Compare the raw item count and the multiset of slugs alongside the per-slug diffs.
       if (a.jsonArrayLength !== undefined && b.jsonArrayLength !== undefined && a.jsonArrayLength !== b.jsonArrayLength)
         diffs.push({ field: 'jsonBySlug.<count>', category: 'content', a: a.jsonArrayLength, b: b.jsonArrayLength })
-      if (!multisetsEqual(multisetOf(slugsA), multisetOf(slugsB)))
+      const hasExplicitMultiset = !!(a.slugMultiset || b.slugMultiset)
+      if (hasExplicitMultiset) {
+        const msA = a.slugMultiset ? new Map(Object.entries(a.slugMultiset)) : multisetOf(slugsA)
+        const msB = b.slugMultiset ? new Map(Object.entries(b.slugMultiset)) : multisetOf(slugsB)
+        if (!multisetsEqual(msA, msB))
+          diffs.push({
+            field: 'jsonBySlug.<slugs>',
+            category: 'content',
+            a: [...msA.entries()].sort((x, y) => x[0].localeCompare(y[0])),
+            b: [...msB.entries()].sort((x, y) => x[0].localeCompare(y[0])),
+          })
+      } else if (!multisetsEqual(multisetOf(slugsA), multisetOf(slugsB))) {
         diffs.push({ field: 'jsonBySlug.<slugs>', category: 'content', a: slugsA.sort(), b: slugsB.sort() })
+      }
     }
   } else if (a.jsonHash || b.jsonHash) {
     if (a.jsonHash !== b.jsonHash) diffs.push({ field: 'json', category: 'content', a: a.jsonHash, b: b.jsonHash })
@@ -528,8 +600,24 @@ function compareAssetMaps(assetsA = {}, assetsB = {}) {
 async function readRawText(rawDir, url) {
   if (!rawDir) return null
   try {
-    const { safeFileName } = await import('./lib/extract.mjs')
     return await readFile(path.join(rawDir, `${safeFileName(url)}.text.txt`), 'utf8')
+  } catch {
+    return null
+  }
+}
+
+/** Per review (A1 C9): capture.mjs writes every URL's raw response body to `--raw-dir`
+ *  regardless of --compact (only the derived `.text`/`.textHash` MANIFEST field differs by
+ *  mode) — so when a text/plain side is compact (no `.text`), fall back to that raw `.bin`
+ *  file, run it through the exact same normalizeText() capture.mjs itself applies, and use
+ *  the result for a real unified diff and a real classifyTextDiff instead of just a preview.
+ *  Returns null (never throws) when the raw file doesn't exist, so the caller can fall back
+ *  further to the short textPreview. */
+async function readRawTextPlainBody(rawDir, url) {
+  if (!rawDir) return null
+  try {
+    const buf = await readFile(path.join(rawDir, `${safeFileName(url)}.bin`))
+    return normalizeText(buf.toString('utf8'))
   } catch {
     return null
   }
@@ -583,24 +671,41 @@ export async function compareManifests(
     const diffs = compareEntry(a, b, { dataFreshnessUrls })
     for (const d of diffs) {
       if (d.needsTextDiff) {
-        // The `text` field (robots.txt/llms*.txt) carries its own full text inline (see
-        // compareEntry above) — no rawDir needed, and it's never written to a `.text.txt`
-        // file the way HTML's visibleTextHash is. Fall back to rawDir only for the
-        // visibleTextHash case, which does write one.
-        const textA = '_inlineTextA' in d ? d._inlineTextA : await readRawText(rawDirA, url)
-        const textB = '_inlineTextB' in d ? d._inlineTextB : await readRawText(rawDirB, url)
+        // The `text` field's full text is inline (see compareEntry above) when that side is
+        // in full mode. When it's compact instead (no `.text`, `_inlineTextA`/B left UNSET),
+        // fall back to the raw `.bin` body capture.mjs always writes to rawDir regardless of
+        // mode (A1 C9, per review) — never to the `.text.txt` file, which is HTML's
+        // visibleTextHash artifact, not text/plain's. The `visibleTextHash` field (no
+        // `_inlineTextA`/B ever set for it) keeps using `.text.txt` via readRawText,
+        // unaffected.
+        const rawTextReader = d.field === 'text' ? readRawTextPlainBody : readRawText
+        const textA = '_inlineTextA' in d ? d._inlineTextA : await rawTextReader(rawDirA, url)
+        const textB = '_inlineTextB' in d ? d._inlineTextB : await rawTextReader(rawDirB, url)
+        const previewA = d._previewA
+        const previewB = d._previewB
         delete d._inlineTextA
         delete d._inlineTextB
+        delete d._previewA
+        delete d._previewB
         d.category = classifyTextDiff(url, textA, textB, { dataFreshnessUrls })
         if (textA != null && textB != null) {
           const patch = createTwoFilesPatch(`A/${url}`, `B/${url}`, textA, textB)
           d.preview = firstNLines(patch, 5)
           if (textDiffDir) {
-            const { safeFileName } = await import('./lib/extract.mjs')
             await mkdir(textDiffDir, { recursive: true })
             const diffFile = path.join(textDiffDir, `${safeFileName(url)}.diff`)
             await writeFile(diffFile, patch)
             d.diffFile = diffFile
+          }
+        } else if (previewA !== undefined || previewB !== undefined || textA != null || textB != null) {
+          // A1 C9 (compact manifest mode): no raw body was available on at least one side
+          // (or no rawDir was given at all), so no unified diff is possible — fall back to
+          // the short preview kept for diagnostics (capture.mjs's buildCompactTextFields),
+          // or, for whichever side DOES have full/raw-recovered text, its own leading 300
+          // chars, never a full diff.
+          d.preview = {
+            a: previewA ?? (textA != null ? textA.slice(0, 300) : null),
+            b: previewB ?? (textB != null ? textB.slice(0, 300) : null),
           }
         }
       }
@@ -665,6 +770,7 @@ export async function compareManifests(
   retriedB += countRetriedAssets(manifestB.assets)
 
   const passed = failedUnallowed === 0
+  const blogApiSize = checkBlogApiSize(manifestA, manifestB)
 
   const allowlistReport = allowlist.map((entry, i) => ({
     index: i,
@@ -689,6 +795,7 @@ export async function compareManifests(
     byCategory,
     diffs: allDiffs,
     allowlistReport,
+    blogApiSize,
   }
 }
 
@@ -756,6 +863,20 @@ async function main() {
     `Compared ${result.compared} URLs: ${result.passed ? 'PASS' : 'FAIL'} ` +
       `(failedUnallowed=${result.failedUnallowed}, allowlisted=${result.allowlisted})`,
   )
+  // A1 C10: sizes are always logged (report-only, never affects the exit code) for both
+  // sides, not only when a side is over the threshold.
+  console.log(
+    `/api/blog size: A=${result.blogApiSize.sizes.a.bytes ?? 'n/a'} bytes ` +
+      `(${result.blogApiSize.sizes.a.jsonArrayLength ?? 'n/a'} items), ` +
+      `B=${result.blogApiSize.sizes.b.bytes ?? 'n/a'} bytes (${result.blogApiSize.sizes.b.jsonArrayLength ?? 'n/a'} items), ` +
+      `threshold=${result.blogApiSize.thresholdBytes} bytes`,
+  )
+  for (const w of result.blogApiSize.warnings) {
+    console.log(
+      `WARNING: /api/blog side ${w.side} is ${(w.bytes / (1024 * 1024)).toFixed(2)}MB ` +
+        `(array length ${w.arrayLength}), over the ${(w.thresholdBytes / (1024 * 1024)).toFixed(1)}MB advisory threshold (A1 C10)`,
+    )
+  }
   process.exit(result.passed ? 0 : 1)
 }
 

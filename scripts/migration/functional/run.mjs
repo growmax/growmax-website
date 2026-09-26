@@ -3,7 +3,13 @@
 //
 // Usage:
 //   node run.mjs --base <origin> --mode pre|post --run-label <id> \
-//     [--bypass-secret-file <f>] [--allow-demo-test] [--out <evidence.json>]
+//     [--bypass-secret-file <f>] [--allow-demo-test] [--out <evidence.json>] \
+//     [--expect-cache-hit <path>, e.g. /api/blog]
+//
+// --expect-cache-hit (A1 C10, used at P6.2): fetches the given path twice and asserts the
+// SECOND response carries `x-vercel-cache: HIT` — proof that H4 is actually caching on
+// Vercel, not just configured to. Report-only in the sense that it's opt-in via the flag,
+// but once requested it's a normal pass/fail result like F1-F11.
 //
 // Secrets (ADMIN_PASSWORD) come from env only, never argv. Test data is always
 // labeled vercel-migration-test-<runLabel>; writes are cleaned up immediately after
@@ -447,6 +453,37 @@ async function runTests({ base, mode, runLabel, bypassSecret, allowDemoTest, tar
   return results
 }
 
+/**
+ * A1 C10: fetch `targetPath` twice and assert the SECOND response carries
+ * `x-vercel-cache: HIT` — proof that H4 is actually caching on Vercel, not just configured
+ * to (a misconfigured/absent cache would otherwise silently drop /api/blog's availability
+ * benefit). Never sends the bypass cookie-setting header, matching the rest of this harness.
+ */
+async function checkCacheHit(base, bypassSecret, targetPath) {
+  const headers = bypassSecret ? { 'x-vercel-protection-bypass': bypassSecret } : {}
+  const target = new URL(targetPath, base).toString()
+  const first = await fetch(target, { headers, redirect: 'manual' })
+  await first.arrayBuffer().catch(() => {})
+  const second = await fetch(target, { headers, redirect: 'manual' })
+  const secondBody = await second.arrayBuffer().catch(() => null)
+  const secondCacheHeader = second.headers.get('x-vercel-cache')
+  const secondBodyBytes = secondBody ? secondBody.byteLength : 0
+  // Per review: a HIT header alone doesn't prove H4 is actually serving usable content — a
+  // cached error page or an empty body would still carry x-vercel-cache: HIT. Require the
+  // second response to also be status 200 with a non-empty body.
+  return {
+    pass: secondCacheHeader === 'HIT' && second.status === 200 && secondBodyBytes > 0,
+    detail: {
+      path: targetPath,
+      firstStatus: first.status,
+      secondStatus: second.status,
+      firstCacheHeader: first.headers.get('x-vercel-cache'),
+      secondCacheHeader,
+      secondBodyBytes,
+    },
+  }
+}
+
 /** docs/migration/STATE.json's flags.demoTestsSent is the orchestrator's running count of
  *  real demo-request sends across the whole migration (F2 is capped at 3 total, see
  *  runTests). This script never writes STATE.json (that's the orchestrator's alone, see
@@ -549,6 +586,15 @@ async function main() {
   })
 
   if (dbHelper?.end) await dbHelper.end().catch(() => {})
+
+  // A1 C10 (opt-in, used at P6.2): prove H4's /api/blog caching is actually delivering a
+  // HIT on the second request, not just configured. Runs after the DB helper closes since
+  // it needs no DB access; added to `results` so a miss counts as a normal test failure.
+  if (typeof args['expect-cache-hit'] === 'string' && args['expect-cache-hit'].length > 0) {
+    const cachePath = args['expect-cache-hit']
+    const cacheCheck = await checkCacheHit(args.base, bypassSecret, cachePath)
+    results.push({ name: `cache-hit-${cachePath}`, pass: cacheCheck.pass, detail: cacheCheck.detail })
+  }
 
   // pass: false is a real failure; pass: null is deferred (F2, pending the runtime-log
   // webhook check — see runTests). Neither may be silently folded into "pass": a run with a

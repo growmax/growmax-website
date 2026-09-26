@@ -3,7 +3,8 @@
 //
 // Usage:
 //   node urls.mjs --base https://www.growmax.io --out ../../../docs/migration/evidence/P1.3-url-inventory.json \
-//     [--include-post-cutover] [--previous <inventory.json> [--explain "reason a source shrank"]]
+//     [--base-b <B origin, P5.2+>] [--include-post-cutover] \
+//     [--previous <inventory.json> [--explain "reason a source shrank"]]
 //
 // Importable as a module via `buildInventory(opts)`.
 //
@@ -107,9 +108,45 @@ async function readDbRedirectsEvidence({ dbRedirectsEvidencePath }) {
   return _dbRedirectsCache
 }
 
+/** Fetch and parse a sitemap.xml, converting each <loc> to a fetchable path. Throws loudly
+ *  on any fetch/parse failure — never returns an empty list silently (see the addendum:
+ *  a silent 0 here is exactly the failure mode the reviewer flagged before). `bypassSecret`,
+ *  when given, is sent ONLY as `x-vercel-protection-bypass` to this exact `sitemapBase` — the
+ *  caller must never pass it for A's fetch (see buildInventory: only B's ever gets one). */
+async function fetchSitemapPaths(sitemapBase, fetchImpl, label, bypassSecret) {
+  const r = await fetchImpl(new URL('/sitemap.xml', sitemapBase).toString(), bypassSecret ? { bypassSecret } : {})
+  if (!r.ok) {
+    throw new Error(`${label} sitemap.xml fetch failed: ${maskUrl(String(r.error?.message || r.error || 'unknown error'))}`)
+  }
+  if (r.res.status !== 200) {
+    throw new Error(`${label} sitemap.xml returned HTTP ${r.res.status}, expected 200`)
+  }
+  const entries = extractSitemap(r.buf.toString('utf8'))
+  if (entries.length === 0) {
+    throw new Error(`${label} sitemap.xml parsed to zero <loc> entries`)
+  }
+  const paths = []
+  for (const e of entries) {
+    if (!e.loc) continue
+    let fetchPath
+    try {
+      const u = new URL(e.loc)
+      fetchPath = u.pathname + (u.search || '')
+    } catch {
+      fetchPath = e.loc
+    }
+    paths.push(fetchPath)
+  }
+  return paths
+}
+
 export async function buildInventory(opts) {
   const {
     base,
+    baseB = null,
+    // Sent ONLY as x-vercel-protection-bypass, and ONLY to `baseB` (never to `base`,
+    // www.growmax.io, or any other host) — see fetchSitemapPaths and its one call site below.
+    baseBBypassSecret = null,
     includePostCutover = false,
     fetchImpl = fetchOnce,
     dbRedirectsEvidencePath = null,
@@ -132,32 +169,49 @@ export async function buildInventory(opts) {
   // 1. sitemap.xml — a non-200 or empty sitemap is a hard failure: it silently drops the
   // largest single source (203 URLs in the last known-good inventory) and search engines
   // treat the sitemap as authoritative, so parity must too.
+  for (const p of await fetchSitemapPaths(base, fetchImpl, 'A')) record('sitemap', p)
+
+  // 1b/1c's REQUIRED fetches happen here (still hard-fail-loudly, never a silent []) so
+  // apiBlogPosts is available for the special-api 3-slug sample below (section 4) — but per
+  // review, the actual `record(...)` calls for these two sources are deferred to AFTER every
+  // expect-bearing source (sections 4's admin URLs and section 6's /blog?page=2), so a
+  // (currently impossible, but not provably so forever) URL collision can never let a
+  // non-expect source claim a URL first and silently shadow its `expect` block — see the
+  // recordDeferred1bAnd1c() call after section 6.
+  //
+  // Addendum 2026-09-26 (orchestrator): A's sitemap.xml is a build-time snapshot (its newest
+  // lastmod was ~2026-09-22T01:56Z), so posts published after that build are missing from
+  // it — 7 of the 9 newest were missing from the P1.3 inventory. Every published slug in A's
+  // live /api/blog becomes /blog/<slug>, tagged 'blog-api-slug'.
+  let apiBlogPosts
+  const blogApiSlugUrls = []
   {
-    const r = await fetchImpl(new URL('/sitemap.xml', base).toString(), {})
+    const r = await fetchImpl(new URL('/api/blog', base).toString(), {})
     if (!r.ok) {
-      throw new Error(`sitemap.xml fetch failed: ${maskUrl(String(r.error?.message || r.error || 'unknown error'))}`)
+      throw new Error(`/api/blog fetch failed: ${maskUrl(String(r.error?.message || r.error || 'unknown error'))}`)
     }
     if (r.res.status !== 200) {
-      throw new Error(`sitemap.xml returned HTTP ${r.res.status}, expected 200`)
+      throw new Error(`/api/blog returned HTTP ${r.res.status}, expected 200`)
     }
-    const entries = extractSitemap(r.buf.toString('utf8'))
-    if (entries.length === 0) {
-      throw new Error('sitemap.xml parsed to zero <loc> entries')
+    try {
+      apiBlogPosts = JSON.parse(r.buf.toString('utf8'))
+    } catch (err) {
+      throw new Error(`/api/blog did not parse as JSON: ${maskUrl(err.message)}`)
     }
-    // extractSitemap now keeps the full <loc> (scheme+host+path+query) for parity
-    // comparison; the inventory only needs a fetchable path against `base`.
-    for (const e of entries) {
-      if (!e.loc) continue
-      let fetchPath
-      try {
-        const u = new URL(e.loc)
-        fetchPath = u.pathname + (u.search || '')
-      } catch {
-        fetchPath = e.loc
-      }
-      record('sitemap', fetchPath)
+    if (!Array.isArray(apiBlogPosts)) {
+      throw new Error('/api/blog did not parse to an array')
+    }
+    for (const post of apiBlogPosts) {
+      if (post && post.slug) blogApiSlugUrls.push(`/blog/${post.slug}`)
     }
   }
+
+  // 1c. From P5.2 on, when a B base is given, every <loc> in B's /sitemap.xml too (source
+  // 'sitemap-b'). Same hard-fail-on-error behavior as source 1. Per review: this must work
+  // against the PROTECTED Vercel deployment, so `baseBBypassSecret` (if given) is sent as
+  // `x-vercel-protection-bypass` — and ONLY to `baseB`, never to `base`/www.growmax.io or any
+  // third party (fetchSitemapPaths's own call for A above never receives it).
+  const sitemapBUrls = baseB ? await fetchSitemapPaths(baseB, fetchImpl, 'B', baseBBypassSecret) : []
 
   // 2. gsc-indexing-redirects.ts + next.config.ts redirects()
   for (const src of await parseGscRedirectSources()) record('next-config-gsc', src)
@@ -189,19 +243,12 @@ export async function buildInventory(opts) {
   ]
   for (const s of specials) record('special', s)
 
-  // /api/blog + first 3 slugs + missing probe
+  // /api/blog + first 3 slugs + missing probe. Reuses the already-fetched (and
+  // required-to-succeed, see 1b above) apiBlogPosts rather than fetching /api/blog again.
   record('special-api', '/api/blog')
   {
-    const r = await fetchImpl(new URL('/api/blog', base).toString(), {})
-    if (r.ok && r.res.status === 200) {
-      try {
-        const posts = JSON.parse(r.buf.toString('utf8'))
-        const slugs = posts.map((p) => p.slug).filter(Boolean).slice(0, 3)
-        for (const slug of slugs) record('special-api', `/api/blog/${slug}`)
-      } catch {
-        // leave inventory as-is; capture will record the parse failure
-      }
-    }
+    const slugs = apiBlogPosts.map((p) => p.slug).filter(Boolean).slice(0, 3)
+    for (const slug of slugs) record('special-api', `/api/blog/${slug}`)
   }
   record('special-api', '/api/blog/__parity_missing__')
 
@@ -235,6 +282,13 @@ export async function buildInventory(opts) {
   record('variant', '/blog?page=2', { xRobotsTag: 'noindex, follow' })
   record('variant', '/demo/')
   record('variant', '/blog/')
+
+  // 1b/1c recorded HERE (per review): after every expect-bearing source above (section 4's
+  // /api/admin/session /api/admin/posts, section 6's /blog?page=2), so those sources always
+  // win any URL collision and keep their `expect` block — push()'s dedupe is first-write-wins,
+  // and neither of these two sources ever carries an `expect` itself.
+  for (const url of blogApiSlugUrls) record('blog-api-slug', url)
+  for (const url of sitemapBUrls) record('sitemap-b', url)
 
   // 7. Negatives
   record('negative', '/__parity_404_probe__')
@@ -320,14 +374,20 @@ async function main() {
   const args = parseArgs(process.argv.slice(2))
   if (!args.base || !args.out) {
     console.error(
-      'Usage: node urls.mjs --base <origin> --out <file> [--include-post-cutover] ' +
-        '[--previous <inventory.json> [--explain "reason"]]',
+      'Usage: node urls.mjs --base <origin> --out <file> [--base-b <origin> [--bypass-secret-file <f>]] ' +
+        '[--include-post-cutover] [--previous <inventory.json> [--explain "reason"]]',
     )
     process.exit(2)
   }
 
+  // --bypass-secret-file is sent ONLY as x-vercel-protection-bypass to --base-b (source 1c's
+  // sitemap fetch, for a protected Vercel deployment) — never to --base.
+  const baseBBypassSecret = args['bypass-secret-file'] ? (await readFile(args['bypass-secret-file'], 'utf8')).trim() : null
+
   const { list, counts } = await buildInventory({
     base: args.base,
+    baseB: typeof args['base-b'] === 'string' ? args['base-b'] : null,
+    baseBBypassSecret,
     includePostCutover: !!args['include-post-cutover'],
   })
 
@@ -364,7 +424,11 @@ async function main() {
   await mkdir(path.dirname(args.out), { recursive: true })
   await writeFile(
     args.out,
-    JSON.stringify({ generatedAt: new Date().toISOString(), base: args.base, counts, urls: list }, null, 2),
+    JSON.stringify(
+      { generatedAt: new Date().toISOString(), base: args.base, baseB: args['base-b'] || null, counts, urls: list },
+      null,
+      2,
+    ),
   )
   console.log(`Wrote ${args.out}`)
 }

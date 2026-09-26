@@ -4,7 +4,12 @@
 // Usage:
 //   node capture.mjs --base <origin> --urls <inventory.json> --out <manifest.json> \
 //     [--raw-dir <dir>] [--bypass-secret-file <f>] [--resolve host:443:ip ...] \
-//     [--concurrency 4] [--ua "growmax-migration-verifier/1.0"]
+//     [--concurrency 4] [--ua "growmax-migration-verifier/1.0"] [--compact]
+//
+// --compact (A1 C9): /api/blog is stored as a per-slug sha256 + jsonArrayLength + a slug
+// multiset instead of the full canonical JSON; other bulky text fields become a hash + a
+// short preview. Raw bodies still go to --raw-dir regardless of --compact. compare.mjs
+// handles full vs full, compact vs full and full vs compact without needing this flag.
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
@@ -14,10 +19,38 @@ import {
   extractSitemap,
   normalizeText,
   sha256,
+  sha256Text,
   canonicalStringify,
   safeFileName,
   decodeImageDimensions,
 } from './lib/extract.mjs'
+
+const COMPACT_TEXT_PREVIEW_CHARS = 300
+
+/**
+ * A1 C9 (compact manifest mode): the per-slug + array-level compact fields for /api/blog,
+ * derived from the ALREADY-PARSED array — same canonicalisation (canonicalStringify) as
+ * full mode's per-slug strings, just hashed instead of kept verbatim. Exported so
+ * selftest.mjs can derive a compact manifest offline (from an already-captured full
+ * manifest's raw bytes) through this exact same code path, without a second live capture.
+ */
+export function buildCompactBlogArrayFields(parsed) {
+  const jsonBySlugHash = {}
+  const slugMultiset = {}
+  for (const item of parsed) {
+    if (item && item.slug) {
+      jsonBySlugHash[item.slug] = sha256Text(canonicalStringify(item))
+      slugMultiset[item.slug] = (slugMultiset[item.slug] || 0) + 1
+    }
+  }
+  return { jsonArrayLength: parsed.length, jsonBySlugHash, slugMultiset }
+}
+
+/** Compact-mode fields for a bulky text/plain body (e.g. llms-full.txt): a hash for
+ *  comparison plus a short preview for diagnostics, instead of the full normalized text. */
+export function buildCompactTextFields(normalizedText) {
+  return { textHash: sha256Text(normalizedText), textPreview: normalizedText.slice(0, COMPACT_TEXT_PREVIEW_CHARS) }
+}
 
 const KNOWN_HOSTS = ['www.growmax.io', 'growmax.io', '*.vercel.app']
 
@@ -48,7 +81,7 @@ function classifyContentType(contentType) {
 }
 
 async function captureOne(entry, base, opts) {
-  const { dispatcher, bypassSecret, ua, rawDir } = opts
+  const { dispatcher, bypassSecret, ua, rawDir, compact = false } = opts
   const target = /^https?:\/\//.test(entry.url) ? entry.url : new URL(entry.url, base).toString()
 
   // Most entries are same-site relative URLs, but the post-cutover set (SPEC-04 §2.8) is
@@ -138,26 +171,42 @@ async function captureOne(entry, base, opts) {
   } else if (contentType === 'application/json') {
     try {
       const parsed = JSON.parse(buf.toString('utf8'))
-      record.jsonCanonical = canonicalStringify(parsed)
-      record.jsonHash = sha256(Buffer.from(record.jsonCanonical, 'utf8'))
-      // /api/blog is compared per-slug with every field preserved. jsonBySlug alone drops
-      // slug-less items and collapses duplicate slugs (per review), so also record the raw
-      // array length: compare.mjs compares it (and the multiset of slugs) alongside the
-      // per-slug diffs, so a duplicated or slug-less item on either side still surfaces.
-      if (entry.url === '/api/blog' && Array.isArray(parsed)) {
-        record.jsonArrayLength = parsed.length
-        record.jsonBySlug = {}
-        for (const item of parsed) {
-          if (item && item.slug) record.jsonBySlug[item.slug] = canonicalStringify(item)
-        }
+      const isBlogArray = entry.url === '/api/blog' && Array.isArray(parsed)
+      if (compact && isBlogArray) {
+        // A1 C9 (compact manifest mode): drop the duplicated whole-array canonical string
+        // and the full per-slug canonical strings (up to several MB each for /api/blog);
+        // keep jsonArrayLength + a slug multiset + a per-slug sha256, which is everything
+        // compare.mjs needs to still detect a changed field, array length or slug set.
+        Object.assign(record, buildCompactBlogArrayFields(parsed))
       } else {
-        record.json = parsed
+        record.jsonCanonical = canonicalStringify(parsed)
+        record.jsonHash = sha256(Buffer.from(record.jsonCanonical, 'utf8'))
+        // /api/blog is compared per-slug with every field preserved. jsonBySlug alone drops
+        // slug-less items and collapses duplicate slugs (per review), so also record the raw
+        // array length: compare.mjs compares it (and the multiset of slugs) alongside the
+        // per-slug diffs, so a duplicated or slug-less item on either side still surfaces.
+        if (isBlogArray) {
+          record.jsonArrayLength = parsed.length
+          record.jsonBySlug = {}
+          for (const item of parsed) {
+            if (item && item.slug) record.jsonBySlug[item.slug] = canonicalStringify(item)
+          }
+        } else {
+          record.json = parsed
+        }
       }
     } catch (err) {
       record.jsonError = String(err.message || err)
     }
   } else if (contentType === 'text/plain') {
-    record.text = normalizeText(buf.toString('utf8'))
+    const normalized = normalizeText(buf.toString('utf8'))
+    if (compact) {
+      // A1 C9: other bulky fields (e.g. llms-full.txt's full text dump) become a hash too,
+      // with a short preview kept for diagnostics rather than the full body.
+      Object.assign(record, buildCompactTextFields(normalized))
+    } else {
+      record.text = normalized
+    }
   }
 
   return record
@@ -228,12 +277,12 @@ async function captureAssets({ entries, base, dispatcher, bypassSecret, ua, conc
   return assets
 }
 
-export async function capture({ base, urls, rawDir, bypassSecretFile, resolve, concurrency = 4, ua }) {
+export async function capture({ base, urls, rawDir, bypassSecretFile, resolve, concurrency = 4, ua, compact = false }) {
   const bypassSecret = bypassSecretFile ? (await readFile(bypassSecretFile, 'utf8')).trim() : undefined
   const dispatcher = await buildResolveDispatcher(resolve)
 
   const results = await mapWithConcurrency(urls, concurrency, (entry) =>
-    captureOne(entry, base, { dispatcher, bypassSecret, ua, rawDir }),
+    captureOne(entry, base, { dispatcher, bypassSecret, ua, rawDir, compact }),
   )
 
   const assets = await captureAssets({ entries: results, base, dispatcher, bypassSecret, ua, concurrency })
@@ -244,6 +293,7 @@ export async function capture({ base, urls, rawDir, bypassSecretFile, resolve, c
     count: results.length,
     entries: results,
     assets,
+    compact: !!compact,
   }
 }
 
@@ -252,7 +302,8 @@ async function main() {
   if (!args.base || !args.urls || !args.out) {
     console.error(
       'Usage: node capture.mjs --base <origin> --urls <inventory.json> --out <manifest.json> ' +
-        '[--raw-dir <dir>] [--bypass-secret-file <f>] [--resolve host:443:ip] [--concurrency 4] [--ua <ua>]',
+        '[--raw-dir <dir>] [--bypass-secret-file <f>] [--resolve host:443:ip] [--concurrency 4] ' +
+        '[--ua <ua>] [--compact]',
     )
     process.exit(2)
   }
@@ -266,6 +317,7 @@ async function main() {
     resolve: args.resolve,
     concurrency: args.concurrency ? Number(args.concurrency) : 4,
     ua: args.ua,
+    compact: !!args.compact,
   })
   await mkdir(path.dirname(args.out), { recursive: true })
   await writeFile(args.out, JSON.stringify(manifest, null, 2))

@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { execSync } from 'node:child_process'
 import { buildInventory, POST_CUTOVER_ENTRIES } from './urls.mjs'
-import { capture } from './capture.mjs'
+import { capture, buildCompactBlogArrayFields, buildCompactTextFields } from './capture.mjs'
 import { compareManifests } from './compare.mjs'
 import {
   extractHtml,
@@ -31,8 +31,16 @@ import {
   sha256,
   sha256Text,
   normalizeText,
+  normalizeHtmlNoise,
 } from './lib/extract.mjs'
 import { normalizeLocation, buildResolveDispatcher } from './lib/fetcher.mjs'
+import {
+  checkTiePermutation,
+  checkPageTiePermutation,
+  checkBlogPageResidual,
+  postsFromApiBlogBody,
+  URL_KINDS,
+} from './tie-permutation.mjs'
 
 // SPEC-04 §2: the sitemap is the largest single URL source (203 of 288 URLs in the last
 // known-good inventory) and the harness assumes it's broadly reachable. Per review: with no
@@ -144,14 +152,18 @@ function untokenizeLocation(normalized, requestedHost) {
   return `${scheme}://${host}${rest}`
 }
 
-/** Build the fixed set of mutation cases described in SPEC-04 §5.2, operating on raw bodies. */
-async function buildMutationCases(manifest, { rawDir, base }) {
+/** Build the fixed set of mutation cases described in SPEC-04 §5.2, operating on raw bodies.
+ *  `compact` (A1 C9): when true, the /api/blog and robots.txt-text mutation cases mutate the
+ *  COMPACT fields (jsonBySlugHash/slugMultiset, textHash/textPreview) via the exact same
+ *  buildCompactBlogArrayFields/buildCompactTextFields capture.mjs itself calls, instead of
+ *  the full-mode fields — so the same 22 cases prove detection in compact mode too. */
+async function buildMutationCases(manifest, { rawDir, base, compact = false }) {
   const cases = []
 
   const home = findEntry(manifest, (e) => e.url === '/')
   const redirect = findEntry(manifest, (e) => e.status >= 300 && e.status < 400 && e.location)
   const sitemap = findEntry(manifest, (e) => e.url === '/sitemap.xml')
-  const apiBlog = findEntry(manifest, (e) => e.url === '/api/blog' && e.jsonBySlug)
+  const apiBlog = findEntry(manifest, (e) => e.url === '/api/blog' && (e.jsonBySlug || e.jsonBySlugHash))
 
   if (home) {
     const homeUrl = new URL('/', base).toString()
@@ -322,11 +334,21 @@ async function buildMutationCases(manifest, { rawDir, base }) {
   }
 
   if (apiBlog) {
-    const slugs = Object.keys(apiBlog.jsonBySlug)
+    const slugs = Object.keys(apiBlog.jsonBySlug || apiBlog.jsonBySlugHash)
     const rebuildJsonBySlug = (items) => {
       const jsonBySlug = {}
       for (const item of items) if (item?.slug) jsonBySlug[item.slug] = canonicalStringify(item)
       return jsonBySlug
+    }
+    // Splice the recomputed fields into `e` for whichever mode this run is in, clearing the
+    // other mode's fields so a stale full-mode field can't mask a compact-mode mutation (see
+    // compare.mjs's perSlugHash, which checks jsonBySlugHash before jsonBySlug).
+    const applyApiBlogFields = (e, items) => {
+      delete e.jsonBySlug
+      delete e.jsonBySlugHash
+      delete e.slugMultiset
+      if (compact) Object.assign(e, buildCompactBlogArrayFields(items))
+      else e.jsonBySlug = rebuildJsonBySlug(items)
     }
 
     cases.push({
@@ -336,7 +358,7 @@ async function buildMutationCases(manifest, { rawDir, base }) {
         const raw = (await readRawBin(rawDir, '/api/blog')).toString('utf8')
         const parsed = JSON.parse(raw)
         const e = findEntry(m, (x) => x.url === '/api/blog')
-        e.jsonBySlug = rebuildJsonBySlug([...parsed].reverse())
+        applyApiBlogFields(e, [...parsed].reverse())
       },
     })
 
@@ -351,13 +373,13 @@ async function buildMutationCases(manifest, { rawDir, base }) {
             throw new Error('change-one-field-of-one-api-blog-element: /api/blog raw body has zero items')
           const mutated = parsed.map((item, i) => (i === 0 ? { ...item, title: `${item.title ?? ''} MUTATED` } : item))
           const e = findEntry(m, (x) => x.url === '/api/blog')
-          e.jsonBySlug = rebuildJsonBySlug(mutated)
+          applyApiBlogFields(e, mutated)
         },
       })
     }
   }
 
-  cases.push(...buildExpectPathCases(manifest, { rawDir, base }))
+  cases.push(...buildExpectPathCases(manifest, { rawDir, base, compact }))
 
   return cases
 }
@@ -419,7 +441,7 @@ const SYNTHETIC_APPROVAL = {
  * P1.2 review r4 cases. Each one names the diff field(s) that MUST appear (`requireFields`),
  * so a case can't pass because some other, unrelated diff happened to show up.
  */
-function buildExpectPathCases(manifest, { rawDir, base }) {
+function buildExpectPathCases(manifest, { rawDir, base, compact = false }) {
   const cases = []
 
   // --- Fixed expectation on /api/admin/session (SPEC-04 §2.4). ---
@@ -531,7 +553,10 @@ function buildExpectPathCases(manifest, { rawDir, base }) {
     },
   })
 
-  // --- Text allowlist pinning (compare.mjs pins sha256 of the normalized text). ---
+  // --- Text allowlist pinning (compare.mjs pins sha256 of the normalized text). Works in
+  // both modes (A1 C9): full mode pins sha256Text(robots.text); compact mode pins the
+  // already-computed robots.textHash / the mutated body's buildCompactTextFields() hash —
+  // same sha256, never recomputed differently between modes. ---
   const robots = findEntry(manifest, (e) => e.url === '/robots.txt')
   const robotsTextFromRaw = async (edit) => {
     const raw = (await readRawBin(rawDir, '/robots.txt')).toString('utf8')
@@ -542,14 +567,29 @@ function buildExpectPathCases(manifest, { rawDir, base }) {
   const reviewedEdit = (raw) => `${raw.replace(/\s*$/, '')}\n# selftest reviewed change\n`
   const otherEdit = (raw) =>
     /^Allow:\s*\/\s*$/im.test(raw) ? raw.replace(/^Allow:\s*\/\s*$/im, 'Disallow: /') : `${raw.replace(/\s*$/, '')}\nDisallow: /\n`
-  const pinnedAllowlist = async () => {
+  const robotsHash = () => {
+    if (compact) {
+      if (typeof robots?.textHash !== 'string') throw new Error('text-allowlist: /robots.txt has no captured textHash (compact mode)')
+      return robots.textHash
+    }
     if (!robots || typeof robots.text !== 'string') throw new Error('text-allowlist: /robots.txt has no captured text')
+    return sha256Text(robots.text)
+  }
+  const applyRobotsText = (e, normalized) => {
+    delete e.text
+    delete e.textHash
+    delete e.textPreview
+    if (compact) Object.assign(e, buildCompactTextFields(normalized))
+    else e.text = normalized
+  }
+  const pinnedAllowlist = async () => {
     const reviewed = await robotsTextFromRaw(reviewedEdit)
+    const reviewedHash = compact ? buildCompactTextFields(reviewed).textHash : sha256Text(reviewed)
     return [
       {
         url: '/robots.txt',
         field: 'text',
-        expected: { a: sha256Text(robots.text), b: sha256Text(reviewed) },
+        expected: { a: robotsHash(), b: reviewedHash },
         ...SYNTHETIC_APPROVAL,
       },
     ]
@@ -560,7 +600,8 @@ function buildExpectPathCases(manifest, { rawDir, base }) {
     requireAllowlisted: 1,
     allowlist: pinnedAllowlist,
     mutate: async (m) => {
-      requireEntry(m, '/robots.txt', 'text-allowlist-pinned-covers-reviewed-diff').text = await robotsTextFromRaw(reviewedEdit)
+      const normalized = await robotsTextFromRaw(reviewedEdit)
+      applyRobotsText(requireEntry(m, '/robots.txt', 'text-allowlist-pinned-covers-reviewed-diff'), normalized)
     },
   })
   cases.push({
@@ -569,15 +610,62 @@ function buildExpectPathCases(manifest, { rawDir, base }) {
     requireFields: ['text'],
     allowlist: pinnedAllowlist,
     mutate: async (m) => {
-      requireEntry(m, '/robots.txt', 'text-allowlist-pinned-rejects-other-diff').text = await robotsTextFromRaw(otherEdit)
+      const normalized = await robotsTextFromRaw(otherEdit)
+      applyRobotsText(requireEntry(m, '/robots.txt', 'text-allowlist-pinned-rejects-other-diff'), normalized)
     },
   })
 
   return cases
 }
 
-async function runMutationSelfTest(manifest, { rawDir, base }) {
-  const cases = await buildMutationCases(manifest, { rawDir, base })
+/**
+ * A1 C9: compact-mode-only signal cases, proving the compact fields' own detectors work —
+ * a changed array length and a changed slug multiset — beyond what the mode-agnostic 22
+ * cases above already prove (a changed per-slug hash is already covered by
+ * 'change-one-field-of-one-api-blog-element' run in compact mode). Not part of
+ * REQUIRED_CASE_NAMES: these only ever run against a compact manifest.
+ */
+function buildCompactOnlySignalCases(manifest, { rawDir }) {
+  const apiBlog = findEntry(manifest, (e) => e.url === '/api/blog' && e.jsonBySlugHash)
+  if (!apiBlog) return []
+  const applyCompactFields = (e, items) => {
+    delete e.jsonBySlugHash
+    delete e.slugMultiset
+    Object.assign(e, buildCompactBlogArrayFields(items))
+  }
+  return [
+    {
+      name: 'compact-array-length-changed',
+      expectDetected: true,
+      requireFields: ['jsonBySlug.<count>'],
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/api/blog')).toString('utf8')
+        const parsed = JSON.parse(raw)
+        if (parsed.length < 2) throw new Error('compact-array-length-changed: /api/blog has fewer than 2 items')
+        applyCompactFields(findEntry(m, (x) => x.url === '/api/blog'), parsed.slice(0, -1))
+      },
+    },
+    {
+      name: 'compact-slug-multiset-changed',
+      expectDetected: true,
+      requireFields: ['jsonBySlug.<slugs>'],
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/api/blog')).toString('utf8')
+        const parsed = JSON.parse(raw)
+        if (parsed.length < 2) throw new Error('compact-slug-multiset-changed: /api/blog has fewer than 2 items')
+        // Same array length, same hashes for untouched items: only the LAST item's slug is
+        // overwritten with the FIRST item's slug, so the first slug's count goes 1 -> 2 and
+        // the original last slug disappears — jsonArrayLength is unchanged, isolating this
+        // from the array-length case above.
+        const mutated = parsed.map((item, i) => (i === parsed.length - 1 ? { ...item, slug: parsed[0].slug } : item))
+        applyCompactFields(findEntry(m, (x) => x.url === '/api/blog'), mutated)
+      },
+    },
+  ]
+}
+
+async function runMutationSelfTest(manifest, { rawDir, base, compact = false, extraCases = [] }) {
+  const cases = await buildMutationCases(manifest, { rawDir, base, compact })
 
   const builtNames = new Set(cases.map((c) => c.name))
   const missing = REQUIRED_CASE_NAMES.filter((n) => !builtNames.has(n))
@@ -586,6 +674,9 @@ async function runMutationSelfTest(manifest, { rawDir, base }) {
       `mutation self-test is missing required case(s) — a fixture was unavailable in this capture: ${missing.join(', ')}`,
     )
   }
+  // extraCases (A1 C9's compact-only signal cases) are appended AFTER the required-case
+  // check above, so they're never allowed to hide a missing required (mode-agnostic) case.
+  const allCases = [...cases, ...extraCases]
 
   // Detection is measured against the unmutated self-compare: a case "detects" its mutation
   // only if it produces a failing (non-report-only, non-allowlisted) diff that the self-compare
@@ -597,7 +688,7 @@ async function runMutationSelfTest(manifest, { rawDir, base }) {
   const baselineKeys = new Set(baseline.diffs.filter((d) => !d.reportOnly && !d.allowlisted).map(diffKey))
 
   const results = []
-  for (const c of cases) {
+  for (const c of allCases) {
     const mutated = structuredClone(manifest)
     const mutatedA = c.mutateBothSides || c.mutateA ? structuredClone(manifest) : manifest
     let allowlist = []
@@ -713,6 +804,206 @@ async function testResolveDispatcher() {
   } finally {
     await new Promise((resolve) => server.close(resolve))
   }
+}
+
+/**
+ * A1 C9: derive a compact-mode-equivalent manifest from an already-captured FULL manifest,
+ * offline (no second live capture) — by re-running the raw /api/blog body and every
+ * text/plain raw body already saved to `rawDir` through the SAME compaction functions
+ * (buildCompactBlogArrayFields / buildCompactTextFields) real compact-mode capture.mjs
+ * calls. This is "the same capture code path" C9 requires, just applied to bytes already on
+ * disk instead of a fresh network round-trip.
+ */
+async function toCompactManifest(fullManifest, rawDir) {
+  const clone = structuredClone(fullManifest)
+  clone.compact = true
+  for (const e of clone.entries) {
+    if (e.url === '/api/blog' && e.jsonBySlug) {
+      const raw = (await readRawBin(rawDir, '/api/blog')).toString('utf8')
+      const parsed = JSON.parse(raw)
+      delete e.jsonCanonical
+      delete e.jsonHash
+      delete e.jsonBySlug
+      Object.assign(e, buildCompactBlogArrayFields(parsed))
+    } else if (typeof e.text === 'string') {
+      const fields = buildCompactTextFields(e.text)
+      delete e.text
+      Object.assign(e, fields)
+    }
+  }
+  return clone
+}
+
+/**
+ * SPEC-04 addendum coverage checks, against a fake in-memory site (no network):
+ *  (a) a /api/blog slug absent from the sitemap still lands in the inventory, tagged
+ *      'blog-api-slug';
+ *  (b) a failed (network-error) /api/blog fetch fails inventory building loudly;
+ *  (c) a failed B-sitemap fetch (source 'sitemap-b') also fails loudly, when a B base is
+ *      given; and, positively, a B-only sitemap URL lands tagged 'sitemap-b'.
+ */
+async function testCoverageSources() {
+  const fakeBase = 'https://coverage-selftest-a.invalid'
+  const fakeBaseB = 'https://coverage-selftest-b.invalid'
+  const sitemapXmlA = `<?xml version="1.0"?><urlset><url><loc>${fakeBase}/blog/in-sitemap</loc></url></urlset>`
+  const sitemapXmlB = `<?xml version="1.0"?><urlset><url><loc>${fakeBaseB}/blog/only-in-b-sitemap</loc></url></urlset>`
+  const apiBlogBody = JSON.stringify([
+    { slug: 'in-sitemap', created_at: '2026-01-01T00:00:00Z' },
+    { slug: 'missing-from-sitemap', created_at: '2026-01-02T00:00:00Z' },
+  ])
+  const okText = (text) => ({ ok: true, res: { status: 200 }, buf: Buffer.from(text, 'utf8') })
+  const notFound = { ok: true, res: { status: 404 }, buf: Buffer.from('') }
+
+  let missingLandedOk = false
+  let missingLandedErr = null
+  let sitemapBLandedOk = false
+  try {
+    const fetchOk = async (url) => {
+      if (url === `${fakeBase}/sitemap.xml`) return okText(sitemapXmlA)
+      if (url === `${fakeBaseB}/sitemap.xml`) return okText(sitemapXmlB)
+      if (url === `${fakeBase}/api/blog`) return okText(apiBlogBody)
+      return notFound
+    }
+    const { list } = await buildInventory({ base: fakeBase, baseB: fakeBaseB, fetchImpl: fetchOk })
+    const entry = list.find((u) => u.url === '/blog/missing-from-sitemap')
+    missingLandedOk = !!entry && entry.source === 'blog-api-slug'
+    const bEntry = list.find((u) => u.url === '/blog/only-in-b-sitemap')
+    sitemapBLandedOk = !!bEntry && bEntry.source === 'sitemap-b'
+  } catch (err) {
+    missingLandedErr = String(err.message || err)
+  }
+
+  let apiBlogFailureThrew = false
+  try {
+    const fetchApiBlogFails = async (url) => {
+      if (url === `${fakeBase}/sitemap.xml`) return okText(sitemapXmlA)
+      if (url === `${fakeBase}/api/blog`) return { ok: false, error: new Error('simulated /api/blog fetch failure') }
+      return notFound
+    }
+    await buildInventory({ base: fakeBase, fetchImpl: fetchApiBlogFails })
+  } catch {
+    apiBlogFailureThrew = true
+  }
+
+  let bSitemapFailureThrew = false
+  try {
+    const fetchBSitemapFails = async (url) => {
+      if (url === `${fakeBase}/sitemap.xml`) return okText(sitemapXmlA)
+      if (url === `${fakeBase}/api/blog`) return okText(apiBlogBody)
+      if (url === `${fakeBaseB}/sitemap.xml`) return { ok: false, error: new Error('simulated B sitemap.xml fetch failure') }
+      return notFound
+    }
+    await buildInventory({ base: fakeBase, baseB: fakeBaseB, fetchImpl: fetchBSitemapFails })
+  } catch {
+    bSitemapFailureThrew = true
+  }
+
+  return {
+    pass: missingLandedOk && sitemapBLandedOk && apiBlogFailureThrew && bSitemapFailureThrew,
+    detail: { missingLandedOk, missingLandedErr, sitemapBLandedOk, apiBlogFailureThrew, bSitemapFailureThrew },
+  }
+}
+
+/** A1 C8: the tie-permutation checker itself passes a pure tie permutation (swap within an
+ *  equal-created_at group) and fails a cross-group reorder, using synthetic posts (no
+ *  network — this is a unit check on tie-permutation.mjs, not a live capture). */
+function testTiePermutationChecker() {
+  const now = Date.parse('2026-01-01T00:00:00Z')
+  const postsA = [
+    { slug: 'a', createdAt: now, published: true },
+    { slug: 'b', createdAt: now, published: true },
+    { slug: 'c', createdAt: now - 1000, published: true },
+    { slug: 'd', createdAt: now - 2000, published: true },
+  ]
+  const purePermutation = [postsA[1], postsA[0], postsA[2], postsA[3]] // swap a/b (equal created_at)
+  const crossGroupReorder = [postsA[0], postsA[2], postsA[1], postsA[3]] // swap b/c (different created_at)
+
+  const pureResult = checkTiePermutation({ postsA, postsB: purePermutation, topN: 2 })
+  const crossResult = checkTiePermutation({ postsA, postsB: crossGroupReorder })
+
+  return {
+    pass: pureResult.pass === true && crossResult.pass === false && crossResult.reason === 'cross-group-reorder',
+    detail: { pureResult, crossResult },
+  }
+}
+
+/**
+ * A1 C8, per review: tie-permutation.mjs is not a valid proof unless it works ON THE PAGE
+ * itself. This builds its cases from the SAME live capture's REAL raw bodies (never
+ * synthetic strings): for each of URL_KINDS ('/', '/sitemap.xml', '/llms.txt',
+ * '/llms-full.txt') plus '/blog' (order + content-hash residual, see checkBlogPageResidual),
+ * A-vs-A (self) must pass, and A-vs-(A + one extra text edit) must fail.
+ */
+async function testTiePermutationRealData(rawDir) {
+  const problems = []
+  const details = {}
+
+  const apiBlogRaw = JSON.parse((await readRawBin(rawDir, '/api/blog')).toString('utf8'))
+  const posts = postsFromApiBlogBody(apiBlogRaw)
+  const createdAtBySlug = Object.fromEntries(posts.map((p) => [p.slug, p.createdAt]))
+  const normalizedFor = (kind, raw) => (kind === 'href' ? normalizeHtmlNoise(raw) : normalizeText(raw))
+
+  for (const [url, kind] of Object.entries(URL_KINDS)) {
+    let rawText
+    try {
+      rawText = (await readRawBin(rawDir, url)).toString('utf8')
+    } catch (err) {
+      problems.push(`${url}: no raw body captured (${err.message})`)
+      continue
+    }
+    const normalized = normalizedFor(kind, rawText)
+    const topN = url === '/' ? 4 : undefined
+
+    const self = checkPageTiePermutation({ url, kind, rawTextA: normalized, rawTextB: normalized, createdAtBySlug, topN })
+    if (!self.pass) problems.push(`${url}: A-vs-A self-compare did not pass (${self.reason})`)
+
+    // A-vs-(A + one extra text edit) must fail. The appended text lands either in the
+    // trailing fixed region (sitemap's explicit <url> block ends) or extends the last
+    // detected post's own block (open-ended kinds) — either way it's a genuine byte
+    // difference the residual check must catch.
+    const edited = `${normalized}\n<!-- migration-selftest tie-permutation real-data edit -->`
+    const mutated = checkPageTiePermutation({ url, kind, rawTextA: normalized, rawTextB: edited, createdAtBySlug, topN })
+    if (mutated.pass) problems.push(`${url}: A-vs-(A+edit) unexpectedly passed`)
+
+    details[url] = { selfPass: self.pass, selfReason: self.reason, mutatedPass: mutated.pass, mutatedReason: mutated.reason }
+  }
+
+  try {
+    const blogRaw = (await readRawBin(rawDir, '/blog')).toString('utf8')
+    const blogNormalized = normalizeHtmlNoise(blogRaw)
+    const blogSelf = checkPageTiePermutation({
+      url: '/blog',
+      kind: 'blog-embedded-json',
+      rawTextA: blogNormalized,
+      rawTextB: blogNormalized,
+      createdAtBySlug,
+    })
+    if (!blogSelf.pass) problems.push(`/blog: order self-compare did not pass (${blogSelf.reason})`)
+
+    const perSlugHash = {}
+    for (const p of posts) {
+      const item = apiBlogRaw.find((x) => x.slug === p.slug)
+      perSlugHash[p.slug] = sha256Text(canonicalStringify(item))
+    }
+    const slugOrderA = posts.map((p) => p.slug)
+    const residualSelf = checkBlogPageResidual({ slugOrderA, perSlugHashA: perSlugHash, perSlugHashB: perSlugHash })
+    if (!residualSelf.pass) problems.push('/blog: residual self-compare did not pass')
+
+    const mutatedHash = { ...perSlugHash, [slugOrderA[0]]: 'MUTATED-HASH' }
+    const residualMutated = checkBlogPageResidual({ slugOrderA, perSlugHashA: perSlugHash, perSlugHashB: mutatedHash })
+    if (residualMutated.pass) problems.push('/blog: residual A-vs-(A+edit) unexpectedly passed')
+
+    details['/blog'] = {
+      selfPass: blogSelf.pass,
+      selfReason: blogSelf.reason,
+      residualSelfPass: residualSelf.pass,
+      residualMutatedPass: residualMutated.pass,
+    }
+  } catch (err) {
+    problems.push(`/blog: ${String(err.message || err)}`)
+  }
+
+  return { pass: problems.length === 0, detail: { problems, cases: details } }
 }
 
 function nowUtc() {
@@ -886,6 +1177,181 @@ async function main() {
     },
   })
 
+  // --- Check 6: SPEC-04 addendum coverage sources (blog-api-slug / sitemap-b), no network. ---
+  console.log('[selftest] checking coverage sources (blog-api-slug, sitemap-b) ...')
+  const coverage = await testCoverageSources()
+  checks.push({ name: 'coverage-sources', pass: coverage.pass, detail: coverage.detail })
+
+  // --- Check 7: the tie-permutation checker's CORE algorithm, synthetic sequences (A1 C8). ---
+  console.log('[selftest] testing the tie-permutation checker (core algorithm) ...')
+  const tiePermutation = testTiePermutationChecker()
+  checks.push({ name: 'tie-permutation-checker', pass: tiePermutation.pass, detail: tiePermutation.detail })
+
+  // --- Check 7b (per review, BLOCKING): the tie-permutation checker against REAL captured
+  // page bodies (/, /sitemap.xml, /llms.txt, /llms-full.txt, /blog) — A-vs-A must pass, A-vs-
+  // (A+edit) must fail. This is the actual A1 C8 proof; the synthetic check above only proves
+  // the core algorithm in isolation. ---
+  console.log('[selftest] testing the tie-permutation checker against real captured page bodies ...')
+  const tiePermutationReal = await testTiePermutationRealData(rawDirA)
+  checks.push({ name: 'tie-permutation-real-data', pass: tiePermutationReal.pass, detail: tiePermutationReal.detail })
+
+  // --- Check 8: compact manifest mode (A1 C9). All derived offline from manifestA/B's
+  // already-saved raw bodies (toCompactManifest), through the exact same compaction
+  // functions real --compact capture calls — never a third/fourth live capture. ---
+  console.log('[selftest] deriving compact-mode manifests and re-running the mutation matrix ...')
+  const compactManifestA = await toCompactManifest(manifestA, rawDirA)
+  const compactManifestB = await toCompactManifest(manifestB, rawDirB)
+
+  let compactMutationResults = null
+  let compactMutationPass = false
+  try {
+    const compactOnlyCases = buildCompactOnlySignalCases(compactManifestA, { rawDir: rawDirA })
+    compactMutationResults = await runMutationSelfTest(compactManifestA, {
+      rawDir: rawDirA,
+      base,
+      compact: true,
+      extraCases: compactOnlyCases,
+    })
+    compactMutationPass = compactMutationResults.every((r) => r.pass)
+  } catch (err) {
+    compactMutationResults = { error: String(err.message || err) }
+    compactMutationPass = false
+  }
+  checks.push({ name: 'mutation-matrix-compact', pass: compactMutationPass, detail: compactMutationResults })
+
+  console.log('[selftest] checking compact-mode determinism ...')
+  const compactDetDiff = await compareManifests(compactManifestA, compactManifestB, { rawDirA, rawDirB })
+  const compactUnexplained = compactDetDiff.diffs.filter((d) => !d.reportOnly && d.category !== 'data-freshness' && !d.allowlisted)
+  const compactDeterminismPass = compactUnexplained.length === 0
+  checks.push({
+    name: 'determinism-compact-mode',
+    pass: compactDeterminismPass,
+    detail: {
+      compared: compactDetDiff.compared,
+      failedUnallowed: compactDetDiff.failedUnallowed,
+      unexplainedCount: compactUnexplained.length,
+      unexplainedSample: compactUnexplained.slice(0, 10),
+    },
+  })
+
+  console.log('[selftest] checking mixed-mode compare (full vs compact, both directions) ...')
+  const mixedFullACompactB = await compareManifests(manifestA, compactManifestB, { rawDirA, rawDirB })
+  const mixedCompactAFullB = await compareManifests(compactManifestA, manifestB, { rawDirA, rawDirB })
+  const mixedUnexplained = (d) => d.diffs.filter((x) => !x.reportOnly && x.category !== 'data-freshness' && !x.allowlisted)
+  const mixedFullACompactBUnexplained = mixedUnexplained(mixedFullACompactB)
+  const mixedCompactAFullBUnexplained = mixedUnexplained(mixedCompactAFullB)
+  checks.push({
+    name: 'mixed-mode-compare-both-directions',
+    pass: mixedFullACompactBUnexplained.length === 0 && mixedCompactAFullBUnexplained.length === 0,
+    detail: {
+      fullACompactB: {
+        compared: mixedFullACompactB.compared,
+        failedUnallowed: mixedFullACompactB.failedUnallowed,
+        unexplainedCount: mixedFullACompactBUnexplained.length,
+        unexplainedSample: mixedFullACompactBUnexplained.slice(0, 10),
+      },
+      compactAFullB: {
+        compared: mixedCompactAFullB.compared,
+        failedUnallowed: mixedCompactAFullB.failedUnallowed,
+        unexplainedCount: mixedCompactAFullBUnexplained.length,
+        unexplainedSample: mixedCompactAFullBUnexplained.slice(0, 10),
+      },
+    },
+  })
+
+  // --- Check 9 (per review): mixed-mode MUTATION cases — a field change and a text edit,
+  // each in BOTH directions (full-A/compact-B and compact-A/full-B), proving compare.mjs
+  // actually DETECTS a real mutation across modes, not just that two unmutated sides agree
+  // (which mixed-mode-compare-both-directions above already covers). ---
+  console.log('[selftest] running mixed-mode mutation cases ...')
+  const rebuildFullJsonBySlug = (items) => {
+    const jsonBySlug = {}
+    for (const item of items) if (item?.slug) jsonBySlug[item.slug] = canonicalStringify(item)
+    return jsonBySlug
+  }
+  async function mutateApiBlogTitle(manifest, { rawDir, compact }) {
+    const clone = structuredClone(manifest)
+    const raw = (await readRawBin(rawDir, '/api/blog')).toString('utf8')
+    const parsed = JSON.parse(raw)
+    const mutated = parsed.map((item, i) => (i === 0 ? { ...item, title: `${item.title ?? ''} MIXED-MODE-MUTATED` } : item))
+    const e = findEntry(clone, (x) => x.url === '/api/blog')
+    delete e.jsonBySlug
+    delete e.jsonBySlugHash
+    delete e.slugMultiset
+    if (compact) Object.assign(e, buildCompactBlogArrayFields(mutated))
+    else e.jsonBySlug = rebuildFullJsonBySlug(mutated)
+    return clone
+  }
+  async function mutateRobotsText(manifest, { rawDir, compact }) {
+    const clone = structuredClone(manifest)
+    const raw = (await readRawBin(rawDir, '/robots.txt')).toString('utf8')
+    const normalized = normalizeText(`${raw.replace(/\s*$/, '')}\n# mixed-mode selftest edit\n`)
+    const e = findEntry(clone, (x) => x.url === '/robots.txt')
+    delete e.text
+    delete e.textHash
+    delete e.textPreview
+    if (compact) Object.assign(e, buildCompactTextFields(normalized))
+    else e.text = normalized
+    return clone
+  }
+  const isDetected = (diff) => {
+    const unallowed = diff.diffs.filter((d) => !d.reportOnly && !d.allowlisted)
+    return unallowed.length >= 1 && diff.failedUnallowed >= 1
+  }
+
+  const mixedFcField = await mutateApiBlogTitle(compactManifestA, { rawDir: rawDirA, compact: true })
+  const mixedFcFieldDiff = await compareManifests(manifestA, mixedFcField, { rawDirA, rawDirB: rawDirA })
+  const mixedCfField = await mutateApiBlogTitle(manifestA, { rawDir: rawDirA, compact: false })
+  const mixedCfFieldDiff = await compareManifests(compactManifestA, mixedCfField, { rawDirA, rawDirB: rawDirA })
+
+  const mixedFcText = await mutateRobotsText(compactManifestA, { rawDir: rawDirA, compact: true })
+  const mixedFcTextDiff = await compareManifests(manifestA, mixedFcText, { rawDirA, rawDirB: rawDirA })
+  const mixedCfText = await mutateRobotsText(manifestA, { rawDir: rawDirA, compact: false })
+  const mixedCfTextDiff = await compareManifests(compactManifestA, mixedCfText, { rawDirA, rawDirB: rawDirA })
+
+  checks.push({
+    name: 'mixed-mode-mutation-cases',
+    pass: isDetected(mixedFcFieldDiff) && isDetected(mixedCfFieldDiff) && isDetected(mixedFcTextDiff) && isDetected(mixedCfTextDiff),
+    detail: {
+      fullAToCompactBFieldChange: { detected: isDetected(mixedFcFieldDiff), failedUnallowed: mixedFcFieldDiff.failedUnallowed },
+      compactAToFullBFieldChange: { detected: isDetected(mixedCfFieldDiff), failedUnallowed: mixedCfFieldDiff.failedUnallowed },
+      fullAToCompactBTextEdit: { detected: isDetected(mixedFcTextDiff), failedUnallowed: mixedFcTextDiff.failedUnallowed },
+      compactAToFullBTextEdit: { detected: isDetected(mixedCfTextDiff), failedUnallowed: mixedCfTextDiff.failedUnallowed },
+    },
+  })
+
+  // --- Check 10 (per review): the REAL --compact capture path, exercised once (cheap — 2
+  // URLs), not just the offline toCompactManifest() derivation used above. ---
+  console.log('[selftest] exercising the real capture({compact:true}) path (2 URLs) ...')
+  const realCompactRawDir = path.join(scratchRoot, 'raw-real-compact')
+  const realCompactManifest = await capture({
+    base,
+    urls: [
+      { url: '/api/blog', source: 'special-api' },
+      { url: '/robots.txt', source: 'special' },
+    ],
+    rawDir: realCompactRawDir,
+    concurrency: 2,
+    compact: true,
+  })
+  const realApiBlog = findEntry(realCompactManifest, (e) => e.url === '/api/blog')
+  const realRobots = findEntry(realCompactManifest, (e) => e.url === '/robots.txt')
+  const realCompactProblems = []
+  if (!realCompactManifest.compact) realCompactProblems.push('manifest.compact is not true')
+  if (!realApiBlog?.jsonBySlugHash || typeof realApiBlog.jsonArrayLength !== 'number') realCompactProblems.push('/api/blog missing jsonBySlugHash/jsonArrayLength')
+  if (realApiBlog?.jsonBySlug || realApiBlog?.jsonCanonical) realCompactProblems.push('/api/blog unexpectedly carries full-mode jsonBySlug/jsonCanonical')
+  if (!realRobots?.textHash || typeof realRobots.textPreview !== 'string') realCompactProblems.push('/robots.txt missing textHash/textPreview')
+  if (realRobots?.text !== undefined) realCompactProblems.push('/robots.txt unexpectedly carries full-mode text')
+  checks.push({
+    name: 'real-compact-capture-path',
+    pass: realCompactProblems.length === 0,
+    detail: {
+      urlsCaptured: realCompactManifest.count,
+      fetchErrors: realCompactManifest.entries.filter((e) => e.error).length,
+      problems: realCompactProblems,
+    },
+  })
+
   // --- Check 5: protected-deployment probe (P5.2 only; no Vercel deployment exists yet). ---
   // Recorded as deferred (pass: null), never pass: true — this run never actually exercised
   // it, and a bare `true` here previously made the evidence claim a check that didn't run.
@@ -915,6 +1381,8 @@ async function main() {
     manifestSummary: {
       manifestA: { count: manifestA.count, fetchErrors: errorsA.length },
       manifestB: { count: manifestB.count, fetchErrors: manifestB.entries.filter((e) => e.error).length },
+      compactManifestA: { bytes: Buffer.byteLength(JSON.stringify(compactManifestA)) },
+      compactManifestB: { bytes: Buffer.byteLength(JSON.stringify(compactManifestB)) },
     },
     checks,
     overall: overallPass ? 'pass' : 'fail',
