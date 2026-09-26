@@ -129,7 +129,7 @@ Container reclaim during waits is normal. Everything you need is in git, and the
 | Action | Allowed? |
 |---|---|
 | Create/configure the Vercel project `growmax-website` in team `growmax1`, env vars, deployment protection bypass, production deployments on `*.vercel.app` | ✅ |
-| Provision/adopt Neon `growmax-db` via the Vercel Marketplace with the plan named in the kickoff prompt; connect it to the project | ✅ |
+| **Adopt** the owner's Neon project `rapid-recipe-07132564` via the Vercel Marketplace integration and connect it to the project. Provision a new one only if it can't be found and A1 agrees | ✅ |
 | Read the Replit production DB (**read-only sessions only**) | ✅ |
 | Write/refresh the Neon DB (before cutover: full refresh allowed; after cutover: **additive only**) | ✅ |
 | Add domains `www.growmax.io` and `growmax.io` to the Vercel project; issue/pre-issue TLS certs | ✅ |

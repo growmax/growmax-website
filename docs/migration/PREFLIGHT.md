@@ -31,8 +31,8 @@ Never paste secrets into chat. Environment variables are read when a session **s
 
 | # | What | Where | If skipped |
 |---|---|---|---|
-| R1 | Grant the **Vercel GitHub App** access to `growmax/growmax-website` | GitHub → org `growmax` → Settings → GitHub Apps → Vercel → Configure → add the repo | Falls back to CLI deployments (works; no automatic deploys from `main` until connected) |
-| R2 | Install the **Neon integration** on `growmax1` (accept terms; **don't** create a database) | Vercel → Marketplace → Neon → Install | The CLI may need an interactive terms acceptance → blocker `B-NEON-TERMS` |
+| R1 ✅ (owner, 2026-09-26; proven at P3.1) | Grant the **Vercel GitHub App** access to `growmax/growmax-website` | GitHub → org `growmax` → Settings → GitHub Apps → Vercel → Configure → add the repo | Falls back to CLI deployments (works; no automatic deploys from `main` until connected) |
+| R2 ✅ (owner, 2026-09-26: integration installed, Neon project `rapid-recipe-07132564` created; the orchestrator adopts it) | Install the **Neon integration** on `growmax1` | Vercel → Marketplace → Neon → Install | The CLI may need an interactive terms acceptance → blocker `B-NEON-TERMS` |
 | R3 | **Lower the TTL of the `www` DNS record to 300 s** (≥ 24 h before cutover) | Your DNS host (the apex resolves to Squarespace IPs, so probably Squarespace Domains) | Rollback and propagation take as long as the old TTL |
 | R4 | Optional **`SESSION_SECRET`** (current Replit value) as an environment variable | Environment dialog | A new secret is generated and admins log in once more |
 | R5 | Tell editors: **content freeze** in the Replit admin from the "READY FOR DNS" notification until 24 h after you switch DNS | n/a | Post-cutover sync still reconciles edits, but a freeze is cleaner |

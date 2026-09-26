@@ -21,7 +21,7 @@ SETUP
 
 CONFIG
 NEON_PLAN=launch   (fall back to free only if launch is refused, and record the risk)
-Vercel team growmax1 · project growmax-website · Neon resource growmax-db · region iad1
+Vercel team growmax1 · project growmax-website (or the existing project already linked to the repo) · Neon: ADOPT the existing Neon project rapid-recipe-07132564 created by me (do not provision another) · region iad1
 
 MODEL ROUTING (mandatory cost control)
 - Run each step through its saved workflow: Workflow({scriptPath: ".claude/workflows/<name>.js", args}). Every agent() call sets model and effort explicitly; never let an agent inherit Opus/max.
@@ -29,7 +29,7 @@ MODEL ROUTING (mandatory cost control)
 
 PRE-APPROVED BY ME (THE OWNER)
 - Create and configure the Vercel project, its env vars and its deployment-protection bypass. Make production deployments on *.vercel.app.
-- Provision or adopt Neon through the Vercel Marketplace with NEON_PLAN.
+- Adopt the existing Neon project rapid-recipe-07132564 through the Vercel Marketplace integration and connect it to the Vercel project. Provision a new one only if it can't be found, and only after the A1 advisor agrees.
 - Read the Replit production DB through REPLIT_DATABASE_URL, strictly read-only.
 - Write and refresh the new Neon DB as SPEC-03 describes.
 - Add the domains www.growmax.io and growmax.io to the Vercel project and issue their TLS certificates.

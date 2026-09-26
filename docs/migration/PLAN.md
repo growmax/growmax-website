@@ -61,7 +61,7 @@ Visitors ──DNS (owner switches www CNAME; apex optional)──▶ Vercel Edg
                                                             │  middleware (edge) ── Neon HTTP driver ──┐
                                                             └─ route handlers / RSC ── pg Pool ────────┤  pooled DATABASE_URL
                                                                                                         ▼
-                                                            Neon Postgres via Vercel Marketplace (resource "growmax-db",
+                                                            Neon Postgres via Vercel Marketplace (owner-created Neon project rapid-recipe-07132564,
                                                             AWS us-east-1 / iad1, same PG major version as source)
 Replit deployment + Replit DB: untouched, kept as hot rollback until the owner decommissions it (≥ 7 days after G8).
 ```
@@ -115,7 +115,7 @@ The executor column uses the roles defined in [`ORCHESTRATOR.md` §4](./ORCHESTR
 | P2.4 | Commit and push (orchestrator) | Orchestrator | **G2** |
 | **P3 Infrastructure** | | | |
 | P3.1 | Create or reuse Vercel project `growmax-website` (Git-connected if possible), settings, ignored-build-step guard | WF `mig-p3-infra` → implementer (sonnet/high) | G3 |
-| P3.2 | Neon via Vercel Marketplace: adopt `growmax-db` or provision it (iad1, same PG major as source), connect to production only | implementer | G3 |
+| P3.2 | Neon via Vercel Marketplace: **adopt the owner-created Neon project `rapid-recipe-07132564`**, record its region and PG major, connect it to production | implementer | G3 |
 | P3.3 | Env vars (sensitive, via CLI stdin): `SESSION_SECRET`, `ADMIN_PASSWORD`, `GOOGLE_CHAT_WEBHOOK_URL` | implementer | G3 |
 | P3.4 | Protection bypass for automation; access check | implementer | G3 |
 | P3.5 | Independent read-back of all config | scout (haiku/low) | **G3** |
@@ -172,7 +172,7 @@ Advisor **A3** is not a step. It's the escalation path any failing gate takes af
 
 ## 9. Decisions (ADR-lite)
 
-- **D1 Neon through Vercel Marketplace** (owner requirement). Resource `growmax-db`, region iad1 / `aws-us-east-1`, same PG major version as the source if offered.
+- **D1 Neon through Vercel Marketplace** (owner requirement). The owner created Neon project `rapid-recipe-07132564` on 2026-09-26; it is adopted, not re-provisioned. Region and version deviations go to A1 as risks.
 - **D2 Keep `pg` + Drizzle** (no driver swap). Add `attachDatabasePool` (Fluid compute) and use the pooled URL at runtime and the unpooled URL for migrations.
 - **D3 Production deploys by SHA through the API** until the PR merges. An ignored-build-step guard skips any commit that lacks `docs/migration/PLAN.md`, so old `main` commits can't reach production.
 - **D4 `pg_dump`/`pg_restore` of the whole `public` schema** (not just the Drizzle tables), `--no-owner --no-privileges`, for maximum fidelity.

@@ -25,7 +25,7 @@ Nothing to roll back, because users are still on Replit. To abandon the migratio
 ## R3: Data problem in Neon
 
 - **Before cutover:** `sync.mjs full-refresh --confirm-pre-cutover` rebuilds Neon from Replit.
-- **After cutover:** the owner uses Neon point-in-time restore (a branch at a timestamp, via `vercel integration open neon growmax-db`). Then re-run `delta` from Replit for any source rows that are missing. The orchestrator prepares the exact timestamp and plan; the owner executes the PITR in the console.
+- **After cutover:** the owner uses Neon point-in-time restore (a branch at a timestamp, via `vercel integration open neon <adopted resource name>`). Then re-run `delta` from Replit for any source rows that are missing. The orchestrator prepares the exact timestamp and plan; the owner executes the PITR in the console.
 
 ## R4: Abandon after cutover
 

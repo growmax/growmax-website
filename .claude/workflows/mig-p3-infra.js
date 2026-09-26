@@ -21,7 +21,7 @@ const RESULT = {
 const EV = "docs/migration/evidence"
 const role = r => `Follow the role rules in .claude/agents/migration-${r}.md. `
 const a = args || {}
-const ctx = `Config: team slug growmax1 (id ${a.teamId || 'team_r7yanNuXwyp3P3jzhnxkDNaD'}), project growmax-website, Neon resource growmax-db, region iad1, NEON_PLAN=${a.neonPlan || 'launch'}, source PG major=${a.pgMajor || '(see STATE.facts.source.pgMajor)'}, control plane=${a.vercelApi || '(see STATE.facts.paths.vercelApi)'}. `
+const ctx = `Config: team slug growmax1 (id ${a.teamId || 'team_r7yanNuXwyp3P3jzhnxkDNaD'}), project growmax-website, Neon: ADOPT the owner-created Neon project rapid-recipe-07132564 (find its Marketplace resource; never provision another unless A1 agreed), region iad1, NEON_PLAN=${a.neonPlan || 'launch'}, source PG major=${a.pgMajor || '(see STATE.facts.source.pgMajor)'}, control plane=${a.vercelApi || '(see STATE.facts.paths.vercelApi)'}. `
 
 phase('Provision')
 const prov = await agent(role('implementer') + ctx +

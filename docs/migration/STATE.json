@@ -10,7 +10,7 @@
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
     "projectName": "growmax-website",
     "repo": "growmax/growmax-website",
-    "neonResourceName": "growmax-db",
+    "neonResourceName": null,
     "region": "iad1",
     "neonPlan": null,
     "replitWwwIp": "34.111.179.208",
@@ -19,7 +19,9 @@
       "198.49.23.145",
       "198.185.159.144",
       "198.185.159.145"
-    ]
+    ],
+    "neonProjectId": "rapid-recipe-07132564",
+    "neonNote": "Owner installed the Neon integration and created the Neon project/DB rapid-recipe-07132564 on 2026-09-26. ADOPT it; do not provision another."
   },
   "facts": {
     "paths": {
@@ -332,7 +334,7 @@
     {
       "id": "P3.2",
       "phase": "P3",
-      "title": "Neon via Vercel Marketplace (adopt/provision growmax-db, connect)",
+      "title": "Neon via Vercel Marketplace: adopt owner-created Neon project rapid-recipe-07132564, record region/PG major, connect to production",
       "deps": [
         "P3.1"
       ],

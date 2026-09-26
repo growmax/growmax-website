@@ -15,7 +15,7 @@ All operations must be **idempotent**: read first, create only if missing, and c
 
 ## 2. Project (P3.1)
 
-1. Look up `growmax-website` in the team (`mcp__Vercel__get_project` / `vercel project ls`). If it exists, reuse it.
+1. Look for an existing project first: by name `growmax-website`, **and** by repo (`mcp__Vercel__list_projects {teamId, repo: "growmax-website"}` / `vercel project ls`). The owner may have created one while connecting Neon. If one is linked to `growmax/growmax-website`, reuse it (whatever its name), and record its name in `facts.vercel.projectName` and every later step. Never create a second project for the same repo.
 2. If missing, try in this order:
    a. `mcp__Vercel__create_git_project {repo: "growmax/growmax-website", teamId, projectName: "growmax-website", deploy: false}` (Git-connected).
    b. If that fails because the Vercel GitHub App lacks repo access: `vercel project add growmax-website --scope growmax1`, then `vercel link --yes --project growmax-website --scope growmax1` in the repo root. Record `facts.vercel.deployMode = "cli"` (otherwise `"git"`) and add blocker `B-GITAPP` (non-blocking, recommended owner action) with the exact install path: GitHub → Settings → Applications → Vercel → Configure → grant `growmax-website`.
@@ -34,8 +34,12 @@ All operations must be **idempotent**: read first, create only if missing, and c
 
 ## 3. Neon via Vercel Marketplace (P3.2)
 
-1. **Adopt, don't duplicate.** List Marketplace resources in the team: `vercel integration list --format json`. If that isn't available, run `vercel integration --help`, or use REST `GET /v1/storage/stores?teamId=…`. If a Neon resource named `growmax-db` exists, adopt it.
-2. **Provision if missing** (from the linked repo directory):
+1. **Adopt the owner's Neon project. Don't provision another.** On 2026-09-26 the owner installed the Neon integration and created Neon project **`rapid-recipe-07132564`** (`STATE.config.neonProjectId`).
+   - Find the Marketplace resource backed by that Neon project: `vercel integration list --format json`, or REST `GET /v1/storage/stores?teamId=…` and match the Neon project id in its metadata/`externalResourceId`. Adopt it whatever its name, and record `facts.neon.resourceName`.
+   - Record its region and PG major version. If the region isn't AWS us-east-1 / iad1, or the PG major is lower than the source's, **don't recreate it**: log it as a risk for A1 to judge (a lower major version is a blocker only if `pg_restore` fails).
+   - Accept whichever Vercel environments the owner connected it to. The ignore guard skips previews anyway.
+   - Only if no resource matches that id do you fall through to step 2, and then only after the A1 advisor agrees.
+2. **Provision only if step 1 found nothing and A1 agreed** (from the linked repo directory):
    ```bash
    npx --yes vercel@latest integration add neon --help            # read product + metadata keys first
    npx --yes vercel@latest integration add neon --name growmax-db --plan "$NEON_PLAN" \
@@ -45,13 +49,13 @@ All operations must be **idempotent**: read first, create only if missing, and c
    - `NEON_PLAN` comes from the kickoff prompt (`launch` recommended). If that plan is refused (no payment method), retry with `free` and add risk note R6 to `LOG.md`. **Never buy credits or add-ons.**
    - PG version: same major as the source (from P1.1 `facts.source.pgMajor`). If that isn't offered, use the lowest offered version ≥ source.
    - If the CLI needs an interactive terms acceptance (integration not installed on the team): add blocker `B-NEON-TERMS` ("Vercel → Marketplace → Neon → Install → accept terms; don't create a database"), continue with P2, re-check at the next check-in.
-3. **Connect** (if `integration add` didn't): `vercel integration resource connect growmax-db growmax-website -e production --yes --format=json`.
+3. **Connect** (if `integration add` didn't): `vercel integration resource connect <adopted resource name> <project name> -e production --yes --format=json`.
    - **Production only.** Previews are skipped by the ignore guard, and Neon preview branching would only burn compute. If the integration enables per-preview branching by default, turn it off.
 4. **Verify env var names** (names only, never values): `vercel env ls production` / `mcp__Vercel__filter_project_envs`. Required: `DATABASE_URL` = **pooled** URL (host contains `-pooler`), and an unpooled URL (`DATABASE_URL_UNPOOLED`, or `POSTGRES_URL_NON_POOLING`). If the integration used different names, add `DATABASE_URL` as type **encrypted** (not sensitive, so it can still be pulled), production only, with the pooled value. Pipe it CLI-to-CLI without echoing.
    - **Prove the target URLs are obtainable.** `vercel env pull --environment=production docs/migration/.scratch/.env.production` must yield a pooled and an unpooled URL; record the **hosts only**.
    - If the integration made them sensitive (unpullable), create `MIGRATION_DST_URL_UNPOOLED` (encrypted, production) from the integration's connection info via `vercel integration` output, or else raise blocker `B-DSTURL` (the owner copies the unpooled connection string into the cloud environment as `NEON_DATABASE_URL_UNPOOLED`).
 5. Record `facts.neon`: `resourceName`, `resourceId`, `region`, `pgVersion`, `plan`, `pooledHost`, `unpooledHost` (**host names only**).
-6. **Recommended owner setting** (no API): in the Neon console (`vercel integration open neon growmax-db`) turn off scale-to-zero for the production branch compute if the plan allows it. Add it as a non-blocking recommendation in the runbook.
+6. **Recommended owner setting** (no API): in the Neon console (`vercel integration open neon <adopted resource name>`) turn off scale-to-zero for the production branch compute if the plan allows it. Add it as a non-blocking recommendation in the runbook.
 
 ## 4. Environment variables (P3.3)
 
