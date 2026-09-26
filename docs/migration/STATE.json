@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "BLOCKED",
-  "currentStep": null,
-  "updatedAt": "2026-09-26T10:39:53.358Z",
+  "currentStep": "P1.5",
+  "updatedAt": "2026-09-26T10:40:36.272Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -280,10 +280,13 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-26T10:40:36.272Z Run ahead of its nominal dep (P0.2 blocked on B-NETWORK) as independent work: a local, read-only code audit that needs no network, DB or Vercel access. Workflow mig-p1-discovery with only=[P1.5]."
+      ],
+      "startedAt": "2026-09-26T10:40:36.272Z"
     },
     {
       "id": "P1.6",
