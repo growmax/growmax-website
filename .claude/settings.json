@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=\"$CLAUDE_PROJECT_DIR/scripts/migration/state.mjs\"; [ -f \"$f\" ] && node \"$f\" resume --hook || true",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
