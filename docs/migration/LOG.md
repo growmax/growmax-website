@@ -46,3 +46,9 @@
 - 2026-09-26T11:02:52.870Z [P1.2] step pending → in_progress
 - 2026-09-26T11:02:52.916Z [P1.4] step pending → in_progress
 - 2026-09-26T11:02:52.965Z [P1.3] step pending → in_progress
+- 2026-09-26T11:05:08.939Z set facts.neon.storeId
+- 2026-09-26T11:05:08.991Z set facts.neon.resourceName
+- 2026-09-26T11:05:09.041Z set facts.neon.externalResourceId
+- 2026-09-26T11:05:09.092Z set facts.neon.region
+- 2026-09-26T11:05:09.139Z set facts.neon.status
+- 2026-09-26T11:05:09.191Z [P1.6] FINDING (orchestrator, for A1): the owner's Neon project rapid-recipe-07132564 is Vercel store store_IsJjgV1qX1w7nvrP (resource growmax-website) in region sin1 (Singapore), not iad1. Region is read-only after creation. Conflicts with config region iad1 (SPEC-01 functionDefaultRegions iad1): functions in iad1 against a sin1 DB would add a trans-Pacific round trip to every uncached query. Options for A1: (1) adopt sin1 and co-locate functions in sin1; (2) adopt sin1, keep iad1 (not recommended); (3) provision a new iad1 resource (kickoff allows a new one only if the project can't be found, so owner-only). Source (Replit) is in aws-us-west-2. PG major of the target is unknown until P3.2 connects it.

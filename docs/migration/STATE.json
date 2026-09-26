@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P1.3",
-  "updatedAt": "2026-09-26T11:02:52.964Z",
+  "updatedAt": "2026-09-26T11:05:09.138Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -44,7 +44,12 @@
     },
     "neon": {
       "integrationConfigId": "icfg_tEtDWAPJTdmHAD8eL9GtfV5H",
-      "plan": "free (installation billing plan free_v3; kickoff target launch needs an owner upgrade)"
+      "plan": "free (installation billing plan free_v3; kickoff target launch needs an owner upgrade)",
+      "storeId": "store_IsJjgV1qX1w7nvrP",
+      "resourceName": "growmax-website",
+      "externalResourceId": "rapid-recipe-07132564",
+      "region": "sin1",
+      "status": "available / external ready; 0 Vercel projects connected; Neon Auth off"
     },
     "source": {
       "hostKind": "neon",
