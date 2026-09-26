@@ -1,0 +1,28 @@
+{
+  "step": "P0.2",
+  "gate": "G0",
+  "status": "pass",
+  "checkedAt": "2026-09-26T11:01:23Z",
+  "verifier": "orchestrator (gate judgement per ORCHESTRATOR §5, with direct re-checks of 0.1, 0.2 and 0.7)",
+  "summary": "Attempt 2 after the owner set Network access to Full. Every required G0 check passes on evidence from agents other than the one that did the work, plus the orchestrator's own re-checks. The scout files (network, secrets, vercel, tooling) aren't in the standard evidence shape, so the gate rests on P0.2-source.json (verifier), P0.2-preflight.json (verifier synthesis) and this review; the scout files are listed as inputs.",
+  "checks": [
+    {"name": "0.1 Vercel MCP can read team growmax1", "expected": "list_projects -> 200", "actual": "200 (orchestrator ran mcp__Vercel__list_projects directly; team has 0 projects)", "pass": true},
+    {"name": "0.2 VERCEL_TOKEN valid for growmax1", "expected": "vercel whoami + vercel teams ls show the team", "actual": "Orchestrator ran npx vercel@latest teams ls, authenticated only by VERCEL_TOKEN from the environment: lists growmax1 (Growmax, hobby). The scout's whoami also succeeded", "pass": true},
+    {"name": "0.3 Source present, parses, reachable via the chosen DB path, server_version recorded", "expected": "read-only connection; server_version recorded", "actual": "P0.2-source.json (verifier): neon-https, read-only RepeatableRead transaction, PostgreSQL 16.15, pgMajor 16", "pass": true},
+    {"name": "0.4 Source identity", "expected": "published slugs and updated_at equal live /api/blog (SPEC-03 §2)", "actual": "P0.2-source.json: 171/171 slugs and updated_at equal to the ms after dropping the code-injected fallback claude-commerce-agents-b2b. Orchestrator cross-check: live /api/blog has 172 entries including that fallback", "pass": true},
+    {"name": "0.5 ADMIN_PASSWORD present", "expected": "present (length only)", "actual": "present, len 15 (SESSION_SECRET present, len 88)", "pass": true},
+    {"name": "0.6 Network matrix", "expected": "a working path for web, DB and Vercel API", "actual": "web=container (www.growmax.io 200), db=neon-https (Neon HTTPS reachable; the identity check used it), vercelApi=cli (teams ls OK), dump=sandbox-sdk (raw TCP 5432 times out, so pg_dump/pg_restore must run in the Vercel Sandbox), visual=container", "pass": true},
+    {"name": "0.7 Tooling", "expected": "Node 22, npm ci OK, pg_dump >= source major in the chosen runner, Chromium launches", "actual": "node v22.22.2, npm 10.9.7, npm ci dry-run OK, local pg_dump 16.13 (>= 16). The orchestrator launched Chromium 141.0.7390.37 via playwright-core. Carry-forward: pg_dump >= 16 inside the Sandbox runner can only be proven once a project exists, so the P1.1 runner self-test must show it before any fixture dump, and P4.1 again before the copy", "pass": true},
+    {"name": "0.8 Plan facts recorded (flagged, not blocking)", "expected": "Vercel plan and Neon plan recorded", "actual": "Vercel growmax1 = hobby (upgrade to Pro before DNS: A2 condition). Neon integration installed (icfg_tEtDWAPJTdmHAD8eL9GtfV5H), billing plan Free, 0 projects connected; the launch target needs an owner upgrade (R6 flagged)", "pass": true}
+  ],
+  "artifacts": {
+    "gateEvidence": ["docs/migration/evidence/P0.2-source.json", "docs/migration/evidence/P0.2-preflight.json", "docs/migration/evidence/P0.2-G0-orchestrator-review-a2.json"],
+    "inputs": ["docs/migration/evidence/P0.2-network.json", "docs/migration/evidence/P0.2-secrets.json", "docs/migration/evidence/P0.2-vercel.json", "docs/migration/evidence/P0.2-tooling.json"],
+    "supersedes": "docs/migration/evidence/P0.2-G0-orchestrator-review.json (attempt 1, fail)"
+  },
+  "carryForward": [
+    "P1.1: create or reuse the Sandbox via runner.mjs and prove pg_dump/pg_restore >= 16 there before producing fixtures",
+    "P4.1: re-prove the Sandbox pg_dump version before the full copy"
+  ],
+  "notes": "P0.2-network.json lists 'TCP 5432 connectivity' as a failed check; that's informational (neon-https is the preferred DB path), so the file isn't used as gate evidence. Orchestrator redacted the owner's email from P0.2-vercel.json."
+}

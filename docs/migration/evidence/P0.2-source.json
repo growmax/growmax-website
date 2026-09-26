@@ -1,0 +1,37 @@
+{
+  "step": "P0.2",
+  "gate": "G0",
+  "status": "pass",
+  "checkedAt": "2026-09-26T10:56:24Z",
+  "verifier": "migration-verifier/sonnet",
+  "checks": [
+    {
+      "name": "0.3 REPLIT_DATABASE_URL present, parses, reachable; server_version recorded",
+      "expected": "env var set; URL parses; a transport reaches the source; server_version recorded",
+      "actual": "present; parses; hostKind=neon (ep-icy-night-a6yalid4.us-west-2.aws.neon.tech); reached via neon-https (@neondatabase/serverless, NODE_USE_ENV_PROXY=1, readOnly RepeatableRead transaction); server_version=PostgreSQL 16.15 (eb11870) on aarch64-unknown-linux-gnu; pgMajor=16",
+      "pass": true
+    },
+    {
+      "name": "0.4 Source identity: published slugs + updated_at equal live /api/blog",
+      "expected": "slug sets identical and every updatedAt == updated_at, both normalized UTC ISO to the millisecond (SPEC-03 §2); code-injected fallback article (ARC_AI_ARTICLE_SLUG) dropped from the live list if its slug isn't in the source",
+      "actual": "source: 171 published blog_posts rows. live GET https://www.growmax.io/api/blog: 200, 172 entries total; dropped the fallback entry (id=-1, slug=claude-commerce-agents-b2b, matches lib/arcAiArticle.ts ARC_AI_ARTICLE_SLUG) since that slug is not in the source set -> 171 published live entries. Slug sets equal (171/171, 0 missing, 0 extra). All 171 updated_at/updatedAt pairs equal after UTC-ms normalization (0 mismatches).",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "sourceInventoryCounts": "docs/migration/.scratch/p02-result.json (tables: blog_posts=171 rows, blog_redirects=95, demo_requests=32, newsletter_subscriptions=0; counts only, no row contents, no PII)",
+    "identityComparison": "docs/migration/.scratch/identity-compare.json",
+    "liveBlogSnapshot": "docs/migration/.scratch/live-blog.json (public content, not committed/gitignored)",
+    "hostKind": "neon",
+    "pgMajor": 16,
+    "server_version": "PostgreSQL 16.15 (eb11870) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit",
+    "transport": "neon-https",
+    "tableRowCounts": {
+      "blog_posts": 171,
+      "blog_redirects": 95,
+      "demo_requests": 32,
+      "newsletter_subscriptions": 0
+    }
+  },
+  "notes": "Independent re-derivation per docs/migration/specs/SPEC-03-data-migration.md §2, run after the owner set Network access to Full (B-NETWORK resolved per STATE.json). Source reached directly from the container over neon-https (0.4 was NOT deferred). Connection string never printed or logged; only the masked form (user:***@host/db) appears anywhere, and only in the gitignored docs/migration/.scratch/ scratch files, not in this evidence file. Throwaway check script was written to scripts/migration/.p02-throwaway-check.mjs to get node_modules resolution (npm --prefix scripts/migration ci was run first), executed, and then deleted; it read REPLIT_DATABASE_URL only from process.env, never as a tool argument or prompt text. Read-only enforced via sql.transaction([...], {readOnly:true, isolationLevel:'RepeatableRead'}) on the Neon serverless HTTP driver (no writes attempted). No row contents were recorded for demo_requests/newsletter_subscriptions (counts only); blog_posts/blog_redirects content is public site content, not PII."
+}

@@ -30,3 +30,11 @@
 - 2026-09-26T10:52:08.457Z status BLOCKED → IN_PROGRESS
 - 2026-09-26T10:52:08.503Z gate G0 → pending — Re-evaluated after B-NETWORK was resolved (P0.2 attempt 2)
 - 2026-09-26T10:52:20.555Z [P0.2] step blocked → in_progress — Attempt 2 after B-NETWORK resolved; attempt-1 agent evidence removed from the tree (kept in git history and summarized in P0.2-G0-orchestrator-review.json) so every file this run produces is fresh
+- 2026-09-26T11:01:34.172Z gate G0 → passed (by verifier (source + synthesis) + orchestrator re-checks) — Attempt 2 (network Full). Source identity 171/171; PG 16.15; paths container/neon-https/sandbox-sdk/cli/container. Carry-forward: Sandbox pg_dump>=16 proven at P1.1 and P4.1. Hobby flagged (A2).
+- 2026-09-26T11:01:34.224Z [P0.2] step in_progress → done — G0 passed on attempt 2
+- 2026-09-26T11:01:34.294Z set facts.paths
+- 2026-09-26T11:01:34.349Z set facts.source.pgMajor
+- 2026-09-26T11:01:34.403Z set facts.source.serverVersion
+- 2026-09-26T11:01:34.455Z set facts.source.tablesAtP0
+- 2026-09-26T11:01:34.512Z set facts.source.publishedPostsAtP0
+- 2026-09-26T11:01:34.562Z set facts.vercel.cli

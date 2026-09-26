@@ -1,0 +1,66 @@
+{
+  "checkedAt": "2026-09-26T10:54:06Z",
+  "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
+  "teamSlug": "growmax1",
+  "teamName": "Growmax",
+  "apiAccess": {
+    "status": "ok",
+    "connector_scope": "team",
+    "list_projects_result": "success",
+    "http_status": 200,
+    "note": "Connector has team scope; able to query team projects via MCP"
+  },
+  "cliAccess": {
+    "status": "ok",
+    "vercel_whoami": "admin-44435083",
+    "vercel_token_present": true,
+    "vercel_token_length": 60,
+    "api_connectivity": "403 from curl (proxy/restricted endpoint, but CLI works)",
+    "teams_ls_output": "success",
+    "note": "VERCEL_TOKEN in environment; CLI commands work correctly"
+  },
+  "billingPlan": {
+    "plan": "hobby",
+    "status": "active",
+    "currency": "usd",
+    "platform": "stripe",
+    "severity": "major",
+    "ownerAction": "upgrade to Pro",
+    "note": "Hobby plan is free tier; Pro required for production migration"
+  },
+  "neonIntegration": {
+    "installed": true,
+    "name": "growmax-website",
+    "product": "neon",
+    "status": "available",
+    "projectsConnected": 0,
+    "installationId": "icfg_tEtDWAPJTdmHAD8eL9GtfV5H",
+    "integrationId": "oac_3sK3gnG06emjIEVL09jjntDD",
+    "note": "Neon integration is installed but no Vercel projects are yet connected to it"
+  },
+  "auth": {
+    "userId": "iCK287nb6pKtHj9eDDDl5C7E",
+    "email": "<redacted>",
+    "username": "admin-44435083",
+    "defaultTeamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
+    "version": "northstar",
+    "remoteCaching": "enabled",
+    "concurrentBuilds": 1
+  },
+  "blockers": [],
+  "warnings": [
+    {
+      "severity": "major",
+      "type": "billing_plan",
+      "description": "Team is on Hobby plan; Pro required for production",
+      "ownerAction": "Upgrade to Vercel Pro plan via dashboard"
+    }
+  ],
+  "verdict": "GO_WITH_CONDITIONS",
+  "conditions": [
+    "Upgrade Vercel team to Pro plan before production migration"
+  ],
+  "orchestratorEdits": [
+    "Redacted auth.email (owner PII); state.mjs scan blocked it. Nothing else changed."
+  ]
+}

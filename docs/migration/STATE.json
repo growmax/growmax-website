@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": "P0.2",
-  "updatedAt": "2026-09-26T10:52:20.554Z",
+  "currentStep": null,
+  "updatedAt": "2026-09-26T11:01:34.561Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -25,18 +25,19 @@
   },
   "facts": {
     "paths": {
-      "web": "sandbox-mcp (no project yet)",
-      "db": null,
-      "dump": null,
-      "vercelApi": "mcp",
-      "visual": "none",
-      "decidedAt": "2026-09-26T10:40:00Z",
-      "note": "provisional: egress policy denies api.vercel.com, *.vercel.app, *.neon.tech, www.growmax.io, dns.google; re-decide at the P0.2 re-run"
+      "web": "container",
+      "db": "neon-https",
+      "dump": "sandbox-sdk",
+      "vercelApi": "cli",
+      "visual": "container",
+      "decidedAt": "2026-09-26T10:57:33Z",
+      "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
     },
     "vercel": {
       "planAtPlanTime": "hobby",
       "plan": "hobby",
-      "projectsOnTeamAtP0": 0
+      "projectsOnTeamAtP0": 0,
+      "cli": "ok: VERCEL_TOKEN lists growmax1 (hobby)"
     },
     "neon": {
       "integrationConfigId": "icfg_tEtDWAPJTdmHAD8eL9GtfV5H",
@@ -44,7 +45,16 @@
     },
     "source": {
       "hostKind": "neon",
-      "region": "aws-us-west-2"
+      "region": "aws-us-west-2",
+      "pgMajor": 16,
+      "serverVersion": "16.15",
+      "tablesAtP0": {
+        "blog_posts": 171,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      },
+      "publishedPostsAtP0": 171
     },
     "dns": {},
     "git": {},
@@ -89,14 +99,17 @@
   ],
   "gates": {
     "G0": {
-      "status": "pending",
+      "status": "passed",
       "evidence": [
         "docs/migration/evidence/P0.2-vercel.json",
-        "docs/migration/evidence/P0.2-G0-orchestrator-review.json"
+        "docs/migration/evidence/P0.2-G0-orchestrator-review.json",
+        "docs/migration/evidence/P0.2-source.json",
+        "docs/migration/evidence/P0.2-preflight.json",
+        "docs/migration/evidence/P0.2-G0-orchestrator-review-a2.json"
       ],
-      "by": "orchestrator",
-      "at": "2026-09-26T10:52:08.502Z",
-      "note": "Re-evaluated after B-NETWORK was resolved (P0.2 attempt 2)"
+      "by": "verifier (source + synthesis) + orchestrator re-checks",
+      "at": "2026-09-26T11:01:34.171Z",
+      "note": "Attempt 2 (network Full). Source identity 171/171; PG 16.15; paths container/neon-https/sandbox-sdk/cli/container. Carry-forward: Sandbox pg_dump>=16 proven at P1.1 and P4.1. Hobby flagged (A2)."
     },
     "G1": {
       "status": "pending",
@@ -195,7 +208,7 @@
       ],
       "gate": "G0",
       "workflow": ".claude/workflows/mig-p0-preflight.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 2,
       "evidence": [
         "docs/migration/evidence/P0.2-secrets.json",
@@ -203,17 +216,20 @@
         "docs/migration/evidence/P0.2-vercel.json",
         "docs/migration/evidence/P0.2-preflight.json",
         "docs/migration/evidence/P0.2-source.json",
-        "docs/migration/evidence/P0.2-G0-orchestrator-review.json"
+        "docs/migration/evidence/P0.2-G0-orchestrator-review.json",
+        "docs/migration/evidence/P0.2-tooling.json",
+        "docs/migration/evidence/P0.2-G0-orchestrator-review-a2.json"
       ],
       "notes": [
         "2026-09-26T10:20:26.482Z All required secrets present: REPLIT_DATABASE_URL (Neon), VERCEL_TOKEN, ADMIN_PASSWORD, and optional SESSION_SECRET (valid). No blockers.",
         "2026-09-26T10:20:58.147Z Network matrix determined: all paths routed through Vercel Sandbox due to restrictive egress proxy",
         "2026-09-26T10:23:20.247Z Vercel access check completed: MCP on team growmax1 confirmed, VERCEL_TOKEN valid, billing plan hobby (flagged for A2), Neon integration not installed (will install via Marketplace)",
         "2026-09-26T10:38:25.729Z G0 failed on network policy (env class, owner-only fix). Re-run the full P0.2 workflow once B-NETWORK is resolved; with neon-https available, 0.4 identity can run from the container.",
-        "2026-09-26T10:52:20.554Z Attempt 2 after B-NETWORK resolved; attempt-1 agent evidence removed from the tree (kept in git history and summarized in P0.2-G0-orchestrator-review.json) so every file this run produces is fresh"
+        "2026-09-26T10:52:20.554Z Attempt 2 after B-NETWORK resolved; attempt-1 agent evidence removed from the tree (kept in git history and summarized in P0.2-G0-orchestrator-review.json) so every file this run produces is fresh",
+        "2026-09-26T11:01:34.224Z G0 passed on attempt 2"
       ],
       "startedAt": "2026-09-26T10:52:20.554Z",
-      "completedAt": "2026-09-26T10:23:20.246Z",
+      "completedAt": "2026-09-26T11:01:34.223Z",
       "lastFailureAt": "2026-09-26T10:38:25.728Z"
     },
     {

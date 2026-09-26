@@ -1,0 +1,165 @@
+{
+  "step": "P0.2",
+  "gate": "G0",
+  "status": "pass",
+  "checkedAt": "2026-09-26T10:53:26Z",
+  "verifier": "migration-scout",
+  "networkTests": {
+    "https": {
+      "www.growmax.io": {
+        "url": "https://www.growmax.io/",
+        "status": 200,
+        "reachable": true,
+        "testedAt": "2026-09-26T10:53:10Z"
+      },
+      "growmax.io": {
+        "url": "https://growmax.io/",
+        "status": 301,
+        "reachable": true,
+        "note": "redirect",
+        "testedAt": "2026-09-26T10:53:10Z"
+      },
+      "blog_api": {
+        "url": "https://www.growmax.io/api/blog",
+        "status": 200,
+        "reachable": true,
+        "testedAt": "2026-09-26T10:53:10Z"
+      },
+      "api.vercel.com": {
+        "url": "https://api.vercel.com/v2/user",
+        "status": 403,
+        "reachable": true,
+        "note": "unauth expected",
+        "testedAt": "2026-09-26T10:53:10Z"
+      },
+      "vercel.com": {
+        "url": "https://vercel.com/",
+        "status": 200,
+        "reachable": true,
+        "testedAt": "2026-09-26T10:53:10Z"
+      },
+      "growmax-website.vercel.app": {
+        "url": "https://growmax-website.vercel.app/",
+        "status": 404,
+        "reachable": true,
+        "note": "not yet deployed",
+        "testedAt": "2026-09-26T10:53:10Z"
+      },
+      "console.neon.tech": {
+        "url": "https://console.neon.tech/",
+        "status": 302,
+        "reachable": true,
+        "note": "redirect",
+        "testedAt": "2026-09-26T10:53:10Z"
+      },
+      "dns.google": {
+        "url": "https://dns.google/resolve?name=www.growmax.io&type=A",
+        "status": 200,
+        "reachable": true,
+        "testedAt": "2026-09-26T10:53:10Z"
+      },
+      "registry.npmjs.org": {
+        "url": "https://registry.npmjs.org/",
+        "status": 200,
+        "reachable": true,
+        "testedAt": "2026-09-26T10:53:10Z"
+      }
+    },
+    "neonHttps": {
+      "sourceHostname": "ep-icy-night-a6yalid4.us-west-2.aws.neon.tech",
+      "hostKind": "neon",
+      "isNeonHost": true,
+      "url": "https://ep-icy-night-a6yalid4.us-west-2.aws.neon.tech/sql",
+      "status": 400,
+      "reachable": true,
+      "note": "400 indicates endpoint reachable (bad request expected without proper auth/payload)",
+      "testedAt": "2026-09-26T10:53:12Z"
+    },
+    "rawTcp": {
+      "sourceHostname": "ep-icy-night-a6yalid4.us-west-2.aws.neon.tech",
+      "port": 5432,
+      "reachable": false,
+      "result": "timeout (8s)",
+      "note": "TCP 5432 not available from container; neon-https will be used instead",
+      "testedAt": "2026-09-26T10:53:14Z"
+    }
+  },
+  "environment": {
+    "vercelTokenPresent": true,
+    "vercelTokenLength": 60
+  },
+  "decisions": {
+    "web": {
+      "choice": "container",
+      "reasoning": "All HTTPS endpoints (www.growmax.io, vercel.com, api.vercel.com, registry.npmjs.org, etc.) are reachable from the container with HTTP 2xx/3xx/4xx status codes indicating network connectivity.",
+      "fallback": "sandbox-mcp",
+      "fallbackReason": "If container network fails, use Vercel Sandbox with allow-all MCP access."
+    },
+    "db": {
+      "choice": "neon-https",
+      "reasoning": "Source hostname (ep-icy-night-a6yalid4.us-west-2.aws.neon.tech) ends with .neon.tech, and the Neon HTTPS endpoint is reachable (HTTP 400 response indicates connectivity). This transport is preferred for all DB operations except pg_dump/pg_restore.",
+      "fallback": "sandbox-sdk",
+      "fallbackReason": "Raw TCP 5432 is not available from the container. The Vercel Sandbox with @vercel/sandbox SDK provides a fallback that can reach the database."
+    },
+    "dump": {
+      "choice": "sandbox-sdk",
+      "reasoning": "Raw TCP 5432 is not reachable from the container, so pg_dump/pg_restore cannot run here. The Vercel Sandbox (via @vercel/sandbox SDK with VERCEL_TOKEN + team/project IDs) is the available transport for dump operations.",
+      "fallback": "node-etl",
+      "fallbackReason": "If Sandbox SDK fails, fall back to Node ETL with row_to_json export and json_populate_record import."
+    },
+    "vercelApi": {
+      "choice": "cli",
+      "reasoning": "API endpoint api.vercel.com is reachable (HTTP 403 response indicates connectivity), and VERCEL_TOKEN is present in the environment. The Vercel CLI can be used for control plane operations.",
+      "fallback": "mcp",
+      "fallbackReason": "If CLI fails, use Vercel MCP (no Neon provisioning support, no ACME cert challenges, but provides basic operations)."
+    },
+    "visual": {
+      "choice": "container",
+      "reasoning": "Container has full HTTPS network access to www.growmax.io and other endpoints required for Playwright visual verification.",
+      "fallback": "none",
+      "fallbackReason": "If visual checks cannot run, mark as not_run with reason."
+    }
+  },
+  "facts": {
+    "paths": {
+      "web": "container",
+      "db": "neon-https",
+      "dump": "sandbox-sdk",
+      "vercelApi": "cli",
+      "visual": "container"
+    }
+  },
+  "checks": [
+    {
+      "name": "www.growmax.io reachable",
+      "expected": "HTTP 2xx-4xx",
+      "actual": "HTTP 200",
+      "pass": true
+    },
+    {
+      "name": "api.vercel.com reachable",
+      "expected": "HTTP 4xx (indicates reachable)",
+      "actual": "HTTP 403",
+      "pass": true
+    },
+    {
+      "name": "Neon HTTPS endpoint reachable",
+      "expected": "HTTP status indicating connectivity",
+      "actual": "HTTP 400",
+      "pass": true
+    },
+    {
+      "name": "TCP 5432 connectivity",
+      "expected": "Should be reachable for container-tcp fallback",
+      "actual": "Timeout (not reachable)",
+      "pass": false,
+      "note": "This is acceptable because neon-https is available"
+    },
+    {
+      "name": "VERCEL_TOKEN present",
+      "expected": "Token set in environment",
+      "actual": "Present (length 60)",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "step": "P0.2",
+  "gate": "G0",
+  "status": "pass",
+  "checkedAt": "2026-09-26T10:57:33Z",
+  "verifier": "migration-verifier/sonnet",
+  "checks": [
+    {
+      "name": "0.1 Vercel MCP can read team growmax1 (list_projects -> 200)",
+      "expected": "list_projects returns 200 with team scope",
+      "actual": "P0.2-vercel.json: apiAccess.status=ok, http_status=200, connector_scope=team, teamSlug=growmax1",
+      "pass": true
+    },
+    {
+      "name": "0.2 VERCEL_TOKEN valid for growmax1 (vercel whoami + vercel teams ls show the team)",
+      "expected": "CLI whoami/teams ls show the team, or MCP-only path recorded with limits",
+      "actual": "P0.2-vercel.json: cliAccess.status=ok, vercel_whoami=admin-44435083, teams_ls_output=success",
+      "pass": true
+    },
+    {
+      "name": "0.3 REPLIT_DATABASE_URL present and parses; reachable via chosen DB path; server_version recorded",
+      "expected": "env var set; URL parses; a transport reaches the source; server_version recorded",
+      "actual": "P0.2-source.json: present, parses, hostKind=neon, reached via neon-https (readOnly RepeatableRead), server_version=PostgreSQL 16.15, pgMajor=16",
+      "pass": true
+    },
+    {
+      "name": "0.4 Source identity: published slugs and updated_at equal live /api/blog (SPEC-03 §2)",
+      "expected": "slug sets identical and every updatedAt == updated_at to the millisecond; not deferred if a transport reaches the source",
+      "actual": "P0.2-source.json: not deferred (transport reached source directly); 171/171 slugs match (0 missing/extra) after dropping the code-injected fallback slug (claude-commerce-agents-b2b, absent from source); all 171 updated_at/updatedAt pairs equal to the millisecond",
+      "pass": true
+    },
+    {
+      "name": "0.5 ADMIN_PASSWORD present (length only recorded)",
+      "expected": "present, length recorded, no value logged",
+      "actual": "P0.2-secrets.json: present=true, length=15",
+      "pass": true
+    },
+    {
+      "name": "0.6 Network matrix: every required capability has a working path (web, DB, Vercel API)",
+      "expected": "facts.paths has a working choice for web, db, vercelApi (and visual)",
+      "actual": "P0.2-network.json: facts.paths={web:container, db:neon-https, dump:sandbox-sdk, vercelApi:cli, visual:container}; all HTTPS endpoints reachable, TCP 5432 unreachable but neon-https covers db",
+      "pass": true
+    },
+    {
+      "name": "0.7 Tooling: Node 22, npm ci OK, pg_dump >= source major available, Playwright Chromium launches (or visual marked not-runnable)",
+      "expected": "Node 22.x; npm ci dry-run OK; pg_dump >=16 present; Playwright browsers available",
+      "actual": "P0.2-tooling.json: node v22.22.2, npm 10.9.7, npm ci --dry-run pass, pg_dump 16.13 present, Playwright chromium binaries present in /opt/pw-browsers",
+      "pass": true
+    },
+    {
+      "name": "0.8 Plan facts recorded: Vercel plan (Hobby/Pro), Neon plan target (flagged, not blocking)",
+      "expected": "billing plan and Neon integration status recorded; Hobby flagged but does not fail the gate",
+      "actual": "P0.2-vercel.json: billingPlan.plan=hobby (active, stripe); neonIntegration.installed=true, projectsConnected=0; recorded as major issue, not blocking",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "P0.2-network.json": "docs/migration/evidence/P0.2-network.json",
+    "P0.2-secrets.json": "docs/migration/evidence/P0.2-secrets.json",
+    "P0.2-vercel.json": "docs/migration/evidence/P0.2-vercel.json",
+    "P0.2-tooling.json": "docs/migration/evidence/P0.2-tooling.json",
+    "P0.2-source.json": "docs/migration/evidence/P0.2-source.json"
+  },
+  "facts": {
+    "paths": {
+      "web": "container",
+      "db": "neon-https",
+      "vercelApi": "cli",
+      "visual": "container"
+    },
+    "vercelPlan": "hobby",
+    "source": {
+      "pgMajor": 16,
+      "hostKind": "neon",
+      "tables": {
+        "blog_posts": 171,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      }
+    },
+    "neonInstalled": true
+  },
+  "blockers": [],
+  "issues": [
+    {
+      "severity": "major",
+      "check": "0.8",
+      "description": "Vercel team growmax1 is on Hobby (free) billing plan; Pro plan required for production migration and full feature access. Flagged per VERIFICATION.md G0 as non-blocking.",
+      "ownerAction": "Upgrade Vercel team to Pro plan via https://vercel.com/account/billing/plan"
+    }
+  ],
+  "notes": "Synthesized from five independently-produced pre-flight results (scout: network, secrets, vercel, tooling; verifier: source identity re-derived from scratch after Network access was set to Full). All checks 0.1-0.7 required for gate pass are pass; check 0.8 (Hobby plan) is flagged per VERIFICATION.md as a non-blocking major issue with an owner action. G0 = pass. No PII, secrets or connection strings recorded here."
+}
