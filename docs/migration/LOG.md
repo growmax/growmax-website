@@ -137,3 +137,4 @@
 - 2026-09-26T17:06:21.505Z set facts.dns.ttlPrecheck
 - 2026-09-26T17:06:21.614Z set facts.ownerActions
 - 2026-09-26T17:06:21.671Z [P6.3] A1 C5/C6/C12 docs done and the C7 early capture recorded: www A and apex A TTL are 14400 s at the authoritative NS (not the 300 s SOA minimum the P1.4 baseline showed). Owner action OA-TTL: lower them to 300 s at least 24 h before cutover. Also aligned SPEC-01 §6.3 and mig-p6b-ready.js to recommendedIPv4 for www.
+- 2026-09-26T18:48:34.614Z Check-in 18:47Z: B-PERM-P3 still open, no owner reply. Sent one reminder push (with the OA-TTL note); next check-in 2026-09-27T18:49Z (24 h). Container had restarted; nothing was running; tree clean; no other orchestrator on origin.
