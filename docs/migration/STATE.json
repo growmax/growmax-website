@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
-  "status": "IN_PROGRESS",
+  "status": "BLOCKED",
   "currentStep": "P5.2",
-  "updatedAt": "2026-09-26T20:48:54.042Z",
+  "updatedAt": "2026-09-26T22:18:09.967Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -408,6 +408,14 @@
       "note": null,
       "resolvedAt": "2026-09-26T19:51:39.370Z",
       "resolution": "Owner kept the DB and secrets and said continue"
+    },
+    {
+      "id": "B-PERM-P5",
+      "step": "P5.1",
+      "action": "In the Claude app, open this session (Growmax migration, branch claude/wonderful-edison-823y83) and approve the pending permission request for the Vercel connector tool create_deployment: a production deployment of commit d8c8b05 to project growmax-website on *.vercel.app only (pre-approved in the kickoff; no custom domain, no DNS change). So that the P6.2 and P6.4 redeploys do not stop at the same prompt, also open https://claude.ai/customize/connectors -> Vercel -> tool permissions and set create_deployment to allowed (if that option is missing, an organization admin has capped it). If no pending request is visible, setting that permission is enough: the next check-in restarts the deploy on its own. Nothing else needs you; G0-G4 are passed.",
+      "since": "2026-09-26T22:18:09.911Z",
+      "note": "The P5.1 deploy agent (workflow wf_b7822bd7-7ee) called mcp__Vercel__create_deployment at 20:49:04Z and has had no result since. A read-only Vercel API listing at 22:16Z shows no deployment for d8c8b05 (only the guard-canceled previews), so the call never reached Vercel: it is waiting for a permission decision. Per the P3 lesson the orchestrator does not route around it (no CLI deploy of its own).",
+      "resolvedAt": null
     }
   ],
   "gates": {
