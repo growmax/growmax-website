@@ -108,3 +108,12 @@
 - 2026-09-26T14:53:22.533Z Launching P2 (mig-p2-code.js) and P3 (mig-p3-infra.js) in parallel per A1 C11. P3 args: teamId, pgMajor 16, vercelApi cli.
 - 2026-09-26T14:53:46.633Z set facts.runs.p2
 - 2026-09-26T14:53:46.691Z set facts.runs.p3
+- 2026-09-26T15:16:41.681Z set facts.git.mSha
+- 2026-09-26T15:16:41.744Z [P2.1] step in_progress → done — M1-M4 implemented (package.json, package-lock.json, lib/db.ts, app/api/demo-requests/route.ts); M5 audit notes confirmed. Round 1 scope creep (tsconfig.tsbuildinfo) reverted.
+- 2026-09-26T15:16:41.798Z [P2.2] step in_progress → done — Round 2: npm ci/check/build pass on local PG16; 40/40 indexable routes, 5/5 posts, negatives 404, 58/58 redirects, sitemap 212, robots/llms 200, /api/blog 172, admin login/401; mock webhook exactly one POST with byte-identical text; unset -> warn + 201; A1 C8 tie order MATCH with the Replit baseline.
+- 2026-09-26T15:16:41.856Z [P2.3] step in_progress → done — Review r2 approved (0 blocking); r1 blocking was tsconfig.tsbuildinfo scope creep.
+- 2026-09-26T15:16:41.915Z [P2.4] step pending → done — Committed and pushed the M-series as d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d (mSha); staged secret scan clean.
+- 2026-09-26T15:16:41.969Z gate G2 → passed (by verifier (P2.2) + reviewer (P2.3) + orchestrator (2.5)) — 2.1 reviewer r2 approve; 2.2-2.4 verifier round 2 all pass; 2.5 scan clean, pushed, mSha=d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d
+- 2026-09-26T15:16:42.098Z set facts.followUps
+- 2026-09-26T15:16:42.207Z set facts.finalReportNotes
+- 2026-09-26T15:16:42.257Z [P2.2] Parity coverage gap found while vetting P2: Replit /sitemap.xml is a stale build-time snapshot (newest lastmod ~2026-09-22T01:56Z) missing 9 posts published 2026-09-22..25; because SPEC-04 §2 sources blog URLs only from the sitemap, 7 of those 9 post pages are absent from the P1.3 inventory. Harness is spec-compliant; the spec gap is fixed by adding /api/blog slugs (and the B-side sitemap at P5.2+) as URL sources. Stricter, not weaker; bundled with A1 C9 before P5.2. Local build sitemap = 212 (40 static + 171 posts + fallback).

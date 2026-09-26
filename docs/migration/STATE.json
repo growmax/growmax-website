@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P3.5",
-  "updatedAt": "2026-09-26T14:53:46.690Z",
+  "updatedAt": "2026-09-26T15:16:42.206Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -96,7 +96,9 @@
       ]
     },
     "dns": {},
-    "git": {},
+    "git": {
+      "mSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d"
+    },
     "cutover": {
       "state": null,
       "detectedAt": null
@@ -163,7 +165,10 @@
       "RESOLVED 2026-09-26 (P1.1 fix, verified): SRC_URL_RO encodes options with %20; Sandbox shows default_transaction_read_only=on and rejects writes. P4.1 still re-checks it before the copy",
       "P8.2: run parity with --include-post-cutover (mandatory) and record the post-cutover count",
       "Allowlist reviews (P5.2+): reject one-sided pins and maxMatches-only entries for seo/text/jsonBySlug fields",
-      "functional/run.mjs: on VercelOriginError record the test row label so any residue can be cleaned by hand"
+      "functional/run.mjs: on VercelOriginError record the test row label so any residue can be cleaned by hand",
+      "Before any Replit redeploy from new main and before the PR merges: the owner must set GOOGLE_CHAT_WEBHOOK_URL in Replit Secrets, or Replit demo-request notifications stop silently (M3 moved the URL to an env var). Goes into the PR description, the runbook and FINAL-REPORT",
+      "Before P5.2 (plan change, orchestrator 2026-09-26): SPEC-04 §2 gains a source 1b: every published slug in the live /api/blog as /blog/<slug>. At P5.2+ it also takes the union with the B-side sitemap locs. The Replit sitemap is a stale build-time snapshot (newest lastmod ~2026-09-22T01:56Z), so 7 of the 9 posts published since then are missing from the P1.3 inventory. Bundled with C9 (compact manifest) in one implementer pass plus one opus review",
+      "P5.2: expect /sitemap.xml to differ by exactly those 9 post URLs (present on Vercel, absent from the stale Replit snapshot). That needs an allowlist entry pinning both sides plus advisor approval; it is not covered by A1's tie-order class approval. Also check /llms.txt and /llms-full.txt for the same staleness"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",
@@ -172,7 +177,8 @@
       "Pre-existing: the Google Chat webhook URL (key+token) was hardcoded in app code and is in git history. M3 moves it to an env var; the owner should rotate it",
       "Pre-existing: https://growmax.io 301s to http://www (an insecure hop); fixed if the apex moves to Vercel (A1 C6)",
       "Pre-existing: unused dependencies memorystore and connect-pg-simple (left untouched per A1)",
-      "Owner cleanup: the unused sin1 Neon resource rapid-recipe-07132564 / store_IsJjgV1qX1w7nvrP (now billed under Launch; near zero while idle)"
+      "Owner cleanup: the unused sin1 Neon resource rapid-recipe-07132564 / store_IsJjgV1qX1w7nvrP (now billed under Launch; near zero while idle)",
+      "Pre-existing: app/sitemap.ts is generated at build time (no revalidate), so Replit's sitemap lacked the 9 posts published after its last build (2026-09-22..25). Its catch {} also swallows DB errors, so a DB outage during a build ships a sitemap with no blog posts. Owner fix: revalidate the sitemap and fail the build on DB errors"
     ]
   },
   "flags": {
@@ -314,11 +320,14 @@
       "note": "Rows 1.1-1.6 verified by migration-verifier (inventory re-derived byte-identical; Task B read-only proof re-run after the fix); 1.3 reviewer r5 approve; 1.7 A1 GO_WITH_CONDITIONS (12 conditions in advisor.A1)"
     },
     "G2": {
-      "status": "pending",
-      "evidence": [],
-      "by": null,
-      "at": null,
-      "note": null
+      "status": "passed",
+      "evidence": [
+        "docs/migration/evidence/P2.2-local-verify.json",
+        "docs/migration/evidence/P2.3-review.json"
+      ],
+      "by": "verifier (P2.2) + reviewer (P2.3) + orchestrator (2.5)",
+      "at": "2026-09-26T15:16:41.968Z",
+      "note": "2.1 reviewer r2 approve; 2.2-2.4 verifier round 2 all pass; 2.5 scan clean, pushed, mSha=d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d"
     },
     "G3": {
       "status": "pending",
@@ -578,11 +587,16 @@
       ],
       "gate": "G2",
       "workflow": ".claude/workflows/mig-p2-code.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T14:53:22.063Z"
+      "evidence": [
+        "docs/migration/evidence/P2.1-implement.json"
+      ],
+      "notes": [
+        "2026-09-26T15:16:41.743Z M1-M4 implemented (package.json, package-lock.json, lib/db.ts, app/api/demo-requests/route.ts); M5 audit notes confirmed. Round 1 scope creep (tsconfig.tsbuildinfo) reverted."
+      ],
+      "startedAt": "2026-09-26T14:53:22.063Z",
+      "completedAt": "2026-09-26T15:16:41.743Z"
     },
     {
       "id": "P2.2",
@@ -593,11 +607,16 @@
       ],
       "gate": "G2",
       "workflow": ".claude/workflows/mig-p2-code.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T14:53:22.128Z"
+      "evidence": [
+        "docs/migration/evidence/P2.2-local-verify.json"
+      ],
+      "notes": [
+        "2026-09-26T15:16:41.798Z Round 2: npm ci/check/build pass on local PG16; 40/40 indexable routes, 5/5 posts, negatives 404, 58/58 redirects, sitemap 212, robots/llms 200, /api/blog 172, admin login/401; mock webhook exactly one POST with byte-identical text; unset -> warn + 201; A1 C8 tie order MATCH with the Replit baseline."
+      ],
+      "startedAt": "2026-09-26T14:53:22.128Z",
+      "completedAt": "2026-09-26T15:16:41.798Z"
     },
     {
       "id": "P2.3",
@@ -608,11 +627,16 @@
       ],
       "gate": "G2",
       "workflow": ".claude/workflows/mig-p2-code.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T14:53:22.187Z"
+      "evidence": [
+        "docs/migration/evidence/P2.3-review.json"
+      ],
+      "notes": [
+        "2026-09-26T15:16:41.855Z Review r2 approved (0 blocking); r1 blocking was tsconfig.tsbuildinfo scope creep."
+      ],
+      "startedAt": "2026-09-26T14:53:22.187Z",
+      "completedAt": "2026-09-26T15:16:41.855Z"
     },
     {
       "id": "P2.4",
@@ -623,10 +647,13 @@
       ],
       "gate": "G2",
       "workflow": null,
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-26T15:16:41.914Z Committed and pushed the M-series as d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d (mSha); staged secret scan clean."
+      ],
+      "completedAt": "2026-09-26T15:16:41.914Z"
     },
     {
       "id": "P3.1",
