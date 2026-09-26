@@ -46,7 +46,7 @@ if (a.part === 'P6.4') {
     { label: 'P6.4 refresh+gap', phase: 'Refresh', model: 'opus', effort: 'high', schema: RESULT })
   if (refresh?.status !== 'pass') return { status: refresh?.status || 'fail', refresh }
   const verify = await agent(role('verifier') +
-    `Independently verify the final refresh: FRESH sync.mjs verify (all tables counts + md5 equal) + schema-diff empty + every sequence's next value == GAP_START (VERIFICATION.md G6 check 6.4). Write ${EV}/P6.4-verify.json.`,
+    `Independently verify the final refresh: FRESH sync.mjs verify (all tables counts + md5 equal) + schema-diff.mjs --accept-pg-major 18 empty (A1 C2; tool rules in SPEC-03 §1; require its JSON output with empty === true, not just exit 0) + every sequence's next value == GAP_START (VERIFICATION.md G6 check 6.4). Write ${EV}/P6.4-verify.json.`,
     { label: 'P6.4 verify', phase: 'Refresh', model: 'sonnet', effort: 'medium', schema: RESULT })
   if (verify?.status !== 'pass') return { status: 'fail', refresh, verify }
   const redeploy = await workflow({ scriptPath: '.claude/workflows/mig-p5-deploy-verify.js' }, {

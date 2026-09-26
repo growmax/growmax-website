@@ -34,7 +34,7 @@ Steps: P0.2 (identity), P1.1, P4.1–P4.3, P6.4, P7/P8 delta sync. Gates: G0 (id
 | `inventory.mjs --db src\|dst` | Catalog snapshot: `server_version_num`, encoding/collation, extensions, schemas, tables (exact counts, sizes), columns, constraints (`pg_get_constraintdef`), indexes (`pg_get_indexdef`), sequences, views, functions, triggers, role names |
 | `fingerprint.mjs --db src\|dst [--below-gap N] [--rows] [--exclude-target-newer]` | Per table: `count(*)` and `md5(string_agg(t::text, E'\n' ORDER BY pk))`. `--rows` adds `{id: md5(t::text)}` |
 | `sync.mjs <mode>` | `verify`, `full-refresh`, `gap`, `delta`, `reverse-delta` (§5) |
-| `schema-diff.mjs` | Compares two inventories, ignoring owner/ACL/comments, Neon-managed objects and the `_migration` schema |
+| `schema-diff.mjs [--accept-pg-major N]` | Compares two inventories, ignoring owner/ACL/comments and platform-managed schemas: Neon's `neon_auth`, our `_migration`, and Replit's `_system` bookkeeping schema, which exists only on the source and is outside the `--schema=public` copy. **Amended at P4.3 attempt 2 (opus-reviewed):** NOT NULL is compared by meaning across majors. PG 18 stores each NOT NULL as a `pg_constraint` row (`contype 'n'`) and PG 16 does not, so on each side those rows must match that side's NOT NULL columns exactly, and a `NOT VALID` or `NO INHERIT` not-null is a difference. A PG major difference passes only with `--accept-pg-major <target major>`, and only for an upgrade (A1 C2 accepts 16 → 18). Exit 0 = empty, 1 = diffs, 2 = usage or input error; callers require its JSON output with empty === true, not just exit 0 |
 | `runner.mjs <script> [args]` | Runs any of the above (or `pg_dump`/`pg_restore`) inside the Sandbox via the SDK. Pulls result files back into `.scratch/` |
 
 **Timestamps:** the columns are `timestamp without time zone`. Treat naive values as UTC everywhere: set `types.setTypeParser(1114, s => s)` for `pg`, and compare them as strings, never through the local JS time zone.
@@ -137,7 +137,7 @@ The refresh also wipes every P5 test row.
   - The identity check passed.
   - Table sets are equal.
   - Counts and md5 are equal for every table.
-  - `schema-diff` is empty.
+  - `schema-diff --accept-pg-major 18` is empty (A1 C2; tool rules in §1).
   - Every sequence's next value > max id.
   - Extensions match.
   - Verified by the verifier from a fresh run.

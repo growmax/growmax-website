@@ -34,7 +34,7 @@ let verify = null
 for (let round = 1; round <= 2; round++) {
   phase('Verify')
   verify = await agent(role('verifier') + ctx +
-    `Step P4.3: independently verify the copy with a FRESH run of scripts/migration/db/sync.mjs verify and schema-diff.mjs (source read-only), against docs/migration/VERIFICATION.md G4 checks 4.1–4.5. Write ${EV}/P4.3-verify.json and ${EV}/P4.3-schema-diff.json (round ${round}). Also confirm from P4.1-prechecks.json, re-deriving it yourself with a read-only query, that the target collation is code-point (A1 C2) and that the target host is us-east-1 and not the source. Standard evidence shape, checkedAt from date -u.` + C2,
+    `Step P4.3: independently verify the copy with a FRESH run of scripts/migration/db/sync.mjs verify and schema-diff.mjs --accept-pg-major 18 (A1 C2; tool rules in SPEC-03 §1; require its JSON output with empty === true, not just exit 0) (source read-only), against docs/migration/VERIFICATION.md G4 checks 4.1–4.5. Write ${EV}/P4.3-verify.json and ${EV}/P4.3-schema-diff.json (round ${round}). Also confirm from P4.1-prechecks.json, re-deriving it yourself with a read-only query, that the target collation is code-point (A1 C2) and that the target host is us-east-1 and not the source. Standard evidence shape, checkedAt from date -u.` + C2,
     { label: `P4.3 verify r${round}`, phase: 'Verify', model: 'sonnet', effort: 'medium', schema: RESULT })
   if (verify?.status === 'pass') return { status: 'pass', copy, verify, rounds: round }
   if (round === 2) break

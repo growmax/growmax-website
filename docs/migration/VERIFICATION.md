@@ -53,7 +53,7 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 | 4.0 | Source identity passed (at P0.2, or at P4.1 if it was deferred) | verifier | `P0.2-source.json` / `P4.1-prechecks.json` |
 | 4.1 | Identical table sets in `public` | verifier | `P4.3-verify.json` |
 | 4.2 | For every table, `srcCount == dstCount` and `srcMd5 == dstMd5` (fresh run by the verifier) | verifier | `P4.3-verify.json` |
-| 4.3 | `schema-diff` empty (ignoring owner/ACL/comments) | verifier | `P4.3-schema-diff.json` |
+| 4.3 | `schema-diff` empty (ignoring owner/ACL/comments; tool rules in SPEC-03 §1; run with `--accept-pg-major 18` per A1 C2) | verifier | `P4.3-schema-diff.json` |
 | 4.4 | Every sequence's next value > the table's max id; extensions match | verifier | `P4.3-verify.json` |
 | 4.5 | The source was accessed read-only (the script log shows `default_transaction_read_only=on`) | verifier | `P4.2-copy.json` |
 
