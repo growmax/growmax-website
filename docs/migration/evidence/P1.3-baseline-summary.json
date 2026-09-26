@@ -1,0 +1,46 @@
+{
+  "step": "P1.3",
+  "gate": "G1",
+  "status": "pass",
+  "checkedAt": "2026-09-26T14:20:00Z",
+  "verifier": "migration-verifier/sonnet",
+  "checks": [
+    {
+      "name": "1.4a: >= 250 URLs (or shortfall explained)",
+      "expected": ">= 250",
+      "actual": "288 (P1.3-url-inventory.json counts: sitemap 203, next-config-gsc 50, next-config-literal 8, special 9, special-api 9, not-in-sitemap 4, variant 3, negative 2 = 288; matches P1.3-baseline-manifest.json count=288 and 288 raw bodies in .scratch/raw-baseline/)",
+      "pass": true
+    },
+    {
+      "name": "1.4b: 0 URLs with exhausted network retries",
+      "expected": "0",
+      "actual": "0 (re-derived from P1.3-baseline-manifest.json: max(entries[].attempts) == 1 across all 288 entries; no entry has an error field; status distribution 200:223, 308:56, 307:5, 404:3, 401:1, sums to 288)",
+      "pass": true
+    },
+    {
+      "name": "1.4c: every sitemap URL present",
+      "expected": "every <loc> in the live /sitemap.xml appears in the inventory/manifest",
+      "actual": "Live sitemap.xml (.scratch/raw-baseline/_sitemap_xml.bin) has exactly 203 <loc> entries; inventory counts.sitemap == 203 and all 203 sitemap-sourced URLs are present as manifest entries",
+      "pass": true
+    },
+    {
+      "name": "1.4d: every next.config.ts redirect source present",
+      "expected": "every `source` in gsc-indexing-redirects.ts (50) and the literal redirects() array in next.config.ts (15, 7 of which duplicate a gsc source with a different destination and are absorbed there) = 58 unique sources",
+      "actual": "Re-parsed gsc-indexing-redirects.ts (50 sources) and next.config.ts redirects() (15 literal sources); union = 58 unique. All 58 are present as URLs in P1.3-url-inventory.json (0 missing). Inventory's own next-config-gsc=50 / next-config-literal=8 split is consistent with de-duplication (8 = 15 literal minus 7 already counted under next-config-gsc), not a coverage gap.",
+      "pass": true
+    },
+    {
+      "name": "1.4e: every DB redirect (blog_redirects) present",
+      "expected": "all 95 old_path rows from P1.1-db-redirects.json reachable as /blog/<old_path> in the baseline",
+      "actual": "Cross-checked all 95 rows in P1.1-db-redirects.json against P1.3-url-inventory.json: 95/95 present (0 missing). All 95 are tagged source='sitemap' rather than 'db-blog-redirect' because the live /sitemap.xml itself still lists these old (redirect-source) blog slugs -- confirmed literally in raw sitemap.xml (e.g. /blog/4-critical-features-to-win-digital-customer-experience-with-b2b-ecommerce is present verbatim). urls.mjs's push()/seen dedup therefore counted them once, under the source recorded first (sitemap, step 1) rather than db-blog-redirect (step 3); this explains why counts has no db-blog-redirect key and does not indicate a coverage gap. Noted as a pre-existing site issue (stale sitemap entries for already-redirected slugs), not a migration defect.",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "inventory": "docs/migration/evidence/P1.3-url-inventory.json",
+    "manifest": "docs/migration/evidence/P1.3-baseline-manifest.json",
+    "rawBodies": "docs/migration/.scratch/raw-baseline/ (288 files, gitignored)",
+    "dbRedirectsSource": "docs/migration/evidence/P1.1-db-redirects.json"
+  },
+  "notes": "Independently re-derived from the committed evidence files and re-parsed gsc-indexing-redirects.ts / next.config.ts / raw sitemap.xml; did not re-fetch the live site. All five 1.4 sub-checks pass; 288 >= 250 with no shortfall to explain. Class: n/a (pass). Separate from this check: STATE.json shows P1.1 and P1.2 are still in_progress (unresolved review findings from rounds r3/r4), so G1 as a whole is not yet passable -- this evidence covers only check 1.4 (P1.3) as scoped by the task."
+}

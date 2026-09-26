@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": "P1.2",
-  "updatedAt": "2026-09-26T13:50:51.022Z",
+  "currentStep": null,
+  "updatedAt": "2026-09-26T14:23:44.368Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -63,7 +63,29 @@
         "demo_requests": 32,
         "newsletter_subscriptions": 0
       },
-      "publishedPostsAtP0": 171
+      "publishedPostsAtP0": 171,
+      "maxIdsAtP1": {
+        "blog_posts": 174,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": null
+      },
+      "naturalKeys": {
+        "blog_posts": [
+          "slug"
+        ],
+        "blog_redirects": [
+          "old_path"
+        ],
+        "newsletter_subscriptions": [
+          "email"
+        ],
+        "demo_requests": []
+      },
+      "extraTables": [],
+      "extensions": [
+        "plpgsql 1.0"
+      ]
     },
     "dns": {},
     "git": {},
@@ -71,7 +93,13 @@
       "state": null,
       "detectedAt": null
     },
-    "runner": {},
+    "runner": {
+      "sandboxName": "growmax-migration-runner",
+      "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+      "pg_dump": "16.15 (PGDG)",
+      "pg_restore": "16.15 (PGDG)",
+      "note": "the default Sandbox image ships postgresql-client-18; runner pins 16 via PGDG. Invoke DB scripts with NODE_USE_ENV_PROXY=1 set in the environment"
+    },
     "runs": {
       "p1": {
         "runId": "wf_be59e661-e9c",
@@ -106,7 +134,15 @@
           }
         }
       }
-    }
+    },
+    "followUps": [
+      "P5.1: run the SPEC-04 §5.4 protected-deployment probe (deferred in P1.2-harness-selftest.json)",
+      "Before P6.5: compact, hash-based baseline manifest mode in parity/capture.mjs (and compare.mjs reading it), so P6.5-baseline-manifest.json fits the 5 MB evidence limit and survives a container reclaim; the P1.3 manifest (7.8 MB, sha256 0dc04fb7df42ee8643f9d4b3f2c713e72ee6f7fb7a8c43b40aa8c5e266b9bda1) is kept only in docs/migration/.scratch/evidence-large/",
+      "P4.1: prove the Sandbox source session is read-only (SHOW default_transaction_read_only via SRC_URL_RO), since the startup option sets a default, not enforcement",
+      "P8.2: run parity with --include-post-cutover (mandatory) and record the post-cutover count",
+      "Allowlist reviews (P5.2+): reject one-sided pins and maxMatches-only entries for seo/text/jsonBySlug fields",
+      "functional/run.mjs: on VercelOriginError record the test row label so any residue can be cleaned by hand"
+    ]
   },
   "flags": {
     "demoTestsSent": 0,
@@ -114,7 +150,7 @@
     "prUrl": null
   },
   "sync": {
-    "gapStart": null,
+    "gapStart": 1000000,
     "lastFullRefreshAt": null,
     "lastDeltaAt": null,
     "lastSourceRowAt": null,
@@ -285,15 +321,23 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 3,
-      "evidence": [],
+      "evidence": [
+        "docs/migration/evidence/P1.1-source-inventory.json",
+        "docs/migration/evidence/P1.1-source-fingerprint.json",
+        "docs/migration/evidence/P1.1-sync-selftest.json",
+        "docs/migration/evidence/P1.1-runner.json",
+        "docs/migration/evidence/P1.1-db-redirects.json"
+      ],
       "notes": [
         "2026-09-26T13:22:01.037Z Attempt 1: final review r3 still blocking in scripts/migration/db (sync.mjs delta can resurrect target-deleted rows via the late-commit branch; runner.mjs exec --with-dst skips the full-refresh/cutover guards). Inventory/fingerprints/fixtures/GAP_START=1000000 produced; Sandbox pg_dump/pg_restore 16.15 proven.",
-        "2026-09-26T13:50:50.644Z Attempt 2 (rung 3): r3 findings verified fixed, but review r4 found a regression: runGapVerifyInit records SOURCE ids as synced after the copy, so a source row committed between dump/verify and the init read is marked synced but never copied, then permanently treated as target_deleted (lead/PII loss)."
+        "2026-09-26T13:50:50.644Z Attempt 2 (rung 3): r3 findings verified fixed, but review r4 found a regression: runGapVerifyInit records SOURCE ids as synced after the copy, so a source row committed between dump/verify and the init read is marked synced but never copied, then permanently treated as target_deleted (lead/PII loss).",
+        "2026-09-26T14:23:44.368Z Scripts approved in review r5. GAP_START=1000000 (max id 174). No extra tables; plpgsql only. Sandbox pg_dump/pg_restore 16.15. G1 check 1.1 still needs an independent verifier re-derivation (the inventory/fingerprints were taken at 11:23Z with pre-fix scripts)."
       ],
       "startedAt": "2026-09-26T13:50:50.812Z",
-      "lastFailureAt": "2026-09-26T13:50:50.644Z"
+      "lastFailureAt": "2026-09-26T13:50:50.644Z",
+      "completedAt": "2026-09-26T14:23:44.368Z"
     },
     {
       "id": "P1.2",
@@ -304,18 +348,22 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 3,
       "evidence": [
         "docs/migration/evidence/P1.2-harness-review-r3.json",
-        "docs/migration/evidence/P1.2-harness-review-r4.json"
+        "docs/migration/evidence/P1.2-harness-review-r4.json",
+        "docs/migration/evidence/P1.2-harness-selftest.json",
+        "docs/migration/evidence/P1.2-harness-review.json"
       ],
       "notes": [
         "2026-09-26T13:22:01.112Z Attempt 1: final review r3 = 6 blocking (4 harness, 2 DB) after two fix rounds (13 -> 7 -> 6). Harness: allowlist value-pinning for text/jsonBySlug; no expected-value post-cutover assertions; --resolve broken on Node 22; functional writes not guarded against answering-host = Replit.",
-        "2026-09-26T13:50:50.703Z Attempt 2 (rung 3): review r4 = 2 blocking, both regressions from the r3 fixes (the other being urls.mjs putting the noindex expectation on /admin instead of /blog?page=2, which also hid /admin from A/B compare)."
+        "2026-09-26T13:50:50.703Z Attempt 2 (rung 3): review r4 = 2 blocking, both regressions from the r3 fixes (the other being urls.mjs putting the noindex expectation on /admin instead of /blog?page=2, which also hid /admin from A/B compare).",
+        "2026-09-26T14:23:44.244Z Attempt 3 (rung 4): review r5 approved (0 blocking, 12 non-blocking tracked in facts.followUps). Self-test: mutation matrix, determinism, reachability floor, resolve dispatcher pass; the protected-deployment probe is deferred to P5.1."
       ],
       "startedAt": "2026-09-26T13:50:50.868Z",
-      "lastFailureAt": "2026-09-26T13:50:50.703Z"
+      "lastFailureAt": "2026-09-26T13:50:50.703Z",
+      "completedAt": "2026-09-26T14:23:44.244Z"
     },
     {
       "id": "P1.3",
@@ -327,11 +375,17 @@
       ],
       "gate": "G1",
       "workflow": ".claude/workflows/mig-p1-discovery.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [],
-      "startedAt": "2026-09-26T11:02:52.964Z"
+      "evidence": [
+        "docs/migration/evidence/P1.3-url-inventory.json",
+        "docs/migration/evidence/P1.3-baseline-summary.json"
+      ],
+      "notes": [
+        "2026-09-26T14:23:44.297Z 288 URLs (203 sitemap, 58 config redirect sources, 95 DB redirects), 0 exhausted retries; verified by migration-verifier. The manifest (7.8 MB) is kept in .scratch only (over the evidence size limit)."
+      ],
+      "startedAt": "2026-09-26T11:02:52.964Z",
+      "completedAt": "2026-09-26T14:23:44.297Z"
     },
     {
       "id": "P1.4",

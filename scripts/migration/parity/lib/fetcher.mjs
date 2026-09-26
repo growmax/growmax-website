@@ -42,7 +42,16 @@ export async function buildResolveDispatcher(resolveEntries) {
       lookup(hostname, options, callback) {
         const pinned = map.get(hostname)
         if (pinned) {
-          callback(null, pinned, 4)
+          // Node 22 connects via autoSelectFamily by default, which calls lookup with
+          // {all:true} and expects an array of {address, family} back — passing the old
+          // (err, address, family) shape here made every pinned request throw
+          // "Invalid IP address: undefined" (per review). Only the plain non-`all` shape
+          // still wants (err, address, family).
+          if (options && options.all) {
+            callback(null, [{ address: pinned, family: 4 }])
+          } else {
+            callback(null, pinned, 4)
+          }
           return
         }
         dns.lookup(hostname, options, callback)
@@ -112,17 +121,43 @@ function backoffMs(attempt) {
   return 300 * 2 ** (attempt - 1) // 300, 600
 }
 
+/**
+ * Normalize a Location header for parity comparison.
+ *
+ * Keeps the scheme and a symbolic host token (never collapses distinct hosts into the
+ * same string): `<self>` for the host actually requested (`base`'s host — the capture
+ * base, or the deployment host standing in for www pre-cutover), `<www>`/`<apex>` for the
+ * other known growmax aliases, and `<deploy:<host>>` for any other `*.vercel.app` host
+ * (kept as a DISTINCT token per host, so a stray/leaked deployment URL never collides with
+ * `<self>`). An unrecognized host is returned as the full absolute URL, unchanged.
+ *
+ * This deliberately preserves enough information that a redirect to the wrong scheme
+ * (https -> http), an apex/www inversion or loop, or a leaked deployment URL in Location
+ * all produce a different normalized string and so are never silently equal (SPEC-04 §2.8).
+ */
 export function normalizeLocation(location, base, knownHosts) {
   if (!location) return null
   try {
     const url = new URL(location, base)
+    const baseHost = new URL(base).host.toLowerCase()
     const host = url.host.toLowerCase()
+    const scheme = url.protocol.replace(':', '')
+    const pathAndQuery = url.pathname + (url.search || '')
+
+    if (host === baseHost) {
+      return `${scheme}://<self>${pathAndQuery}`
+    }
+
     const isKnown = knownHosts.some((h) => {
       if (h.startsWith('*.')) return host.endsWith(h.slice(1))
       return host === h
     })
     if (isKnown) {
-      return url.pathname + (url.search || '')
+      let token
+      if (host === 'www.growmax.io') token = '<www>'
+      else if (host === 'growmax.io') token = '<apex>'
+      else token = `<deploy:${host}>`
+      return `${scheme}://${token}${pathAndQuery}`
     }
     return url.toString()
   } catch {

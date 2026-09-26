@@ -1,0 +1,74 @@
+{
+  "step": "P1.2",
+  "gate": "G1",
+  "status": "pass",
+  "checkedAt": "2026-09-26T14:20:55.962Z",
+  "verifier": "migration-reviewer (opus/high), P1 review round 5 (rung-4 second opinion); persisted verbatim by the orchestrator (the reviewer role is read-only)",
+  "approve": true,
+  "blocking": [],
+  "nonBlocking": [
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "r4 blocking #1 is verified fixed. initWatermarksForTables (sync.mjs:224-262) now fills synced_ids and sets the watermark from the TARGET's own ids below GAP_START. It does this in one data-modifying CTE, so it is atomic over neon-https. runGapVerifyInit (:874-893) calls it only after verify passes. Scenario 22 commits source rows through the afterVerify hook: newsletter id 2 above the copied max, and demo_requests id 2 below it. The delta then gives inserted=1 and lateCommits=1, targetDeleted=0, and both rows are on the target. Mutant M1 (P1.1-sync-mutation-check.json) kills it. I re-ran db/selftest.mjs against the throwaway local PG16 (migtest_src/migtest_dst) and got 29/29 allPass. No regression: rows from an earlier P4.2 init stay in synced_ids and the watermark uses greatest(), which is safe because ids only grow and --clean only touches public."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "This is a deliberate spec deviation and it is safe. Steps 3/4 no longer use the SPEC-03 §5 created_at > last_run_at − 1h window. Any missing id ≤ w that is not in synced_ids is inserted as a late commit, whatever its age. That favours not losing rows. The only resurrection path would be a target row below GAP_START that never went through init or delta (for example an editor inserting with an explicit id), which the gap sequence prevents. Record this deviation in SPEC-03 or the P1.1 evidence so G8b reviewers don't flag it. Also, a late-commit insert that hits a non-natural-key conflict (didInsert=false) is silently not counted. Surface it like the step-2 conflicts."
+    },
+    {
+      "file": "scripts/migration/parity/urls.mjs",
+      "issue": "r4 blocking #2 is verified fixed. /admin and /admin/login have no expect block (urls.mjs:233-238). {xRobotsTag:'noindex, follow'} is now on /blog?page=2 (:243), which matches middleware.ts:30-38. compare.mjs:566-583 makes expect additive and skips the A/B compare only for source 'post-cutover' or expectOnly. The self-test no longer filters expect-* diffs: self-compare needs diffs.length===0, and determinism fails on any expectation violation (selftest.mjs:810-822, :861-864). The new check inventory-expect-blocks-match-spec pins the §2.4/§2.6/§2.8 set. The mutation cases admin-session-isAdmin-true (A-only and both sides), admin-posts-status-200, blog-page2-drop-x-robots-tag, blog-page2-change-title-still-ab-compared, admin-page-status-500 and post-cutover-{conforming,301-http-self,missing-on-b} all pass, each with its required fields. In P1.2-harness-selftest.json, self-compare and determinism show 0 diffs and 0 expectation violations, and the recorded harnessFileHashes match the current working-tree files."
+    },
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "There is an allowlist scoping gap, and an entry may pin only one side. hasExpected is true when expected has just `a` or just `b` (:393), and a pattern entry can meet its 'must pin expected' rule with only one side. There is also no step or base-B scoping, and allowlist.json persists from P5.2 into P8.2. If P5.2's B is a Vercel preview that sends X-Robots-Tag: noindex, the natural approval is {pattern:'^.*$', field:'x-robots-tag', expected:{a:null,b:'noindex'}}. Reused at P8.2, that entry would hide a production-wide noindex. I did not confirm how the specs handle preview noindex (a search of docs/migration was denied), so this is non-blocking. Recommendation: require both a and b in expected, require a scope field (base-B host or step list) that compare checks, and refuse any entry whose expected.b adds noindex/nofollow to x-robots-tag, robots, robotsAll or googlebotAll unless its scope is a *.vercel.app host."
+    },
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "Carried from r4, still open: a url entry with only maxMatches (no expected) can suppress any value within its budget. The fields fetch and retried are allowlistable too. Consider requiring expected for seo/text/jsonBySlug fields."
+    },
+    {
+      "file": "scripts/migration/parity/urls.mjs",
+      "issue": "Evidence note: in P1.2-harness-selftest.json, counts has no db-blog-redirect key. All 95 DB old_paths are also sitemap <loc>s, so they are recorded under 'sitemap'. Coverage is complete, but §2 asks for a per-source count. Log the collision count (for example db-blog-redirect: 0 new / 95 overlapping) so a later shrink isn't misread. Also, old_path values carry a '/blog/' prefix while middleware.ts:14-18 matches old_path = bare slug, so DB redirects never fire on either site. Parity stays equal, but this is worth telling the owner."
+    },
+    {
+      "file": "scripts/migration/parity/urls.mjs",
+      "issue": "Carried from r4: nothing forces --include-post-cutover at P8.2. Make it mandatory in the P8.2 workflow and record the post-cutover count in the evidence."
+    },
+    {
+      "file": "scripts/migration/parity/lib/extract.mjs",
+      "issue": "internalLinks strip the host whenever it equals the captured page's host. So at P5.2, <a href> values rendered as absolute deployment URLs (https://<deploy>.vercel.app/x) would look the same as A's relative links. canonical, og:* and sitemap loc are compared exactly, and at P8.2 such links would show up as externalLinks, so the exposure is pre-cutover only. Inline scripts (for example GTM) and iframe src are not compared."
+    },
+    {
+      "file": "scripts/migration/functional/run.mjs",
+      "issue": "Carried from r4: the per-write Vercel-origin check runs after the request is sent. On VercelOriginError, record the label and email so any residue can be cleaned from the source by hand."
+    },
+    {
+      "file": "scripts/migration/db/runner.mjs",
+      "issue": "Carried from r3/r4: SRC_URL_RO relies on the startup parameter options=-c default_transaction_read_only=on. That sets a default, not enforcement, and there is no recorded proof that the Neon proxy honours it."
+    },
+    {
+      "file": "scripts/migration/visual/run.mjs",
+      "issue": "r4 non-blocking is verified fixed. resolveBlogPostPath and captureShots for base A now get bypassSecret undefined (run.mjs:275-282), and perf/run.mjs does the same for A (:106-109)."
+    },
+    {
+      "file": "(local throwaway PG16)",
+      "issue": "Reviewer side effect, for the orchestrator. My first self-test run as the OS user postgres failed on a stale root-owned /tmp/selftest-full-refresh.dump and left migtest_src/migtest_dst objects owned by postgres. To put them back, I ran (as postgres) drop schema public cascade, create schema public authorization root, and drop schema _migration cascade on both throwaway databases. That is the same reset selftest.mjs does itself. I then re-ran the self-test as root: 29/29 pass. No repo files and no real database were touched. After that, the auto-mode classifier denied a follow-up read-only grep of docs/migration, and I did not work around it."
+    }
+  ],
+  "checks": [
+    {
+      "name": "G1 1.3 reviewer approves the harness and DB scripts (no blocking finding)",
+      "expected": "approve=true, 0 blocking",
+      "actual": "approve=true, 0 blocking, 12 non-blocking",
+      "pass": true
+    },
+    {
+      "name": "Prior blocking findings resolved",
+      "expected": "r4 blockers (init data loss; /admin expectation) verified fixed",
+      "actual": "r5 nonBlocking notes verify both r4 blockers fixed; r3 blockers verified fixed in r4",
+      "pass": true
+    }
+  ],
+  "history": "run wf_be59e661-e9c: r1 13 blocking -> r2 7 -> r3 6 -> r4 2 (regressions from the r3 fixes) -> r5 0. Earlier rounds persisted as P1.2-harness-review-r3.json and -r4.json."
+}

@@ -1,0 +1,386 @@
+{
+  "checkedAt": "2026-09-26T11:23:13.394Z",
+  "db": "src",
+  "envVar": "REPLIT_DATABASE_URL",
+  "transport": "neon-https",
+  "serverVersion": "PostgreSQL 16.15 (eb11870) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 10.2.1-6) 10.2.1 20210110, 64-bit",
+  "serverVersionNum": 160015,
+  "pgMajor": 16,
+  "encoding": "UTF8",
+  "collation": "C.UTF-8",
+  "extensions": [
+    {
+      "name": "plpgsql",
+      "version": "1.0"
+    }
+  ],
+  "schemas": [
+    "_system",
+    "public"
+  ],
+  "tables": {
+    "blog_posts": {
+      "count": 171,
+      "sizeBytes": 2088960,
+      "maxId": 174,
+      "primaryKey": [
+        "id"
+      ],
+      "naturalKeys": [
+        [
+          "slug"
+        ]
+      ],
+      "orderColumn": "id",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default": "nextval('blog_posts_id_seq'::regclass)"
+        },
+        {
+          "name": "slug",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "date",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "author",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "author_team",
+          "type": "text",
+          "nullable": false,
+          "default": "'Growmax Core Team'::text"
+        },
+        {
+          "name": "read_time",
+          "type": "text",
+          "nullable": false,
+          "default": "'5 Min Read'::text"
+        },
+        {
+          "name": "excerpt",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sections",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "related_slugs",
+          "type": "ARRAY",
+          "nullable": true,
+          "default": "'{}'::text[]"
+        },
+        {
+          "name": "published",
+          "type": "boolean",
+          "nullable": false,
+          "default": "false"
+        },
+        {
+          "name": "legacy_url",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": false,
+          "default": "now()"
+        }
+      ]
+    },
+    "blog_redirects": {
+      "count": 95,
+      "sizeBytes": 81920,
+      "maxId": 95,
+      "primaryKey": [
+        "id"
+      ],
+      "naturalKeys": [
+        [
+          "old_path"
+        ]
+      ],
+      "orderColumn": "id",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default": "nextval('blog_redirects_id_seq'::regclass)"
+        },
+        {
+          "name": "old_path",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "new_path",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": false,
+          "default": "now()"
+        }
+      ]
+    },
+    "demo_requests": {
+      "count": 32,
+      "sizeBytes": 32768,
+      "maxId": 32,
+      "primaryKey": [
+        "id"
+      ],
+      "naturalKeys": [],
+      "orderColumn": "id",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default": "nextval('demo_requests_id_seq'::regclass)"
+        },
+        {
+          "name": "first_name",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "last_name",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "company",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "company_size",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "modules",
+          "type": "ARRAY",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": false,
+          "default": "now()"
+        }
+      ]
+    },
+    "newsletter_subscriptions": {
+      "count": 0,
+      "sizeBytes": 24576,
+      "maxId": null,
+      "primaryKey": [
+        "id"
+      ],
+      "naturalKeys": [
+        [
+          "email"
+        ]
+      ],
+      "orderColumn": "id",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default": "nextval('newsletter_subscriptions_id_seq'::regclass)"
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": false,
+          "default": "now()"
+        }
+      ]
+    }
+  },
+  "extraTables": [],
+  "indexes": [
+    {
+      "table": "blog_posts",
+      "index": "blog_posts_pkey",
+      "def": "CREATE UNIQUE INDEX blog_posts_pkey ON public.blog_posts USING btree (id)"
+    },
+    {
+      "table": "blog_posts",
+      "index": "blog_posts_slug_unique",
+      "def": "CREATE UNIQUE INDEX blog_posts_slug_unique ON public.blog_posts USING btree (slug)"
+    },
+    {
+      "table": "blog_redirects",
+      "index": "blog_redirects_old_path_unique",
+      "def": "CREATE UNIQUE INDEX blog_redirects_old_path_unique ON public.blog_redirects USING btree (old_path)"
+    },
+    {
+      "table": "blog_redirects",
+      "index": "blog_redirects_pkey",
+      "def": "CREATE UNIQUE INDEX blog_redirects_pkey ON public.blog_redirects USING btree (id)"
+    },
+    {
+      "table": "demo_requests",
+      "index": "demo_requests_pkey",
+      "def": "CREATE UNIQUE INDEX demo_requests_pkey ON public.demo_requests USING btree (id)"
+    },
+    {
+      "table": "newsletter_subscriptions",
+      "index": "newsletter_subscriptions_email_unique",
+      "def": "CREATE UNIQUE INDEX newsletter_subscriptions_email_unique ON public.newsletter_subscriptions USING btree (email)"
+    },
+    {
+      "table": "newsletter_subscriptions",
+      "index": "newsletter_subscriptions_pkey",
+      "def": "CREATE UNIQUE INDEX newsletter_subscriptions_pkey ON public.newsletter_subscriptions USING btree (id)"
+    }
+  ],
+  "constraints": [
+    {
+      "table": "blog_posts",
+      "name": "blog_posts_pkey",
+      "type": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "table": "blog_posts",
+      "name": "blog_posts_slug_unique",
+      "type": "u",
+      "def": "UNIQUE (slug)"
+    },
+    {
+      "table": "blog_redirects",
+      "name": "blog_redirects_old_path_unique",
+      "type": "u",
+      "def": "UNIQUE (old_path)"
+    },
+    {
+      "table": "blog_redirects",
+      "name": "blog_redirects_pkey",
+      "type": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "table": "demo_requests",
+      "name": "demo_requests_pkey",
+      "type": "p",
+      "def": "PRIMARY KEY (id)"
+    },
+    {
+      "table": "newsletter_subscriptions",
+      "name": "newsletter_subscriptions_email_unique",
+      "type": "u",
+      "def": "UNIQUE (email)"
+    },
+    {
+      "table": "newsletter_subscriptions",
+      "name": "newsletter_subscriptions_pkey",
+      "type": "p",
+      "def": "PRIMARY KEY (id)"
+    }
+  ],
+  "sequences": [
+    {
+      "name": "blog_posts_id_seq",
+      "ownedBy": "blog_posts.id",
+      "lastValue": 174,
+      "isCalled": true
+    },
+    {
+      "name": "blog_redirects_id_seq",
+      "ownedBy": "blog_redirects.id",
+      "lastValue": 95,
+      "isCalled": true
+    },
+    {
+      "name": "demo_requests_id_seq",
+      "ownedBy": "demo_requests.id",
+      "lastValue": 32,
+      "isCalled": true
+    },
+    {
+      "name": "newsletter_subscriptions_id_seq",
+      "ownedBy": "newsletter_subscriptions.id",
+      "lastValue": 1,
+      "isCalled": false
+    }
+  ],
+  "views": [],
+  "functions": [],
+  "triggers": [],
+  "roles": [
+    "cloud_admin",
+    "neon_service",
+    "neon_superuser",
+    "neondb_owner"
+  ]
+}

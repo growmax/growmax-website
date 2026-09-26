@@ -1,0 +1,281 @@
+#!/usr/bin/env node
+// SPEC-04 §3: fetch every URL in an inventory and extract a manifest.
+//
+// Usage:
+//   node capture.mjs --base <origin> --urls <inventory.json> --out <manifest.json> \
+//     [--raw-dir <dir>] [--bypass-secret-file <f>] [--resolve host:443:ip ...] \
+//     [--concurrency 4] [--ua "growmax-migration-verifier/1.0"]
+
+import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import path from 'node:path'
+import { fetchOnce, buildResolveDispatcher, normalizeLocation } from './lib/fetcher.mjs'
+import {
+  extractHtml,
+  extractSitemap,
+  normalizeText,
+  sha256,
+  canonicalStringify,
+  safeFileName,
+  decodeImageDimensions,
+} from './lib/extract.mjs'
+
+const KNOWN_HOSTS = ['www.growmax.io', 'growmax.io', '*.vercel.app']
+
+function parseArgs(argv) {
+  const out = { resolve: [] }
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]
+    if (!a.startsWith('--')) continue
+    const key = a.slice(2)
+    const next = argv[i + 1]
+    if (key === 'resolve') {
+      out.resolve.push(next)
+      i++
+      continue
+    }
+    if (next === undefined || next.startsWith('--')) {
+      out[key] = true
+    } else {
+      out[key] = next
+      i++
+    }
+  }
+  return out
+}
+
+function classifyContentType(contentType) {
+  return (contentType || '').split(';')[0].trim().toLowerCase()
+}
+
+async function captureOne(entry, base, opts) {
+  const { dispatcher, bypassSecret, ua, rawDir } = opts
+  const target = /^https?:\/\//.test(entry.url) ? entry.url : new URL(entry.url, base).toString()
+
+  // Most entries are same-site relative URLs, but the post-cutover set (SPEC-04 §2.8) is
+  // absolute (http://www.growmax.io/, https://growmax.io/, ...) and reaches a third-party
+  // host (Squarespace pre-cutover, or growmax.io itself once DNS moves) — never send the
+  // Vercel protection-bypass secret there (per review); only the Vercel deployment host
+  // being captured (`base`) is ever meant to see it.
+  const targetIsBaseHost = new URL(target).host === new URL(base).host
+  const effectiveBypassSecret = targetIsBaseHost ? bypassSecret : undefined
+
+  const r = await fetchOnce(target, { dispatcher, bypassSecret: effectiveBypassSecret, ua })
+  if (!r.ok) {
+    return {
+      url: entry.url,
+      source: entry.source,
+      error: String(r.error?.message || r.error || 'fetch failed'),
+      attempts: r.attempts,
+      ...(entry.expect ? { expect: entry.expect } : {}),
+    }
+  }
+
+  const { res, buf, attempts } = r
+  const contentType = classifyContentType(res.headers.get('content-type'))
+  const location = normalizeLocation(res.headers.get('location'), target, KNOWN_HOSTS)
+
+  const record = {
+    url: entry.url,
+    source: entry.source,
+    status: res.status,
+    location,
+    contentType,
+    headers: {
+      'x-robots-tag': res.headers.get('x-robots-tag'),
+      'cache-control': res.headers.get('cache-control'),
+      'content-encoding': res.headers.get('content-encoding'),
+      'strict-transport-security': res.headers.get('strict-transport-security'),
+    },
+    bytes: buf.length,
+    sha256: sha256(buf),
+    attempts,
+    ...(entry.expect ? { expect: entry.expect } : {}),
+  }
+
+  if (rawDir) {
+    const safeName = safeFileName(entry.url)
+    await mkdir(rawDir, { recursive: true })
+    await writeFile(path.join(rawDir, `${safeName}.bin`), buf)
+  }
+
+  // Redirect (3xx) stub bodies are not spec-relevant to diff: SPEC-04 §4's compare table
+  // only asks for status/location/contentType/x-robots-tag on every response, and body-level
+  // fields for 2xx HTML / sitemap / JSON / text. Empirically, Next.js's redirect responses on
+  // this site sometimes report `content-type: text/plain` and sometimes `text/html` for the
+  // *exact same*, correct {status, location, body} — confirmed by repeated concurrent sampling
+  // where only the header flips while the tiny stub body (the destination path) never changes
+  // and never leaks between URLs. That's real, pre-existing origin non-determinism, invisible
+  // to users/search engines (they act on Location + status, not a redirect's body or its
+  // content-type). So it's never treated as parity-significant for 3xx (see compare.mjs).
+  const isRedirect = res.status >= 300 && res.status < 400
+  if (isRedirect) return record
+
+  // HTML extraction (only for 2xx HTML documents; 404s only need status+title per §4).
+  if (contentType === 'text/html') {
+    try {
+      const html = buf.toString('utf8')
+      const extracted = extractHtml(html, target)
+      record.html = extracted.fields
+      record.jsonLdHash = extracted.jsonLdHash
+      record.visibleTextHash = extracted.visibleTextHash
+      record.internalLinks = extracted.internalLinks
+      record.images = extracted.images
+      record.assetRefs = extracted.assetRefs
+      if (rawDir) {
+        const safeName = safeFileName(entry.url)
+        record.rawTextFile = `${safeName}.text.txt`
+        await writeFile(path.join(rawDir, `${safeName}.text.txt`), extracted.visibleText)
+      }
+    } catch (err) {
+      record.htmlError = String(err.message || err)
+    }
+  } else if (contentType === 'application/xml' || contentType === 'text/xml' || entry.url.endsWith('.xml')) {
+    try {
+      record.sitemapEntries = extractSitemap(buf.toString('utf8'))
+    } catch (err) {
+      record.xmlError = String(err.message || err)
+    }
+  } else if (contentType === 'application/json') {
+    try {
+      const parsed = JSON.parse(buf.toString('utf8'))
+      record.jsonCanonical = canonicalStringify(parsed)
+      record.jsonHash = sha256(Buffer.from(record.jsonCanonical, 'utf8'))
+      // /api/blog is compared per-slug with every field preserved. jsonBySlug alone drops
+      // slug-less items and collapses duplicate slugs (per review), so also record the raw
+      // array length: compare.mjs compares it (and the multiset of slugs) alongside the
+      // per-slug diffs, so a duplicated or slug-less item on either side still surfaces.
+      if (entry.url === '/api/blog' && Array.isArray(parsed)) {
+        record.jsonArrayLength = parsed.length
+        record.jsonBySlug = {}
+        for (const item of parsed) {
+          if (item && item.slug) record.jsonBySlug[item.slug] = canonicalStringify(item)
+        }
+      } else {
+        record.json = parsed
+      }
+    } catch (err) {
+      record.jsonError = String(err.message || err)
+    }
+  } else if (contentType === 'text/plain') {
+    record.text = normalizeText(buf.toString('utf8'))
+  }
+
+  return record
+}
+
+async function mapWithConcurrency(items, limit, fn) {
+  const results = new Array(items.length)
+  let idx = 0
+  async function worker() {
+    while (true) {
+      const i = idx++
+      if (i >= items.length) return
+      results[i] = await fn(items[i], i)
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
+  return results
+}
+
+/**
+ * Fetch every unique same-site asset referenced by any captured page (SPEC-04 §3): the
+ * `assetRefs` extract.mjs collects (img src/srcset, <source srcset>, link icon/preload/
+ * stylesheet), none of which any other part of the harness ever fetches. Records
+ * status + contentType for every ref, plus a sha256 for anything that isn't a hashed
+ * /_next/static/<build>/... name (those are compared by status only — see compare.mjs).
+ * A missing public/ asset, a broken image optimizer (400/500), or a 404'd JS/CSS chunk all
+ * surface here instead of passing silently.
+ */
+async function captureAssets({ entries, base, dispatcher, bypassSecret, ua, concurrency = 4 }) {
+  const refs = new Set()
+  for (const e of entries) {
+    for (const ref of e.assetRefs || []) refs.add(ref)
+  }
+  const refList = [...refs]
+  const fetched = await mapWithConcurrency(refList, concurrency, async (ref) => {
+    const target = new URL(ref, base).toString()
+    const r = await fetchOnce(target, { dispatcher, bypassSecret, ua })
+    if (!r.ok)
+      return { ref, entry: { error: String(r.error?.message || r.error || 'fetch failed'), attempts: r.attempts } }
+    const contentType = classifyContentType(r.res.headers.get('content-type'))
+    const isHashedNext = /^\/_next\/static\//.test(ref)
+    const isNextImage = /^\/_next\/image(?:\?|$)/.test(ref)
+    const entry = { status: r.res.status, contentType, attempts: r.attempts }
+    if (isNextImage) {
+      // Replit's Next/sharp optimizer and Vercel's own Image Optimization never emit
+      // byte-identical output for the same source+params, so sha256 always "fails" here
+      // regardless of migration health — record decoded dimensions instead (see compare.mjs,
+      // which compares /_next/image by status/contentType/dimensions, never sha256).
+      const dim = decodeImageDimensions(r.buf)
+      if (dim) {
+        entry.width = dim.width
+        entry.height = dim.height
+      }
+    } else if (!isHashedNext) {
+      entry.sha256 = sha256(r.buf)
+    } else if (contentType === 'text/css') {
+      // Per review: a hashed /_next/static/... ref was only ever checked for 2xx (a
+      // different, unrelated build legitimately uses a different filename), so a real CSS
+      // content regression was never caught. CSS is textual and content-hashed by Next.js
+      // itself, so hashing the fetched bytes here and comparing the multiset of CSS sha256s
+      // across sides (compare.mjs's compareAssetMaps) is cheap and name-independent.
+      entry.sha256 = sha256(r.buf)
+    }
+    return { ref, entry }
+  })
+  const assets = {}
+  for (const { ref, entry } of fetched) assets[ref] = entry
+  return assets
+}
+
+export async function capture({ base, urls, rawDir, bypassSecretFile, resolve, concurrency = 4, ua }) {
+  const bypassSecret = bypassSecretFile ? (await readFile(bypassSecretFile, 'utf8')).trim() : undefined
+  const dispatcher = await buildResolveDispatcher(resolve)
+
+  const results = await mapWithConcurrency(urls, concurrency, (entry) =>
+    captureOne(entry, base, { dispatcher, bypassSecret, ua, rawDir }),
+  )
+
+  const assets = await captureAssets({ entries: results, base, dispatcher, bypassSecret, ua, concurrency })
+
+  return {
+    capturedAt: new Date().toISOString(),
+    base,
+    count: results.length,
+    entries: results,
+    assets,
+  }
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2))
+  if (!args.base || !args.urls || !args.out) {
+    console.error(
+      'Usage: node capture.mjs --base <origin> --urls <inventory.json> --out <manifest.json> ' +
+        '[--raw-dir <dir>] [--bypass-secret-file <f>] [--resolve host:443:ip] [--concurrency 4] [--ua <ua>]',
+    )
+    process.exit(2)
+  }
+  const inventory = JSON.parse(await readFile(args.urls, 'utf8'))
+  const urlEntries = inventory.urls || inventory.list || inventory
+  const manifest = await capture({
+    base: args.base,
+    urls: urlEntries,
+    rawDir: args['raw-dir'],
+    bypassSecretFile: args['bypass-secret-file'],
+    resolve: args.resolve,
+    concurrency: args.concurrency ? Number(args.concurrency) : 4,
+    ua: args.ua,
+  })
+  await mkdir(path.dirname(args.out), { recursive: true })
+  await writeFile(args.out, JSON.stringify(manifest, null, 2))
+  const errors = manifest.entries.filter((e) => e.error).length
+  console.log(`Captured ${manifest.count} URLs (${errors} fetch errors) -> ${args.out}`)
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}

@@ -1,0 +1,35 @@
+{
+  "checkedAt": "2026-09-26T13:33:21.345Z",
+  "note": "Pure guard-logic self-test for runner.mjs (no Vercel Sandbox spun up).",
+  "allPass": true,
+  "scenarios": [
+    {
+      "name": "exec --with-dst: refuses without --confirm-pre-cutover",
+      "ok": true
+    },
+    {
+      "name": "exec --with-dst: refuses when STATE.status is POST_CUTOVER",
+      "ok": true
+    },
+    {
+      "name": "exec --with-dst: refuses when STATE.status is ROLLED_BACK",
+      "ok": true
+    },
+    {
+      "name": "exec --with-dst: refuses when STATE.status is COMPLETE",
+      "ok": true
+    },
+    {
+      "name": "exec --with-dst: refuses when facts.cutover.detectedAt is set",
+      "ok": true
+    },
+    {
+      "name": "exec --with-dst: refuses when STATE.json is missing",
+      "ok": true
+    },
+    {
+      "name": "exec --with-dst: a pooled-alias DST_URL matching the source is refused",
+      "ok": true
+    }
+  ]
+}

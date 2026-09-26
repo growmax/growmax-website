@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-09-26T11:23:15.958Z",
+  "db": "src",
+  "envVar": "REPLIT_DATABASE_URL",
+  "transport": "neon-https",
+  "belowGap": null,
+  "excludeTargetNewer": false,
+  "tables": {
+    "blog_posts": {
+      "count": 171,
+      "md5": "50846b343a582f3a34553a06a1c6bde4"
+    },
+    "blog_redirects": {
+      "count": 95,
+      "md5": "7585ffeecf6c45de849c7f199312ff3a"
+    },
+    "demo_requests": {
+      "count": 32,
+      "md5": "2ecebe76c95bedd033064c1184fa8806"
+    },
+    "newsletter_subscriptions": {
+      "count": 0,
+      "md5": "d41d8cd98f00b204e9800998ecf8427e"
+    }
+  },
+  "extraTables": []
+}

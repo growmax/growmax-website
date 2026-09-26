@@ -1,0 +1,937 @@
+#!/usr/bin/env node
+// SPEC-04 §5: mutation self-test, required before the harness is used for any gate.
+//
+// Usage:
+//   node selftest.mjs --base https://www.growmax.io --out ../../../docs/migration/evidence/P1.2-harness-selftest.json
+//
+// Exit code 0 only if every check passes.
+//
+// The mutation matrix mutates the RAW captured body on disk (the .bin file capture.mjs
+// writes for every URL) and re-runs it through the real extractHtml/extractSitemap/JSON
+// path — the same code capture.mjs itself calls — rather than editing an already-extracted
+// manifest field directly. Editing e.g. `entry.visibleTextHash` to a different string only
+// proves compare() notices two different strings; it proves nothing about whether the
+// extractor (blockJoinedText, the <title> strip, the regexes) can actually surface a real
+// content change. If extractHtml returned empty text, found no JSON-LD, or dropped images,
+// every hash would still match on both sides and this self-test would still pass.
+
+import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { setTimeout as sleep } from 'node:timers/promises'
+import { execSync } from 'node:child_process'
+import { buildInventory, POST_CUTOVER_ENTRIES } from './urls.mjs'
+import { capture } from './capture.mjs'
+import { compareManifests } from './compare.mjs'
+import {
+  extractHtml,
+  extractSitemap,
+  canonicalStringify,
+  safeFileName,
+  sha256,
+  sha256Text,
+  normalizeText,
+} from './lib/extract.mjs'
+import { normalizeLocation, buildResolveDispatcher } from './lib/fetcher.mjs'
+
+// SPEC-04 §2: the sitemap is the largest single URL source (203 of 288 URLs in the last
+// known-good inventory) and the harness assumes it's broadly reachable. Per review: with no
+// reachability floor, if A and B both returned the same non-2xx/3xx response (e.g. a proxy
+// denial page, a misconfigured base) every URL would compare equal and the run would pass.
+const REACHABILITY_FLOOR = 0.95
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const REPO_ROOT = path.resolve(__dirname, '..', '..', '..')
+
+// Matches capture.mjs's own KNOWN_HOSTS, so location mutations exercise the exact same
+// normalizeLocation() call capture.mjs makes.
+const KNOWN_HOSTS = ['www.growmax.io', 'growmax.io', '*.vercel.app']
+
+// The fixed set of mutation cases described in SPEC-04 §5.2 (+ the image and Location
+// scheme/host cases added by review). Every one of these MUST be built for a run to be
+// trusted — a missing fixture (no redirect found, no JSON-LD, etc.) is a hard failure, not
+// a silently-dropped case.
+const REQUIRED_CASE_NAMES = [
+  'change-a-title',
+  'drop-a-canonical',
+  'edit-one-json-ld-field',
+  'change-one-word-of-body-text',
+  'change-image-url',
+  'flip-redirect-status',
+  'change-a-location',
+  'location-https-to-http',
+  'location-www-to-apex',
+  'remove-a-url',
+  'change-sitemap-lastmod-for-blog-url',
+  'reorder-api-blog-array',
+  'change-one-field-of-one-api-blog-element',
+  // P1.2 review r4: the fixed-expectation (`expect`) path, additive A/B compare on expect
+  // URLs, post-cutover expect-only entries, and text allowlist pinning.
+  'admin-session-isAdmin-true',
+  'admin-session-isAdmin-true-both-sides',
+  'admin-posts-status-200',
+  'blog-page2-drop-x-robots-tag',
+  'blog-page2-change-title-still-ab-compared',
+  'admin-page-status-500',
+  'post-cutover-conforming',
+  'post-cutover-301-http-self',
+  'post-cutover-missing-on-b',
+  'text-allowlist-pinned-covers-reviewed-diff',
+  'text-allowlist-pinned-rejects-other-diff',
+]
+
+// SPEC-04 §2.4/§2.6/§2.8: the only URLs that carry a fixed `expect` block. Checked against
+// the built inventory (check 'inventory-expect-blocks-match-spec') so an expectation put on
+// the wrong URL (r4: X-Robots-Tag on /admin instead of /blog?page=2) fails the self-test.
+const SPEC_EXPECT_URLS = {
+  '/api/admin/session': { status: 200, json: { isAdmin: false } },
+  '/api/admin/posts': { status: 401 },
+  '/blog?page=2': { xRobotsTag: 'noindex, follow' },
+}
+const SPEC_POST_CUTOVER_URLS = ['http://www.growmax.io/', 'http://growmax.io/', 'https://growmax.io/', 'https://growmax.io/demo']
+
+function parseArgs(argv) {
+  const out = {}
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]
+    if (!a.startsWith('--')) continue
+    const key = a.slice(2)
+    const next = argv[i + 1]
+    if (next === undefined || next.startsWith('--')) out[key] = true
+    else {
+      out[key] = next
+      i++
+    }
+  }
+  return out
+}
+
+function findEntry(manifest, predicate) {
+  return manifest.entries.find(predicate)
+}
+
+async function readRawBin(rawDir, url) {
+  return readFile(path.join(rawDir, `${safeFileName(url)}.bin`))
+}
+
+/** Re-run the real extractor and splice its output back into a cloned manifest entry. */
+function rebuildHtmlEntryFromRaw(entry, rawHtml, pageUrl) {
+  const extracted = extractHtml(rawHtml, pageUrl)
+  entry.html = extracted.fields
+  entry.jsonLdHash = extracted.jsonLdHash
+  entry.visibleTextHash = extracted.visibleTextHash
+  entry.internalLinks = extracted.internalLinks
+  entry.images = extracted.images
+  entry.assetRefs = extracted.assetRefs
+}
+
+/**
+ * Reconstruct an approximate raw Location header value from a normalizeLocation() token
+ * (e.g. "https://<self>/foo"), so a mutation case can flip its scheme/host and re-run the
+ * REAL normalizeLocation() — rather than hand-editing the already-normalized string.
+ */
+function untokenizeLocation(normalized, requestedHost) {
+  if (!normalized) return null
+  const m = normalized.match(/^(https?):\/\/(<[^>]+>)(\/.*)?$/)
+  if (!m) return normalized // already an absolute URL (unrecognized host); use as-is
+  const [, scheme, token, rest = ''] = m
+  let host
+  if (token === '<self>') host = requestedHost
+  else if (token === '<www>') host = 'www.growmax.io'
+  else if (token === '<apex>') host = 'growmax.io'
+  else if (token.startsWith('<deploy:')) host = token.slice('<deploy:'.length, -1)
+  else host = token
+  return `${scheme}://${host}${rest}`
+}
+
+/** Build the fixed set of mutation cases described in SPEC-04 §5.2, operating on raw bodies. */
+async function buildMutationCases(manifest, { rawDir, base }) {
+  const cases = []
+
+  const home = findEntry(manifest, (e) => e.url === '/')
+  const redirect = findEntry(manifest, (e) => e.status >= 300 && e.status < 400 && e.location)
+  const sitemap = findEntry(manifest, (e) => e.url === '/sitemap.xml')
+  const apiBlog = findEntry(manifest, (e) => e.url === '/api/blog' && e.jsonBySlug)
+
+  if (home) {
+    const homeUrl = new URL('/', base).toString()
+
+    cases.push({
+      name: 'change-a-title',
+      expectDetected: true,
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/')).toString('utf8')
+        const mutatedRaw = raw.replace(/(<title[^>]*>)([\s\S]*?)(<\/title>)/i, (_, open, inner, close) => `${open}${inner} (mutated)${close}`)
+        if (mutatedRaw === raw) throw new Error('change-a-title: no <title> tag found in home page raw HTML')
+        rebuildHtmlEntryFromRaw(findEntry(m, (x) => x.url === '/'), mutatedRaw, homeUrl)
+      },
+    })
+
+    cases.push({
+      name: 'drop-a-canonical',
+      expectDetected: true,
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/')).toString('utf8')
+        const mutatedRaw = raw.replace(/<link\b[^>]*rel=["']canonical["'][^>]*>\s*/i, '')
+        if (mutatedRaw === raw) throw new Error('drop-a-canonical: no <link rel=canonical> found in home page raw HTML')
+        rebuildHtmlEntryFromRaw(findEntry(m, (x) => x.url === '/'), mutatedRaw, homeUrl)
+      },
+    })
+
+    cases.push({
+      name: 'edit-one-json-ld-field',
+      expectDetected: true,
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/')).toString('utf8')
+        let touched = false
+        const mutatedRaw = raw.replace(
+          /(<script[^>]*type=["']application\/ld\+json["'][^>]*>)([\s\S]*?)(<\/script>)/i,
+          (full, open, inner, close) => {
+            let obj
+            try {
+              obj = JSON.parse(inner)
+            } catch {
+              return full
+            }
+            obj.__migrationSelftestMutated__ = `mutated-${Date.now()}`
+            touched = true
+            return `${open}${JSON.stringify(obj)}${close}`
+          },
+        )
+        if (!touched) throw new Error('edit-one-json-ld-field: no parseable JSON-LD script block found on home page')
+        rebuildHtmlEntryFromRaw(findEntry(m, (x) => x.url === '/'), mutatedRaw, homeUrl)
+      },
+    })
+
+    cases.push({
+      name: 'change-one-word-of-body-text',
+      expectDetected: true,
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/')).toString('utf8')
+        let touched = false
+        const mutatedRaw = raw.replace(/(<main\b[^>]*>)([\s\S]*?)(<\/main>)/i, (full, open, inner, close) => {
+          const replaced = inner.replace(/>([A-Za-z]{4,})(<)/, (m2, word, gt) => {
+            touched = true
+            return `>${word}MUTATED${gt}`
+          })
+          return `${open}${replaced}${close}`
+        })
+        if (!touched) throw new Error('change-one-word-of-body-text: no replaceable word found inside <main> on home page')
+        rebuildHtmlEntryFromRaw(findEntry(m, (x) => x.url === '/'), mutatedRaw, homeUrl)
+      },
+    })
+
+    cases.push({
+      name: 'change-image-url',
+      expectDetected: true,
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/')).toString('utf8')
+        let touched = 0
+        let mutatedRaw = raw.replace(/(<img\b[^>]*\bsrc=["'])(\/_next\/image[^"']*)(["'])/i, (_, a, b, c) => {
+          touched++
+          return `${a}${b}${b.includes('?') ? '&' : '?'}selftestmut=1${c}`
+        })
+        mutatedRaw = mutatedRaw.replace(
+          /(<img\b(?![^>]*\/_next\/image)[^>]*\bsrc=["'])(\/[^"']+\.(?:svg|png|jpe?g|webp)[^"']*)(["'])/i,
+          (_, a, b, c) => {
+            touched++
+            return `${a}${b}${b.includes('?') ? '&' : '?'}selftestmut=1${c}`
+          },
+        )
+        if (touched === 0) throw new Error('change-image-url: no matching <img src> found on home page')
+        rebuildHtmlEntryFromRaw(findEntry(m, (x) => x.url === '/'), mutatedRaw, homeUrl)
+      },
+    })
+  }
+
+  if (redirect) {
+    cases.push({
+      name: 'flip-redirect-status',
+      expectDetected: true,
+      mutate: async (m) => {
+        const e = findEntry(m, (x) => x.url === redirect.url)
+        const alt = { 308: 301, 301: 308, 307: 302, 302: 307 }
+        if (e) e.status = alt[e.status] ?? (e.status === 301 ? 308 : 301)
+      },
+    })
+    cases.push({
+      name: 'change-a-location',
+      expectDetected: true,
+      mutate: async (m) => {
+        const e = findEntry(m, (x) => x.url === redirect.url)
+        if (e) e.location = `${e.location || ''}?mutated=1`
+      },
+    })
+
+    const redirectTarget = new URL(redirect.url, base).toString()
+    const requestedHost = new URL(redirectTarget).host
+
+    cases.push({
+      name: 'location-https-to-http',
+      expectDetected: true,
+      mutate: async (m) => {
+        const e = findEntry(m, (x) => x.url === redirect.url)
+        if (!e?.location) throw new Error('location-https-to-http: redirect entry has no location')
+        const rawLoc = untokenizeLocation(e.location, requestedHost)
+        if (!/^https:\/\//i.test(rawLoc)) throw new Error('location-https-to-http: redirect location is not https')
+        const httpRaw = rawLoc.replace(/^https:\/\//i, 'http://')
+        e.location = normalizeLocation(httpRaw, redirectTarget, KNOWN_HOSTS)
+      },
+    })
+
+    cases.push({
+      name: 'location-www-to-apex',
+      expectDetected: true,
+      mutate: async (m) => {
+        const e = findEntry(m, (x) => x.url === redirect.url)
+        if (!e?.location) throw new Error('location-www-to-apex: redirect entry has no location')
+        const rawLoc = untokenizeLocation(e.location, requestedHost)
+        if (!/www\.growmax\.io/i.test(rawLoc)) throw new Error('location-www-to-apex: redirect location has no www.growmax.io host to flip')
+        const apexRaw = rawLoc.replace(/www\.growmax\.io/gi, 'growmax.io')
+        e.location = normalizeLocation(apexRaw, redirectTarget, KNOWN_HOSTS)
+      },
+    })
+  }
+
+  cases.push({
+    name: 'remove-a-url',
+    expectDetected: true,
+    mutate: async (m) => {
+      // Remove a low-risk, non-special entry so the removal itself is the only signal.
+      const idx = m.entries.findIndex((e) => e.url === '/company/about')
+      if (idx >= 0) m.entries.splice(idx, 1)
+      else m.entries.pop()
+    },
+  })
+
+  if (sitemap) {
+    cases.push({
+      name: 'change-sitemap-lastmod-for-blog-url',
+      expectDetected: true,
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/sitemap.xml')).toString('utf8')
+        const mutatedRaw = raw.replace(
+          /(<url>(?:(?!<\/url>)[\s\S])*?<loc>[^<]*\/blog\/[^<]*<\/loc>(?:(?!<\/url>)[\s\S])*?<lastmod>)([^<]*)(<\/lastmod>)/i,
+          (_, a, b, c) => `${a}1999-01-01T00:00:00.000Z${c}`,
+        )
+        if (mutatedRaw === raw) throw new Error('change-sitemap-lastmod-for-blog-url: no <lastmod> found inside a blog <url> block')
+        const e = findEntry(m, (x) => x.url === '/sitemap.xml')
+        e.sitemapEntries = extractSitemap(mutatedRaw)
+      },
+    })
+  }
+
+  if (apiBlog) {
+    const slugs = Object.keys(apiBlog.jsonBySlug)
+    const rebuildJsonBySlug = (items) => {
+      const jsonBySlug = {}
+      for (const item of items) if (item?.slug) jsonBySlug[item.slug] = canonicalStringify(item)
+      return jsonBySlug
+    }
+
+    cases.push({
+      name: 'reorder-api-blog-array',
+      expectDetected: false,
+      mutate: async (m) => {
+        const raw = (await readRawBin(rawDir, '/api/blog')).toString('utf8')
+        const parsed = JSON.parse(raw)
+        const e = findEntry(m, (x) => x.url === '/api/blog')
+        e.jsonBySlug = rebuildJsonBySlug([...parsed].reverse())
+      },
+    })
+
+    if (slugs.length > 0) {
+      cases.push({
+        name: 'change-one-field-of-one-api-blog-element',
+        expectDetected: true,
+        mutate: async (m) => {
+          const raw = (await readRawBin(rawDir, '/api/blog')).toString('utf8')
+          const parsed = JSON.parse(raw)
+          if (!Array.isArray(parsed) || parsed.length === 0)
+            throw new Error('change-one-field-of-one-api-blog-element: /api/blog raw body has zero items')
+          const mutated = parsed.map((item, i) => (i === 0 ? { ...item, title: `${item.title ?? ''} MUTATED` } : item))
+          const e = findEntry(m, (x) => x.url === '/api/blog')
+          e.jsonBySlug = rebuildJsonBySlug(mutated)
+        },
+      })
+    }
+  }
+
+  cases.push(...buildExpectPathCases(manifest, { rawDir, base }))
+
+  return cases
+}
+
+/** Re-parse a captured JSON body and splice it back the way capture.mjs does. */
+function rebuildJsonEntry(entry, parsed) {
+  entry.json = parsed
+  entry.jsonCanonical = canonicalStringify(parsed)
+  entry.jsonHash = sha256(Buffer.from(entry.jsonCanonical, 'utf8'))
+}
+
+function requireEntry(m, url, caseName) {
+  const e = findEntry(m, (x) => x.url === url)
+  if (!e) throw new Error(`${caseName}: no ${url} entry in the captured manifest`)
+  return e
+}
+
+/**
+ * Synthetic post-cutover entries (SPEC-04 §2.8) built from RAW Location values through the
+ * real normalizeLocation(), exactly as capture.mjs would record them. The live self-test
+ * runs pre-cutover, so these URLs can't be captured for real; this proves (a) the tokens in
+ * urls.mjs's POST_CUTOVER_ENTRIES are the ones normalizeLocation produces, (b) expect-only
+ * entries present on one side only don't raise a presence diff, and (c) a wrong redirect
+ * is caught by the expect path.
+ */
+function buildPostCutoverEntries(overrides = {}) {
+  const rawLocations = {
+    'http://www.growmax.io/': 'https://www.growmax.io/',
+    'http://growmax.io/': 'https://www.growmax.io/',
+    'https://growmax.io/': 'https://www.growmax.io/',
+    'https://growmax.io/demo': 'https://www.growmax.io/demo',
+  }
+  return POST_CUTOVER_ENTRIES.map(({ url, expect }) => {
+    const o = overrides[url] || {}
+    const status = o.status ?? (Array.isArray(expect.status) ? expect.status[0] : expect.status)
+    const rawLocation = o.rawLocation ?? rawLocations[url]
+    if (!rawLocation) throw new Error(`post-cutover fixture: no raw Location for ${url}`)
+    return {
+      url,
+      source: 'post-cutover',
+      status,
+      location: normalizeLocation(rawLocation, url, KNOWN_HOSTS),
+      contentType: 'text/plain',
+      headers: { 'x-robots-tag': null },
+      bytes: 0,
+      attempts: 1,
+      expect: structuredClone(expect),
+    }
+  })
+}
+
+const SYNTHETIC_APPROVAL = {
+  approvedBy: 'A1',
+  approvedAt: '2026-01-01T00:00:00Z',
+  reason: 'selftest synthetic allowlist entry (in-memory only, never written to allowlist.json)',
+}
+
+/**
+ * P1.2 review r4 cases. Each one names the diff field(s) that MUST appear (`requireFields`),
+ * so a case can't pass because some other, unrelated diff happened to show up.
+ */
+function buildExpectPathCases(manifest, { rawDir, base }) {
+  const cases = []
+
+  // --- Fixed expectation on /api/admin/session (SPEC-04 §2.4). ---
+  const flipIsAdmin = async (m, name) => {
+    const raw = (await readRawBin(rawDir, '/api/admin/session')).toString('utf8')
+    const parsed = JSON.parse(raw)
+    if (parsed?.isAdmin !== false) throw new Error(`${name}: captured /api/admin/session is not {isAdmin:false}`)
+    rebuildJsonEntry(requireEntry(m, '/api/admin/session', name), { ...parsed, isAdmin: true })
+  }
+  cases.push({
+    name: 'admin-session-isAdmin-true',
+    expectDetected: true,
+    requireFields: ['expect-json', 'json'],
+    mutate: (m) => flipIsAdmin(m, 'admin-session-isAdmin-true'),
+  })
+  // Same mutation on BOTH sides: the A/B compare sees nothing, so only the fixed expectation
+  // can catch it. Proves the expect path doesn't depend on A being correct.
+  cases.push({
+    name: 'admin-session-isAdmin-true-both-sides',
+    expectDetected: true,
+    mutateBothSides: true,
+    requireFields: ['expect-json'],
+    mutate: (m) => flipIsAdmin(m, 'admin-session-isAdmin-true-both-sides'),
+  })
+
+  // --- Fixed expectation on /api/admin/posts (401). ---
+  cases.push({
+    name: 'admin-posts-status-200',
+    expectDetected: true,
+    requireFields: ['expect-status', 'status'],
+    mutate: async (m) => {
+      const e = requireEntry(m, '/api/admin/posts', 'admin-posts-status-200')
+      if (e.status !== 401) throw new Error(`admin-posts-status-200: captured /api/admin/posts is ${e.status}, not 401`)
+      e.status = 200
+    },
+  })
+
+  // --- Fixed expectation on /blog?page=2 (SPEC-04 §2.6) + additive A/B compare. ---
+  cases.push({
+    name: 'blog-page2-drop-x-robots-tag',
+    expectDetected: true,
+    requireFields: ['expect-x-robots-tag', 'x-robots-tag'],
+    mutate: async (m) => {
+      const e = requireEntry(m, '/blog?page=2', 'blog-page2-drop-x-robots-tag')
+      if (e.headers?.['x-robots-tag'] !== 'noindex, follow')
+        throw new Error('blog-page2-drop-x-robots-tag: captured /blog?page=2 has no X-Robots-Tag: noindex, follow')
+      e.headers = { ...e.headers, 'x-robots-tag': null }
+    },
+  })
+  // r4 regression: compare.mjs used to `continue` after the expect check, so a URL with an
+  // expect block was never A/B compared. A title change on /blog?page=2 must still surface.
+  cases.push({
+    name: 'blog-page2-change-title-still-ab-compared',
+    expectDetected: true,
+    requireFields: ['title'],
+    mutate: async (m) => {
+      const e = requireEntry(m, '/blog?page=2', 'blog-page2-change-title-still-ab-compared')
+      if (!e.expect) throw new Error('blog-page2-change-title-still-ab-compared: /blog?page=2 carries no expect block')
+      const raw = (await readRawBin(rawDir, '/blog?page=2')).toString('utf8')
+      const mutatedRaw = raw.replace(/(<title[^>]*>)([\s\S]*?)(<\/title>)/i, (_, open, inner, close) => `${open}${inner} (mutated)${close}`)
+      if (mutatedRaw === raw) throw new Error('blog-page2-change-title-still-ab-compared: no <title> in /blog?page=2')
+      rebuildHtmlEntryFromRaw(e, mutatedRaw, new URL('/blog?page=2', base).toString())
+    },
+  })
+  // r4: a broken /admin on B (e.g. a 500) must fail parity through the ordinary A/B compare.
+  cases.push({
+    name: 'admin-page-status-500',
+    expectDetected: true,
+    requireFields: ['status'],
+    mutate: async (m) => {
+      const e = requireEntry(m, '/admin', 'admin-page-status-500')
+      e.status = 500
+    },
+  })
+
+  // --- Post-cutover expect-only entries (SPEC-04 §2.8). A is the pre-cutover baseline
+  // without them; B has them. ---
+  cases.push({
+    name: 'post-cutover-conforming',
+    expectDetected: false,
+    mutate: async (m) => {
+      m.entries.push(...buildPostCutoverEntries())
+    },
+  })
+  cases.push({
+    name: 'post-cutover-301-http-self',
+    expectDetected: true,
+    requireFields: ['expect-status', 'expect-location'],
+    mutate: async (m) => {
+      const entries = buildPostCutoverEntries({
+        'http://www.growmax.io/': { status: 301, rawLocation: 'http://www.growmax.io/' },
+      })
+      const e = entries.find((x) => x.url === 'http://www.growmax.io/')
+      if (e.location !== 'http://<self>/') throw new Error(`post-cutover-301-http-self: normalizeLocation gave ${e.location}`)
+      m.entries.push(...entries)
+    },
+  })
+  // A carries the post-cutover set (e.g. P8.2 vs a post-cutover baseline) and B is missing
+  // one: the expect path must report it, even though the A/B compare is skipped.
+  cases.push({
+    name: 'post-cutover-missing-on-b',
+    expectDetected: true,
+    requireFields: ['expect-presence'],
+    mutateA: async (m) => {
+      m.entries.push(...buildPostCutoverEntries())
+    },
+    mutate: async (m) => {
+      m.entries.push(...buildPostCutoverEntries().filter((x) => x.url !== 'https://growmax.io/demo'))
+    },
+  })
+
+  // --- Text allowlist pinning (compare.mjs pins sha256 of the normalized text). ---
+  const robots = findEntry(manifest, (e) => e.url === '/robots.txt')
+  const robotsTextFromRaw = async (edit) => {
+    const raw = (await readRawBin(rawDir, '/robots.txt')).toString('utf8')
+    const edited = edit(raw)
+    if (edited === raw) throw new Error('robots.txt text mutation changed nothing')
+    return normalizeText(edited)
+  }
+  const reviewedEdit = (raw) => `${raw.replace(/\s*$/, '')}\n# selftest reviewed change\n`
+  const otherEdit = (raw) =>
+    /^Allow:\s*\/\s*$/im.test(raw) ? raw.replace(/^Allow:\s*\/\s*$/im, 'Disallow: /') : `${raw.replace(/\s*$/, '')}\nDisallow: /\n`
+  const pinnedAllowlist = async () => {
+    if (!robots || typeof robots.text !== 'string') throw new Error('text-allowlist: /robots.txt has no captured text')
+    const reviewed = await robotsTextFromRaw(reviewedEdit)
+    return [
+      {
+        url: '/robots.txt',
+        field: 'text',
+        expected: { a: sha256Text(robots.text), b: sha256Text(reviewed) },
+        ...SYNTHETIC_APPROVAL,
+      },
+    ]
+  }
+  cases.push({
+    name: 'text-allowlist-pinned-covers-reviewed-diff',
+    expectDetected: false,
+    requireAllowlisted: 1,
+    allowlist: pinnedAllowlist,
+    mutate: async (m) => {
+      requireEntry(m, '/robots.txt', 'text-allowlist-pinned-covers-reviewed-diff').text = await robotsTextFromRaw(reviewedEdit)
+    },
+  })
+  cases.push({
+    name: 'text-allowlist-pinned-rejects-other-diff',
+    expectDetected: true,
+    requireFields: ['text'],
+    allowlist: pinnedAllowlist,
+    mutate: async (m) => {
+      requireEntry(m, '/robots.txt', 'text-allowlist-pinned-rejects-other-diff').text = await robotsTextFromRaw(otherEdit)
+    },
+  })
+
+  return cases
+}
+
+async function runMutationSelfTest(manifest, { rawDir, base }) {
+  const cases = await buildMutationCases(manifest, { rawDir, base })
+
+  const builtNames = new Set(cases.map((c) => c.name))
+  const missing = REQUIRED_CASE_NAMES.filter((n) => !builtNames.has(n))
+  if (missing.length > 0) {
+    throw new Error(
+      `mutation self-test is missing required case(s) — a fixture was unavailable in this capture: ${missing.join(', ')}`,
+    )
+  }
+
+  // Detection is measured against the unmutated self-compare: a case "detects" its mutation
+  // only if it produces a failing (non-report-only, non-allowlisted) diff that the self-compare
+  // did not already have. Any diff in the self-compare itself (an ambient `expect` violation
+  // included) already fails check 'self-compare-zero-diffs', so it is never filtered away;
+  // it just can't make a must-not-detect case like 'reorder-api-blog-array' look detected.
+  const diffKey = (d) => `${d.url}\u0000${d.field}\u0000${JSON.stringify(d.a)}\u0000${JSON.stringify(d.b)}`
+  const baseline = await compareManifests(manifest, manifest, {})
+  const baselineKeys = new Set(baseline.diffs.filter((d) => !d.reportOnly && !d.allowlisted).map(diffKey))
+
+  const results = []
+  for (const c of cases) {
+    const mutated = structuredClone(manifest)
+    const mutatedA = c.mutateBothSides || c.mutateA ? structuredClone(manifest) : manifest
+    let allowlist = []
+    try {
+      await c.mutate(mutated)
+      if (c.mutateBothSides) await c.mutate(mutatedA)
+      if (c.mutateA) await c.mutateA(mutatedA)
+      if (c.allowlist) allowlist = await c.allowlist()
+    } catch (err) {
+      results.push({ name: c.name, expectDetected: c.expectDetected, error: String(err.message || err), pass: false })
+      continue
+    }
+    const diff = await compareManifests(mutatedA, mutated, { allowlist })
+    const newFailing = diff.diffs.filter((d) => !d.reportOnly && !d.allowlisted && !baselineKeys.has(diffKey(d)))
+    const detected = newFailing.length >= 1 && diff.failedUnallowed >= 1
+    const fields = [...new Set(newFailing.map((d) => d.field))].sort()
+    const missingFields = (c.requireFields || []).filter((f) => !fields.includes(f))
+    const allowlistedOk = c.requireAllowlisted === undefined || diff.allowlisted >= c.requireAllowlisted
+    results.push({
+      name: c.name,
+      expectDetected: c.expectDetected,
+      detected,
+      failedUnallowed: diff.failedUnallowed,
+      detectedFields: fields,
+      ...(c.requireFields ? { requireFields: c.requireFields, missingFields } : {}),
+      ...(c.requireAllowlisted !== undefined ? { allowlisted: diff.allowlisted, requireAllowlisted: c.requireAllowlisted } : {}),
+      pass: detected === c.expectDetected && missingFields.length === 0 && allowlistedOk,
+    })
+  }
+  return results
+}
+
+/** SPEC-04 §2.4/§2.6/§2.8: exactly these URLs carry an `expect` block, with exactly these
+ *  expectations; the post-cutover set matches §2.8. Catches an expectation on the wrong URL
+ *  (r4) even when the live site would happen to satisfy it. */
+function checkInventoryExpectBlocks(urls) {
+  const actual = {}
+  for (const u of urls) if (u.expect) actual[u.url] = u.expect
+  const problems = []
+  for (const [url, want] of Object.entries(SPEC_EXPECT_URLS)) {
+    if (!(url in actual)) problems.push(`${url}: missing expect block`)
+    else if (canonicalStringify(actual[url]) !== canonicalStringify(want))
+      problems.push(`${url}: expect ${canonicalStringify(actual[url])} != spec ${canonicalStringify(want)}`)
+  }
+  for (const url of Object.keys(actual)) if (!(url in SPEC_EXPECT_URLS)) problems.push(`${url}: unexpected expect block`)
+  const postCutoverUrls = POST_CUTOVER_ENTRIES.map((e) => e.url)
+  if (canonicalStringify(postCutoverUrls) !== canonicalStringify(SPEC_POST_CUTOVER_URLS))
+    problems.push(`POST_CUTOVER_ENTRIES ${JSON.stringify(postCutoverUrls)} != spec ${JSON.stringify(SPEC_POST_CUTOVER_URLS)}`)
+  if (urls.some((u) => u.source === 'post-cutover')) problems.push('live self-test inventory unexpectedly includes post-cutover URLs')
+  return { pass: problems.length === 0, detail: { expectUrls: Object.keys(actual).sort(), postCutoverUrls, problems } }
+}
+
+/** Sanity-check the REAL extractor against the live baseline, so an extractor that quietly
+ *  returns nothing (empty text, no JSON-LD, no links, no assets) can't hide behind an
+ *  all-hashes-match self-compare. */
+async function extractorSanityCheck(rawDir, base) {
+  const raw = (await readRawBin(rawDir, '/')).toString('utf8')
+  const homeUrl = new URL('/', base).toString()
+  const extracted = extractHtml(raw, homeUrl)
+  const problems = []
+  if (!extracted.visibleText || extracted.visibleText.trim().length === 0) problems.push('visibleText is empty')
+  if (!extracted.jsonLdCount || extracted.jsonLdCount < 1) problems.push('no JSON-LD blocks found')
+  if (!extracted.internalLinks || extracted.internalLinks.length < 1) problems.push('no internal links found')
+  if (!extracted.assetRefs || extracted.assetRefs.length < 1) problems.push('no asset references (img/link) found')
+  return {
+    pass: problems.length === 0,
+    detail: {
+      visibleTextLength: extracted.visibleText?.length ?? 0,
+      jsonLdCount: extracted.jsonLdCount ?? 0,
+      internalLinksCount: extracted.internalLinks?.length ?? 0,
+      assetRefsCount: extracted.assetRefs?.length ?? 0,
+      problems,
+    },
+  }
+}
+
+/** SPEC-04 §5.4 (per review): a reachability floor on the sitemap source, so a run where A
+ *  and B are both silently answered by e.g. a proxy denial page (every non-404 URL then
+ *  compares equal) fails loudly instead of passing. */
+function reachabilityFloor(manifest) {
+  const sitemapEntries = manifest.entries.filter((e) => e.source === 'sitemap')
+  const ok = sitemapEntries.filter((e) => !e.error && typeof e.status === 'number' && e.status >= 200 && e.status < 400)
+  const ratio = sitemapEntries.length > 0 ? ok.length / sitemapEntries.length : 0
+  return {
+    pass: ratio >= REACHABILITY_FLOOR,
+    detail: { total: sitemapEntries.length, okCount: ok.length, ratio, floor: REACHABILITY_FLOOR },
+  }
+}
+
+/** Per review (blocking fix, fetcher.mjs): prove the --resolve pinned-DNS dispatcher (SPEC-04
+ *  §3's Sandbox capture path) actually works, by fetching a local server through it. Node
+ *  22's autoSelectFamily calls the custom lookup with `{all:true}` and expects an array back
+ *  — the un-fixed lookup always called back with a bare (ip, family), which made every
+ *  pinned request fail with "Invalid IP address: undefined". */
+async function testResolveDispatcher() {
+  const http = await import('node:http')
+  const server = http.createServer((_req, res) => {
+    res.writeHead(200, { 'content-type': 'text/plain' })
+    res.end('pinned-ok')
+  })
+  await new Promise((resolve, reject) => {
+    server.on('error', reject)
+    server.listen(0, '127.0.0.1', resolve)
+  })
+  try {
+    const port = server.address().port
+    const dispatcher = await buildResolveDispatcher([`migration-selftest.invalid:${port}:127.0.0.1`])
+    const res = await fetch(`http://migration-selftest.invalid:${port}/`, { dispatcher })
+    const text = await res.text()
+    return { pass: res.status === 200 && text === 'pinned-ok', detail: { status: res.status, text } }
+  } catch (err) {
+    return { pass: false, detail: { error: String(err.message || err) } }
+  } finally {
+    await new Promise((resolve) => server.close(resolve))
+  }
+}
+
+function nowUtc() {
+  try {
+    return execSync('date -u +%FT%TZ').toString().trim()
+  } catch {
+    return new Date().toISOString().replace(/\.\d{3}Z$/, 'Z')
+  }
+}
+
+function gitSha() {
+  try {
+    return execSync('git rev-parse HEAD', { cwd: REPO_ROOT }).toString().trim()
+  } catch {
+    return null
+  }
+}
+
+/** Names of tracked-or-untracked files under the harness dirs that differ from HEAD (dirty
+ *  working tree), so evidence can't be mistaken for having been checked against a clean,
+ *  committed version of the code. */
+function gitDirtyHarnessFiles(relDirs) {
+  try {
+    const args = relDirs.map((d) => `"${d}"`).join(' ')
+    const out = execSync(`git status --porcelain -- ${args}`, { cwd: REPO_ROOT }).toString().trim()
+    return out.length > 0 ? out.split('\n') : []
+  } catch {
+    return null
+  }
+}
+
+async function walkFiles(dir) {
+  const out = []
+  let entries
+  try {
+    entries = await readdir(dir, { withFileTypes: true })
+  } catch {
+    return out
+  }
+  for (const ent of entries) {
+    const full = path.join(dir, ent.name)
+    if (ent.isDirectory()) {
+      if (ent.name === 'node_modules' || ent.name === '.scratch') continue
+      out.push(...(await walkFiles(full)))
+    } else if (ent.isFile()) {
+      out.push(full)
+    }
+  }
+  return out
+}
+
+/** sha256 of every file under the harness dirs this run exercised, so evidence can be tied
+ *  to the exact code that produced it — not just a "checkedAt" timestamp that may predate
+ *  a same-second edit to capture.mjs/compare.mjs/extract.mjs. */
+async function hashHarnessFiles() {
+  const relDirs = ['parity', 'functional', 'visual', 'perf']
+  const hashes = {}
+  for (const relDir of relDirs) {
+    const dir = path.join(REPO_ROOT, 'scripts', 'migration', relDir)
+    const files = await walkFiles(dir)
+    files.sort()
+    for (const f of files) {
+      const rel = path.relative(REPO_ROOT, f)
+      hashes[rel] = sha256(await readFile(f))
+    }
+  }
+  return hashes
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2))
+  const base = args.base
+  const out =
+    args.out || path.resolve(__dirname, '..', '..', '..', 'docs', 'migration', 'evidence', 'P1.2-harness-selftest.json')
+  if (!base) {
+    console.error('Usage: node selftest.mjs --base <origin> [--out <evidence.json>]')
+    process.exit(2)
+  }
+
+  const scratchRoot = path.resolve(__dirname, '..', '..', '..', 'docs', 'migration', '.scratch', 'selftest')
+  await mkdir(scratchRoot, { recursive: true })
+
+  const checks = []
+
+  console.log(`[selftest] building URL inventory for ${base} ...`)
+  const { list: urls, counts } = await buildInventory({ base })
+  console.log(`[selftest] inventory: ${urls.length} URLs`)
+
+  // --- Check 1: capture once, compare manifest with itself -> 0 diffs. ---
+  console.log('[selftest] capturing manifest A ...')
+  const rawDirA = path.join(scratchRoot, 'raw-a')
+  const manifestA = await capture({ base, urls, rawDir: rawDirA, concurrency: 4 })
+  const errorsA = manifestA.entries.filter((e) => e.error)
+  console.log(`[selftest] manifest A: ${manifestA.count} entries, ${errorsA.length} fetch errors`)
+
+  const selfDiff = await compareManifests(manifestA, manifestA, {})
+  // SPEC-04 §5.1: '→ 0 diffs'. Nothing is filtered out (P1.2 review r4): an `expect`
+  // violation here is a real gap between the live site and a fixed requirement, and compare
+  // could never exit 0 on it at G5/G6a/G8a, so the self-test must fail too.
+  const selfExpectationViolations = selfDiff.diffs.filter((d) => String(d.field).startsWith('expect-'))
+  const selfCheckPass = selfDiff.diffs.length === 0 && selfDiff.failedUnallowed === 0
+  checks.push({
+    name: 'self-compare-zero-diffs',
+    pass: selfCheckPass,
+    detail: {
+      compared: selfDiff.compared,
+      failedUnallowed: selfDiff.failedUnallowed,
+      diffs: selfDiff.diffs.length,
+      expectationViolations: selfExpectationViolations,
+      sample: selfDiff.diffs.slice(0, 10),
+    },
+  })
+
+  // --- Check 1b: the inventory's fixed expectations are exactly SPEC-04 §2.4/§2.6/§2.8's. ---
+  const expectBlocks = checkInventoryExpectBlocks(urls)
+  checks.push({ name: 'inventory-expect-blocks-match-spec', pass: expectBlocks.pass, detail: expectBlocks.detail })
+
+  // --- Check 2: extractor sanity on the live baseline. ---
+  console.log('[selftest] extractor sanity check on home page ...')
+  const sanity = await extractorSanityCheck(rawDirA, base)
+  checks.push({ name: 'extractor-sanity-home', pass: sanity.pass, detail: sanity.detail })
+
+  // --- Check 2b: reachability floor on the sitemap source (per review). ---
+  console.log('[selftest] checking sitemap reachability floor ...')
+  const reachability = reachabilityFloor(manifestA)
+  checks.push({ name: 'reachability-floor-sitemap', pass: reachability.pass, detail: reachability.detail })
+
+  // --- Check 2c: --resolve pinned-DNS dispatcher against a local server (per review). ---
+  console.log('[selftest] testing --resolve pinned dispatcher against a local server ...')
+  const resolveCheck = await testResolveDispatcher()
+  checks.push({ name: 'resolve-dispatcher-pinned-fetch', pass: resolveCheck.pass, detail: resolveCheck.detail })
+
+  // --- Check 3: mutation matrix, mutating RAW bodies and re-running the real extractor. ---
+  console.log('[selftest] running mutation matrix ...')
+  let mutationResults = null
+  let mutationPass = false
+  try {
+    mutationResults = await runMutationSelfTest(manifestA, { rawDir: rawDirA, base })
+    mutationPass = mutationResults.every((r) => r.pass)
+  } catch (err) {
+    mutationResults = { error: String(err.message || err) }
+    mutationPass = false
+  }
+  checks.push({ name: 'mutation-matrix', pass: mutationPass, detail: mutationResults })
+
+  // --- Check 4: determinism, two live captures ~60s apart. ---
+  console.log('[selftest] waiting ~60s for the second capture (determinism check) ...')
+  await sleep(60_000)
+  console.log('[selftest] capturing manifest B ...')
+  const rawDirB = path.join(scratchRoot, 'raw-b')
+  const manifestB = await capture({ base, urls, rawDir: rawDirB, concurrency: 4 })
+  const detDiff = await compareManifests(manifestA, manifestB, {
+    rawDirA,
+    rawDirB,
+  })
+  // Nothing filtered by field (P1.2 review r4): an `expect` violation is never report-only,
+  // data-freshness or allowlisted, so it counts as unexplained and fails determinism.
+  const unexplained = detDiff.diffs.filter((d) => !d.reportOnly && d.category !== 'data-freshness' && !d.allowlisted)
+  const detExpectationViolations = detDiff.diffs.filter((d) => String(d.field).startsWith('expect-'))
+  const determinismPass = unexplained.length === 0 && detExpectationViolations.length === 0
+  checks.push({
+    name: 'determinism-two-captures-60s-apart',
+    pass: determinismPass,
+    detail: {
+      compared: detDiff.compared,
+      failedUnallowed: detDiff.failedUnallowed,
+      byCategory: detDiff.byCategory,
+      unexplainedCount: unexplained.length,
+      unexplainedSample: unexplained.slice(0, 10),
+      expectationViolations: detExpectationViolations,
+    },
+  })
+
+  // --- Check 5: protected-deployment probe (P5.2 only; no Vercel deployment exists yet). ---
+  // Recorded as deferred (pass: null), never pass: true — this run never actually exercised
+  // it, and a bare `true` here previously made the evidence claim a check that didn't run.
+  checks.push({
+    name: 'protected-deployment-probe',
+    pass: null,
+    detail: { status: 'deferred', reason: 'No Vercel deployment exists yet (this is P1.2, pre-P3.1/P5.2); the probe runs at P5.2.' },
+  })
+
+  const overallPass = checks.every((c) => c.pass !== false)
+
+  console.log('[selftest] hashing harness files ...')
+  const harnessFileHashes = await hashHarnessFiles()
+  const harnessDirs = ['scripts/migration/parity', 'scripts/migration/functional', 'scripts/migration/visual', 'scripts/migration/perf']
+
+  const evidence = {
+    step: 'P1.2',
+    gate: 'G1',
+    checkedAt: nowUtc(),
+    base,
+    git: {
+      sha: gitSha(),
+      dirtyHarnessFiles: gitDirtyHarnessFiles(harnessDirs),
+    },
+    harnessFileHashes,
+    urlInventory: { count: urls.length, counts },
+    manifestSummary: {
+      manifestA: { count: manifestA.count, fetchErrors: errorsA.length },
+      manifestB: { count: manifestB.count, fetchErrors: manifestB.entries.filter((e) => e.error).length },
+    },
+    checks,
+    overall: overallPass ? 'pass' : 'fail',
+  }
+
+  await mkdir(path.dirname(out), { recursive: true })
+  await writeFile(out, JSON.stringify(evidence, null, 2))
+  console.log(`[selftest] wrote ${out}`)
+  console.log(`[selftest] overall: ${evidence.overall}`)
+  for (const c of checks) {
+    console.log(`  ${c.pass === null ? 'DEFERRED' : c.pass ? 'PASS' : 'FAIL'}  ${c.name}`)
+  }
+
+  process.exit(overallPass ? 0 : 1)
+}
+
+main().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})

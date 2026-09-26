@@ -1,0 +1,474 @@
+{
+  "step": "P1.2",
+  "gate": "G1",
+  "checkedAt": "2026-09-26T13:56:39Z",
+  "base": "https://www.growmax.io",
+  "git": {
+    "sha": "0a32c81e2dffec2d8aec1e39c7899474eb412838",
+    "dirtyHarnessFiles": [
+      "M scripts/migration/parity/lib/extract.mjs",
+      " M scripts/migration/parity/lib/fetcher.mjs",
+      "?? scripts/migration/functional/",
+      "?? scripts/migration/parity/capture.mjs",
+      "?? scripts/migration/parity/compare.mjs",
+      "?? scripts/migration/parity/lib/diff.mjs",
+      "?? scripts/migration/parity/selftest.mjs",
+      "?? scripts/migration/parity/urls.mjs",
+      "?? scripts/migration/perf/",
+      "?? scripts/migration/visual/"
+    ]
+  },
+  "harnessFileHashes": {
+    "scripts/migration/parity/capture.mjs": "9a15ea1ca684d52295615d001740a6ebe42a82e6c5dc03448de85b2ce572f9fa",
+    "scripts/migration/parity/compare.mjs": "8461deb24fba59a64f99dfe8f5e62cd8acc291e7dbac3946ca1a5508eeeaa5a3",
+    "scripts/migration/parity/lib/diff.mjs": "f061d69f3d9450013ace6384b623f44ba0c7ebb623b240e6fd78dc19f673f421",
+    "scripts/migration/parity/lib/extract.mjs": "7207eff611e4691a08d1dfba1ac6ec989c23d21e5d62b6ae60abeac303bf1645",
+    "scripts/migration/parity/lib/fetcher.mjs": "a73205f41129949f08f32d38d06a702a76d7aef6ac2753d0c1492ddbb611cd3d",
+    "scripts/migration/parity/selftest.mjs": "cc302c920c8341c9ba220ba6123516c8318c7db1c30a9fbeff029a4e16e80c7a",
+    "scripts/migration/parity/urls.mjs": "f6ddf5d8f7336075aa0f07b8b2a7f2b5693fb7e194bfcd507553b915310299fe",
+    "scripts/migration/functional/run.mjs": "0dd30cab8d4df29b6ba27e5dd5a7fc3eba05e416a922d53469b30fbf1c7f4fed",
+    "scripts/migration/visual/run.mjs": "2b7c892dc71e1bafc5d1234ff82028929ab97effe014f6cf0335a24f01fcf373",
+    "scripts/migration/perf/run.mjs": "9f633137515ebc0b28244474e55ee81655880195faa821193e283339b0a5671e"
+  },
+  "urlInventory": {
+    "count": 288,
+    "counts": {
+      "sitemap": 203,
+      "next-config-gsc": 50,
+      "next-config-literal": 8,
+      "special": 9,
+      "special-api": 9,
+      "not-in-sitemap": 4,
+      "variant": 3,
+      "negative": 2
+    }
+  },
+  "manifestSummary": {
+    "manifestA": {
+      "count": 288,
+      "fetchErrors": 0
+    },
+    "manifestB": {
+      "count": 288,
+      "fetchErrors": 0
+    }
+  },
+  "checks": [
+    {
+      "name": "self-compare-zero-diffs",
+      "pass": true,
+      "detail": {
+        "compared": 288,
+        "failedUnallowed": 0,
+        "diffs": 0,
+        "expectationViolations": [],
+        "sample": []
+      }
+    },
+    {
+      "name": "inventory-expect-blocks-match-spec",
+      "pass": true,
+      "detail": {
+        "expectUrls": [
+          "/api/admin/posts",
+          "/api/admin/session",
+          "/blog?page=2"
+        ],
+        "postCutoverUrls": [
+          "http://www.growmax.io/",
+          "http://growmax.io/",
+          "https://growmax.io/",
+          "https://growmax.io/demo"
+        ],
+        "problems": []
+      }
+    },
+    {
+      "name": "extractor-sanity-home",
+      "pass": true,
+      "detail": {
+        "visibleTextLength": 9893,
+        "jsonLdCount": 1,
+        "internalLinksCount": 42,
+        "assetRefsCount": 35,
+        "problems": []
+      }
+    },
+    {
+      "name": "reachability-floor-sitemap",
+      "pass": true,
+      "detail": {
+        "total": 203,
+        "okCount": 203,
+        "ratio": 1,
+        "floor": 0.95
+      }
+    },
+    {
+      "name": "resolve-dispatcher-pinned-fetch",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "text": "pinned-ok"
+      }
+    },
+    {
+      "name": "mutation-matrix",
+      "pass": true,
+      "detail": [
+        {
+          "name": "change-a-title",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "title"
+          ],
+          "pass": true
+        },
+        {
+          "name": "drop-a-canonical",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "canonical"
+          ],
+          "pass": true
+        },
+        {
+          "name": "edit-one-json-ld-field",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "jsonLdHash"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-one-word-of-body-text",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "visibleTextHash"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-image-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "assetRefs"
+          ],
+          "pass": true
+        },
+        {
+          "name": "flip-redirect-status",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "status"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-a-location",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "location-https-to-http",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "location-www-to-apex",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "remove-a-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "presence"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-sitemap-lastmod-for-blog-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "sitemapEntries"
+          ],
+          "pass": true
+        },
+        {
+          "name": "reorder-api-blog-array",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "pass": true
+        },
+        {
+          "name": "change-one-field-of-one-api-blog-element",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "jsonBySlug.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "admin-session-isAdmin-true",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-json",
+            "json"
+          ],
+          "requireFields": [
+            "expect-json",
+            "json"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-session-isAdmin-true-both-sides",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "expect-json"
+          ],
+          "requireFields": [
+            "expect-json"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-posts-status-200",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-status",
+            "status"
+          ],
+          "requireFields": [
+            "expect-status",
+            "status"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "blog-page2-drop-x-robots-tag",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-x-robots-tag",
+            "x-robots-tag"
+          ],
+          "requireFields": [
+            "expect-x-robots-tag",
+            "x-robots-tag"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "blog-page2-change-title-still-ab-compared",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "title"
+          ],
+          "requireFields": [
+            "title"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-page-status-500",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "status"
+          ],
+          "requireFields": [
+            "status"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-conforming",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-301-http-self",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-location",
+            "expect-status"
+          ],
+          "requireFields": [
+            "expect-status",
+            "expect-location"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-missing-on-b",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "expect-presence"
+          ],
+          "requireFields": [
+            "expect-presence"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "text-allowlist-pinned-covers-reviewed-diff",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "allowlisted": 1,
+          "requireAllowlisted": 1,
+          "pass": true
+        },
+        {
+          "name": "text-allowlist-pinned-rejects-other-diff",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "text"
+          ],
+          "requireFields": [
+            "text"
+          ],
+          "missingFields": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "determinism-two-captures-60s-apart",
+      "pass": true,
+      "detail": {
+        "compared": 288,
+        "failedUnallowed": 0,
+        "byCategory": {},
+        "unexplainedCount": 0,
+        "unexplainedSample": [],
+        "expectationViolations": []
+      }
+    },
+    {
+      "name": "protected-deployment-probe",
+      "pass": null,
+      "detail": {
+        "status": "deferred",
+        "reason": "No Vercel deployment exists yet (this is P1.2, pre-P3.1/P5.2); the probe runs at P5.2."
+      }
+    }
+  ],
+  "overall": "pass",
+  "fixRound": {
+    "round": "r4 (escalation rung 4, deep fix)",
+    "implementer": "migration-implementer",
+    "recordedAt": "2026-09-26T13:59:05Z",
+    "blockingFixed": [
+      {
+        "file": "scripts/migration/parity/urls.mjs",
+        "change": "Removed NOINDEX_EXPECT from /admin and /admin/login. They now get the ordinary A/B compare again. Moved the SPEC-04 §2.6 expectation {xRobotsTag:\"noindex, follow\"} to /blog?page=2 (middleware.ts:30-39 sets it). Post-cutover entries moved into an exported POST_CUTOVER_ENTRIES constant with unchanged values, so selftest can exercise them."
+      },
+      {
+        "file": "scripts/migration/parity/compare.mjs",
+        "change": "The expect check is additive now. compareManifests runs compareExpectation and then still runs compareEntry. The A/B compare is skipped only for source \"post-cutover\" or an entry marked expectOnly:true."
+      },
+      {
+        "file": "scripts/migration/parity/selftest.mjs",
+        "change": "Removed excludingExpectationDiffs. self-compare-zero-diffs now requires diffs==0 and failedUnallowed==0 (§5.1). Determinism fails on any expect-* diff. Mutation detection now means a new failing (non-report-only, non-allowlisted) diff that the unmutated self-compare did not have. Each new case also names the fields it must produce (requireFields). Added check inventory-expect-blocks-match-spec, which requires exactly /api/admin/session, /api/admin/posts and /blog?page=2 to carry expect blocks, and the post-cutover URL set to match §2.8. Added 11 mutation cases: admin-session-isAdmin-true, admin-session-isAdmin-true-both-sides, admin-posts-status-200, blog-page2-drop-x-robots-tag, blog-page2-change-title-still-ab-compared, admin-page-status-500, post-cutover-conforming (control), post-cutover-301-http-self, post-cutover-missing-on-b, text-allowlist-pinned-covers-reviewed-diff (control), text-allowlist-pinned-rejects-other-diff."
+      }
+    ],
+    "actionableNonBlockingFixed": [
+      {
+        "file": "scripts/migration/visual/run.mjs",
+        "change": "resolveBlogPostPath for base A now gets undefined instead of the bypass secret (run.mjs:275-277)."
+      },
+      {
+        "file": "scripts/migration/parity/selftest.mjs",
+        "change": "Added self-test cases for the expect path, text allowlist pinning, and post-cutover entries (listed above)."
+      }
+    ],
+    "skipped": [
+      {
+        "file": "scripts/migration/db/sync.mjs",
+        "reason": "Outside P1.2 directory ownership (scripts/migration/db/ is owned by P1.1). Not touched."
+      }
+    ],
+    "regressionReplay": {
+      "description": "The r4 regressions (xRobotsTag expect on /admin and /admin/login, none on /blog?page=2, and an unconditional continue after compareExpectation) were put back into a scratch copy of the harness, and the self-test ran against the live site. Scratch output only; nothing was committed.",
+      "result": "overall fail",
+      "failedChecks": [
+        "self-compare-zero-diffs (2 expectationViolations on /admin, /admin/login)",
+        "inventory-expect-blocks-match-spec",
+        "determinism-two-captures-60s-apart",
+        "mutation-matrix: admin-page-status-500 not detected; admin-session-isAdmin-true missing json; admin-posts-status-200 missing status; blog-page2-drop-x-robots-tag missing expect-x-robots-tag; blog-page2-change-title-still-ab-compared fixture error"
+      ]
+    },
+    "verifierShouldRun": [
+      "npm --prefix scripts/migration ci",
+      "cd scripts/migration/parity && NODE_USE_ENV_PROXY=1 node selftest.mjs --base https://www.growmax.io --out <scratch>/selftest.json   (expect overall pass, self-compare diffs=0)",
+      "Recompute sha256 of scripts/migration/{parity,functional,visual,perf}/** and compare with harnessFileHashes",
+      "Optionally replay the regression: re-add the /admin expect and the unconditional continue in a scratch copy, then confirm the self-test fails"
+    ]
+  }
+}

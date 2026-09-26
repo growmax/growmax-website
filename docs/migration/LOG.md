@@ -74,3 +74,13 @@
 - 2026-09-26T13:50:50.813Z [P1.1] step failed → in_progress
 - 2026-09-26T13:50:50.869Z [P1.2] step failed → in_progress
 - 2026-09-26T13:50:51.022Z set facts.runs.p1
+- 2026-09-26T14:23:43.832Z set sync.gapStart
+- 2026-09-26T14:23:43.887Z set facts.source.maxIdsAtP1
+- 2026-09-26T14:23:43.951Z set facts.source.naturalKeys
+- 2026-09-26T14:23:44.024Z set facts.source.extraTables
+- 2026-09-26T14:23:44.086Z set facts.source.extensions
+- 2026-09-26T14:23:44.141Z set facts.runner
+- 2026-09-26T14:23:44.196Z set facts.followUps
+- 2026-09-26T14:23:44.244Z [P1.2] step in_progress → done — Attempt 3 (rung 4): review r5 approved (0 blocking, 12 non-blocking tracked in facts.followUps). Self-test: mutation matrix, determinism, reachability floor, resolve dispatcher pass; the protected-deployment probe is deferred to P5.1.
+- 2026-09-26T14:23:44.298Z [P1.3] step in_progress → done — 288 URLs (203 sitemap, 58 config redirect sources, 95 DB redirects), 0 exhausted retries; verified by migration-verifier. The manifest (7.8 MB) is kept in .scratch only (over the evidence size limit).
+- 2026-09-26T14:23:44.369Z [P1.1] step in_progress → done — Scripts approved in review r5. GAP_START=1000000 (max id 174). No extra tables; plpgsql only. Sandbox pg_dump/pg_restore 16.15. G1 check 1.1 still needs an independent verifier re-derivation (the inventory/fingerprints were taken at 11:23Z with pre-fix scripts).

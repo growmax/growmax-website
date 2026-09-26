@@ -1,0 +1,13 @@
+{
+  "step": "P1.1",
+  "checkedAt": "2026-09-26T14:03:32Z",
+  "note": "Rung-4 fix for review r4: each new sync self-test scenario was run against a mutant of scripts/migration/db/sync.mjs that restores the pre-fix behavior (throwaway local PG16 only). Each mutant fails exactly its target scenario; the unmutated code passes all 29 (evidence/P1.1-sync-selftest.json).",
+  "mutants": [
+    { "id": "M1", "restores": "r3 init: synced_ids and watermark from a later SOURCE id read (review r4 blocking)", "failedScenarios": ["init-watermarks: a source row committed after verify, before init, is not lost (inserted by the next delta)"], "killed": true },
+    { "id": "M2", "restores": "delta step 2 ignores synced_ids for ids above the watermark (r4 non-blocking 1)", "failedScenarios": ["delta: after a crash before step 6, a row deleted on the target is not re-inserted on re-run"], "killed": true },
+    { "id": "M3", "restores": "key-conflicted source rows are not recorded as synced (r4 non-blocking 2)", "failedScenarios": ["delta: a key-reconciled source row whose target twin is deleted is not resurrected as a late commit"], "killed": true },
+    { "id": "M4", "restores": "target insert and synced_ids record as two separate statements (r4 non-blocking 3)", "failedScenarios": ["delta: a target insert and its synced_ids record commit or roll back together"], "killed": true },
+    { "id": "M5", "restores": "watermark advance and sync_log row as two separate statements (r4 non-blocking 3)", "failedScenarios": ["delta: the watermark advance and its sync_log row commit or roll back together"], "killed": true }
+  ],
+  "allKilled": true
+}
