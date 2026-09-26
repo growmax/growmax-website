@@ -14,73 +14,661 @@
     "region": "iad1",
     "neonPlan": null,
     "replitWwwIp": "34.111.179.208",
-    "apexIpsAtPlanTime": ["198.49.23.144", "198.49.23.145", "198.185.159.144", "198.185.159.145"]
+    "apexIpsAtPlanTime": [
+      "198.49.23.144",
+      "198.49.23.145",
+      "198.185.159.144",
+      "198.185.159.145"
+    ]
   },
   "facts": {
-    "paths": { "web": null, "db": null, "vercelApi": null, "visual": null },
-    "vercel": { "planAtPlanTime": "hobby" },
+    "paths": {
+      "web": null,
+      "db": null,
+      "vercelApi": null,
+      "visual": null
+    },
+    "vercel": {
+      "planAtPlanTime": "hobby"
+    },
     "neon": {},
     "source": {},
     "dns": {},
     "git": {},
-    "cutover": { "state": null, "detectedAt": null },
+    "cutover": {
+      "state": null,
+      "detectedAt": null
+    },
     "runner": {}
   },
-  "flags": { "demoTestSent": false, "prOpened": false, "prUrl": null },
-  "sync": { "gapStart": null, "lastFullRefreshAt": null, "lastDeltaAt": null, "lastSourceRowAt": null, "deltaRuns": 0 },
-  "checkins": { "lastTriggerId": null, "lastCheckAt": null, "cadenceMinutes": 60 },
-  "advisor": { "A1": null, "A2": null, "A3": [], "A4": null },
+  "flags": {
+    "demoTestsSent": 0,
+    "prOpened": false,
+    "prUrl": null
+  },
+  "sync": {
+    "gapStart": null,
+    "lastFullRefreshAt": null,
+    "lastDeltaAt": null,
+    "lastSourceRowAt": null,
+    "deltaRuns": 0
+  },
+  "checkins": {
+    "lastCheckAt": null,
+    "cadence": "see SPEC-05 \u00a74"
+  },
+  "advisor": {
+    "A1": null,
+    "A2": null,
+    "A3": [],
+    "A4": null
+  },
   "blockers": [],
   "gates": {
-    "G0": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G1": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G2": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G3": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G4": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G5": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G6a": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G6": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G8a": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G8b": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null },
-    "G9": { "status": "pending", "evidence": [], "by": null, "at": null, "note": null }
+    "G0": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G1": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G2": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G3": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G4": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G5": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G6a": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G6": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G8a": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G8b": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    },
+    "G9": {
+      "status": "pending",
+      "evidence": [],
+      "by": null,
+      "at": null,
+      "note": null
+    }
   },
   "steps": [
-    { "id": "P0.1", "phase": "P0", "title": "Bootstrap: checkout branch, read manual, resume, set IN_PROGRESS", "deps": [], "gate": null, "workflow": null, "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P0.2", "phase": "P0", "title": "Pre-flight checks (connector scope, secrets, network, tooling, source identity)", "deps": ["P0.1"], "gate": "G0", "workflow": ".claude/workflows/mig-p0-preflight.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P1.1", "phase": "P1", "title": "Source DB inventory + fingerprints + fixtures + GAP_START", "deps": ["P0.2"], "gate": "G1", "workflow": ".claude/workflows/mig-p1-discovery.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P1.2", "phase": "P1", "title": "Build parity harness + mutation self-test + adversarial review", "deps": ["P0.2"], "gate": "G1", "workflow": ".claude/workflows/mig-p1-discovery.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P1.3", "phase": "P1", "title": "Capture live-site baseline", "deps": ["P1.1", "P1.2"], "gate": "G1", "workflow": ".claude/workflows/mig-p1-discovery.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P1.4", "phase": "P1", "title": "DNS / TLS / domain baseline", "deps": ["P0.2"], "gate": "G1", "workflow": ".claude/workflows/mig-p1-discovery.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P1.5", "phase": "P1", "title": "Code compatibility audit", "deps": ["P0.2"], "gate": "G1", "workflow": ".claude/workflows/mig-p1-discovery.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P1.6", "phase": "P1", "title": "Advisor review A1", "deps": ["P1.1", "P1.2", "P1.3", "P1.4", "P1.5"], "gate": "G1", "workflow": ".claude/workflows/mig-advisor.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P2.1", "phase": "P2", "title": "Implement M1-M4 (+M5 audit)", "deps": ["P1.6"], "gate": "G2", "workflow": ".claude/workflows/mig-p2-code.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P2.2", "phase": "P2", "title": "Local verification (npm ci, tsc, build, smoke, mock webhook)", "deps": ["P2.1"], "gate": "G2", "workflow": ".claude/workflows/mig-p2-code.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P2.3", "phase": "P2", "title": "Adversarial review + fix loop", "deps": ["P2.2"], "gate": "G2", "workflow": ".claude/workflows/mig-p2-code.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P2.4", "phase": "P2", "title": "Commit + push minimal changes (record mSha)", "deps": ["P2.3"], "gate": "G2", "workflow": null, "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P3.1", "phase": "P3", "title": "Vercel project create/reuse + settings + ignore-step guard", "deps": ["P1.6"], "gate": "G3", "workflow": ".claude/workflows/mig-p3-infra.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P3.2", "phase": "P3", "title": "Neon via Vercel Marketplace (adopt/provision growmax-db, connect)", "deps": ["P3.1"], "gate": "G3", "workflow": ".claude/workflows/mig-p3-infra.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P3.3", "phase": "P3", "title": "Environment variables (sensitive, via stdin)", "deps": ["P3.1"], "gate": "G3", "workflow": ".claude/workflows/mig-p3-infra.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P3.4", "phase": "P3", "title": "Protection bypass for automation + access check", "deps": ["P3.1"], "gate": "G3", "workflow": ".claude/workflows/mig-p3-infra.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P3.5", "phase": "P3", "title": "Independent infra read-back", "deps": ["P3.2", "P3.3", "P3.4"], "gate": "G3", "workflow": ".claude/workflows/mig-p3-infra.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P4.1", "phase": "P4", "title": "Target pre-checks", "deps": ["P3.5", "P1.1"], "gate": "G4", "workflow": ".claude/workflows/mig-p4-data.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P4.2", "phase": "P4", "title": "Full copy (pg_dump read-only -> pg_restore) + ANALYZE", "deps": ["P4.1"], "gate": "G4", "workflow": ".claude/workflows/mig-p4-data.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P4.3", "phase": "P4", "title": "Independent data verification", "deps": ["P4.2"], "gate": "G4", "workflow": ".claude/workflows/mig-p4-data.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P5.1", "phase": "P5", "title": "Production deployment (vercel.app) of mSha", "deps": ["P2.4", "P4.3"], "gate": "G5", "workflow": ".claude/workflows/mig-p5-deploy-verify.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P5.2", "phase": "P5", "title": "Verification suite (parity, functional incl. single demo test, visual, logs, perf)", "deps": ["P5.1"], "gate": "G5", "workflow": ".claude/workflows/mig-p5-deploy-verify.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P5.3", "phase": "P5", "title": "Triage + fix loop (only if P5.2 failed)", "deps": ["P5.2"], "gate": "G5", "workflow": null, "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P5.4", "phase": "P5", "title": "Open PR to main (never merge)", "deps": ["P5.3"], "gate": null, "workflow": null, "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P6.1", "phase": "P6", "title": "Implement H1-H4 + local verification + review", "deps": ["P5.4"], "gate": "G6a", "workflow": ".claude/workflows/mig-p6a-harden.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P6.2", "phase": "P6", "title": "Commit, deploy hSha, re-run suite (no demo test)", "deps": ["P6.1"], "gate": "G6a", "workflow": ".claude/workflows/mig-p5-deploy-verify.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P6.3", "phase": "P6", "title": "Add domains; capture recommended records + ACME DNS-01 challenges", "deps": ["P6.2"], "gate": "G6", "workflow": ".claude/workflows/mig-p6b-ready.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P6.4", "phase": "P6", "title": "Merge origin/main; final full refresh + sequence gap + verify + redeploy + quick parity", "deps": ["P6.3"], "gate": "G6", "workflow": ".claude/workflows/mig-p6b-ready.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P6.5", "phase": "P6", "title": "Render CUTOVER-RUNBOOK.md; advisor go/no-go A2", "deps": ["P6.4"], "gate": "G6", "workflow": ".claude/workflows/mig-advisor.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P6.6", "phase": "P6", "title": "Notify owner; status AWAITING_DNS", "deps": ["P6.5"], "gate": "G6", "workflow": null, "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P7.1", "phase": "P7", "title": "Check-in loop: TXT->cert, detect www switch, delta sync, health (done when SWITCHED)", "deps": ["P6.6"], "gate": null, "workflow": ".claude/workflows/mig-sync-delta.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P8.1", "phase": "P8", "title": "DNS/TLS verification on real domain", "deps": ["P7.1"], "gate": "G8a", "workflow": ".claude/workflows/mig-p8-postcutover.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P8.2", "phase": "P8", "title": "Full suite on https://www.growmax.io vs baseline (+ vs Replit pinned)", "deps": ["P8.1"], "gate": "G8a", "workflow": ".claude/workflows/mig-p8-postcutover.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P8.3", "phase": "P8", "title": "Reconciliation: delta each check-in >=72h and until 24h of zero new source rows; final audit", "deps": ["P8.2"], "gate": "G8b", "workflow": ".claude/workflows/mig-sync-delta.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P8.4", "phase": "P8", "title": "Monitoring hand-off (uptime workflow into PR)", "deps": ["P8.2"], "gate": "G8b", "workflow": ".claude/workflows/mig-p8-postcutover.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P9.1", "phase": "P9", "title": "FINAL-REPORT.md + advisor sign-off A4", "deps": ["P8.3", "P8.4"], "gate": "G9", "workflow": ".claude/workflows/mig-advisor.js", "status": "pending", "attempts": 0, "evidence": [], "notes": [] },
-    { "id": "P9.2", "phase": "P9", "title": "Cleanup (triggers, sandbox, .scratch), status COMPLETE, decommission checklist", "deps": ["P9.1"], "gate": "G9", "workflow": null, "status": "pending", "attempts": 0, "evidence": [], "notes": [] }
+    {
+      "id": "P0.1",
+      "phase": "P0",
+      "title": "Bootstrap: checkout branch, read manual, resume, set IN_PROGRESS",
+      "deps": [],
+      "gate": null,
+      "workflow": null,
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P0.2",
+      "phase": "P0",
+      "title": "Pre-flight checks (connector scope, secrets, network, tooling, source identity)",
+      "deps": [
+        "P0.1"
+      ],
+      "gate": "G0",
+      "workflow": ".claude/workflows/mig-p0-preflight.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P1.1",
+      "phase": "P1",
+      "title": "Source DB inventory + fingerprints + fixtures + GAP_START",
+      "deps": [
+        "P0.2"
+      ],
+      "gate": "G1",
+      "workflow": ".claude/workflows/mig-p1-discovery.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P1.2",
+      "phase": "P1",
+      "title": "Build parity harness + mutation self-test + adversarial review",
+      "deps": [
+        "P0.2"
+      ],
+      "gate": "G1",
+      "workflow": ".claude/workflows/mig-p1-discovery.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P1.3",
+      "phase": "P1",
+      "title": "Capture live-site baseline",
+      "deps": [
+        "P1.1",
+        "P1.2"
+      ],
+      "gate": "G1",
+      "workflow": ".claude/workflows/mig-p1-discovery.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P1.4",
+      "phase": "P1",
+      "title": "DNS / TLS / domain baseline",
+      "deps": [
+        "P0.2"
+      ],
+      "gate": "G1",
+      "workflow": ".claude/workflows/mig-p1-discovery.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P1.5",
+      "phase": "P1",
+      "title": "Code compatibility audit",
+      "deps": [
+        "P0.2"
+      ],
+      "gate": "G1",
+      "workflow": ".claude/workflows/mig-p1-discovery.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P1.6",
+      "phase": "P1",
+      "title": "Advisor review A1",
+      "deps": [
+        "P1.1",
+        "P1.2",
+        "P1.3",
+        "P1.4",
+        "P1.5"
+      ],
+      "gate": "G1",
+      "workflow": ".claude/workflows/mig-advisor.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P2.1",
+      "phase": "P2",
+      "title": "Implement M1-M4 (+M5 audit)",
+      "deps": [
+        "P1.6"
+      ],
+      "gate": "G2",
+      "workflow": ".claude/workflows/mig-p2-code.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P2.2",
+      "phase": "P2",
+      "title": "Local verification (npm ci, tsc, build, smoke, mock webhook)",
+      "deps": [
+        "P2.1"
+      ],
+      "gate": "G2",
+      "workflow": ".claude/workflows/mig-p2-code.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P2.3",
+      "phase": "P2",
+      "title": "Adversarial review + fix loop",
+      "deps": [
+        "P2.2"
+      ],
+      "gate": "G2",
+      "workflow": ".claude/workflows/mig-p2-code.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P2.4",
+      "phase": "P2",
+      "title": "Commit + push minimal changes (record mSha)",
+      "deps": [
+        "P2.3"
+      ],
+      "gate": "G2",
+      "workflow": null,
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P3.1",
+      "phase": "P3",
+      "title": "Vercel project create/reuse + settings + ignore-step guard",
+      "deps": [
+        "P1.6"
+      ],
+      "gate": "G3",
+      "workflow": ".claude/workflows/mig-p3-infra.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P3.2",
+      "phase": "P3",
+      "title": "Neon via Vercel Marketplace (adopt/provision growmax-db, connect)",
+      "deps": [
+        "P3.1"
+      ],
+      "gate": "G3",
+      "workflow": ".claude/workflows/mig-p3-infra.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P3.3",
+      "phase": "P3",
+      "title": "Environment variables (sensitive, via stdin)",
+      "deps": [
+        "P3.1"
+      ],
+      "gate": "G3",
+      "workflow": ".claude/workflows/mig-p3-infra.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P3.4",
+      "phase": "P3",
+      "title": "Protection bypass for automation + access check",
+      "deps": [
+        "P3.1"
+      ],
+      "gate": "G3",
+      "workflow": ".claude/workflows/mig-p3-infra.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P3.5",
+      "phase": "P3",
+      "title": "Independent infra read-back",
+      "deps": [
+        "P3.2",
+        "P3.3",
+        "P3.4"
+      ],
+      "gate": "G3",
+      "workflow": ".claude/workflows/mig-p3-infra.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P4.1",
+      "phase": "P4",
+      "title": "Target pre-checks",
+      "deps": [
+        "P3.5",
+        "P1.1"
+      ],
+      "gate": "G4",
+      "workflow": ".claude/workflows/mig-p4-data.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P4.2",
+      "phase": "P4",
+      "title": "Full copy (pg_dump read-only -> pg_restore) + ANALYZE",
+      "deps": [
+        "P4.1"
+      ],
+      "gate": "G4",
+      "workflow": ".claude/workflows/mig-p4-data.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P4.3",
+      "phase": "P4",
+      "title": "Independent data verification",
+      "deps": [
+        "P4.2"
+      ],
+      "gate": "G4",
+      "workflow": ".claude/workflows/mig-p4-data.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P5.1",
+      "phase": "P5",
+      "title": "Production deployment (vercel.app) of mSha",
+      "deps": [
+        "P2.4",
+        "P4.3"
+      ],
+      "gate": "G5",
+      "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P5.2",
+      "phase": "P5",
+      "title": "Verification suite (parity, functional incl. single demo test, visual, logs, perf)",
+      "deps": [
+        "P5.1"
+      ],
+      "gate": "G5",
+      "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P5.3",
+      "phase": "P5",
+      "title": "Triage + fix loop (only if P5.2 failed)",
+      "deps": [
+        "P5.2"
+      ],
+      "gate": "G5",
+      "workflow": null,
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P5.4",
+      "phase": "P5",
+      "title": "Open PR to main (never merge)",
+      "deps": [
+        "P5.3"
+      ],
+      "gate": null,
+      "workflow": null,
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P6.1",
+      "phase": "P6",
+      "title": "Implement H1-H4 + local verification + review",
+      "deps": [
+        "P5.4"
+      ],
+      "gate": "G6a",
+      "workflow": ".claude/workflows/mig-p6a-harden.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P6.2",
+      "phase": "P6",
+      "title": "Commit, deploy hSha, re-run suite (no demo test)",
+      "deps": [
+        "P6.1"
+      ],
+      "gate": "G6a",
+      "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P6.3",
+      "phase": "P6",
+      "title": "Add domains; capture recommended records + ACME DNS-01 challenges",
+      "deps": [
+        "P6.2"
+      ],
+      "gate": "G6",
+      "workflow": ".claude/workflows/mig-p6b-ready.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P6.4",
+      "phase": "P6",
+      "title": "Merge origin/main; final full refresh + sequence gap + verify + redeploy + quick parity",
+      "deps": [
+        "P6.3"
+      ],
+      "gate": "G6",
+      "workflow": ".claude/workflows/mig-p6b-ready.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P6.5",
+      "phase": "P6",
+      "title": "Re-capture live-Replit baseline (P6.5-baseline-manifest.json); render CUTOVER-RUNBOOK.md; advisor go/no-go A2",
+      "deps": [
+        "P6.4"
+      ],
+      "gate": "G6",
+      "workflow": ".claude/workflows/mig-advisor.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P6.6",
+      "phase": "P6",
+      "title": "Notify owner; status AWAITING_DNS",
+      "deps": [
+        "P6.5"
+      ],
+      "gate": "G6",
+      "workflow": null,
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P7.1",
+      "phase": "P7",
+      "title": "Check-ins: hourly probe (domain verified, ACME TXT->cert, www switch); delta every 6h; done when SWITCHED",
+      "deps": [
+        "P6.6"
+      ],
+      "gate": null,
+      "workflow": ".claude/workflows/mig-sync-delta.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P8.1",
+      "phase": "P8",
+      "title": "DNS/TLS verification on real domain",
+      "deps": [
+        "P7.1"
+      ],
+      "gate": "G8a",
+      "workflow": ".claude/workflows/mig-p8-postcutover.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P8.2",
+      "phase": "P8",
+      "title": "Full suite on https://www.growmax.io vs baseline (+ vs Replit pinned)",
+      "deps": [
+        "P8.1"
+      ],
+      "gate": "G8a",
+      "workflow": ".claude/workflows/mig-p8-postcutover.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P8.3",
+      "phase": "P8",
+      "title": "Reconciliation: delta hourly 24h then every 3h; >=72h and 24h without new source rows (7-day hard stop); reconciliation audit",
+      "deps": [
+        "P8.2"
+      ],
+      "gate": "G8b",
+      "workflow": ".claude/workflows/mig-sync-delta.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P8.4",
+      "phase": "P8",
+      "title": "Monitoring hand-off (uptime workflow into PR)",
+      "deps": [
+        "P8.2"
+      ],
+      "gate": "G8b",
+      "workflow": ".claude/workflows/mig-p8-postcutover.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P9.1",
+      "phase": "P9",
+      "title": "FINAL-REPORT.md + advisor sign-off A4",
+      "deps": [
+        "P8.3",
+        "P8.4"
+      ],
+      "gate": "G9",
+      "workflow": ".claude/workflows/mig-advisor.js",
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    },
+    {
+      "id": "P9.2",
+      "phase": "P9",
+      "title": "Cleanup (triggers, sandbox, .scratch), status COMPLETE, decommission checklist",
+      "deps": [
+        "P9.1"
+      ],
+      "gate": "G9",
+      "workflow": null,
+      "status": "pending",
+      "attempts": 0,
+      "evidence": [],
+      "notes": []
+    }
   ]
 }

@@ -38,11 +38,15 @@ Build the union of the following sources, deduplicated, and store it as `evidenc
 7. Negatives: `/__parity_404_probe__`, `/blog/__parity_404_probe__`.
 8. **Post-cutover only:** `http://www.growmax.io/`, `http://growmax.io/`, `https://growmax.io/`, `https://growmax.io/demo`.
 
+**Baselines:**
+- `P1.3-baseline-manifest.json` is the discovery baseline.
+- **`P6.5-baseline-manifest.json`** is a fresh capture of live Replit taken at P6.5, after the `main` merge and the final refresh, while Replit is still serving. **P8.2 compares against the P6.5 baseline**, with the IP-pinned Replit capture as secondary.
+
 Expect at least 250 URLs. Log the count per source. A shrinking inventory between runs is a failure unless it's explained, because it would mean silent coverage loss.
 
 ## 3. Capture (`capture.mjs`)
 
-- Options: `--base <origin>`, `--urls <file>`, `--out <manifest.json>`, `--raw-dir <.scratch/raw-X>`, `--bypass-secret-file <f>` (adds `x-vercel-protection-bypass` + `x-vercel-set-bypass-cookie: true`), `--resolve <host:443:ip>` (**Sandbox runner only**: behind the container's proxy, DNS happens in the proxy), `--concurrency 4`, `--ua "growmax-migration-verifier/1.0"`.
+- Options: `--base <origin>`, `--urls <file>`, `--out <manifest.json>`, `--raw-dir <.scratch/raw-X>`, `--bypass-secret-file <f>` (adds **only** `x-vercel-protection-bypass` to every request; never `x-vercel-set-bypass-cookie`, which triggers a cookie-setting redirect), `--resolve <host:443:ip>` (**Sandbox runner only**: behind the container's proxy, DNS happens in the proxy), `--concurrency 4`, `--ua "growmax-migration-verifier/1.0"`.
 - `redirect: 'manual'`. Retry 3× on network errors and 502/503/504, with backoff; never retry other 4xx/5xx. Record the attempt count.
 - Record per URL:
   - `status`
@@ -97,7 +101,8 @@ Expect at least 250 URLs. Log the count per source. A shrinking inventory betwee
    - reorder the `/api/blog` array (must be **not** detected, since it's order-insensitive by slug)
    - change one field of one `/api/blog` element (**must** be detected)
 3. Capture the live site twice about 60 s apart and compare → 0 diffs, or only `data-freshness` diffs that are explained. This proves determinism.
-4. Write `evidence/P1.2-harness-selftest.json`. The reviewer (opus/high) then reads the harness source and this evidence and answers "could this harness pass while the sites differ in a way users or search engines would notice?" Any credible path is a blocking finding.
+4. **Protected-deployment probe (first run in P5.2, before any comparison):** capture `/` and one redirect source from the Vercel deployment with the bypass header. The result must be the app's own response (200, and the redirect with its configured status), not a 401 or a Vercel auth redirect. If it's wrong, the suite fails as `harness`, not as parity.
+5. Write `evidence/P1.2-harness-selftest.json`. The reviewer (opus/high) then reads the harness source and this evidence and answers "could this harness pass while the sites differ in a way users or search engines would notice?" Any credible path is a blocking finding.
 
 ## 6. Functional tests (`functional/run.mjs`)
 
@@ -106,7 +111,7 @@ Options: `--base`, `--bypass-secret-file`, `--mode pre|post`, `--run-label <id>`
 | # | Test | Pass criteria |
 |---|---|---|
 | F1 | Newsletter `POST /api/newsletter {email: "vercel-migration-test+<runLabel>@growmax.io"}` | 201; row exists in Neon; then delete it by id; row gone |
-| F2 | Demo request, **only** with `--allow-demo-test` and **only once per migration** (`STATE.flags.demoTestSent`). Body: firstName `MIGRATION`, lastName `TEST`, email as above, company `Growmax — automated Vercel migration test, please ignore`, companySize `1-10`, modules `["Migration test"]`, message `Automated post-migration verification. Please ignore.` | 201; row in Neon; within 90 s the Vercel runtime logs (`mcp__Vercel__get_runtime_logs`, query `[webhook]`) show `[webhook] delivered 200`; then delete the row. The orchestrator sets `flags.demoTestSent=true` whatever the result |
+| F2 | Demo request, **only** with `--allow-demo-test`. **At most 3 per migration**, one per verification attempt after a fix (`STATE.flags.demoTestsSent`, a counter the orchestrator increments before each attempt; never run it when the counter is ≥ 3). Body: firstName `MIGRATION`, lastName `TEST`, email as above, company `Growmax — automated Vercel migration test, please ignore`, companySize `1-10`, modules `["Migration test"]`, message `Automated post-migration verification. Please ignore.` | 201; row in Neon; within 90 s the Vercel runtime logs (`mcp__Vercel__get_runtime_logs`, query `[webhook]`) show `[webhook] delivered 200`; then delete the row |
 | F3 | Admin: wrong password | 401 |
 | F4 | Admin: correct `ADMIN_PASSWORD` | 200; `Set-Cookie: growmax-admin` with HttpOnly, Secure, SameSite=Lax, Max-Age=86400 |
 | F5 | `GET /api/admin/session` with the cookie | `{"isAdmin":true}` |
@@ -142,7 +147,7 @@ Write the result to `evidence/<step>-functional.json`. It holds statuses and boo
 
 ## 9. Suite composition (`.claude/workflows/mig-verify-suite.js`)
 
-Parity (verifier), functional (verifier), visual (verifier) and logs+perf (scout) run in parallel. Synthesis (verifier) then writes `evidence/<step>-suite-summary.json`:
+Parity (verifier), functional (verifier) and visual (verifier) run in parallel. Logs+perf (scout) runs **after** functional finishes. It records the `since`/`until` window and the plan's log retention, and treats "no log lines at all while the tests ran" as a **fail**, because an empty window proves nothing. Synthesis (verifier) then writes `evidence/<step>-suite-summary.json`:
 
 ```json
 {

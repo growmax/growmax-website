@@ -31,6 +31,7 @@ const REVIEW = {
   required: ["approve", "blocking"],
 }
 const SPEC = 'docs/migration/specs/SPEC-02-code-changes.md'
+const RT = (args && args.noAgentTypes) ? {} : { agentType: 'migration-reviewer' }
 
 phase('Implement')
 let impl = await agent(role('implementer') +
@@ -45,7 +46,7 @@ for (let round = 1; round <= 3; round++) {
   phase('Review')
   review = await agent(role('reviewer') +
     `Review the working-tree diff against the H-series and "Review checklist" in ${SPEC}; in particular prove no DB error can produce a cached 404 or generic title, and revalidation failures never break mutations. Verification: ${JSON.stringify(verify)}. Write ${EV}/P6.1-review.json (round ${round}).`,
-    { label: `P6.1 review r${round}`, phase: 'Review', model: 'opus', effort: 'high', schema: REVIEW })
+    { label: `P6.1 review r${round}`, phase: 'Review', model: 'opus', effort: 'high', schema: REVIEW, ...RT })
   if (verify?.status === 'pass' && review?.approve && !review.blocking.length) return { status: 'pass', impl, verify, review, rounds: round }
   if (round === 3) break
   phase('Implement')

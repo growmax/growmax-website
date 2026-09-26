@@ -18,7 +18,7 @@ No PII, secrets or connection strings, ever.
 | 0.1 | Vercel MCP can read team `growmax1` (`list_projects` → 200) | scout | `P0.2-vercel.json` |
 | 0.2 | `VERCEL_TOKEN` is valid for `growmax1` (`vercel whoami` + `vercel teams ls` show the team) **or** the MCP-only path is recorded along with its limits | scout | `P0.2-vercel.json` |
 | 0.3 | `REPLIT_DATABASE_URL` is present and parses; reachable via the chosen DB path; `server_version` recorded | verifier | `P0.2-source.json` |
-| 0.4 | **Source identity:** published slugs and `updated_at` equal live `/api/blog` (SPEC-03 §2) | verifier | `P0.2-source.json` |
+| 0.4 | **Source identity:** published slugs and `updated_at` equal live `/api/blog` (SPEC-03 §2). May be `deferred` only if no transport reaches the source from the container; P4.1 must then run it before any copy | verifier | `P0.2-source.json` |
 | 0.5 | `ADMIN_PASSWORD` present (length only is recorded) | scout | `P0.2-secrets.json` |
 | 0.6 | Network matrix: every required capability has a working path (web, DB, Vercel API) → `facts.paths` | scout | `P0.2-network.json` |
 | 0.7 | Tooling: Node 22, `npm ci` OK, `pg_dump` ≥ source major available in the chosen DB runner, Playwright Chromium launches (or visual marked not-runnable) | scout | `P0.2-tooling.json` |
@@ -50,6 +50,7 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 ## G4: Data migration (P4.1–P4.3)
 | # | Check | Verifier | Evidence |
 |---|---|---|---|
+| 4.0 | Source identity passed (at P0.2, or at P4.1 if it was deferred) | verifier | `P0.2-source.json` / `P4.1-prechecks.json` |
 | 4.1 | Identical table sets in `public` | verifier | `P4.3-verify.json` |
 | 4.2 | For every table, `srcCount == dstCount` and `srcMd5 == dstMd5` (fresh run by the verifier) | verifier | `P4.3-verify.json` |
 | 4.3 | `schema-diff` empty (ignoring owner/ACL/comments) | verifier | `P4.3-schema-diff.json` |
@@ -61,9 +62,9 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 |---|---|---|---|
 | 5.1 | Production deployment `READY` for `facts.git.mSha`; build log has no errors | scout | `P5.1-deploy.json` |
 | 5.2 | Parity vs live Replit: `failedUnallowed == 0` across 100% of the inventory; the allowlist contains only advisor-approved entries | verifier | `P5.2-parity.json` |
-| 5.3 | Functional F1, F3–F11 pass; F2 (the single demo request) passes with `[webhook] delivered 2xx` in the logs; test rows deleted | verifier | `P5.2-functional.json` |
+| 5.3 | Functional F1, F3–F11 pass; F2 (demo request; ≤ 3 in total over the migration) passes with `[webhook] delivered 2xx` in the logs; test rows deleted | verifier | `P5.2-functional.json` |
 | 5.4 | Visual pass or `not_run` with a reason; no new console errors | verifier | `P5.2-visual.json` |
-| 5.5 | Runtime logs: 0 unexplained errors. Perf report attached (flags reviewed by the orchestrator) | scout | `P5.2-logs-perf.json` |
+| 5.5 | Runtime logs read **after** the functional tests over a recorded window that actually contains the test traffic: 0 unexplained errors. Perf report attached (flags reviewed by the orchestrator) | scout | `P5.2-logs-perf.json` |
 
 ## G6a: Hardening verified (P6.1–P6.2)
 | # | Check | Verifier | Evidence |
@@ -77,9 +78,10 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 |---|---|---|---|
 | 6.1 | `origin/main` merged into the branch; suites re-run if that brought changes | orchestrator | `LOG.md` |
 | 6.2 | Domains `www.growmax.io` (primary) and `growmax.io` (308 → www) on the project; recommended records captured | scout | `P6.3-domains.json` |
-| 6.3 | ACME DNS-01 challenge records captured for both names | scout | `P6.3-domains.json` |
+| 6.3 | ACME DNS-01 challenge records captured for both names; domain verification state recorded (the runbook includes `_vercel` TXT if unverified); CAA absent or permits `letsencrypt.org` (else the runbook adds it) | scout | `P6.3-domains.json` |
 | 6.4 | Final full refresh verified (G4 checks again) and every sequence's next value == `GAP_START` | verifier | `P6.4-verify.json` |
 | 6.5 | Production redeployed after the refresh; DB-driven URLs (`/blog`, sitemap, llms, `/api/blog`, 5 posts) at parity | verifier | `P6.4-quick-parity.json` |
+| 6.5b | Fresh live-Replit baseline captured after the merge and refresh (`P6.5-baseline-manifest.json`), with an inventory count ≥ P1.3 | verifier | `P6.5-baseline-summary.json` |
 | 6.6 | `CUTOVER-RUNBOOK.md` fully rendered (no `{{…}}`), incl. current and new values for every record touched | orchestrator | runbook |
 | 6.7 | Advisor **A2** = `GO` or `GO_WITH_CONDITIONS`. **A NO_GO can't be overridden** | advisor | `A2-advisor.json` |
 
@@ -88,15 +90,15 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 |---|---|---|---|
 | 8a.1 | Authoritative and public resolvers point `www` to Vercel | scout | `P8.1-dns-tls.json` |
 | 8a.2 | Valid certificate for `www.growmax.io` (and the apex, if moved); HTTP→HTTPS redirect; apex → `https://www.growmax.io` | scout | `P8.1-dns-tls.json` |
-| 8a.3 | Full suite vs the P1.3 baseline passes (plus vs Replit pinned by IP from the Sandbox, if still reachable) | verifier | `P8.2-suite-summary.json` |
+| 8a.3 | Full suite vs the **P6.5** baseline passes (plus vs Replit pinned by IP from the Sandbox, if still reachable) | verifier | `P8.2-suite-summary.json` |
 | 8a.4 | No open SEV1/SEV2 | orchestrator | `STATE.json` |
 
 ## G8b: Reconciliation and monitoring (P8.3–P8.4)
 | # | Check | Verifier | Evidence |
 |---|---|---|---|
 | 8b.1 | ≥ 72 h since `facts.cutover.detectedAt` | orchestrator | `STATE.json` |
-| 8b.2 | Last 24 h: 0 new source rows (the delta reports show it) | verifier | `P8.3-sync-*.json` |
-| 8b.3 | Missing-row audit: for every table, source ids `< GAP_START` ⊆ target ids; shared ids hash-equal (or the target is newer for `blog_posts`) | verifier | `P8.3-final-audit.json` |
+| 8b.2 | Last 24 h: 0 new source rows, **or** the 7-day hard stop was reached with the residual rows and the owner decision recorded (SPEC-05 §4) | verifier | `P8.3-sync-*.json` |
+| 8b.3 | Reconciliation audit (SPEC-03 §7): every source row with `id < GAP_START` is reconciled (same id and hash / target newer for `blog_posts` / matched by natural key / logged `target_deleted`) | verifier | `P8.3-final-audit.json` |
 | 8b.4 | Uptime workflow added to the PR; runbook for the owner updated | reviewer | `P8.4-monitoring.json` |
 
 ## G9: Close-out (P9.1–P9.2)

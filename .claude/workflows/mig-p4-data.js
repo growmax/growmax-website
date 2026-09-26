@@ -21,11 +21,11 @@ const RESULT = {
 const EV = "docs/migration/evidence"
 const role = r => `Follow the role rules in .claude/agents/migration-${r}.md. `
 const a = args || {}
-const ctx = `DB runner: ${a.dbPath || '(STATE.facts.paths.db)'}; runner facts: ${JSON.stringify(a.runner || {})}. SRC_URL comes from $REPLIT_DATABASE_URL; DST_URL / DST_URL_UNPOOLED come from the Vercel project env (vercel env pull --environment=production docs/migration/.scratch/.env.production — gitignored; never print). `
+const ctx = `DB transport: ${a.dbPath || '(STATE.facts.paths.db)'}; dump path: ${a.dumpPath || '(STATE.facts.paths.dump)'}; identity check at P0: ${a.identity || '(STATE gates/evidence P0.2-source.json)'}. SRC_URL comes from $REPLIT_DATABASE_URL; DST_URL / DST_URL_UNPOOLED come from docs/migration/.scratch/.env.production (vercel env pull; gitignored). Run scripts with node --env-file; pg_dump/pg_restore only through scripts/migration/db/runner.mjs (@vercel/sandbox SDK). NEVER type a secret value into any tool call or prompt (SPEC-03 §0.2). `
 
 phase('Copy')
 let copy = await agent(role('db-operator') + ctx +
-  `Steps P4.1 (pre-checks) and P4.2 (full copy) exactly per docs/migration/specs/SPEC-03-data-migration.md §0 and §4 (read them). Initial load, not refresh: the target public schema must be empty; if it is not, stop and report. Write ${EV}/P4.1-prechecks.json and ${EV}/P4.2-copy.json (TOC summary, row counts, read-only proof, durations).`,
+  `Steps P4.1 (pre-checks — including the SPEC-03 §2 identity check FIRST if P0 recorded it as deferred) and P4.2 (full copy) exactly per docs/migration/specs/SPEC-03-data-migration.md §0, §2 and §4 (read them). Initial load, not refresh: the target public schema must be empty; if it is not, stop and report. Write ${EV}/P4.1-prechecks.json and ${EV}/P4.2-copy.json (TOC summary, row counts, read-only proof, durations).`,
   { label: 'P4.1-4.2 copy', phase: 'Copy', model: 'opus', effort: 'high', schema: RESULT })
 
 let verify = null

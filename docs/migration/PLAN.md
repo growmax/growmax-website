@@ -115,7 +115,7 @@ The executor column uses the roles defined in [`ORCHESTRATOR.md` §4](./ORCHESTR
 | P2.4 | Commit and push (orchestrator) | Orchestrator | **G2** |
 | **P3 Infrastructure** | | | |
 | P3.1 | Create or reuse Vercel project `growmax-website` (Git-connected if possible), settings, ignored-build-step guard | WF `mig-p3-infra` → implementer (sonnet/high) | G3 |
-| P3.2 | Neon via Vercel Marketplace: adopt `growmax-db` or provision it (iad1, same PG major as source), connect to production and preview | implementer | G3 |
+| P3.2 | Neon via Vercel Marketplace: adopt `growmax-db` or provision it (iad1, same PG major as source), connect to production only | implementer | G3 |
 | P3.3 | Env vars (sensitive, via CLI stdin): `SESSION_SECRET`, `ADMIN_PASSWORD`, `GOOGLE_CHAT_WEBHOOK_URL` | implementer | G3 |
 | P3.4 | Protection bypass for automation; access check | implementer | G3 |
 | P3.5 | Independent read-back of all config | scout (haiku/low) | **G3** |
@@ -133,14 +133,14 @@ The executor column uses the roles defined in [`ORCHESTRATOR.md` §4](./ORCHESTR
 | P6.2 | Commit, deploy, rerun verification suite (regression; no demo request) | WF `mig-p5-deploy-verify` | **G6a** |
 | P6.3 | Add domains `www.growmax.io` (primary) and `growmax.io` (308 → www); collect recommended DNS records and ACME DNS-01 challenges | WF `mig-p6b-ready` → implementer (sonnet/high) | G6 |
 | P6.4 | Final full refresh of Neon from Replit, sequence gap, verification | db-operator (opus/high) + verifier (sonnet/medium) | G6 |
-| P6.5 | Generate the filled-in `CUTOVER-RUNBOOK.md`; **advisor go/no-go A2** | implementer (sonnet/medium) → WF `mig-advisor` (fable/max) | **G6** |
+| P6.5 | Re-capture the live-Replit baseline (`P6.5-baseline-manifest.json`, used by P8.2), generate the filled-in `CUTOVER-RUNBOOK.md`; **advisor go/no-go A2** | implementer (sonnet/medium) → WF `mig-advisor` (fable/max) | **G6** |
 | P6.6 | Notify the owner (push notification + session message); status `AWAITING_DNS` | Orchestrator | n/a |
 | **P7 Await DNS (check-in loop, hourly via `send_later`)** | | | |
-| P7.1 | Each check-in: detect ACME TXT → issue cert → verify with `--resolve` → notify; detect the `www` switch → P8; run delta sync; check runtime errors | Orchestrator + WF `mig-sync-delta` (sonnet/medium) | n/a |
+| P7.1 | Hourly cheap probe (haiku/low): domain verified? ACME TXT → issue cert → verify → notify; `www` switch → P8. Delta sync every 6 h (sonnet/medium) | Orchestrator + WF `mig-sync-delta` (`mode` probe/full) | n/a |
 | **P8 Post-cutover** | | | |
 | P8.1 | DNS and TLS verification on the real domain (www, apex, http→https) | WF `mig-p8-postcutover` → scout (haiku/low) | G8a |
 | P8.2 | Full verification suite on `https://www.growmax.io` vs baseline, and vs Replit pinned by IP | child WF `mig-verify-suite` | **G8a** |
-| P8.3 | Reconciliation: delta sync at every check-in for ≥ 72 h and until Replit shows 24 h with no new rows; missing-row audit | WF `mig-sync-delta` | **G8b** |
+| P8.3 | Reconciliation: delta hourly for 24 h, then every 3 h, for ≥ 72 h and until Replit shows 24 h with no new rows (hard stop at 7 days with an owner decision); reconciliation audit | WF `mig-sync-delta` | **G8b** |
 | P8.4 | Monitoring hand-off (uptime workflow added to the PR, final check-in schedule) | implementer (sonnet/medium) | G8b |
 | **P9 Close-out** | | | |
 | P9.1 | Final report + **advisor sign-off A4** | Orchestrator + WF `mig-advisor` (fable/max) | **G9** |
@@ -156,7 +156,7 @@ Advisor **A3** is not a step. It's the escalation path any failing gate takes af
 |---|---|---|---|---|
 | R1 | The provided `REPLIT_DATABASE_URL` is the **dev** DB, not the one production uses | M | H | P0.2 identity check: published slugs and `updated_at` must match live `/api/blog` exactly, otherwise G0 fails |
 | R2 | Source DB not reachable from outside Replit (non-Neon/internal host) | L–M | H | Fallback F-EXPORT in SPEC-03: owner uploads a `pg_dump` to Google Drive; content freeze + second dump at cutover |
-| R3 | Raw TCP blocked in the cloud container | H | M | DB runner defaults to a Vercel Sandbox (allow-all egress); container path only if P0 proves TCP works |
+| R3 | Raw TCP blocked in the cloud container | H | M | Neon HTTPS/WebSocket transport from the container for everything but `pg_dump`/`pg_restore`, which run in a Vercel Sandbox driven by the SDK (D9) |
 | R4 | Webhook dropped on serverless (fire-and-forget) | H | H | M3: `after()` from `next/server` + delivery log line; verified by the one labeled test in P5.2 |
 | R5 | Hobby plan: non-commercial ToS, pauses when limits are exceeded | H (if not upgraded) | H | Pre-flight decision. A2 makes "upgrade to Pro" a hard condition before the DNS switch |
 | R6 | Neon Free compute quota exhausted → DB suspended | M | H | Neon `launch` plan; H1/H4 caching cuts DB hits; usage check at every check-in |
@@ -180,6 +180,9 @@ Advisor **A3** is not a step. It's the escalation path any failing gate takes af
 - **D6 Minimal changes (M) before hardening (H)**, each verified separately.
 - **D7 Keep Replit-compatible code** (port-5000 scripts remain) so a rollback never needs a code change.
 - **D8 Explicit model and effort on every agent call.** Workflow agents otherwise inherit the orchestrator's Opus / max.
+- **D9 Secrets never pass through a model tool call.** DB work uses the Neon HTTPS/WebSocket driver from the container (both DBs are Neon-hosted), and `pg_dump`/`pg_restore` run in a Vercel Sandbox driven by the `@vercel/sandbox` SDK from a container script. Values flow only through environment variables.
+- **D10 Delta sync uses a persisted per-table watermark** (`_migration.sync_state` in Neon) plus a late-commit window, and reconciles by natural key. It never resurrects rows deleted on the target.
+- **D11 Previews are disabled** by the production-only ignore guard, and Neon is connected to production only. All verification targets the explicit production deployment.
 
 ## 10. Expected timeline
 

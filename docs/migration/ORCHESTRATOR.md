@@ -55,6 +55,10 @@ Run workflows with `Workflow({scriptPath: ".claude/workflows/<name>.js", args: {
 
 P2 and P3 may run concurrently. Nothing else overlaps.
 
+- If P5.2 passes on the first try, mark **P5.3 `skipped`**; otherwise `state.mjs next` keeps offering it.
+- Validate workflow args before calling. Pass `runLabel` values you generate (e.g. `p5-<UTC timestamp>`), because workflow scripts can't read the clock.
+- If a workflow fails with an unknown `agentType`, the session didn't load `.claude/agents/` (it probably started on `main`). Re-run it with `args.noAgentTypes: true`, and note that in LOG.md.
+
 ## 4. Model and effort routing
 
 The cost rule is: **every `agent()` call passes `model` and `effort` explicitly.** Without them, agents inherit your Opus / max. The saved workflows already do this. If you write an ad-hoc workflow, you must too.
@@ -69,6 +73,8 @@ The cost rule is: **every `agent()` call passes `model` and `effort` explicitly.
 | Verifier (`migration-verifier.md`) | `sonnet` | `medium` | Running suites, fingerprint compare, synthesis, delta sync runs | Changing code |
 | Scout (`migration-scout.md`) | `haiku` | `low` | Probes, polling, DNS lookups, log reads, running a known command and returning its output | Judgement calls |
 
+**A3 caps:** at most 1 advisor A3 consult per step and 4 in total. After that, the step goes straight to BLOCKED (blocker protocol).
+
 **Consulting the advisor:** always via `Workflow({scriptPath: ".claude/workflows/mig-advisor.js", args: {checkpoint: "A1|A2|A3|A4", question, evidenceFiles: [...]}})`. That guarantees Fable 5.1 at max effort whether or not custom agents are registered. Advisor verdicts are `GO | GO_WITH_CONDITIONS | NO_GO`. Conditions become state blockers or tasks. The advisor is read-only and advises; you decide, and if you override a NO_GO you must record why in `LOG.md`. **For A2, a NO_GO can't be overridden.**
 
 **Budget guardrails** (tokens of output per phase, soft caps; log it if exceeded, keep going unless the loss is unbounded): P0 60k · P1 400k · P2 300k · P3 150k · P4 150k · P5 300k · P6 400k · each P7 check-in 20k · P8 250k · P9 100k.
@@ -78,6 +84,14 @@ The cost rule is: **every `agent()` call passes `model` and `effort` explicitly.
 - The agent that did the work never certifies it. Every gate needs evidence from a different agent (VERIFICATION.md names the verifier role).
 - Evidence is a committed JSON file with `step`, `gate`, `status`, `checkedAt`, `checks[]` (name, expected, actual, pass) and `artifacts` (paths/ids). No raw PII, no secrets, no connection strings.
 - A gate passes only if **every** required check passes, or the advisor approved the specific differences (recorded in `evidence/…-allowlist.json`).
+- **Never mark a gate from a workflow's `status` string alone.** `state.mjs gate <G> passed --evidence <files…> --by <role>` validates each evidence file and refuses if it fails. Each file must:
+  - parse as JSON;
+  - carry `status: "pass"`, or `verdict: GO|GO_WITH_CONDITIONS` for advisor files;
+  - have every `checks[].pass === true`;
+  - have a `verifier` field;
+  - have a `checkedAt` newer than the last change to the gate's inputs.
+  
+  Open each evidence file and compare it against the gate's table in VERIFICATION.md yourself before running the command.
 - Rerun the relevant verification after **any** change to code, config, data or deployment that a passed gate depended on. A passed gate goes stale when its inputs change; mark it `pending` again.
 
 ## 6. Failure handling: escalation ladder
@@ -104,9 +118,9 @@ When progress needs something only the owner can do (credentials, connector re-a
 
 ## 8. Check-ins (waiting without burning tokens)
 
-Use `mcp__Claude_Code_Remote__send_later` with `delay_minutes: 60` and a message like:
+Use `mcp__Claude_Code_Remote__send_later` with `name: "growmax-migration-checkin"`, `delay_minutes` from the SPEC-05 §4 cadence, and a message like:
 `"[migration check-in] Run the ORCHESTRATOR §1 resume, then do the current step's check-in routine (SPEC-05 §4). If nothing changed: re-arm silently and end the turn."`
-Record the returned trigger id: `state.mjs set checkins.lastTriggerId "\"trig_…\""`. Keep exactly **one** pending check-in: before arming a new one, make sure the previous one fired or was deleted. Stop check-ins at P9.2.
+Don't store the trigger id in the ledger (that would dirty git on every wake). Find the pending check-in with `mcp__Claude_Code_Remote__list_triggers` (name `growmax-migration-checkin`). Keep exactly **one** pending check-in: before arming a new one, make sure the previous one fired or was deleted. Stop check-ins at P9.2.
 
 Container reclaim during waits is normal. Everything you need is in git, and the scratchpad is disposable.
 
@@ -121,7 +135,7 @@ Container reclaim during waits is normal. Everything you need is in git, and the
 | Add domains `www.growmax.io` and `growmax.io` to the Vercel project; issue/pre-issue TLS certs | ✅ |
 | Create and use a Vercel Sandbox as a runner; delete it at the end | ✅ |
 | Open **one** PR `claude/wonderful-edison-823y83` → `main`, update it, reply to its reviews | ✅ (never merge) |
-| Send **exactly one** clearly labeled test demo request (fires one Google Chat message) + one test newsletter signup, and delete both test rows | ✅ |
+| Send clearly labeled test demo requests: **at most 3 in total**, one per verification attempt after a fix. Each one fires one Google Chat message; track them in `flags.demoTestsSent`. Also send test newsletter signups, and delete all test rows | ✅ |
 | `send_later`, `PushNotification`, subscribing to the PR's activity | ✅ |
 | Purchases, plan upgrades, buying domains or credits | ❌ owner only |
 | DNS changes at the registrar/DNS host | ❌ owner only |
@@ -132,6 +146,7 @@ Container reclaim during waits is normal. Everything you need is in git, and the
 
 ## 10. Secrets and PII hygiene
 
+- **Never type a secret value into any tool call.** That covers MCP `env`/`args` fields (in particular `mcp__Vercel__run_session_command` and `create_project_env`), and prompts to subagents. Secrets move only through environment variables consumed by scripts: `node --env-file=docs/migration/.scratch/.env.production …`, CLI stdin fed from `$VAR`, and the `@vercel/sandbox` SDK in `scripts/migration/db/runner.mjs`.
 - Read secrets only from env vars: `REPLIT_DATABASE_URL`, `VERCEL_TOKEN`, `ADMIN_PASSWORD`, `SESSION_SECRET`. Target DB URLs come from Vercel (`vercel env pull` into `docs/migration/.scratch/`, which is gitignored).
 - Pass secrets to CLIs via stdin or env vars, never as argv (argv shows up in process lists and logs). Mask with `sed -E 's#(://[^:]+:)[^@]+@#\1***@#g'` whenever output could contain a URL.
 - Dumps and raw crawl bodies live only in `docs/migration/.scratch/` or in the Sandbox. Delete them at P9.2.
@@ -142,7 +157,7 @@ Container reclaim during waits is normal. Everything you need is in git, and the
 | Need | Preferred | Fallback |
 |---|---|---|
 | HTTP to `www.growmax.io` / `*.vercel.app` | container (if network is Full) | Vercel Sandbox (`allow-all`) via MCP; `mcp__Vercel__web_fetch_vercel_url` for single protected URLs |
-| Postgres (source + target) | container TCP **only if P0 proves it** | **Vercel Sandbox runner** (default), which gets `pg_dump` via `dnf` or a static build |
+| Postgres (source + target) | **`neon-https`**: Neon WebSocket/HTTP driver from the container (needs `*.neon.tech`) | Container TCP if P0 proves it. `pg_dump`/`pg_restore` run in the Vercel Sandbox via `runner.mjs` (SDK, needs `api.vercel.com` + `VERCEL_TOKEN`) |
 | Vercel control plane | CLI with `VERCEL_TOKEN` (needs `api.vercel.com`) | Vercel MCP (no Neon provisioning, no cert challenges) |
 | Visual checks (Playwright) | container only | skip and mark `not_run` with the reason (secondary evidence) |
 

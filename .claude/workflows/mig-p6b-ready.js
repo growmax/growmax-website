@@ -5,7 +5,7 @@ export const meta = {
   phases: [
     { title: 'Domains', detail: 'implementer sonnet/high + scout haiku/low' },
     { title: 'Refresh', detail: 'db-operator opus/high + verifier sonnet/medium' },
-    { title: 'Runbook', detail: 'implementer sonnet/medium' },
+    { title: 'Runbook', detail: 'baseline re-capture haiku/low + implementer sonnet/medium' },
   ],
 }
 const RESULT = {
@@ -23,6 +23,10 @@ const EV = "docs/migration/evidence"
 const role = r => `Follow the role rules in .claude/agents/migration-${r}.md. `
 const a = args || {}
 if (!['P6.3', 'P6.4', 'P6.5'].includes(a.part)) throw new Error('args.part must be P6.3 | P6.4 | P6.5')
+// Validate everything up front: a missing arg must fail BEFORE the irreversible-ish refresh runs.
+if (a.part === 'P6.4') for (const k of ['sha', 'runLabel', 'gapStart']) if (!a[k]) throw new Error(`mig-p6b-ready P6.4: args.${k} required`)
+if (a.part === 'P6.5' && !a.runLabel) throw new Error('mig-p6b-ready P6.5: args.runLabel required')
+// NOTE: the nested mig-p5-deploy-verify call MUST keep skipSuite:true — workflow nesting is one level only.
 
 if (a.part === 'P6.3') {
   phase('Domains')
@@ -55,7 +59,11 @@ if (a.part === 'P6.4') {
 }
 
 phase('Runbook')
+const baseline = await agent(role('scout') +
+  `Step P6.5 part 0: re-capture the live-Replit baseline (www.growmax.io still on Replit) with the harness: parity/urls.mjs then capture.mjs --base https://www.growmax.io → ${EV}/P6.5-baseline-manifest.json (raw bodies to docs/migration/.scratch/raw-p6.5). The inventory count must be ≥ the P1.3 inventory. Write ${EV}/P6.5-baseline-summary.json in the standard evidence shape (verifier field "scout/haiku-low", checks: inventory count, exhausted retries = 0).`,
+  { label: 'P6.5 baseline', phase: 'Runbook', model: 'haiku', effort: 'low', schema: RESULT })
+if (baseline?.status !== 'pass') return { status: 'fail', baseline }
 const runbook = await agent(role('implementer') +
-  `Step P6.5 part 1: render docs/migration/CUTOVER-RUNBOOK.md from its template, replacing EVERY {{…}} with live values from docs/migration/STATE.json, ${EV}/P1.4-dns-baseline.json, ${EV}/P6.3-domains.json and the latest suite summaries (A2 fields: write "pending advisor review" — the orchestrator fills them after A2). Apex guidance: if the P1.4 baseline shows the apex already 301/308-redirecting over valid HTTPS to https://www.growmax.io, say "no change needed"; otherwise give the exact A-record replacement with Vercel's recommended IPv4 and the rollback values. Only list records that actually change; state explicitly which records must never be touched. Verify with grep that no "{{" remains except the two A2 fields. Write ${EV}/P6.5-runbook.json.`,
+  `Step P6.5 part 1: render docs/migration/CUTOVER-RUNBOOK.md from its template, replacing EVERY {{…}} with live values from docs/migration/STATE.json, ${EV}/P1.4-dns-baseline.json, ${EV}/P6.3-domains.json and the latest suite summaries (A2 fields: write "pending advisor review" — the orchestrator fills them after A2). Apex guidance: if the P1.4 baseline shows the apex already 301/308-redirecting over valid HTTPS to https://www.growmax.io, say "no change needed"; otherwise give the exact A-record replacement with Vercel's recommended IPv4 and the rollback values. Only list records that actually change; state explicitly which records must never be touched. Include the _vercel verification TXT if the domain is unverified and a CAA addition (0 issue "letsencrypt.org") if existing CAA records would block issuance. Verify with grep that no "{{" remains except the two A2 fields. Write ${EV}/P6.5-runbook.json.`,
   { label: 'P6.5 runbook', phase: 'Runbook', model: 'sonnet', effort: 'medium', schema: RESULT })
-return { status: runbook?.status || 'fail', runbook }
+return { status: runbook?.status || 'fail', baseline, runbook }

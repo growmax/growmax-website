@@ -26,10 +26,10 @@ if (!['verify', 'monitoring'].includes(a.part)) throw new Error('args.part must 
 if (a.part === 'verify') {
   phase('Verify')
   const dnsTls = await agent(role('scout') +
-    `Step P8.1 (VERIFICATION.md G8a checks 8a.1–8a.2): www.growmax.io on authoritative + public resolvers → Vercel target ${JSON.stringify(a.dnsTarget || '(STATE.facts.dns.target)')}; valid TLS for www.growmax.io (and growmax.io if the apex moved): issuer, SANs, expiry; http://www.growmax.io/ → 308/301 to https; https://growmax.io/ → redirect to https://www.growmax.io/ (compare with the P1.4 baseline apex behavior). Write ${EV}/P8.1-dns-tls.json.`,
+    `Step P8.1 (VERIFICATION.md G8a checks 8a.1–8a.2): www.growmax.io on authoritative + public resolvers → Vercel target ${JSON.stringify(a.dnsTarget || '(STATE.facts.dns.target)')}; valid TLS for www.growmax.io (and growmax.io if the apex moved): issuer, SANs, expiry; http://www.growmax.io/ → 308/301 to https; https://growmax.io/ → redirect to https://www.growmax.io/ (compare with the P1.4 baseline apex behavior). DoH resolvers from the container; authoritative NS only via the sandbox runner if needed. Write ${EV}/P8.1-dns-tls.json.`,
     { label: 'P8.1 dns+tls', phase: 'Verify', model: 'haiku', effort: 'low', schema: RESULT })
   const suite = await workflow({ scriptPath: '.claude/workflows/mig-verify-suite.js' }, {
-    step: 'P8.2', baselineManifest: `${EV}/P1.3-baseline-manifest.json`, baseB: 'https://www.growmax.io', bypass: false,
+    step: 'P8.2', baselineManifest: `${EV}/P6.5-baseline-manifest.json`, baseB: 'https://www.growmax.io', bypass: false,
     mode: 'post', runLabel: a.runLabel, allowDemoTest: false, paths: a.paths || {}, pinnedReplit: true,
   })
   return { status: dnsTls?.status === 'pass' && suite?.summary?.status === 'pass' ? 'pass' : 'fail', dnsTls, suite }
@@ -41,5 +41,5 @@ const mon = await agent(role('implementer') +
   { label: 'P8.4 uptime workflow', phase: 'Monitoring', model: 'sonnet', effort: 'medium', schema: RESULT })
 const rev = await agent(role('reviewer') +
   `Review .github/workflows/uptime.yml against SPEC-06 §3: correct URLs and markers, cannot leak secrets, fails loudly, no write permissions needed (set permissions: contents: read). Return approve/blocking.`,
-  { label: 'P8.4 review', phase: 'Monitoring', model: 'opus', effort: 'high', schema: { type: 'object', properties: { approve: { type: 'boolean' }, blocking: { type: 'array', items: { type: 'object', properties: { issue: { type: 'string' } }, required: ['issue'] } } }, required: ['approve', 'blocking'] } })
+  { label: 'P8.4 review', phase: 'Monitoring', model: 'opus', effort: 'high', ...(a.noAgentTypes ? {} : { agentType: 'migration-reviewer' }), schema: { type: 'object', properties: { approve: { type: 'boolean' }, blocking: { type: 'array', items: { type: 'object', properties: { issue: { type: 'string' } }, required: ['issue'] } } }, required: ['approve', 'blocking'] } })
 return { status: mon?.status === 'pass' && rev?.approve && !rev.blocking.length ? 'pass' : 'fail', mon, rev }

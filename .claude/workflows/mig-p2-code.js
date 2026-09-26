@@ -32,6 +32,7 @@ const REVIEW = {
 const EV = 'docs/migration/evidence'
 const SPEC = 'docs/migration/specs/SPEC-02-code-changes.md'
 const role = r => `Follow the role rules in .claude/agents/migration-${r}.md. `
+const RT = (args && args.noAgentTypes) ? {} : { agentType: 'migration-reviewer' }
 
 phase('Implement')
 let impl = await agent(role('implementer') +
@@ -47,7 +48,7 @@ for (let round = 1; round <= 3; round++) {
   phase('Review')
   review = await agent(role('reviewer') +
     `Step P2.3: review the working-tree diff (git diff; git status for new files) against the "Review checklist" and M-series in ${SPEC}. Local verification result: ${JSON.stringify(verify)}. Write ${EV}/P2.3-review.json (round ${round}).`,
-    { label: `P2.3 review r${round}`, phase: 'Review', model: 'opus', effort: 'high', schema: REVIEW })
+    { label: `P2.3 review r${round}`, phase: 'Review', model: 'opus', effort: 'high', schema: REVIEW, ...RT })
   const ok = verify?.status === 'pass' && review?.approve && !review.blocking.length
   if (ok) return { status: 'pass', impl, verify, review, rounds: round }
   if (round === 3) break

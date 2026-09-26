@@ -20,7 +20,7 @@
 | Neon plan | `launch` (recommended) | Free-tier compute quota exhaustion would **suspend the DB**. Scale-to-zero off for production if the plan allows (owner, optional) |
 | Static pages | ~40 marketing pages are SSG, served from the edge | Unaffected by function or DB outages |
 | Blog | `/blog` ISR (existing) + `/blog/[slug]` ISR (H1) + `/api/blog` ISR 300 s (H4) | Serves the last good copy during DB incidents; big cut in DB load and cost |
-| Middleware | Redirect lookup capped at 1.5 s, fail-open (H3) | A slow DB never blocks blog pages |
+| Middleware | Redirect lookup capped at 5 s, fail-open (H3); page-level redirect fallback (H1) | A slow DB never blocks blog pages, and a redirected URL is never cached as a 404 |
 | Pool connect timeout | 10 s (H3) | No hung functions |
 | Webhook | `after()` (M3) | Notifications survive instance suspension |
 | Deploy safety | Production = verified SHA only; ignore-step guard; skew protection (Pro); instant rollback | No unverified code reaches production |

@@ -35,7 +35,7 @@ PRE-APPROVED BY ME (THE OWNER)
 - Add the domains www.growmax.io and growmax.io to the Vercel project and issue their TLS certificates.
 - Use a Vercel Sandbox as a runner.
 - Open ONE pull request from claude/wonderful-edison-823y83 to main and respond to its reviews. Never merge it.
-- Send exactly one clearly labeled test demo request and one test newsletter signup, then delete those rows.
+- Send clearly labeled test demo requests, at most 3 in total (one per verification attempt after a fix; each one notifies Google Chat), and test newsletter signups. Delete every test row afterwards.
 - Use send_later check-ins and push notifications.
 
 NOT APPROVED
@@ -48,7 +48,7 @@ NOT APPROVED
 
 WHEN BLOCKED on something only I can do: record it with `state.mjs blocker add`, send me a push notification with exact instructions, continue all independent work, then schedule a check-in. Never ask me to paste secrets into chat.
 
-DONE means STATE.status is COMPLETE: every gate G0–G9 passed with committed evidence, FINAL-REPORT.md written, check-ins cancelled. After READY_FOR_DNS, keep going through hourly send_later check-ins until then: detect my DNS changes, pre-issue the certificate, run the post-cutover verification, and reconcile data for at least 72 h after cutover.
+DONE means STATE.status is COMPLETE: every gate G0–G9 passed with committed evidence, FINAL-REPORT.md written, check-ins cancelled. After the READY FOR DNS notice (status AWAITING_DNS), keep going through send_later check-ins until then: detect my DNS changes, pre-issue the certificate, run the post-cutover verification, and reconcile data for at least 72 h after cutover.
 
 Start now with P0.
 ```

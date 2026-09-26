@@ -20,6 +20,7 @@ const VERDICT = {
 }
 
 const a = args || {}
+const T = a.noAgentTypes ? {} : { agentType: 'migration-advisor' }
 if (!['A1', 'A2', 'A3', 'A4'].includes(a.checkpoint)) throw new Error('args.checkpoint must be A1|A2|A3|A4')
 
 phase('Advise')
@@ -28,6 +29,6 @@ const verdict = await agent(
   `Checkpoint: ${a.checkpoint}. Question from the orchestrator: ${a.question || '(standard checkpoint review)'}\n` +
   `Evidence files to review: ${JSON.stringify(a.evidenceFiles || [])}. Also read docs/migration/STATE.json and whatever plan/spec sections the checkpoint needs.\n` +
   `You are READ-ONLY: do not create or edit files, do not deploy, do not connect to databases. Return the verdict JSON only.`,
-  { label: `advisor:${a.checkpoint}`, phase: 'Advise', model: 'fable', effort: 'max', schema: VERDICT },
+  { label: `advisor:${a.checkpoint}`, phase: 'Advise', model: 'fable', effort: 'max', schema: VERDICT, ...T },
 )
 return verdict

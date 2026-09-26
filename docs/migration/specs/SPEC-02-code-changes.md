@@ -62,7 +62,8 @@ Must contain these entries (the plan-authoring commit already added them; verify
 
 ### H1: ISR for blog posts with correct error semantics (`app/blog/[slug]/page.tsx`)
 - Add `export const revalidate = 3600`.
-- In both `generateMetadata` and the page, **don't swallow DB errors**. Call `storage.getBlogPostBySlug(slug)` without try/catch, and call `notFound()` only when the result is `undefined`.
+- In both `generateMetadata` and the page, **don't swallow DB errors**. Call `storage.getBlogPostBySlug(slug)` without try/catch.
+- When the result is `undefined`, first check `storage.getRedirect(slug)`. If a redirect exists, call `permanentRedirect('/blog/' + newPath)` (from `next/navigation`). Only otherwise call `notFound()`. This is a safety net for when the middleware lookup timed out (H3), so a redirected legacy URL can never be cached as a 404.
   - Why: with ISR, a swallowed transient DB error would cache a 404 or a generic title for an hour. That's a real SEO hazard. A thrown error makes Next serve the last good (stale) page, or a 500 on first render.
 - Output for existing slugs is unchanged. Unpublished posts stay reachable by slug, which is pre-existing behavior. Report it to the owner, but don't change it.
 
@@ -74,7 +75,7 @@ Must contain these entries (the plan-authoring commit already added them; verify
 - Benefit: editors see changes immediately. Today `/blog` can be stale for up to an hour.
 
 ### H3: Bounded database waits
-- `middleware.ts`: race the `blog_redirects` lookup against a 1500 ms timeout. On timeout, fail open exactly like the existing `catch`.
+- `middleware.ts`: race the `blog_redirects` lookup against a **5000 ms** timeout. That covers a Neon cold start. On timeout, fail open exactly like the existing `catch`; H1's page-level redirect check keeps SEO correct.
 - `lib/db.ts`: `new Pool({ connectionString, connectionTimeoutMillis: 10_000 })`. The node-postgres default is to wait forever.
 
 ### H4: Edge-cache the public posts list (`app/api/blog/route.ts`)
@@ -113,7 +114,8 @@ Everything runs in the container with no external network except the npm registr
    - With `GOOGLE_CHAT_WEBHOOK_URL=http://127.0.0.1:39999/hook`, `POST /api/demo-requests` (valid body) → 201, and the mock receives exactly one POST whose `text` equals the original template.
    - With the variable unset → 201 plus the warning log.
 6. H-only checks (P6.1):
-   - Editing a post via the admin API makes `/blog/<slug>` reflect the change on the next request.
+   - Editing a post via the admin API makes `/blog/<slug>`, `/blog`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt` and `/api/blog` reflect the change on the next request. `revalidatePath` on metadata routes and route handlers is the uncertain part, so check each one. If one doesn't revalidate, document it and use `revalidateTag`, or the page-level `revalidate`, for that route.
+   - With the middleware lookup forced to time out (for example an unreachable Neon HTTP URL in middleware only), `/blog/<old_path>` still redirects (308 from the page) and never renders or caches a 404.
    - A killed DB (`pg_ctl stop`) makes an **already cached** `/blog/<slug>` still return 200, never 404.
    - `/api/blog` still returns 200 from cache.
 7. Stop PG and remove `.scratch/localpg`.

@@ -182,6 +182,13 @@ function cmdGate(a) {
   const s = load()
   const g = s.gates[id]
   if (!g) die(`unknown gate "${id}" (valid: ${Object.keys(s.gates).join(', ')})`)
+  if (status === 'passed') {
+    const fresh = flagList(a, 'evidence')
+    if (!fresh.length) die(`gate ${id} passed requires --evidence <file> (fresh evidence for this pass)`)
+    const problems = []
+    for (const rel of fresh) problems.push(...validateEvidence(rel))
+    if (problems.length) die(`gate ${id} NOT passed — evidence problems:\n` + problems.map(p => '  ' + p).join('\n'), 1)
+  }
   g.status = status
   g.at = now()
   const by = flag(a, 'by'); if (typeof by === 'string') g.by = by
@@ -190,6 +197,25 @@ function cmdGate(a) {
   save(s)
   appendLog(`gate ${id} → ${status}${typeof by === 'string' ? ` (by ${by})` : ''}${typeof note === 'string' ? ` — ${note}` : ''}`)
   console.log(`${id}: ${status}`)
+}
+
+function validateEvidence(rel) {
+  const abs = join(ROOT, rel)
+  const out = []
+  if (!existsSync(abs)) return [`${rel}: file not found`]
+  let j
+  try { j = JSON.parse(readFileSync(abs, 'utf8')) } catch (e) { return [`${rel}: not valid JSON (${e.message})`] }
+  const isAdvisor = typeof j.verdict === 'string'
+  if (isAdvisor) {
+    if (!['GO', 'GO_WITH_CONDITIONS'].includes(j.verdict)) out.push(`${rel}: advisor verdict is ${j.verdict}`)
+    return out
+  }
+  if (j.status !== 'pass') out.push(`${rel}: status is "${j.status}" (need "pass")`)
+  if (!j.verifier) out.push(`${rel}: missing "verifier"`)
+  if (!j.checkedAt || Number.isNaN(Date.parse(j.checkedAt))) out.push(`${rel}: missing/invalid "checkedAt"`)
+  if (!Array.isArray(j.checks) || !j.checks.length) out.push(`${rel}: no "checks" array`)
+  else j.checks.forEach((c, i) => { if (c.pass !== true) out.push(`${rel}: check #${i + 1} "${c.name ?? '?'}" did not pass`) })
+  return out
 }
 
 function cmdStatus(a) {

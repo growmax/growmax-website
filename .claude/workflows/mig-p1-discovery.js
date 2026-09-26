@@ -3,7 +3,8 @@ export const meta = {
   description: 'P1.1-P1.5 discovery: source DB inventory/fingerprints, parity harness build + mutation self-test + adversarial review, live baseline, DNS baseline, code audit',
   whenToUse: 'Growmax Vercel migration steps P1.1-P1.5 (A1 advisor runs separately via mig-advisor)',
   phases: [
-    { title: 'Discover', detail: 'DB inventory (sonnet/high), harness (sonnet/high + opus/high review), DNS (haiku/low), audit (sonnet/medium)' },
+    { title: 'Discover', detail: 'DB inventory (sonnet/high), harness (sonnet/high), DNS (haiku/low), audit (sonnet/medium)' },
+    { title: 'Review', detail: 'reviewer opus/high over harness + DB scripts, up to 2 fix rounds' },
     { title: 'Baseline', detail: 'capture live site with the reviewed harness (haiku/low) + verify (sonnet/medium)' },
   ],
 }
@@ -33,28 +34,20 @@ const a = args || {}
 const paths = a.paths || {}
 const only = a.only || ['P1.1', 'P1.2', 'P1.3', 'P1.4', 'P1.5']
 const role = r => `Follow the role rules in .claude/agents/migration-${r}.md. `
-const runnerNote = `Network paths decided in P0 (facts.paths): ${JSON.stringify(paths)}. If db=="sandbox" run DB work in the Vercel Sandbox runner per docs/migration/specs/SPEC-01-infrastructure.md §7; if web=="sandbox" run HTTP captures there. `
+const RT = a.noAgentTypes ? {} : { agentType: 'migration-reviewer' }
+const OWN = 'Directory ownership: P1.1 owns scripts/migration/db/ only; P1.2 owns scripts/migration/{parity,functional,visual,perf}/ only. scripts/migration/package.json already pins the dependencies (pg, @neondatabase/serverless, ws, node-html-parser, pixelmatch, pngjs, playwright-core, @vercel/sandbox) — run `npm --prefix scripts/migration ci`; do not edit package.json unless a dependency is truly missing (P1.2 only). NEVER type a secret value into any tool call or prompt; scripts read env vars (SPEC-03 §0.2). '
+const runnerNote = `Network paths decided in P0 (facts.paths): ${JSON.stringify(paths)}. DB transport per SPEC-03 §1 (neon-https from the container preferred; pg_dump only via scripts/migration/db/runner.mjs using the @vercel/sandbox SDK). ` + OWN
 
 phase('Discover')
 const tasks = {
   'P1.1': () => agent(role('db-operator') + runnerNote +
-    `Step P1.1 per docs/migration/specs/SPEC-03-data-migration.md §1 and §3 (read both). Implement scripts/migration/db/{lib,inventory,fingerprint,schema-diff,sync}.mjs exactly per §1/§5 (Node 22 ESM, only the pg package; sync.mjs must enforce every §0 invariant and guard). Then, READ-ONLY against $REPLIT_DATABASE_URL: run inventory + fingerprint, write ${EV}/P1.1-source-inventory.json and ${EV}/P1.1-source-fingerprint.json (counts/md5 only), produce the no-PII fixtures docs/migration/.scratch/schema.dump and docs/migration/.scratch/blog-tables.dump in the container, and export the public DB redirect list (old_path,new_path) to ${EV}/P1.1-db-redirects.json. Compute GAP_START = max(1000000, 10*max id) and return it in facts.gapStart, plus facts.source {pgMajor, hostKind, tables, maxIds, extensions, extraTables}. Self-test sync.mjs guards against a throwaway local PG16 (see SPEC-02 local PG recipe) — never against the real source or Neon.`,
+    `Step P1.1 per docs/migration/specs/SPEC-03-data-migration.md §0, §1, §3, §5 (read them). Implement scripts/migration/db/{lib,inventory,fingerprint,schema-diff,sync,runner}.mjs exactly per §1/§5 (Node 22 ESM; transports neon-https / container-tcp / sandbox-sdk; persisted watermarks in _migration.sync_state; natural-key reconciliation; late-commit window; never resurrect target deletions; every §0 invariant and guard). Then, READ-ONLY against $REPLIT_DATABASE_URL: run inventory + fingerprint, write ${EV}/P1.1-source-inventory.json and ${EV}/P1.1-source-fingerprint.json (counts/md5 only), produce the no-PII fixtures docs/migration/.scratch/schema.dump and docs/migration/.scratch/blog-tables.dump in the container, and export the public DB redirect list (old_path,new_path) to ${EV}/P1.1-db-redirects.json. Compute GAP_START = max(1000000, 10*max id) and return it in facts.gapStart, plus facts.source {pgMajor, hostKind, tables, maxIds, extensions, extraTables}. Self-test every sync.mjs mode and guard against a throwaway local PG16 with two databases as source/target (SPEC-02 local PG recipe), including deletion, late-commit and natural-key-conflict scenarios; write ${EV}/P1.1-sync-selftest.json. Never self-test against the real source or Neon.`,
     { label: 'P1.1 db inventory', phase: 'Discover', model: 'sonnet', effort: 'high', schema: RESULT }),
   'P1.2': async () => {
-    let built = await agent(role('implementer') + runnerNote +
+    const built = await agent(role('implementer') + runnerNote +
       `Step P1.2: build the parity harness exactly per docs/migration/specs/SPEC-04-verification.md §1–§5 (read it fully): scripts/migration/package.json (+ lockfile via npm install inside scripts/migration), parity/{urls,capture,compare,selftest}.mjs, functional/run.mjs, visual/run.mjs, perf/run.mjs. Use NODE_USE_ENV_PROXY=1 for fetch in the container. Run selftest.mjs against the live site (or via the sandbox if web=="sandbox") and write ${EV}/P1.2-harness-selftest.json. Every mutation in §5.2 must be detected; determinism check must pass.`,
       { label: 'P1.2 build harness', phase: 'Discover', model: 'sonnet', effort: 'high', schema: RESULT })
-    for (let round = 1; round <= 3; round++) {
-      const review = await agent(role('reviewer') +
-        `Adversarially review the parity harness (scripts/migration/parity, functional, visual, perf) against docs/migration/specs/SPEC-04-verification.md, and the self-test evidence ${EV}/P1.2-harness-selftest.json. Core question: can it PASS while www.growmax.io and the Vercel deployment differ in a way users or search engines would notice? Also review scripts/migration/db/*.mjs against SPEC-03 §0/§5 if present. Write your verdict to ${EV}/P1.2-harness-review.json (round ${round}).`,
-        { label: `P1.2 review r${round}`, phase: 'Discover', model: 'opus', effort: 'high', schema: REVIEW })
-      if (!review) return { status: 'fail', summary: 'reviewer returned nothing', evidenceFiles: [], issues: [{ severity: 'blocker', description: 'harness review missing' }] }
-      if (review.approve && !review.blocking.length) return { ...built, status: built?.status === 'pass' ? 'pass' : 'fail', facts: { ...(built?.facts || {}), reviewRounds: round } }
-      if (round === 3) return { status: 'fail', summary: 'harness still has blocking review findings after 2 fix rounds', evidenceFiles: [`${EV}/P1.2-harness-review.json`], issues: review.blocking.map(b => ({ severity: 'blocker', description: `${b.file || ''} ${b.issue}` })) }
-      built = await agent(role('implementer') +
-        `Fix these blocking review findings in the parity harness, then re-run selftest.mjs and rewrite ${EV}/P1.2-harness-selftest.json: ${JSON.stringify(review.blocking)}`,
-        { label: `P1.2 fix r${round}`, phase: 'Discover', model: 'sonnet', effort: 'high', schema: RESULT })
-    }
+    return built
   },
   'P1.4': () => agent(role('scout') + runnerNote +
     `Step P1.4 DNS/TLS baseline. Using DNS-over-HTTPS (curl 'https://dns.google/resolve?name=NAME&type=TYPE') or dig in the sandbox, record for growmax.io and www.growmax.io: NS, SOA, A, AAAA, CNAME, MX, TXT, CAA; identify the DNS provider from NS. Also record apex/www HTTP behavior: curl -sI for http://growmax.io/, https://growmax.io/, http://www.growmax.io/, https://www.growmax.io/ (status, location, server), and the current TLS cert issuer/subject/SANs/expiry for www.growmax.io and growmax.io (openssl s_client -servername ... or curl -v). Write ${EV}/P1.4-dns-baseline.json and return facts.dns {provider, ns, wwwRecords, apexRecords, apexBehavior}.`,
@@ -66,9 +59,32 @@ const tasks = {
 const discovered = {}
 await parallel(Object.keys(tasks).filter(k => only.includes(k)).map(k => async () => { discovered[k] = await tasks[k]() }))
 
+phase('Review')
+// Mandatory adversarial review of BOTH the harness and the DB scripts, after both are built (no race).
+const needReview = only.includes('P1.1') || only.includes('P1.2')
+let review = null
+for (let round = 1; needReview && round <= 3; round++) {
+  review = await agent(role('reviewer') +
+    `Adversarially review (round ${round}): (1) the parity harness scripts/migration/{parity,functional,visual,perf} against docs/migration/specs/SPEC-04-verification.md and ${EV}/P1.2-harness-selftest.json — can it PASS while www.growmax.io and the Vercel deployment differ in a way users or search engines would notice? (2) scripts/migration/db/*.mjs against SPEC-03 §0/§1/§5 and ${EV}/P1.1-sync-selftest.json — read-only enforcement on the source, secrets only via env (runner.mjs must use the @vercel/sandbox SDK, never MCP), masking, idempotency, watermark/late-commit/natural-key/target-deletion rules, gap handling, the full-refresh guard, and reverse-delta write guards. Write ${EV}/P1.2-harness-review.json. For each blocking finding set file so it can be routed.`,
+    { label: `P1 review r${round}`, phase: 'Review', model: 'opus', effort: 'high', schema: REVIEW, ...RT })
+  if (!review) break
+  if (review.approve && !review.blocking.length) break
+  if (round === 3) break
+  const dbFix = review.blocking.filter(b => (b.file || '').includes('scripts/migration/db'))
+  const hFix = review.blocking.filter(b => !(b.file || '').includes('scripts/migration/db'))
+  await parallel([
+    ...(dbFix.length ? [() => agent(role('db-operator') + runnerNote + `Fix these blocking review findings in scripts/migration/db/ and re-run the sync self-test (${EV}/P1.1-sync-selftest.json): ${JSON.stringify(dbFix)}`,
+      { label: `P1.1 fix r${round}`, phase: 'Review', model: 'sonnet', effort: 'high', schema: RESULT })] : []),
+    ...(hFix.length ? [() => agent(role('implementer') + runnerNote + `Fix these blocking review findings in the parity harness, re-run selftest.mjs and rewrite ${EV}/P1.2-harness-selftest.json: ${JSON.stringify(hFix)}`,
+      { label: `P1.2 fix r${round}`, phase: 'Review', model: 'sonnet', effort: 'high', schema: RESULT })] : []),
+  ])
+}
+const reviewOk = !needReview || (review && review.approve && !review.blocking.length)
+if (needReview && !reviewOk) log('P1 review still has blocking findings after 2 fix rounds — P1.3 skipped, orchestrator must escalate')
+
 phase('Baseline')
 let baseline = null
-const ready = discovered['P1.2']?.status === 'pass' && (discovered['P1.1']?.status === 'pass' || !only.includes('P1.1'))
+const ready = reviewOk && discovered['P1.2']?.status === 'pass' && (discovered['P1.1']?.status === 'pass' || !only.includes('P1.1'))
 if (only.includes('P1.3') && ready) {
   const cap = await agent(role('scout') + runnerNote +
     `Step P1.3: capture the live-site baseline with the reviewed harness. Run parity/urls.mjs (sitemap from https://www.growmax.io, config redirects, DB redirects from ${EV}/P1.1-db-redirects.json, special/negative routes per SPEC-04 §2) → ${EV}/P1.3-url-inventory.json; then parity/capture.mjs --base https://www.growmax.io → manifest ${EV}/P1.3-baseline-manifest.json (compact, no raw bodies; raw bodies to docs/migration/.scratch/raw-baseline). Report URL counts per source and any URL whose retries were exhausted.`,
@@ -79,4 +95,4 @@ if (only.includes('P1.3') && ready) {
 } else if (only.includes('P1.3')) {
   log('P1.3 skipped: harness or DB inventory did not pass')
 }
-return { discovered, baseline }
+return { discovered, review, baseline }

@@ -2,7 +2,9 @@
 
 Steps: P6.3, P6.5, P6.6, P7.1, P8.1. The owner changes DNS; the orchestrator prepares, detects, verifies and reconciles.
 
-## 1. Preconditions for `READY_FOR_DNS` (gate G6)
+Terminology: "READY FOR DNS" is the **notification** sent at P6.6. The ledger status from then on is `AWAITING_DNS`.
+
+## 1. Preconditions for READY FOR DNS (gate G6)
 
 - G5 and G6a passed on the **current** production deployment (verified SHA recorded in `facts.vercel.verifiedSha`).
 - Final full refresh done, sequence gap applied, G6 data checks passed (SPEC-03 §4).
@@ -22,10 +24,11 @@ Steps: P6.3, P6.5, P6.6, P7.1, P8.1. The owner changes DNS; the orchestrator pre
 
 ## 3. Detection state machine (evaluated at every check-in)
 
-Lookups run through DNS-over-HTTPS (`https://dns.google/resolve?name=…&type=…`, `https://cloudflare-dns.com/dns-query` with `accept: application/dns-json`) from the container when reachable, otherwise `dig` in the Sandbox runner. Query both public resolvers **and** the authoritative nameservers recorded in P1.4 (`facts.dns.ns`).
+Hourly lookups use **only** the two DNS-over-HTTPS resolvers from the container: `https://dns.google/resolve?name=…&type=…` and `https://cloudflare-dns.com/dns-query` with `accept: application/dns-json`. Authoritative-NS queries need port 53, so they run only in the Sandbox runner and only to confirm a `SWITCHED` transition.
 
 ```
-WAITING_TXT ──(_acme-challenge TXT matches on authoritative NS)──▶ TXT_PRESENT
+DOMAIN_UNVERIFIED ──(project domains verified: vercel domains verify / get_project_domain → verified:true)──▶ WAITING_TXT
+WAITING_TXT ──(_acme-challenge TXT visible on both DoH resolvers)──▶ TXT_PRESENT
 TXT_PRESENT ──(vercel certs issue www.growmax.io growmax.io succeeds;
                curl --resolve www.growmax.io:443:<vercel-ip> shows a valid cert, from the Sandbox)──▶ CERT_READY  [notify owner: "switch www now"]
 {WAITING_TXT, TXT_PRESENT, CERT_READY} ──(authoritative www answer → Vercel target)──▶ SWITCHED  [set facts.cutover.detectedAt; status POST_CUTOVER]
@@ -33,6 +36,8 @@ SWITCHED ──(public resolvers mixed)──▶ PROPAGATING
 PROPAGATING ──(both public resolvers → Vercel on 2 consecutive check-ins)──▶ PROPAGATED
 ```
 
+- The start state is `DOMAIN_UNVERIFIED` if P6.3 recorded `verified:false`, otherwise `WAITING_TXT`. Cert issuance is never attempted before the domain is verified, and never while a CAA record forbids `letsencrypt.org`. Either condition is an owner action shown in the runbook, not a failure to escalate.
+- A failed `vercel certs issue` counts as one attempt. After 3 failed attempts, add blocker `B-CERT` with the error and the fallback ("switch `www` anyway; Vercel will issue via HTTP-01"). Don't climb the escalation ladder every hour.
 - If `SWITCHED` is reached without `CERT_READY`, Vercel issues the certificate through HTTP-01. Check TLS at every check-in and switch to 15-minute check-ins until the cert is valid. If it's still invalid after 60 min, it's a SEV2 incident (notify the owner and consider rolling DNS back per SPEC-07).
 - Record every transition with `state.mjs set facts.cutover.state "\"…\""` and a `LOG.md` line.
 
@@ -41,18 +46,23 @@ PROPAGATING ──(both public resolvers → Vercel on 2 consecutive check-ins)�
 Each wake:
 
 1. Run the ORCHESTRATOR §1 resume. Don't re-read specs unless the routine needs them.
-2. Advance the DNS/TLS state machine (§3).
-3. `sync.mjs delta` → `verify --below-gap` (WF `mig-sync-delta`). If `blogChanged`, redeploy production with the same SHA and quick-check the DB-driven URLs.
+2. Advance the DNS/TLS state machine (§3). This is the cheap part: `mig-sync-delta` with `mode: "probe"` runs a single haiku/low agent.
+3. Delta sync (`mig-sync-delta` with `mode: "full"`: `sync.mjs delta` → `verify --below-gap`), **only** on this cadence:
+   - Before cutover: every 6 h.
+   - After `SWITCHED`: hourly for the first 24 h, then every 3 h.
+   
+   If `blogChanged`, redeploy production with the same SHA and quick-check the DB-driven URLs.
 4. Health, with the scout and the bypass header before cutover:
    - `/`, `/blog`, one post, `/sitemap.xml`, `/api/blog` → 200.
    - Runtime errors since the last check → 0 unexplained.
 5. Once cutover is detected: on the first check-in after `SWITCHED`, run P8.1 and P8.2 (full suite against the real domain). Run the smoke subset of it daily after that.
-6. Commit **only if something changed**: rows synced, a state transition, an incident, or a gate. Otherwise update nothing in git (no commit spam).
+6. Commit **only if something changed**: rows synced, a state transition, an incident, or a gate. Otherwise don't touch the ledger at all. The pending check-in is found with `mcp__Claude_Code_Remote__list_triggers` (name `growmax-migration-checkin`), not stored in `STATE.json`, so routine wakes leave git clean.
 7. Re-arm `send_later`:
    - 60 min normally
    - 15 min for the first 2 h after `SWITCHED`, or while TLS is invalid
    - every 6 h after 14 days in `AWAITING_DNS`
    - stop, after a final notification, after 30 days in `AWAITING_DNS` (resumable)
+   - **Post-cutover hard stop:** G8b needs ≥ 72 h **and** 24 h without new source rows. If Replit still receives writes at **7 days** (stale DNS clients, bots), stop reconciling. Run the final audit, record the residual rows and the owner decision needed ("decommission Replit now; remaining rows reconciled up to T"), and pass G8b with that condition noted.
 
 ## 5. Notifications (PushNotification plus a session message)
 
