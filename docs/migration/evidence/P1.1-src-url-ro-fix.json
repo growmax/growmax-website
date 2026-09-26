@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-09-26T14:33:13Z",
+  "step": "P1.1",
+  "note": "Fix for G1 verifier bug (class: code) in readOnlyScopedUrl (scripts/migration/db/runner.mjs).",
+  "bug": {
+    "summary": "readOnlyScopedUrl built the 'options' query param via URLSearchParams#set/#toString, which encodes a space as '+'. libpq's URI parser only decodes %XX escapes, so the literal '+' survived into the GUC name and Postgres rejected the session with: FATAL: unrecognized configuration parameter \"+default_transaction_read_only\". This made $SRC_URL_RO (exported to runner.mjs exec commands) unusable.",
+    "location": "scripts/migration/db/runner.mjs:123-134 (pre-fix)"
+  },
+  "change": {
+    "file": "scripts/migration/db/runner.mjs",
+    "function": "readOnlyScopedUrl",
+    "description": "Query string is now built by hand. Any existing 'options' value is read via URLSearchParams.get (decoding is unaffected by +/%20) and, if present, the new '-c default_transaction_read_only=on' clause is appended to it (space-joined) rather than replacing it. Every other existing query parameter (e.g. sslmode) is preserved and re-serialized with encodeURIComponent, never URLSearchParams's own +-for-space encoder. The malformed-URL fallback branch (already using encodeURIComponent) is unchanged in behavior. Userinfo, host, port and path are untouched (still produced by the same URL object's toString()). Also exported readOnlyScopedUrl from runner.mjs so it is directly unit-testable.",
+    "linesChanged": "scripts/migration/db/runner.mjs (readOnlyScopedUrl function body + export list)"
+  },
+  "selftest": {
+    "file": "scripts/migration/db/readonly-url.selftest.mjs",
+    "command": "node scripts/migration/db/readonly-url.selftest.mjs",
+    "usesOnlyFakeUrls": true,
+    "fakeUrlForm": "assembled at runtime from separate literal parts (scheme, '://' separator, single-letter fake user, ':', single-letter fake pass, '@', an .invalid-TLD host) rather than written as one connection-string literal; no real or realistic credential appears anywhere in the file",
+    "allPass": true,
+    "scenarios": [
+      { "name": "contains the exact encoded options value, no literal +", "ok": true },
+      { "name": "keeps the existing sslmode parameter", "ok": true },
+      { "name": "merges with a pre-existing options value instead of replacing it", "ok": true },
+      { "name": "round-trips userinfo (username/password), host and port unchanged", "ok": true },
+      { "name": "fallback branch (unparsable URL) also avoids a literal +", "ok": true }
+    ]
+  },
+  "regressionCheck": {
+    "file": "scripts/migration/db/runner-guards.selftest.mjs",
+    "command": "node scripts/migration/db/runner-guards.selftest.mjs",
+    "allPass": true,
+    "note": "Confirms the readOnlyScopedUrl export addition and the fix did not affect the pre-existing guard self-test."
+  },
+  "sandboxProof": {
+    "environment": "Vercel Sandbox (growmax-migration-runner), via NODE_USE_ENV_PROXY=1",
+    "readOnlyProbe": {
+      "command": "node scripts/migration/db/runner.mjs exec -- bash -lc 'psql \"$SRC_URL_RO\" -Atc \"show default_transaction_read_only\"'",
+      "exitCode": 0,
+      "stdout": "on"
+    },
+    "writeAttemptProbe": {
+      "command": "node scripts/migration/db/runner.mjs exec -- bash -lc 'psql \"$SRC_URL_RO\" -c \"CREATE TEMP TABLE _ro_probe(x int)\"'",
+      "exitCode": 1,
+      "stderr": "ERROR:  cannot execute CREATE TABLE in a read-only transaction",
+      "note": "Temp table probe is session-local (never persists); nothing was written to the source."
+    }
+  },
+  "constraintsRespected": {
+    "sourceReadOnly": true,
+    "noSecretsPrinted": true,
+    "noSeedImportEnhanceOrDbPush": true,
+    "dumpsInScratchOrTmpOnly": true,
+    "noStateOrLogEdits": true,
+    "noCommitOrPush": true
+  }
+}

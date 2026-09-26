@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P1.6",
-  "updatedAt": "2026-09-26T14:31:30.469Z",
+  "updatedAt": "2026-09-26T14:38:59.582Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -138,7 +138,7 @@
     "followUps": [
       "P5.1: run the SPEC-04 §5.4 protected-deployment probe (deferred in P1.2-harness-selftest.json)",
       "Before P6.5: compact, hash-based baseline manifest mode in parity/capture.mjs (and compare.mjs reading it), so P6.5-baseline-manifest.json fits the 5 MB evidence limit and survives a container reclaim; the P1.3 manifest (7.8 MB, sha256 0dc04fb7df42ee8643f9d4b3f2c713e72ee6f7fb7a8c43b40aa8c5e266b9bda1) is kept only in docs/migration/.scratch/evidence-large/",
-      "P4.1: prove the Sandbox source session is read-only (SHOW default_transaction_read_only via SRC_URL_RO), since the startup option sets a default, not enforcement",
+      "RESOLVED 2026-09-26 (P1.1 fix, verified): SRC_URL_RO encodes options with %20; Sandbox shows default_transaction_read_only=on and rejects writes. P4.1 still re-checks it before the copy",
       "P8.2: run parity with --include-post-cutover (mandatory) and record the post-cutover count",
       "Allowlist reviews (P5.2+): reject one-sided pins and maxMatches-only entries for seo/text/jsonBySlug fields",
       "functional/run.mjs: on VercelOriginError record the test row label so any residue can be cleaned by hand"

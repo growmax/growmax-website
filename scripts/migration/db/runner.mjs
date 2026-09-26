@@ -119,15 +119,37 @@ function shJoin(args) {
  * its own `options` query parameter, so ANY session opened with it -- psql,
  * an arbitrary exec command, whatever -- is read-only at the Postgres level,
  * without a shell-wide PGOPTIONS env var that would also (wrongly) force a
- * same-invocation DST_URL session read-only. */
+ * same-invocation DST_URL session read-only.
+ *
+ * The query string is built by hand with encodeURIComponent rather than via
+ * `URLSearchParams#set`/`#toString`: WHATWG URLSearchParams serializes a
+ * space as `+` (application/x-www-form-urlencoded), but libpq's URI parser
+ * only decodes `%XX` escapes, so a literal `+` in `options` would reach
+ * Postgres unchanged and it would try (and fail) to recognize a GUC named
+ * `+default_transaction_read_only`. encodeURIComponent always emits `%20`
+ * for space, which libpq does decode correctly. */
 function readOnlyScopedUrl(url) {
   const roOpt = "-c default_transaction_read_only=on";
   try {
     const u = new URL(url);
-    const existing = u.searchParams.get("options");
-    u.searchParams.set("options", existing ? `${existing} ${roOpt}` : roOpt);
+    // Read (and remove) any existing `options` value via URLSearchParams --
+    // safe for *decoding* regardless of `+`-vs-`%20` -- then rebuild the
+    // whole query string ourselves so nothing gets re-serialized through
+    // URLSearchParams's own (space -> `+`) encoder. This keeps every other
+    // existing parameter (e.g. `sslmode`) intact.
+    const existingOptions = u.searchParams.get("options");
+    u.searchParams.delete("options");
+    const mergedOptions = existingOptions ? `${existingOptions} ${roOpt}` : roOpt;
+    const parts = [];
+    for (const [k, v] of u.searchParams) {
+      parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+    }
+    parts.push(`options=${encodeURIComponent(mergedOptions)}`);
+    u.search = `?${parts.join("&")}`;
     return u.toString();
   } catch {
+    // `new URL(url)` threw (malformed URL) -- fall back to a plain string
+    // append. encodeURIComponent still guarantees %20, never `+`.
     const sep = url.includes("?") ? "&" : "?";
     return `${url}${sep}options=${encodeURIComponent(roOpt)}`;
   }
@@ -503,4 +525,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
-export { getRunner, ensureToolchain, versionsCommand, fixturesCommand, run, assertDstIdentityIsSafe, execWithDstGuard, fullRefreshCommand };
+export {
+  getRunner,
+  ensureToolchain,
+  versionsCommand,
+  fixturesCommand,
+  run,
+  assertDstIdentityIsSafe,
+  execWithDstGuard,
+  fullRefreshCommand,
+  readOnlyScopedUrl,
+};
