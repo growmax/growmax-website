@@ -57,3 +57,5 @@
 - 2026-09-26T11:19:24.448Z set facts.neon.decision
 - 2026-09-26T12:26:19.134Z [P3.2] OWNER DECISION (2026-09-26T12:26:19Z, in session): 'Upgrade Neon to Launch too, go ahead.' Applied with vercel integration update neon --installation-id icfg_tEtDWAPJTdmHAD8eL9GtfV5H --plan launch_v3 (CLI: updated true). MCP read-back shows vendorBillingPlan launch_v3 (installation scope, usage-based: $0.106/CU-hour, $0.35/GB-month). Risk R6 (Free compute quota suspending the DB) is mitigated. The idle sin1 resource now bills under Launch too (near zero while empty and suspended); deleting it is on the owner's decommission checklist. Vercel Pro is still NOT authorized: it stays an A2 condition.
 - 2026-09-26T12:26:19.192Z set facts.neon.plan
+- 2026-09-26T12:45:12.446Z OWNER ACTION (2026-09-26T12:45:12Z): the owner upgraded Vercel team growmax1 to Pro themselves (they declined the orchestrator's buy_pro call; no charge was made by automation). Verified: vercel teams ls shows growmax1 = pro. The A2 'upgrade to Pro' condition (risk R5) is satisfied; SPEC-01 §2.3 skew protection now applies at P3.1.
+- 2026-09-26T12:45:12.501Z set facts.vercel.plan
