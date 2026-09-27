@@ -85,6 +85,7 @@ psql "$DST_URL_UNPOOLED" -c 'ANALYZE'
 - `STATE.status ∉ {POST_CUTOVER, ROLLED_BACK}` and `facts.cutover.detectedAt` is null.
 - The DoH answers (dns.google **and** cloudflare-dns) for `www.growmax.io` are the Replit IP `34.111.179.208`.
 - The script's own `getaddrinfo` agrees.
+- **Added at P5.1 (procedural pre-check, run by the DB operator before the command):** no target-only rows in `demo_requests` or `newsletter_subscriptions`. The production domain `growmax-website.vercel.app` is public under Vercel Standard Protection, so a real submission can land in Neon before cutover, and the refresh would erase it. If any exists, stop, preserve it in `.scratch/`, and report its ids.
 
 **After the P6.4 refresh:**
 1. `sync.mjs gap`: `setval(seq, GAP_START, false)` for every sequence owned by a `public` column whose next value is < `GAP_START`. **Never move a sequence backwards.**
