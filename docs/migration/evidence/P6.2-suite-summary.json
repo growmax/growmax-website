@@ -1,68 +1,189 @@
 {
   "step": "P6.2",
   "gate": "G6a",
-  "status": "fail",
-  "checkedAt": "2026-09-27T08:14:45Z",
+  "status": "pass",
+  "checkedAt": "2026-09-27T08:37:54Z",
   "verifier": "migration-verifier (opus/medium)",
   "runLabel": "p6-20260927T0803Z",
+  "condition": "C-A3b-2 re-synthesis (A3 for P6.2); supersedes the 08:14:45Z fail summary",
   "baseA": "https://www.growmax.io",
   "baseB": "https://growmax-website.vercel.app",
-  "deployment": {"id": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx", "sha": "dc5405357441870b9315a28a7cbb93a201278453", "target": "production", "state": "READY"},
+  "deployment": {
+    "id": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+    "sha": "dc5405357441870b9315a28a7cbb93a201278453",
+    "target": "production",
+    "state": "READY",
+    "hSha": "dc5405357441870b9315a28a7cbb93a201278453",
+    "shaMatchesHSha": true
+  },
   "checks": [
     {
       "name": "6a.1 Diff limited to SPEC-02 H1-H6 (H5 and H6 added at P6.2); reviewer approves",
-      "expected": "P6.1-review.json and P6.2-fix-review.json status pass",
-      "actual": "P6.1-review.json pass (2026-09-27T04:08:00Z); P6.2-fix-review.json pass (2026-09-27T07:35:57Z). Evidence owned by the reviewer; carried forward, not re-derived by this suite.",
+      "expected": "P6.1-review.json and P6.2-fix-review.json present, status pass, approve true, 0 blocking, every check pass",
+      "actual": "P6.1-review.json pass (approve true, blocking 0, 4/4 checks pass, 2026-09-27T04:08:00Z); P6.2-fix-review.json pass (approve true, blocking 0, 11/11 checks pass, 2026-09-27T07:35:57Z). Reviewer-owned evidence, read and carried forward.",
       "pass": true
     },
     {
-      "name": "6a.2 Local verification incl. H-only checks and SPEC-02 local step 8 (H5, H6)",
-      "expected": "P6.1-local-verify.json and P6.2-fix-local-verify.json status pass",
-      "actual": "P6.1-local-verify.json pass (2026-09-27T04:05:10Z); P6.2-fix-local-verify.json pass (2026-09-27T07:29:49Z). Carried forward, not re-derived by this suite.",
+      "name": "6a.2 Local verification incl. H-only checks (cached post survives a DB stop; admin edit revalidates) and SPEC-02 local step 8 (H5, H6)",
+      "expected": "P6.1-local-verify.json and P6.2-fix-local-verify.json present, status pass, every check pass (incl. 6a H2 revalidation, 6c/6d DB stop, step 8 H5 tokens and H6 matrix)",
+      "actual": "P6.1-local-verify.json pass (19/19 pass, 2026-09-27T04:05:10Z); P6.2-fix-local-verify.json pass (26/26 pass, 2026-09-27T07:29:49Z).",
       "pass": true
     },
     {
-      "name": "6a.3 Deployment READY for facts.git.hSha; full suite passes again (no F2)",
-      "expected": "Production deployment READY at hSha dc5405357441870b9315a28a7cbb93a201278453; parity failedUnallowed == 0 with only advisor-approved allowlist entries; functional F1, F3-F11 pass, test rows removed; visual pass; logs 0 unexplained errors over a non-empty window",
-      "actual": "Deployment dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx READY at dc54053 (P6.2-a3-deploy.json, confirmed via get_deployment in P6.2-functional.json) - OK. Parity FAIL: 297/297 compared, failedUnallowed=1 (hashedCssSha256 on <hashed-css-assets>: B bundle e50a48e4... does not match A3 pin expected.b[0]=072d7bf0...). Functional pass (F1, F3-F11; F2 not run; 0 residual test rows). Visual pass (20/20 comparable, max 0.383%, 4 RSC-prefetch aborts listed by key). Logs pass (580 lines, 0 errors). Perf flagged for advisor (report-only).",
-      "pass": false
+      "name": "6a.3 Deployment READY for facts.git.hSha; full suite passes again (no F2); H4 proven (second /api/blog fetch HIT, or STALE within s-maxage=300), decoded size and array length recorded (A1 C10; A3 C-A3b-3)",
+      "expected": "READY production deployment at hSha aliased to growmax-website.vercel.app; parity pass (failedUnallowed 0, allowlisted 4, stylesheetRefsBothAbsent 0); functional pass with F2 not run; visual pass; logs pass (non-empty window, 0 errors); P6.2-cache-hit.json pass with second fetch HIT/STALE and bytes + length recorded",
+      "actual": "Deployment dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx READY production at dc5405357441870b9315a28a7cbb93a201278453 (== hSha: true), aliasError null. Parity pass: 297 URLs, failedUnallowed 0, allowlisted 4, stylesheetRefsBothAbsent 0; re-run independently by this verifier (compare.mjs exit 0, same PASS line, empty stderr, manifests 1687a934/9cea5821). Functional pass: F1, F3-F11 pass, F2 not run by design, 0 residual test rows. Visual pass: 20/20 comparable, max 0.3833%, 4 residual RSC-prefetch abort keys explained. Logs pass: window 2026-09-27T08:03:00Z..2026-09-27T08:13:00Z, 580 lines, 0 error clusters, 0 error/warning lines. Cache pass: 1st GET STALE (age 1531), 2nd GET HIT (age 1), both 200, 2322293 decoded bytes, 172 items, byte-identical.",
+      "pass": true
     }
   ],
   "parity": {
-    "status": "fail",
+    "status": "pass",
     "urls": 297,
-    "failedUnallowed": 1,
-    "allowlisted": 3,
-    "unallowed": [
-      {
-        "url": "<hashed-css-assets>",
-        "field": "hashedCssSha256",
-        "a": ["5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0", "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"],
-        "b": ["b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b", "e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7"],
-        "pinnedB": ["072d7bf09da4eeaa6099a59d44d195408acc62a8de9ff0a80baa43cc63ceb8ae", "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"],
-        "likelyClass": "acceptable-diff (pending advisor re-pin)",
-        "note": "Changed by the H5 Tailwind-source fix. Parity agent reports B CSS is a strict subset of A (287 A-only tokens, 0 B-only), none of the A-only classes used in the 438 captured HTML pages; same cause class A3 approved. The allowlist pin was not updated, and SPEC-04/VERIFICATION 5.2 require advisor-approved entries only, so this cannot be passed by the verifier."
-      }
+    "failedUnallowed": 0,
+    "allowlisted": 4,
+    "stylesheetRefsBothAbsent": 0,
+    "allowlistGitBlob": "543f222616bc6907a873e2c0922f3761aefd7eca",
+    "manifestSha256": {
+      "a": "1687a934c08a85547a9449384b9ee8b414df736886b20d0e012fd880b71cbfec",
+      "b": "9cea582136fe18b2a86f29960f31a4720ed66fab579d88dbbfe2477066e05754"
+    },
+    "blogApi": {
+      "a": {
+        "present": true,
+        "bytes": 2322293,
+        "jsonArrayLength": 172
+      },
+      "b": {
+        "present": true,
+        "bytes": 2322293,
+        "jsonArrayLength": 172
+      },
+      "warnings": []
+    },
+    "independentRerun": "compare.mjs on the same manifests, raw dirs and allowlist, output to docs/migration/.scratch/p6-20260927T0803Z/suite-resynth: exit 0, PASS (failedUnallowed=0, allowlisted=4), stderr 0 bytes"
+  },
+  "functional": {
+    "status": "pass",
+    "failed": [],
+    "f2": "not run (P6.2: full suite again, no F2)"
+  },
+  "visual": {
+    "status": "pass",
+    "flagged": [],
+    "residualKeys": [
+      "firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED (RSC prefetch teardown; A issues it too; 200 direct)"
     ]
   },
-  "functional": {"status": "pass", "failed": [], "notRun": ["F2 (no --allow-demo-test; gate says no F2)"], "residualTestRows": 0},
-  "visual": {"status": "pass", "flagged": [], "comparable": 20, "maxRatio": 0.0038331839559775094, "acceptedResidualFailedRequestKeys": 4},
-  "logs": {"status": "pass", "errors": 0, "since": "2026-09-27T08:03:00Z", "until": "2026-09-27T08:13:00Z", "lines": 580},
-  "perf": {"flagged": ["B median TTFB > 1.5x A on 9 of 20 URLs (worst /blog 3.41x, /demo 3.06x; absolute B <= 159ms); flaggedForAdvisor=true, report-only"]},
-  "overall": "fail",
-  "blockingIssues": [
-    {
-      "id": "parity-hashed-css-pin",
-      "description": "compare.mjs failedUnallowed=1: hashedCssSha256 B bundle e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7 does not match allowlist.json entry 2 (A3) pin 072d7bf09da4eeaa6099a59d44d195408acc62a8de9ff0a80baa43cc63ceb8ae. B CSS changed because of the H5 fix.",
-      "likelyClass": "acceptable-diff",
-      "ownerAction": "Advisor re-approval of allowlist.json entry 2 with expected.b = [b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b, e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7], then re-run compare.mjs (captures in .scratch/p6-20260927T0803Z can be reused) and re-synthesize this summary."
-    }
+  "logs": {
+    "status": "pass",
+    "errors": 0,
+    "window": {
+      "since": "2026-09-27T08:03:00Z",
+      "until": "2026-09-27T08:13:00Z"
+    },
+    "lines": 580
+  },
+  "perf": {
+    "reportOnly": true,
+    "flagged": [
+      {
+        "url": "/minori-ai",
+        "ratio": 1.55,
+        "aMs": 31,
+        "bMs": 48
+      },
+      {
+        "url": "/demo",
+        "ratio": 3.06,
+        "aMs": 52,
+        "bMs": 159
+      },
+      {
+        "url": "/blog",
+        "ratio": 3.41,
+        "aMs": 37,
+        "bMs": 126
+      },
+      {
+        "url": "/sitemap.xml",
+        "ratio": 1.7,
+        "aMs": 30,
+        "bMs": 51
+      },
+      {
+        "url": "/company/about",
+        "ratio": 1.53,
+        "aMs": 32,
+        "bMs": 49
+      },
+      {
+        "url": "/privacy",
+        "ratio": 1.68,
+        "aMs": 34,
+        "bMs": 57
+      },
+      {
+        "url": "/industries/industrial-manufacturing",
+        "ratio": 1.67,
+        "aMs": 33,
+        "bMs": 55
+      },
+      {
+        "url": "/industries/automotive-aftermarket",
+        "ratio": 1.62,
+        "aMs": 34,
+        "bMs": 55
+      },
+      {
+        "url": "/write-for-us",
+        "ratio": 1.85,
+        "aMs": 34,
+        "bMs": 63
+      }
+    ],
+    "attribution": "A3 C-A3b-7 (report-only, no gate action): the 9/20 flag was reviewed and attributed to the measurement path: A static pages fell from 65-89 ms at P5.2 to 30-37 ms from the same container class (B stayed 48-63 ms); /blog and /sitemap.xml were sampled right after the F7/F8 H2 revalidation; /demo is dynamic (private, no-store) on both sides."
+  },
+  "cacheHit": {
+    "status": "pass",
+    "url": "https://growmax-website.vercel.app/api/blog",
+    "first": {
+      "xVercelCache": "STALE",
+      "age": 1531,
+      "status": 200
+    },
+    "second": {
+      "xVercelCache": "HIT",
+      "age": 1,
+      "status": 200
+    },
+    "cacheControl": "public, max-age=0, must-revalidate",
+    "decodedBytes": 2322293,
+    "jsonArrayLength": 172,
+    "bodiesIdentical": true
+  },
+  "overall": "pass",
+  "blockingIssues": [],
+  "knownLabelIssues": [
+    "P6.2-logs-perf.json gate field reads \"G5\" although its content is P6.2 / dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx (A3 C-A3b-4); not edited here, re-emit by scout if needed",
+    "P6.2-logs-perf.json does not record the plan log retention (logRetention: not read from the plan API), a SPEC-04 §9 field; not blocking for G6a, P8.2 must record it (C-A3b-4)"
+  ],
+  "notes": [
+    "F2 did not run, by design (G6a: no F2; C-A3b-8 reserves the demo test for P8.2).",
+    "No request in this synthesis sent the x-vercel-protection-bypass header; the only network-free action was the local compare re-run."
   ],
   "artifacts": [
+    "docs/migration/evidence/P6.2-a3-deploy.json",
     "docs/migration/evidence/P6.2-parity.json",
     "docs/migration/evidence/P6.2-functional.json",
     "docs/migration/evidence/P6.2-visual.json",
-    "docs/migration/evidence/P6.2-logs-perf.json"
-  ],
-  "notes": "Verified independently: diff.full.json (compared 297, failedUnallowed 1, allowlisted 3, sole non-report-only unallowed diff is hashedCssSha256); allowlist.json entry 2 expected.b[0]=072d7bf0...; P6.2-a3-deploy.json READY for dpl_339k at hSha; STATE facts.git.hSha = dc54053. Perf flags need advisor review but are report-only. P6.2-logs-perf.json labels its gate G5; content is for P6.2 and dpl_339k."
+    "docs/migration/evidence/P6.2-logs-perf.json",
+    "docs/migration/evidence/P6.2-cache-hit.json",
+    "docs/migration/evidence/P6.1-review.json",
+    "docs/migration/evidence/P6.2-fix-review.json",
+    "docs/migration/evidence/P6.1-local-verify.json",
+    "docs/migration/evidence/P6.2-fix-local-verify.json",
+    "docs/migration/evidence/allowlist.json (read only)",
+    "docs/migration/evidence/A3-advisor-P6.2.json (read only)",
+    "docs/migration/.scratch/p6-20260927T0803Z/suite-resynth/diff.json (gitignored)"
+  ]
 }
