@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T08:00:05.102Z",
+  "updatedAt": "2026-09-27T08:03:47.969Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -52,7 +52,8 @@
       "deploymentUrl": "growmax-website-k1wyvo4f8-growmax1.vercel.app",
       "productionReadyAt": "2026-09-27T06:29:53Z",
       "protectionReality": "SSO all_except_custom_domains (Standard Protection) leaves the production domain growmax-website.vercel.app public (GET / without the bypass header = 200); generated deployment URLs and previews stay protected. The P3.4 expectation (401/403 on the production alias) was wrong; the check is re-specified against the generated deployment URL. The public copy carries an absolute canonical to https://www.growmax.io and robots.txt points to the www sitemap.",
-      "previousProductionDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE (d8c8b05)"
+      "previousProductionDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE (d8c8b05)",
+      "hDeploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx"
     },
     "neon": {
       "plan": "launch (launch_v3, installation scope; owner-authorized 2026-09-26; applied via vercel integration update; MCP read-back confirmed)",
@@ -402,6 +403,21 @@
         "runId": "wf_856b3d1c-435",
         "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-p62-harness-hardening-wf_856b3d1c-435.js",
         "startedAt": "2026-09-27T07:46:00Z"
+      },
+      "p62a3suite": {
+        "runId": "wf_36ed093f-9ae",
+        "scriptPath": ".claude/workflows/mig-verify-suite.js",
+        "args": {
+          "step": "P6.2",
+          "baseA": "https://www.growmax.io",
+          "baseB": "https://growmax-website.vercel.app",
+          "bypass": true,
+          "mode": "pre",
+          "runLabel": "p6-20260927T0803Z",
+          "allowDemoTest": false,
+          "deploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx"
+        },
+        "startedAt": "2026-09-27T08:04:00Z"
       }
     },
     "followUps": [
