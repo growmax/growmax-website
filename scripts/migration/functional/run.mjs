@@ -66,28 +66,173 @@ export const ADMIN_COOKIE_NAME = 'growmax-admin'
 //    all — the cookie then gets the request's default-path (see cookieDefaultPath), NOT '/'.
 //    `path` is left undefined in that case; effectiveCookiePath() fills in the default.
 //  - Domain (§5.2.3): an empty value is ignored; a leading '.' is dropped; lower-cased.
+//
+// P6.1 F9 hardening (A3 C-A3-4 / P5.3 review round 3):
+//  - Name-value pair (§5.2 steps 2-5): a pair with no '=' makes RFC 6265 ignore the whole
+//    Set-Cookie entry (Chrome instead stores it as an EMPTY-named cookie whose value is the
+//    pair), and an empty trimmed name is likewise ignored or stored empty-named. Either way it
+//    is never the growmax-admin cookie: such an entry gets `name: ''` and `ignoredNameValue:
+//    true`, so no exact-name match against ADMIN_COOKIE_NAME can ever select it (the old code
+//    read `growmax-admin; Max-Age=0` as a growmax-admin clear).
+//  - Expires (§5.2.1) is parsed ONLY with the §5.1.1 cookie-date algorithm (parseCookieDate
+//    below), never V8's lenient Date.parse (which read `0`, `2020` and `-1` as past dates, so
+//    a logout re-sending the sealed value with such an Expires counted as a clear). An Expires
+//    the algorithm rejects is the same as no Expires. `expires` keeps the raw string and
+//    `expiresAt` the parsed epoch ms.
+//  - Partitioned (RFC 6265bis / CHIPS): a boolean; its value, if any, is ignored. A
+//    partitioned clear does not clear an unpartitioned cookie (and vice versa), so checkLogout
+//    compares it between the login cookie and the clearing entry.
+//
+// P6.1 review round 1 (blocking A): whitespace is stripped with cookieWsp (SP and HTAB only,
+// RFC 6265 §5.2 steps 4-5 and attribute parsing; what Chrome/Firefox do), never JS .trim(),
+// which also strips U+00A0 (NBSP) and other Unicode spaces. So `growmax-admin =`,
+// `Path =/`, `Path= /` and `Domain= ` are NOT read as growmax-admin / Path / '/'
+// / an empty Domain; attribute names are lower-cased ASCII-only (asciiLower). Round 1
+// (blocking B): Secure and SameSite are recorded so setCookieRejectionReasons() can tell
+// whether a browser would accept the entry at all; an attribute-value over 1024 octets is
+// ignored (RFC 6265bis §5.6, Chrome's kMaxCookieAttributeValueSize), so `Secure=<1025 chars>`
+// is not Secure.
+//
+// P6.1 review round 2 (blocking): `domainLast` records the LAST Domain attribute's value exactly
+// as read (SP/HTAB stripped, before dropping a leading '.'; '' for an empty `Domain=`), because
+// Chrome's ParsedCookie keeps the last occurrence of each attribute, empty or not, while RFC
+// 6265 §5.2.3 ignores an empty one. `domain` keeps the RFC reading. setCookieRejectionReasons
+// uses `domainLast` to reject `Domain=.` (Chrome rejects the whole entry; the old code read it
+// as host-only) and to fail closed where Chrome and the RFC disagree.
+const cookieWsp = (s) => String(s).replace(/^[ \t]+|[ \t]+$/g, '')
+const asciiLower = (s) => String(s).replace(/[A-Z]/g, (c) => c.toLowerCase())
+export const COOKIE_MAX_ATTRIBUTE_VALUE_BYTES = 1024
+export const COOKIE_MAX_NAME_VALUE_BYTES = 4096
 export function parseCookieAttrs(entry) {
   const parts = String(entry || '').split(';')
   const nameValue = parts[0] || ''
   const eq = nameValue.indexOf('=')
-  const name = (eq === -1 ? nameValue : nameValue.slice(0, eq)).trim()
-  const value = (eq === -1 ? '' : nameValue.slice(eq + 1)).trim()
-  const attrs = { name, value, path: undefined, domain: undefined, maxAge: undefined, expires: undefined }
+  let name = cookieWsp(eq === -1 ? '' : nameValue.slice(0, eq))
+  const value = cookieWsp(eq === -1 ? nameValue : nameValue.slice(eq + 1))
+  const ignoredNameValue = eq === -1 || name === ''
+  if (ignoredNameValue) name = ''
+  const attrs = {
+    name,
+    value,
+    ignoredNameValue,
+    path: undefined,
+    domain: undefined,
+    domainLast: undefined,
+    maxAge: undefined,
+    expires: undefined,
+    expiresAt: undefined,
+    partitioned: false,
+    secure: false,
+    sameSite: undefined,
+    sameSiteNoneSeen: false,
+  }
   for (const rawPart of parts.slice(1)) {
     const eqIdx = rawPart.indexOf('=')
-    const key = (eqIdx === -1 ? rawPart : rawPart.slice(0, eqIdx)).trim().toLowerCase()
-    const val = eqIdx === -1 ? '' : rawPart.slice(eqIdx + 1).trim()
+    const key = asciiLower(cookieWsp(eqIdx === -1 ? rawPart : rawPart.slice(0, eqIdx)))
+    const val = eqIdx === -1 ? '' : cookieWsp(rawPart.slice(eqIdx + 1))
+    if (Buffer.byteLength(val, 'utf8') > COOKIE_MAX_ATTRIBUTE_VALUE_BYTES) continue
     if (key === 'path') {
       attrs.path = val.startsWith('/') ? val : undefined
     } else if (key === 'domain') {
+      attrs.domainLast = val
       if (val !== '') attrs.domain = (val.startsWith('.') ? val.slice(1) : val).toLowerCase()
     } else if (key === 'max-age') {
       if (/^-?\d+$/.test(val)) attrs.maxAge = Number(val)
     } else if (key === 'expires') {
-      if (val !== '' && !Number.isNaN(Date.parse(val))) attrs.expires = val
+      const t = parseCookieDate(val)
+      if (t !== null) {
+        attrs.expires = val
+        attrs.expiresAt = t
+      }
+    } else if (key === 'partitioned') {
+      attrs.partitioned = true
+    } else if (key === 'secure') {
+      attrs.secure = true
+    } else if (key === 'samesite') {
+      const v = asciiLower(val)
+      attrs.sameSite = v === 'none' || v === 'lax' || v === 'strict' ? v : undefined
+      // Fail closed whatever order a browser resolves duplicate SameSite attributes in.
+      if (v === 'none') attrs.sameSiteNoneSeen = true
     }
   }
   return attrs
+}
+
+/** P6.1 review round 1 (blocking B): reasons a browser would REJECT this Set-Cookie entry
+ *  outright (no cookie is stored, so the login cookie is kept), as short codes, never values.
+ *  Empty array = accepted by these rules. RFC 6265bis §5.6/§5.7 and Chrome 80+:
+ *  - 'ctl': a CTL other than HTAB (%x00-08, %x0A-1F, %x7F) anywhere in the entry.
+ *  - 'non-ascii': any character above %x7F. Browsers differ (Chrome keeps some, rejects
+ *    others) and the harness cannot model it, so it fails closed; the real app's clear is ASCII.
+ *  - 'name-value-over-4096': name + value longer than 4096 octets.
+ *  - 'samesite-none-without-secure': a SameSite=None attribute without Secure.
+ *  - 'partitioned-without-secure': Partitioned without Secure.
+ *  P6.1 review round 2 (blocking), on the LAST Domain attribute (attrs.domainLast):
+ *  - 'domain-empty-after-dot': it is '.' (e.g. `Domain=.` or `Domain= . `). Chrome's
+ *    GetCookieDomainWithString finds '.' matches neither the host nor its registrable domain
+ *    and rejects the whole Set-Cookie, so the sealed login cookie is kept; the RFC reading
+ *    (drop the '.', empty = host-only) would call it a host-only clear. A later empty
+ *    `Domain=` (`Domain=.; Domain=`) is host-only in both readings and is not rejected.
+ *  - 'domain-last-empty-after-domain': it is empty but an earlier Domain set a real domain
+ *    (`Domain=x; Domain=`). Chrome makes the cookie host-only, RFC 6265 keeps Domain=x; the
+ *    harness cannot know which the browser does, so it fails closed. */
+export function setCookieRejectionReasons(entry, attrs = parseCookieAttrs(entry)) {
+  const raw = String(entry ?? '')
+  const reasons = []
+  if (/[\x00-\x08\x0A-\x1F\x7F]/.test(raw)) reasons.push('ctl')
+  if (/[^\x00-\x7F]/.test(raw)) reasons.push('non-ascii')
+  if (Buffer.byteLength(attrs.name, 'utf8') + Buffer.byteLength(attrs.value, 'utf8') > COOKIE_MAX_NAME_VALUE_BYTES)
+    reasons.push('name-value-over-4096')
+  if ((attrs.sameSiteNoneSeen || attrs.sameSite === 'none') && !attrs.secure) reasons.push('samesite-none-without-secure')
+  if (attrs.partitioned && !attrs.secure) reasons.push('partitioned-without-secure')
+  if (attrs.domainLast === '.') reasons.push('domain-empty-after-dot')
+  if (attrs.domainLast === '' && attrs.domain) reasons.push('domain-last-empty-after-domain')
+  return reasons
+}
+
+/** RFC 6265 §5.1.1 cookie-date algorithm. Returns epoch ms (UTC), or null when the algorithm
+ *  fails (then the Expires attribute is ignored, §5.2.1). Tokens are split on the §5.1.1
+ *  delimiter set; the first token matching each of time (hh:mm:ss), day-of-month (1-2 digits),
+ *  month (first three letters) and year (2-4 digits) is taken, in that priority order per
+ *  token. All four are required; year 70-99 -> 19xx, 0-69 -> 20xx; the date must exist and
+ *  day 1-31, year >= 1601, hour <= 23, minute <= 59, second <= 59. */
+const COOKIE_DATE_DELIMITER = /[\x09\x20-\x2F\x3B-\x40\x5B-\x60\x7B-\x7E]+/
+const COOKIE_DATE_MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+export function parseCookieDate(input) {
+  const tokens = String(input ?? '').split(COOKIE_DATE_DELIMITER).filter((t) => t !== '')
+  let time = null
+  let day = null
+  let month = null
+  let year = null
+  for (const token of tokens) {
+    let m
+    if (time === null && (m = /^(\d{1,2}):(\d{1,2}):(\d{1,2})(?:[^0-9][\s\S]*)?$/.exec(token))) {
+      time = [Number(m[1]), Number(m[2]), Number(m[3])]
+      continue
+    }
+    if (day === null && (m = /^(\d{1,2})(?:[^0-9][\s\S]*)?$/.exec(token))) {
+      day = Number(m[1])
+      continue
+    }
+    if (month === null && token.length >= 3 && COOKIE_DATE_MONTHS.includes(token.slice(0, 3).toLowerCase())) {
+      month = COOKIE_DATE_MONTHS.indexOf(token.slice(0, 3).toLowerCase())
+      continue
+    }
+    if (year === null && (m = /^(\d{2,4})(?:[^0-9][\s\S]*)?$/.exec(token))) {
+      year = Number(m[1])
+      continue
+    }
+  }
+  if (year !== null && year >= 70 && year <= 99) year += 1900
+  if (year !== null && year >= 0 && year <= 69) year += 2000
+  if (time === null || day === null || month === null || year === null) return null
+  const [hour, minute, second] = time
+  if (day < 1 || day > 31 || year < 1601 || hour > 23 || minute > 59 || second > 59) return null
+  const t = Date.UTC(year, month, day, hour, minute, second)
+  const d = new Date(t)
+  // "If no such date exists" (e.g. 30 Feb): Date.UTC would roll it over into the next month.
+  if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month || d.getUTCDate() !== day) return null
+  return t
 }
 
 /** RFC 6265 §5.1.4 default-path of the request URL that set a cookie: the directory part of
@@ -122,9 +267,11 @@ export function effectiveCookiePath(attrs, requestUrl) {
 export function isClearingCookieAttrs(attrs) {
   if (!attrs) return false
   if (Number.isInteger(attrs.maxAge)) return attrs.maxAge <= 0
-  if (attrs.expires) {
-    const t = Date.parse(attrs.expires)
-    if (!Number.isNaN(t) && t <= Date.now()) return true
+  // P6.1: only a §5.1.1 cookie-date counts (parseCookieDate), never V8's Date.parse. `expiresAt`
+  // is set by parseCookieAttrs; a hand-built attrs object with just `expires` is re-parsed.
+  if (attrs.expires !== undefined) {
+    const t = Number.isFinite(attrs.expiresAt) ? attrs.expiresAt : parseCookieDate(attrs.expires)
+    if (t !== null && t <= Date.now()) return true
   }
   return false
 }
@@ -526,55 +673,137 @@ export class Assertions {
   }
 }
 
+/** F4's check of the login response's ONE exact-name growmax-admin Set-Cookie entry (or null).
+ *  The attribute regexes run over that entry alone, never Node's comma-joined header string.
+ *  P6.1 review round 2 (non-blocking, closed here): the entry must also be one a browser
+ *  accepts (setCookieRejectionReasons), so e.g. a login with `Domain=.`, which Chromium rejects
+ *  (the browser is never logged in), fails F4 instead of being put in the jar as if it had
+ *  been stored. Returns reason codes only, never the cookie value. */
+export function checkLoginCookieEntry(adminEntry) {
+  const adminAttrs = adminEntry ? parseCookieAttrs(adminEntry) : null
+  const loginRejectionReasons = adminEntry ? setCookieRejectionReasons(adminEntry, adminAttrs) : null
+  const cookieOk =
+    !!adminEntry &&
+    loginRejectionReasons.length === 0 &&
+    adminAttrs.value !== '' &&
+    /;\s*HttpOnly\s*(;|$)/i.test(adminEntry) &&
+    /;\s*Secure\s*(;|$)/i.test(adminEntry) &&
+    /;\s*SameSite=Lax\s*(;|$)/i.test(adminEntry) &&
+    adminAttrs.maxAge === 86400
+  return { cookieOk, loginRejectionReasons }
+}
+
+/** The parser's reading of one logout response's Set-Cookie entries against the login cookie's
+ *  captured attributes: the whole clearing decision checkLogout makes, as a pure function (no
+ *  network), so F9's browser run (checkLogoutInBrowser below) can record the same verdict as
+ *  DIAGNOSTICS from the Set-Cookie headers Chromium itself received. Since P6.1 (F9 decided by
+ *  a real browser) this verdict never decides F9. Returns attributes and booleans, and
+ *  `adminAttrs`, which does hold the cookie value: callers must not put it in any detail. */
+export function diagnoseLogoutSetCookies({ loginAttrs, setCookieEntries, logoutUrl, loginUrl }) {
+  // Per review (blocking): Node's `headers.get('set-cookie')` comma-joins every Set-Cookie
+  // header into one string, and the old code matched the cookie by `.includes('growmax-
+  // admin=')` over that joined string — so an UNRELATED cookie's Max-Age=0 could satisfy the
+  // clearing regexes, or a re-set growmax-admin cookie appearing anywhere in the joined
+  // string would still substring-match. Use getSetCookie() to get each header as its own
+  // entry, then select the ONE entry whose name (before '=') is EXACTLY 'growmax-admin'.
+  const adminEntries = setCookieEntries.filter((entry) => parseCookieAttrs(entry).name === ADMIN_COOKIE_NAME)
+  // If the server ever sent more than one growmax-admin Set-Cookie in the same response,
+  // treat it as ambiguous/untrusted rather than picking one arbitrarily — a regression that
+  // clears it once and re-sets it again must not accidentally pick the clearing entry.
+  const adminEntry = adminEntries.length === 1 ? adminEntries[0] : null
+  const adminAttrs = adminEntry ? parseCookieAttrs(adminEntry) : null
+  const clearsValue = isClearingCookieAttrs(adminAttrs)
+  // The clearing entry's own EFFECTIVE Path (and Domain, if either side sets one) must match
+  // the login cookie's (captured at F4): a clear on the wrong Path (e.g. Path=/api/admin, while
+  // the browser holds the cookie under the login's Path=/) or a mismatched Domain does not
+  // actually clear the cookie the browser is sending on every request. Per review round 2
+  // (blocking): the effective Path follows RFC 6265 — a logout Set-Cookie with NO (valid) Path
+  // gets the default-path of POST /api/admin/logout, i.e. /api/admin, never '/', so it misses a
+  // Path=/ login cookie exactly like an explicit Path=/api/admin does. And with no captured
+  // login attributes there is nothing to compare against: fail closed, never skip the check.
+  loginAttrs = loginAttrs || null
+  const logoutEffectivePath = adminAttrs ? effectiveCookiePath(adminAttrs, logoutUrl) : null
+  const loginEffectivePath = loginAttrs ? loginAttrs.effectivePath || effectiveCookiePath(loginAttrs, loginUrl) : null
+  const pathMatches = !!loginAttrs && !!adminAttrs && logoutEffectivePath === loginEffectivePath
+  const domainMatches =
+    !!loginAttrs && !!adminAttrs && ((!adminAttrs.domain && !loginAttrs.domain) || adminAttrs.domain === loginAttrs.domain)
+  // P6.1 (A3 C-A3-4): a Partitioned (CHIPS) clear lives in a different cookie jar partition
+  // from an unpartitioned login cookie, so Chrome keeps the login cookie (and vice versa).
+  const partitionedMatches = !!loginAttrs && !!adminAttrs && !!adminAttrs.partitioned === !!loginAttrs.partitioned
+  // P6.1 review round 1 (blocking B): an entry the browser rejects outright (SameSite=None or
+  // Partitioned without Secure, name+value over 4096 octets, a CTL, or fail-closed non-ASCII)
+  // stores nothing, so the sealed login cookie is kept: never a clear, whatever it says.
+  const browserRejectionReasons = adminEntry ? setCookieRejectionReasons(adminEntry, adminAttrs) : null
+  const acceptedByBrowserRules = !!adminEntry && browserRejectionReasons.length === 0
+  const clearsAdminCookie =
+    !!loginAttrs && !!adminEntry && acceptedByBrowserRules && clearsValue && pathMatches && domainMatches && partitionedMatches
+  return {
+    adminEntries,
+    adminEntry,
+    adminAttrs,
+    clearsValue,
+    loginEffectivePath,
+    logoutEffectivePath,
+    pathMatches,
+    domainMatches,
+    partitionedMatches,
+    browserRejectionReasons,
+    acceptedByBrowserRules,
+    clearsAdminCookie,
+  }
+}
+
 /**
- * F9: logout, then session -> isAdmin false. iron-session is STATELESS: replaying the
+ * The parser-based F9: logout, then session -> isAdmin false. iron-session is STATELESS: replaying the
  * pre-logout cookie after logout still decrypts to isAdmin:true (nothing server-side is
  * invalidated), so the old version of this check — which read `A.cookie` unchanged from F4's
  * login and never looked at logout's own Set-Cookie — passed even when logout didn't clear
  * anything. This now requires BOTH: logout's response actually clears the admin cookie
- * (Max-Age<=0 or an expired Expires), AND a follow-up GET /api/admin/session sent WITHOUT the
- * old cookie (the clearing Set-Cookie applied to the client jar, never the stale one) reports
- * isAdmin:false. An app regression that stops clearing the cookie fails this outright,
+ * (Max-Age<=0, or without a valid Max-Age an RFC 6265 §5.1.1 Expires in the past, on the same
+ * effective Path, Domain and Partitioned state as the login cookie, in an entry a browser would
+ * accept at all: see setCookieRejectionReasons), AND a follow-up GET
+ * /api/admin/session sent with growmax-admin=<the clearing entry's own value> in the jar (never
+ * the stale cookie, and never an emptied jar) reports isAdmin:false. An app regression that stops clearing the cookie fails this outright,
  * regardless of what /api/admin/session then reports. Exported and unit-tested against a
  * local mock server (never a real endpoint) in functional/selftest-p5.3.mjs.
+ *
+ * P6.1 (F9 decided by a real browser): kept exported and unchanged in behaviour for those unit
+ * tests, but runTests no longer uses it. F9 is decided by a real Chromium context in
+ * checkLogoutInBrowser below, which records diagnoseLogoutSetCookies' verdict as diagnostics.
  */
 export async function checkLogout(A) {
   try {
     const { res: logoutRes } = await A.requestJson('/api/admin/logout', { method: 'POST' })
-    // Per review (blocking): Node's `headers.get('set-cookie')` comma-joins every Set-Cookie
-    // header into one string, and the old code matched the cookie by `.includes('growmax-
-    // admin=')` over that joined string — so an UNRELATED cookie's Max-Age=0 could satisfy the
-    // clearing regexes, or a re-set growmax-admin cookie appearing anywhere in the joined
-    // string would still substring-match. Use getSetCookie() to get each header as its own
-    // entry, then select the ONE entry whose name (before '=') is EXACTLY 'growmax-admin'.
     const setCookieEntries = getSetCookieEntries(logoutRes.headers)
-    const adminEntries = setCookieEntries.filter((entry) => parseCookieAttrs(entry).name === ADMIN_COOKIE_NAME)
-    // If the server ever sent more than one growmax-admin Set-Cookie in the same response,
-    // treat it as ambiguous/untrusted rather than picking one arbitrarily — a regression that
-    // clears it once and re-sets it again must not accidentally pick the clearing entry.
-    const adminEntry = adminEntries.length === 1 ? adminEntries[0] : null
-    const adminAttrs = adminEntry ? parseCookieAttrs(adminEntry) : null
-    const clearsValue = isClearingCookieAttrs(adminAttrs)
-    // The clearing entry's own EFFECTIVE Path (and Domain, if either side sets one) must match
-    // the login cookie's (captured at F4): a clear on the wrong Path (e.g. Path=/api/admin, while
-    // the browser holds the cookie under the login's Path=/) or a mismatched Domain does not
-    // actually clear the cookie the browser is sending on every request. Per review round 2
-    // (blocking): the effective Path follows RFC 6265 — a logout Set-Cookie with NO (valid) Path
-    // gets the default-path of POST /api/admin/logout, i.e. /api/admin, never '/', so it misses a
-    // Path=/ login cookie exactly like an explicit Path=/api/admin does. And with no captured
-    // login attributes there is nothing to compare against: fail closed, never skip the check.
     const loginAttrs = A.loginCookieAttrs || null
-    const logoutUrl = logoutRes.url || A.url('/api/admin/logout')
-    const logoutEffectivePath = adminAttrs ? effectiveCookiePath(adminAttrs, logoutUrl) : null
-    const loginEffectivePath = loginAttrs ? loginAttrs.effectivePath || effectiveCookiePath(loginAttrs, A.url('/api/admin/login')) : null
-    const pathMatches = !!loginAttrs && !!adminAttrs && logoutEffectivePath === loginEffectivePath
-    const domainMatches =
-      !!loginAttrs && !!adminAttrs && ((!adminAttrs.domain && !loginAttrs.domain) || adminAttrs.domain === loginAttrs.domain)
-    const clearsAdminCookie = !!loginAttrs && !!adminEntry && clearsValue && pathMatches && domainMatches
+    const {
+      adminEntries,
+      adminAttrs,
+      clearsValue,
+      loginEffectivePath,
+      logoutEffectivePath,
+      pathMatches,
+      domainMatches,
+      partitionedMatches,
+      browserRejectionReasons,
+      acceptedByBrowserRules,
+      clearsAdminCookie,
+    } = diagnoseLogoutSetCookies({
+      loginAttrs,
+      setCookieEntries,
+      logoutUrl: logoutRes.url || A.url('/api/admin/logout'),
+      loginUrl: A.url('/api/admin/login'),
+    })
     // Apply the clearing Set-Cookie to the jar so the follow-up request can never replay the
     // stale pre-logout session cookie. Only a clear that a browser would honor (all of the
-    // above) removes it; otherwise the stale cookie stays in the jar, as it would in a browser.
-    if (clearsAdminCookie) A.cookie = null
+    // above) replaces it; otherwise the stale cookie stays in the jar, as it would in a browser.
+    // P6.1 (A3 C-A3-4, defence in depth): the jar is NOT emptied. It gets
+    // growmax-admin=<the clearing entry's own value>, which is what a browser would still hold
+    // if this harness had misread the expiry. The real app clears with an empty value
+    // (growmax-admin=; Path=/; Max-Age=0), which /api/admin/session reads as not admin; a
+    // regression that re-sends the sealed value then fails on isAdmin even if some expiry
+    // syntax were misread above.
+    if (clearsAdminCookie) A.cookie = `${ADMIN_COOKIE_NAME}=${adminAttrs.value}`
     const { res: sessionRes, body } = await A.requestJson('/api/admin/session')
     return {
       name: 'F9-logout',
@@ -591,12 +820,437 @@ export async function checkLogout(A) {
         logoutEffectivePath,
         pathMatches,
         domainMatches,
+        partitionedMatches,
+        acceptedByBrowserRules,
+        browserRejectionReasons,
         clearsAdminCookie,
+        clearingValueEmpty: clearsAdminCookie ? adminAttrs.value === '' : null,
         sessionAfter: body,
       },
     }
   } catch (err) {
     return { name: 'F9-logout', pass: false, detail: { error: String(err.message || err) } }
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// P6.1 (F9 decided by a real browser). Three review rounds each found another way a browser
+// cookie jar re-implemented in this harness disagreed with Chrome (NBSP trimming, SameSite=None
+// or Partitioned without Secure, entries over 4096 bytes, `Domain=.`, an empty-named cookie that
+// smuggles the sealed value back), and each one let F9 pass while a browser stayed logged in.
+// So F9 is now decided by a REAL headless Chromium (playwright-core): login, session, logout and
+// session again all go through Chromium's own network stack and cookie jar, as in-page fetch()
+// calls from a page at the base origin (never Playwright's APIRequestContext, whose cookie jar
+// is not Chromium's). The parser verdict (diagnoseLogoutSetCookies) and the logout Set-Cookie
+// attributes are recorded as diagnostics only. If Chromium cannot launch, F9 fails; there is no
+// fallback to the parser.
+
+// Same agent-proxy CA handling as scripts/migration/visual/run.mjs (copied, not imported: that
+// helper is not exported, and visual/run.mjs is not changed): Playwright's headless Chromium
+// does no NSS/desktop trust-store integration, so it is pinned to exactly this one CA with
+// --ignore-certificate-errors-spki-list instead of disabling TLS verification.
+const F9_PROXY_CA_PATH = '/root/.ccr/agent-proxy-ca.crt'
+export const F9_DEFAULT_CHROMIUM_PATH = '/opt/pw-browsers/chromium'
+/** The page F9 runs its fetch() calls from. It is fulfilled by the route handler itself, so it
+ *  never reaches the network: the page's origin is the base origin without a navigation that
+ *  could be redirected elsewhere. */
+export const F9_BLANK_PATH = '/__migration-f9-blank__'
+const F9_STEP_TIMEOUT_MS = 20000
+const F9_LAUNCH_TIMEOUT_MS = 60000
+
+export async function f9ProxyCaSpkiPinArgs() {
+  if (!process.env.HTTPS_PROXY) return []
+  try {
+    const pem = await readFile(F9_PROXY_CA_PATH, 'utf8')
+    const { X509Certificate, createHash } = await import('node:crypto')
+    const cert = new X509Certificate(pem)
+    const spki = cert.publicKey.export({ type: 'spki', format: 'der' })
+    const pin = createHash('sha256').update(spki).digest('base64')
+    return [`--ignore-certificate-errors-spki-list=${pin}`]
+  } catch {
+    // No proxy CA here: launch without the pin; a real TLS failure then still fails closed.
+    return []
+  }
+}
+
+export function f9ChromiumExecutablePath() {
+  return process.env.PLAYWRIGHT_CHROMIUM_PATH || F9_DEFAULT_CHROMIUM_PATH
+}
+
+export function f9DefaultProxy() {
+  return process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY } : undefined
+}
+
+/**
+ * Launches headless Chromium and opens a fresh context with one page at `base`'s origin.
+ * The protection-bypass header, when a secret is given, is added by a context.route whose URL
+ * predicate matches ONLY requests whose origin equals the base origin; every other request is
+ * not routed at all and goes out unmodified. No all-requests header mechanism is used.
+ * Playwright applies route.continue() header overrides to the redirects a routed request
+ * follows too, so F9's own fetch() calls use redirect:'manual' and never follow one, and the
+ * page itself is fulfilled locally (F9_BLANK_PATH), never navigated over the network.
+ * Service workers are blocked so none can answer a request outside the route.
+ * Options other than base/bypassSecret exist for selftest-f9-browser.mjs (a local https mock
+ * with a self-signed certificate needs ignoreHTTPSErrors; a real run never sets it).
+ */
+export async function openF9BrowserContext({
+  base,
+  bypassSecret,
+  executablePath = f9ChromiumExecutablePath(),
+  proxy = f9DefaultProxy(),
+  ignoreHTTPSErrors = false,
+} = {}) {
+  const baseOrigin = new URL(base).origin
+  const blankUrl = new URL(F9_BLANK_PATH, baseOrigin).href
+  const { chromium } = await import('playwright-core')
+  const browser = await chromium.launch({
+    executablePath,
+    headless: true,
+    proxy,
+    args: await f9ProxyCaSpkiPinArgs(),
+    timeout: F9_LAUNCH_TIMEOUT_MS,
+  })
+  try {
+    const context = await browser.newContext({ ignoreHTTPSErrors, serviceWorkers: 'block' })
+    await context.route(
+      (url) => url.origin === baseOrigin,
+      async (route) => {
+        const request = route.request()
+        if (request.url() === blankUrl) {
+          await route.fulfill({ status: 200, contentType: 'text/html; charset=utf-8', body: '<!doctype html><title>F9</title>' })
+          return
+        }
+        // Defence in depth on top of the URL predicate: re-check the origin here too.
+        let origin = null
+        try {
+          origin = new URL(request.url()).origin
+        } catch {
+          origin = null
+        }
+        if (bypassSecret && origin === baseOrigin) {
+          await route.continue({ headers: { ...request.headers(), 'x-vercel-protection-bypass': bypassSecret } })
+        } else {
+          await route.continue()
+        }
+      },
+    )
+    const page = await context.newPage()
+    await page.goto(blankUrl, { waitUntil: 'load', timeout: F9_STEP_TIMEOUT_MS })
+    return { browser, context, page, baseOrigin, close: () => browser.close() }
+  } catch (err) {
+    await browser.close().catch(() => {})
+    throw err
+  }
+}
+
+/** One same-origin fetch() inside the page, through Chromium's own network stack and cookie
+ *  jar (credentials:'include'; redirect:'manual', so a redirect is never followed and shows up
+ *  as status 0 / type 'opaqueredirect'). Returns status, whether the response carries a Vercel
+ *  origin signature, and the parsed JSON body. */
+export async function f9PageFetch(page, { method = 'GET', pathname, jsonBody }) {
+  return page.evaluate(
+    async ({ method, pathname, jsonBody, timeoutMs }) => {
+      try {
+        const init = { method, credentials: 'include', redirect: 'manual', cache: 'no-store', signal: AbortSignal.timeout(timeoutMs) }
+        if (jsonBody !== undefined) {
+          init.headers = { 'content-type': 'application/json' }
+          init.body = jsonBody
+        }
+        const res = await fetch(pathname, init)
+        let json = null
+        try {
+          json = JSON.parse(await res.text())
+        } catch {
+          json = null
+        }
+        const server = (res.headers.get('server') || '').toLowerCase()
+        return { status: res.status, type: res.type, vercel: !!res.headers.get('x-vercel-id') || server.includes('vercel'), json }
+      } catch (e) {
+        return { error: String((e && e.message) || e) }
+      }
+    },
+    { method, pathname, jsonBody, timeoutMs: F9_STEP_TIMEOUT_MS },
+  )
+}
+
+/** The Set-Cookie header lines of a Playwright Response exactly as Chromium received them
+ *  (headersArray keeps one entry per Set-Cookie line). Diagnostics only. */
+async function f9SetCookieLines(response) {
+  if (!response) return null
+  try {
+    const headers = await response.headersArray()
+    return headers.filter((h) => h.name.toLowerCase() === 'set-cookie').flatMap((h) => String(h.value).split('\n'))
+  } catch {
+    return null
+  }
+}
+
+function f9StatusText(r) {
+  if (r.error) return 'a network error'
+  if (r.type === 'opaqueredirect') return 'a redirect (never followed by F9)'
+  return String(r.status)
+}
+
+const F9_MAX_DIAG_STRING = 64
+function f9DiagString(s, secrets) {
+  if (s === undefined || s === null) return s
+  const str = String(s)
+  if (f9DecodedForms(str).some((form) => secrets.some((x) => x && form.includes(x)))) return { redacted: 'contains the sealed login value', length: str.length }
+  return str.length > F9_MAX_DIAG_STRING ? { truncated: str.slice(0, F9_MAX_DIAG_STRING), length: str.length } : str
+}
+
+/** Attributes of each Set-Cookie line (name, Path, Domain, Max-Age, Expires, SameSite, Secure,
+ *  Partitioned, HttpOnly), never a value: only its length, whether it is empty and whether it
+ *  contains the sealed login value. Any string that contains the sealed value is redacted. */
+export function f9SetCookieAttributeSummary(lines, sealedValues = []) {
+  if (!Array.isArray(lines)) return null
+  const secrets = sealedValues.filter((v) => typeof v === 'string' && v !== '')
+  return lines.map((line) => {
+    const a = parseCookieAttrs(line)
+    return {
+      name: f9DiagString(a.name, secrets),
+      nameIgnored: a.ignoredNameValue,
+      valueLength: a.value.length,
+      valueEmpty: a.value === '',
+      valueContainsSealedLoginValue: secrets.some((x) => a.value.includes(x)),
+      path: f9DiagString(a.path, secrets),
+      domain: f9DiagString(a.domain, secrets),
+      domainLast: f9DiagString(a.domainLast, secrets),
+      maxAge: a.maxAge,
+      expires: f9DiagString(a.expires, secrets),
+      sameSite: a.sameSite,
+      sameSiteNoneSeen: a.sameSiteNoneSeen,
+      secure: a.secure,
+      partitioned: a.partitioned,
+      httpOnly: /;[ \t]*httponly[ \t]*(;|$)/i.test(line),
+      entryBytes: Buffer.byteLength(line, 'utf8'),
+      parserRejectionReasons: setCookieRejectionReasons(line, a),
+    }
+  })
+}
+
+/** The string plus its percent-decoded forms (decodeURIComponent, repeated while it changes and
+ *  succeeds, at most 3 times). A cookie value that is %-escaped on the wire (for example * as %2A)
+ *  reaches the app decoded: Next's parseCookie (@edge-runtime/cookies) decodes every value. */
+export function f9DecodedForms(str) {
+  const forms = [String(str)]
+  let cur = String(str)
+  for (let i = 0; i < 3; i++) {
+    let next
+    try {
+      next = decodeURIComponent(cur)
+    } catch {
+      break
+    }
+    if (next === cur) break
+    forms.push(next)
+    cur = next
+  }
+  return forms
+}
+
+/** What a stored cookie puts on the wire, as the app reads it. Chromium sends a cookie with an
+ *  empty name as its value alone, so `=growmax-admin=<x>` (stored as name '' and value
+ *  'growmax-admin=<x>') arrives as `growmax-admin=<x>`. The pair is split at its first '=' and
+ *  only the key is trimmed of SP/HTAB; a pair with no '=' is a key whose value Next reads as
+ *  "true" (parseCookie), so it is never an empty value. */
+export function f9WirePair(c) {
+  const name = String(c?.name ?? '')
+  const value = String(c?.value ?? '')
+  const pair = name === '' ? value : `${name}=${value}`
+  const eq = pair.indexOf('=')
+  const key = (eq === -1 ? pair : pair.slice(0, eq)).replace(/^[ \t]+|[ \t]+$/g, '')
+  const wireValue = eq === -1 ? 'true' : pair.slice(eq + 1)
+  return { pair, key, value: wireValue, hasEquals: eq !== -1 }
+}
+
+/** Why a cookie left in Chromium's jar after logout still carries a session, or null. Judged by
+ *  what the cookie puts on the wire (f9WirePair), not by its stored name: a wire key equal to
+ *  growmax-admin (also after percent-decoding) with a non-empty value is a leftover, and so is any
+ *  cookie whose name, value or wire pair contains a sealed login value, raw or percent-decoded. */
+export function f9LeftoverReason(c, sealedValues) {
+  const w = f9WirePair(c)
+  const keyForms = f9DecodedForms(w.key).map((k) => k.replace(/^[ \t]+|[ \t]+$/g, ''))
+  if (keyForms.includes(ADMIN_COOKIE_NAME) && w.value !== '') {
+    return String(c.name) === ADMIN_COOKIE_NAME
+      ? `${ADMIN_COOKIE_NAME} with a non-empty value`
+      : `sent on the wire as ${ADMIN_COOKIE_NAME}=<non-empty> (stored name ${String(c.name) === '' ? 'empty' : 'differs'})`
+  }
+  const secrets = f9SealedForms(sealedValues)
+  const candidates = [String(c.name ?? ''), String(c.value ?? ''), w.pair, w.value].flatMap((x) => f9DecodedForms(x))
+  if (candidates.some((x) => secrets.some((v) => x.includes(v)))) return 'name, value or wire pair contains the sealed login value (raw or percent-decoded)'
+  return null
+}
+
+/** The sealed login values plus their percent-decoded forms (never empty strings). */
+export function f9SealedForms(sealedValues) {
+  return [...new Set((sealedValues || []).filter((v) => typeof v === 'string' && v !== '').flatMap((v) => f9DecodedForms(v)))].filter((v) => v !== '')
+}
+
+function f9CookieSummary(c, secrets) {
+  return {
+    name: f9DiagString(c.name, secrets),
+    domain: c.domain,
+    path: c.path,
+    valueLength: String(c.value ?? '').length,
+    secure: c.secure,
+    httpOnly: c.httpOnly,
+    sameSite: c.sameSite,
+    partitioned: !!c.partitionKey,
+    session: c.expires === -1,
+  }
+}
+
+/**
+ * F9, decided by a real Chromium context. Passes only when, all inside one fresh context:
+ *  - login (POST /api/admin/login with ADMIN_PASSWORD) returns 200 with a Vercel origin
+ *    signature, and Chromium's jar then holds a growmax-admin cookie with a non-empty value
+ *    (the "sealed login value");
+ *  - GET /api/admin/session reports isAdmin:true;
+ *  - POST /api/admin/logout returns 200 with a Vercel origin signature;
+ *  - GET /api/admin/session then reports isAdmin:false;
+ *  - context.cookies() (every cookie in the context, a superset of context.cookies(base)) holds
+ *    no cookie that goes on the wire as growmax-admin=<non-empty> (an empty-named cookie is
+ *    sent as its value alone) and no cookie whose name, value or wire pair contains the sealed
+ *    login value, raw or percent-decoded (f9LeftoverReason).
+ * The detail records the parser's verdict (diagnoseLogoutSetCookies on the Set-Cookie lines
+ * Chromium received) and the logout Set-Cookie attributes, never values; they never decide F9.
+ * No cookie value, password or bypass secret is ever put in the result.
+ */
+export async function checkLogoutInBrowser({ base, bypassSecret, adminPassword, executablePath, proxy, ignoreHTTPSErrors } = {}) {
+  const name = 'F9-logout'
+  const secretsToRedact = [adminPassword, bypassSecret].filter((x) => typeof x === 'string' && x.length >= 4)
+  const redact = (s) => secretsToRedact.reduce((acc, x) => acc.split(x).join('<redacted>'), String(s))
+  const detail = {
+    decidedBy: 'chromium',
+    bypassHeader: bypassSecret ? 'base origin only (context.route origin predicate)' : 'none (no bypass secret)',
+    cookieScope: 'context.cookies(): every cookie in the F9 context, a superset of context.cookies(base)',
+    failures: [],
+  }
+  const fail = (msg) => {
+    detail.failures.push(msg)
+  }
+  if (!adminPassword) return { name, pass: false, detail: { ...detail, error: 'ADMIN_PASSWORD is not set; F9 needs it to log in' } }
+  if (adminPassword === '[SENSITIVE]')
+    return {
+      name,
+      pass: false,
+      detail: { ...detail, error: 'ADMIN_PASSWORD is the literal "[SENSITIVE]" placeholder (vercel env pull redaction), not the real value' },
+    }
+
+  let session = null
+  try {
+    try {
+      session = await openF9BrowserContext({ base, bypassSecret, executablePath, proxy, ignoreHTTPSErrors })
+    } catch (err) {
+      return {
+        name,
+        pass: false,
+        detail: {
+          ...detail,
+          error: `Chromium could not launch or open the F9 page (${redact(err.message || err).split('\n')[0]}). F9 fails; it never falls back to the cookie parser.`,
+          executablePath: executablePath || f9ChromiumExecutablePath(),
+        },
+      }
+    }
+    const { browser, context, page, baseOrigin } = session
+    detail.chromiumVersion = browser.version()
+    const loginUrl = new URL('/api/admin/login', baseOrigin).href
+    const logoutUrl = new URL('/api/admin/logout', baseOrigin).href
+
+    // Each POST's own response (for its Set-Cookie lines, diagnostics only).
+    const postTo = async (url, jsonBody) => {
+      const responseP = page
+        .waitForResponse((r) => r.url() === url && r.request().method() === 'POST', { timeout: F9_STEP_TIMEOUT_MS })
+        .catch(() => null)
+      const r = await f9PageFetch(page, { method: 'POST', pathname: new URL(url).pathname, jsonBody })
+      const response = r.error ? null : await responseP
+      return { r, setCookieLines: await f9SetCookieLines(response) }
+    }
+    const steps = {}
+    detail.steps = steps
+
+    const login = await postTo(loginUrl, JSON.stringify({ password: adminPassword }))
+    steps.login = { status: login.r.status ?? null, type: login.r.type ?? null, vercel: login.r.vercel ?? null, ...(login.r.error ? { error: redact(login.r.error) } : {}) }
+    if (login.r.status !== 200) fail(`login returned ${f9StatusText(login.r)}, expected 200`)
+    if (!login.r.error && login.r.type !== 'opaqueredirect' && !login.r.vercel) fail('login response has no Vercel origin signature (x-vercel-id absent, server not Vercel); --base may not be Vercel')
+
+    const cookiesAfterLogin = await context.cookies()
+    const sealedValues = [...new Set(cookiesAfterLogin.filter((c) => c.name === ADMIN_COOKIE_NAME && c.value !== '').map((c) => c.value))]
+    steps.jarAfterLogin = {
+      adminCookieCount: cookiesAfterLogin.filter((c) => c.name === ADMIN_COOKIE_NAME).length,
+      sealedLoginValueCount: sealedValues.length,
+      sealedLoginValueLengths: sealedValues.map((v) => v.length),
+      cookies: cookiesAfterLogin.map((c) => f9CookieSummary(c, sealedValues)),
+    }
+    if (sealedValues.length === 0) fail(`after login Chromium's jar holds no ${ADMIN_COOKIE_NAME} cookie with a non-empty value`)
+
+    const s1 = await f9PageFetch(page, { pathname: '/api/admin/session' })
+    steps.sessionAfterLogin = { status: s1.status ?? null, isAdmin: s1.json?.isAdmin, ...(s1.error ? { error: redact(s1.error) } : {}) }
+    if (!(s1.status === 200 && s1.json?.isAdmin === true)) fail('session after login did not report isAdmin:true')
+
+    const logout = await postTo(logoutUrl, undefined)
+    steps.logout = { status: logout.r.status ?? null, type: logout.r.type ?? null, vercel: logout.r.vercel ?? null, ...(logout.r.error ? { error: redact(logout.r.error) } : {}) }
+    if (logout.r.status !== 200) fail(`logout returned ${f9StatusText(logout.r)}, expected 200`)
+    if (!logout.r.error && logout.r.type !== 'opaqueredirect' && !logout.r.vercel) fail('logout response has no Vercel origin signature (x-vercel-id absent, server not Vercel); --base may not be Vercel')
+
+    const s2 = await f9PageFetch(page, { pathname: '/api/admin/session' })
+    steps.sessionAfterLogout = { status: s2.status ?? null, isAdmin: s2.json?.isAdmin, ...(s2.error ? { error: redact(s2.error) } : {}) }
+    if (!(s2.status === 200 && s2.json?.isAdmin === false)) fail('session after logout did not report isAdmin:false (Chromium is still logged in, or the session call failed)')
+
+    // Judged by what each cookie puts on the wire (review round 1 of this change): an
+    // empty-named `=growmax-admin=<sealed, %-escaped>` at a narrow Path is stored as name ''
+    // and never reaches /api/admin/session, yet every request under its Path arrives as
+    // growmax-admin=<sealed> once Next decodes the value.
+    const cookiesAfterLogout = await context.cookies()
+    const sealedForms = f9SealedForms(sealedValues)
+    const leftovers = cookiesAfterLogout
+      .map((c) => ({ c, reason: f9LeftoverReason(c, sealedValues) }))
+      .filter((x) => x.reason !== null)
+    steps.jarAfterLogout = {
+      judgedBy: 'wire pair (empty name sends the value alone; split at the first =, key trimmed of SP/HTAB; raw and percent-decoded forms)',
+      cookies: cookiesAfterLogout.map((c) => f9CookieSummary(c, sealedForms)),
+      leftoverCount: leftovers.length,
+      leftovers: leftovers.map(({ c, reason }) => ({ ...f9CookieSummary(c, sealedForms), reason })),
+    }
+    if (leftovers.length > 0) fail(`after logout Chromium's jar still holds ${leftovers.length} cookie(s) carrying a session value`)
+
+    // Diagnostics only: the parser's verdict on the Set-Cookie lines Chromium received.
+    let loginAttrs = null
+    const loginAdminLines = (login.setCookieLines || []).filter((l) => parseCookieAttrs(l).name === ADMIN_COOKIE_NAME)
+    if (loginAdminLines.length === 1) {
+      const attrs = parseCookieAttrs(loginAdminLines[0])
+      loginAttrs = { ...attrs, effectivePath: effectiveCookiePath(attrs, loginUrl) }
+    }
+    const diag = logout.setCookieLines
+      ? diagnoseLogoutSetCookies({ loginAttrs, setCookieEntries: logout.setCookieLines, logoutUrl, loginUrl })
+      : null
+    const browserLoggedOut = detail.failures.length === 0
+    detail.parserDiagnostics = {
+      decidesF9: false,
+      verdictClearsAdminCookie: diag ? diag.clearsAdminCookie : null,
+      agreesWithChromium: diag ? diag.clearsAdminCookie === browserLoggedOut : null,
+      ...(diag
+        ? {
+            adminEntryCount: diag.adminEntries.length,
+            clearsValue: diag.clearsValue,
+            loginEffectivePath: diag.loginEffectivePath,
+            logoutEffectivePath: diag.logoutEffectivePath,
+            pathMatches: diag.pathMatches,
+            domainMatches: diag.domainMatches,
+            partitionedMatches: diag.partitionedMatches,
+            acceptedByBrowserRules: diag.acceptedByBrowserRules,
+            browserRejectionReasons: diag.browserRejectionReasons,
+          }
+        : { error: 'the Set-Cookie lines of the logout response were not available from Chromium' }),
+      loginSetCookie: f9SetCookieAttributeSummary(login.setCookieLines, sealedValues),
+      logoutSetCookie: f9SetCookieAttributeSummary(logout.setCookieLines, sealedValues),
+    }
+    return { name, pass: browserLoggedOut, detail }
+  } catch (err) {
+    return { name, pass: false, detail: { ...detail, error: `F9 browser run failed: ${redact(err.message || err).split('\n')[0]}` } }
+  } finally {
+    if (session) await session.close().catch(() => {})
   }
 }
 
@@ -749,16 +1403,13 @@ async function runTests({ base, mode, runLabel, bypassSecret, allowDemoTest, tar
     // over the ONE exact-name growmax-admin entry, never Node's comma-joined header string (in
     // which e.g. `xgrowmax-admin=` would satisfy /growmax-admin=/, or another cookie's
     // attributes could satisfy the rest).
-    const adminEntry = Assertions.adminCookieEntry(res)
-    const adminAttrs = adminEntry ? parseCookieAttrs(adminEntry) : null
-    const cookieOk =
-      !!adminEntry &&
-      adminAttrs.value !== '' &&
-      /;\s*HttpOnly\s*(;|$)/i.test(adminEntry) &&
-      /;\s*Secure\s*(;|$)/i.test(adminEntry) &&
-      /;\s*SameSite=Lax\s*(;|$)/i.test(adminEntry) &&
-      adminAttrs.maxAge === 86400
-    rec('F4-admin-correct-password', res.status === 200 && cookieOk, { status: res.status, setCookie: setCookie ? '<present>' : null, cookieOk })
+    const { cookieOk, loginRejectionReasons } = checkLoginCookieEntry(Assertions.adminCookieEntry(res))
+    rec('F4-admin-correct-password', res.status === 200 && cookieOk, {
+      status: res.status,
+      setCookie: setCookie ? '<present>' : null,
+      cookieOk,
+      loginRejectionReasons,
+    })
   } catch (err) {
     rec('F4-admin-correct-password', false, { error: String(err.message || err) })
   }
@@ -847,10 +1498,10 @@ async function runTests({ base, mode, runLabel, bypassSecret, allowDemoTest, tar
     rec('F8-update-then-delete-draft', false, { error: String(err.message || err) })
   }
 
-  // F9: logout, then session -> isAdmin false. See checkLogout below (exported and unit-tested
-  // against a local mock server — see functional/selftest-p5.3.mjs) for the actual check and
-  // its rationale.
-  results.push(await checkLogout(A))
+  // F9: logout, then session -> isAdmin false, decided by a real Chromium context (P6.1): see
+  // checkLogoutInBrowser above (unit-tested against local mocks in
+  // functional/selftest-f9-browser.mjs). The parser's verdict is in its detail as diagnostics.
+  results.push(await checkLogoutInBrowser({ base, bypassSecret, adminPassword }))
 
   // F10: unauthenticated admin API calls all return 401. Uses an id that cannot be a real
   // row (INT4_MAX) rather than post id 1: if the auth check under test were ever broken,

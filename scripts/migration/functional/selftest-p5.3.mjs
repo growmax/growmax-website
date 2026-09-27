@@ -7,6 +7,23 @@
 //   added three false-pass regressions the original mock set never exercised: a growmax-admin
 //   cookie re-set right after an unrelated cookie is cleared, a clear on the wrong Path, and a
 //   clear of a similarly-named-but-wrong cookie (`xgrowmax-admin`).
+//   P6.1 (A3 C-A3-4, review round 3) adds: a name-value pair with no '=' or an empty name
+//   never matches; Expires only via the RFC 6265 §5.1.1 cookie-date algorithm (the sealed value
+//   re-sent with Expires=0/2020/-1 must fail); the follow-up session GET carries
+//   growmax-admin=<the clearing entry's value> instead of an emptied jar; Partitioned must match.
+//   P6.1 review round 1 adds: U+00A0 (NBSP) is not cookie whitespace (only SP/HTAB are
+//   stripped), and a clearing entry a browser rejects outright (SameSite=None or Partitioned
+//   without Secure, name+value over 4096 octets, CTLs, fail-closed non-ASCII; an attribute-value
+//   over 1024 octets is ignored) is never a clear.
+//   P6.1 review round 2 adds: a clear whose last Domain attribute is '.' (`Domain=.`, which
+//   Chromium rejects outright) or empty after a real Domain (`Domain=x; Domain=`, where Chrome and
+//   RFC 6265 disagree) is never a clear, and F4 requires a login entry a browser accepts.
+//   Each of those cases is its own named check, so a run against an older run.mjs shows which
+//   of them that version fails.
+//   P6.1 (F9 decided by a real browser): runTests no longer uses checkLogout for F9. F9 is
+//   decided by a real Chromium context (checkLogoutInBrowser, tested in selftest-f9-browser.mjs)
+//   and the parser checked here only feeds F9's diagnostics, so these f9-* checks now guard the
+//   diagnostics parser, not the F9 verdict.
 // - F2 (demo-test marker + counter): pure fs-based, against the REAL exported marker helpers,
 //   pointed at a throwaway temp directory via DEMO_TEST_MARKER_DIR_OVERRIDE (never the real
 //   docs/migration/.scratch/demo-tests, and never a real send). Round 1 added a case that
@@ -39,6 +56,9 @@ import {
   effectiveCookiePath,
   DEMO_TEST_CAP,
 } from './run.mjs'
+// P6.1: symbols added after P5.3 are read off the namespace, so this file still loads against an
+// older run.mjs (e.g. HEAD copied under os.tmpdir()) and just reports those checks as failing.
+import * as runModule from './run.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const RUN_MJS = path.join(__dirname, 'run.mjs')
@@ -322,6 +342,387 @@ async function testF9FailsClosedWithoutLoginCookieAttrs() {
     )
   }
   return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+// --- P6.1 F9 hardening (A3 C-A3-4 / P5.3 review round 3) ---
+
+/** (1) RFC 6265 §5.2 step 2: a name-value pair without '=' makes the whole entry ignored (Chrome
+ *  stores it as an empty-named cookie instead), so `growmax-admin; Max-Age=0` is not a clear of
+ *  growmax-admin. The old parser read the whole pair as the name. */
+async function testF9FailsOnNameValueWithoutEquals() {
+  const problems = []
+  const results = {}
+  for (const [label, logout] of [
+    ['no = (Path=/; Max-Age=0)', `${ADMIN_COOKIE_NAME}; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`],
+    ['no =, trailing space before ;', `${ADMIN_COOKIE_NAME} ; Path=/; Max-Age=0`],
+    ['no =, past Expires', `${ADMIN_COOKIE_NAME}; Path=/; Expires=${PAST}`],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop
+    const outcome = await runF9({ logout })
+    results[label] = outcome.result
+    problems.push(
+      ...expectF9(label, outcome, false, ({ result }) =>
+        result.detail.adminEntryCount !== 0 ? [`${label}: expected adminEntryCount:0, got ${result.detail.adminEntryCount}`] : [],
+      ),
+    )
+  }
+  const parsed = parseCookieAttrs(`${ADMIN_COOKIE_NAME}; Path=/; Max-Age=0`)
+  if (parsed.name === ADMIN_COOKIE_NAME) problems.push(`parseCookieAttrs read a pair without '=' as name ${ADMIN_COOKIE_NAME}`)
+  return { pass: problems.length === 0, detail: { problems, results, parsed } }
+}
+
+/** (1) An empty (or whitespace-only) trimmed name is never the admin cookie either. */
+async function testF9FailsOnEmptyName() {
+  const problems = []
+  const results = {}
+  for (const [label, logout] of [
+    ['=growmax-admin (empty name)', `=${ADMIN_COOKIE_NAME}; Path=/; Max-Age=0`],
+    ['whitespace name', `  =; Path=/; Max-Age=0`],
+    ['empty name, value growmax-admin=', `=${ADMIN_COOKIE_NAME}=; Path=/; Max-Age=0`],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop
+    const outcome = await runF9({ logout })
+    results[label] = outcome.result
+    problems.push(
+      ...expectF9(label, outcome, false, ({ result }) =>
+        result.detail.adminEntryCount !== 0 ? [`${label}: expected adminEntryCount:0, got ${result.detail.adminEntryCount}`] : [],
+      ),
+    )
+  }
+  for (const raw of [`=${ADMIN_COOKIE_NAME}; Max-Age=0`, '  =x']) {
+    const a = parseCookieAttrs(raw)
+    if (a.name !== '' || a.ignoredNameValue !== true) problems.push(`${JSON.stringify(raw)}: expected name '' and ignoredNameValue:true, got ${JSON.stringify(a)}`)
+  }
+  return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+/** (2) The sealed value re-sent with an Expires that V8's Date.parse accepts but the §5.1.1
+ *  cookie-date algorithm rejects: a browser ignores that Expires and keeps the (session) cookie
+ *  with the sealed value, so the user is still admin. */
+async function testF9FailsOnSealedValueWithNonCookieDateExpires() {
+  const problems = []
+  const results = {}
+  for (const expires of ['0', '2020', '-1']) {
+    const label = `sealed value, Expires=${expires}`
+    // eslint-disable-next-line no-await-in-loop
+    const outcome = await runF9({ logout: `${ADMIN_COOKIE_NAME}=${SEALED}; Path=/; Expires=${expires}; HttpOnly; Secure; SameSite=Lax` })
+    results[label] = outcome.result
+    problems.push(
+      ...expectF9(label, outcome, false, ({ result }) => (result.detail.clearsValue !== false ? [`${label}: expected clearsValue:false`] : [])),
+    )
+    const a = parseCookieAttrs(`${ADMIN_COOKIE_NAME}=; Expires=${expires}`)
+    if (a.expires !== undefined) problems.push(`${label}: parseCookieAttrs kept Expires ${JSON.stringify(a.expires)}; §5.1.1 rejects it`)
+  }
+  return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+/** (3) Defence in depth: the follow-up session GET carries growmax-admin=<the clearing entry's
+ *  value>, never an emptied jar. A logout that re-sends the sealed value with an expiry the
+ *  harness counts as a clear (here a valid past IMF-fixdate) therefore still reads isAdmin:true
+ *  on the follow-up and F9 fails, so a misread expiry can never on its own pass F9. */
+async function testF9DefenceInDepthSealedValueInFollowUp() {
+  const outcome = await runF9({ logout: `${ADMIN_COOKIE_NAME}=${SEALED}; Path=/; Expires=${PAST}` })
+  const { result, A } = outcome
+  const problems = []
+  if (result.pass !== false) problems.push(`expected pass:false, got ${JSON.stringify(result)}`)
+  if (result.detail?.clearsAdminCookie !== true) problems.push(`expected clearsAdminCookie:true (valid past Expires), got ${result.detail?.clearsAdminCookie}`)
+  if (A.cookie !== VALID_SESSION_COOKIE) problems.push(`expected the follow-up jar to hold the logout entry's (sealed) value, got ${A.cookie === null ? 'null (emptied jar)' : JSON.stringify(A.cookie)}`)
+  if (result.detail?.sessionAfter?.isAdmin !== true) problems.push(`expected the follow-up to read isAdmin:true, got ${JSON.stringify(result.detail?.sessionAfter)}`)
+  return { pass: problems.length === 0, detail: { problems, result } }
+}
+
+/** (2)+(3) Valid clears still pass, including an Expires-only clear in IMF-fixdate form, and the
+ *  follow-up jar holds exactly growmax-admin= (the clearing entry's empty value). */
+async function testF9PassesImfFixdateExpiresOnlyClearAndJarHoldsClearedValue() {
+  const problems = []
+  const results = {}
+  for (const [label, logout] of [
+    ['real-app (Path=/; Max-Age=0)', REAL_APP_LOGOUT],
+    ['IMF-fixdate Expires only (1970)', `${ADMIN_COOKIE_NAME}=; Path=/; Expires=${PAST}; HttpOnly; Secure; SameSite=Lax`],
+    ['IMF-fixdate Expires only (2000)', `${ADMIN_COOKIE_NAME}=; Path=/; Expires=Sat, 01 Jan 2000 00:00:00 GMT`],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop
+    const outcome = await runF9({ logout })
+    results[label] = outcome.result
+    problems.push(...expectF9(label, outcome, true))
+    if (outcome.A.cookie !== `${ADMIN_COOKIE_NAME}=`)
+      problems.push(`${label}: expected the follow-up jar ${ADMIN_COOKIE_NAME}= (clearing entry's value), got ${outcome.A.cookie === null ? 'null (emptied jar)' : JSON.stringify(outcome.A.cookie)}`)
+  }
+  return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+/** (4) Partitioned must match: a partitioned clear does not clear an unpartitioned cookie in
+ *  Chrome (different partition), nor the other way round. Both partitioned still passes. */
+async function testF9PartitionedMustMatch() {
+  const problems = []
+  const results = {}
+  const PARTITIONED_LOGIN = `${LOGIN_SET_COOKIE}; Partitioned`
+  for (const [label, opts, expectedPass] of [
+    ['login unpartitioned, clear Partitioned', { logout: `${REAL_APP_LOGOUT}; Partitioned` }, false],
+    ['login Partitioned, clear unpartitioned', { login: PARTITIONED_LOGIN, logout: REAL_APP_LOGOUT }, false],
+    ['both Partitioned', { login: PARTITIONED_LOGIN, logout: `${REAL_APP_LOGOUT}; Partitioned` }, true],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop
+    const outcome = await runF9(opts)
+    results[label] = outcome.result
+    problems.push(
+      ...expectF9(label, outcome, expectedPass, ({ result, A }) => {
+        const p = []
+        if (result.detail.partitionedMatches !== expectedPass) p.push(`${label}: expected partitionedMatches:${expectedPass}, got ${result.detail.partitionedMatches}`)
+        if (expectedPass && A.cookie !== `${ADMIN_COOKIE_NAME}=`) p.push(`${label}: expected the follow-up jar ${ADMIN_COOKIE_NAME}=, got ${JSON.stringify(A.cookie)}`)
+        return p
+      }),
+    )
+  }
+  return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+// --- P6.1 review round 1 (blocking A and B) ---
+
+const NBSP = ' '
+
+/** Round 1 (A): U+00A0 (NBSP) is not cookie whitespace. RFC 6265 §5.2 and Chrome strip only SP
+ *  and HTAB, so each logout below leaves Chrome admin (reviewer's Chromium 1194 probe), while
+ *  JS .trim() read it as a proper clear. The mock sends the header through writeHead, which
+ *  writes U+00A0 as the single latin1 byte 0xA0; undici hands it back as U+00A0. */
+async function testF9NbspIsNotCookieWhitespace() {
+  const problems = []
+  const results = {}
+  for (const [label, logout] of [
+    ['(a) NBSP after the name', `${ADMIN_COOKIE_NAME}${NBSP}=; Path=/; Max-Age=0`],
+    ['(b) NBSP after the Path key', `${ADMIN_COOKIE_NAME}=; Path${NBSP}=/; Max-Age=0`],
+    ['(c) NBSP before the Path value', `${ADMIN_COOKIE_NAME}=; Path=${NBSP}/; Max-Age=0`],
+    ['(d) Domain=NBSP', `${ADMIN_COOKIE_NAME}=; Path=/; Max-Age=0; Domain=${NBSP}`],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop
+    const outcome = await runF9({ logout })
+    results[label] = outcome.result
+    problems.push(
+      ...expectF9(label, outcome, false, ({ result }) => {
+        const got = result.detail?.setCookieEntryCount === 1 ? null : `${label}: the NBSP entry did not reach the harness as one entry (setCookieEntryCount ${result.detail?.setCookieEntryCount})`
+        return got ? [got] : []
+      }),
+    )
+  }
+  // Parser level (independent of the fail-closed non-ASCII rule): only SP/HTAB are stripped.
+  const n = ADMIN_COOKIE_NAME
+  const eq = (label, got, want) => {
+    if (got !== want) problems.push(`${label}: expected ${JSON.stringify(want)}, got ${JSON.stringify(got)}`)
+  }
+  eq('name with trailing NBSP', parseCookieAttrs(`${n}${NBSP}=x`).name, `${n}${NBSP}`)
+  eq('name with leading NBSP', parseCookieAttrs(`${NBSP}${n}=x`).name, `${NBSP}${n}`)
+  eq('Path NBSP key ignored', parseCookieAttrs(`${n}=; Path${NBSP}=/`).path, undefined)
+  eq('Path NBSP value is not /-prefixed', parseCookieAttrs(`${n}=; Path=${NBSP}/`).path, undefined)
+  eq('Domain=NBSP is not empty', parseCookieAttrs(`${n}=; Domain=${NBSP}`).domain, NBSP)
+  eq('Partitioned NBSP key is not Partitioned', parseCookieAttrs(`${n}=; Partitioned${NBSP}`).partitioned, false)
+  eq('Max-Age NBSP value ignored', parseCookieAttrs(`${n}=; Max-Age=0${NBSP}`).maxAge, undefined)
+  eq('SP/HTAB still stripped: name', parseCookieAttrs(` \t${n} \t=x`).name, n)
+  eq('SP/HTAB still stripped: value', parseCookieAttrs(`${n}= \tx\t `).value, 'x')
+  eq('SP/HTAB still stripped: Path', parseCookieAttrs(`${n}=; \tPath\t = /x\t`).path, '/x')
+  eq('SP/HTAB still stripped: Max-Age', parseCookieAttrs(`${n}=; Max-Age=\t0 `).maxAge, 0)
+  return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+/** Round 1 (B): entries a browser rejects outright (Chrome 80+ / RFC 6265bis): nothing is
+ *  stored, the sealed login cookie is kept, so none of them is a clear. The defence-in-depth jar
+ *  cannot catch these (the entry's value is not the sealed one), so checkLogout must. Controls:
+ *  the same entries made acceptable (Secure added, name+value exactly 4096) still pass. */
+async function testF9FailsOnEntryTheBrowserRejects() {
+  const problems = []
+  const results = {}
+  const SECURE_PARTITIONED_LOGIN = `${LOGIN_SET_COOKIE}; Partitioned`
+  const n = ADMIN_COOKIE_NAME
+  const fill = (len) => 'x'.repeat(len)
+  for (const [label, opts, expectedPass, reason] of [
+    ['(e) SameSite=None without Secure', { logout: `${n}=; Path=/; Max-Age=0; SameSite=None` }, false, 'samesite-none-without-secure'],
+    ['(e2) SameSite=None then SameSite=Lax, no Secure', { logout: `${n}=; Path=/; Max-Age=0; SameSite=None; SameSite=Lax` }, false, 'samesite-none-without-secure'],
+    ['(e3) SameSite=None; Secure=<1025 chars> (over-long attribute ignored)', { logout: `${n}=; Path=/; Max-Age=0; SameSite=None; Secure=${fill(1025)}` }, false, 'samesite-none-without-secure'],
+    ['(f) Partitioned login, Partitioned clear without Secure', { login: SECURE_PARTITIONED_LOGIN, logout: `${n}=; Path=/; Max-Age=0; Partitioned` }, false, 'partitioned-without-secure'],
+    ['(g) name+value 5013 bytes', { logout: `${n}=${fill(5000)}; Path=/; Max-Age=0` }, false, 'name-value-over-4096'],
+    ['(g2) name+value 4097 bytes', { logout: `${n}=${fill(4097 - n.length)}; Path=/; Max-Age=0` }, false, 'name-value-over-4096'],
+    ['control: SameSite=None; Secure', { logout: `${n}=; Path=/; Max-Age=0; SameSite=None; Secure` }, true, null],
+    ['control: Partitioned; Secure both', { login: SECURE_PARTITIONED_LOGIN, logout: `${n}=; Path=/; Max-Age=0; Secure; Partitioned` }, true, null],
+    ['control: name+value exactly 4096 bytes', { logout: `${n}=${fill(4096 - n.length)}; Path=/; Max-Age=0` }, true, null],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop
+    const outcome = await runF9(opts)
+    results[label] = outcome.result
+    problems.push(
+      ...expectF9(label, outcome, expectedPass, ({ result }) => {
+        const p = []
+        if (result.detail?.acceptedByBrowserRules !== expectedPass) p.push(`${label}: expected acceptedByBrowserRules:${expectedPass}, got ${result.detail?.acceptedByBrowserRules}`)
+        const reasons = result.detail?.browserRejectionReasons
+        if (reason && !(Array.isArray(reasons) && reasons.includes(reason))) p.push(`${label}: expected browserRejectionReasons to include ${reason}, got ${JSON.stringify(reasons)}`)
+        if (!reason && !(Array.isArray(reasons) && reasons.length === 0)) p.push(`${label}: expected no browserRejectionReasons, got ${JSON.stringify(reasons)}`)
+        return p
+      }),
+    )
+  }
+  // No cookie value ever reaches the detail (only codes and booleans).
+  if (JSON.stringify(results).includes(fill(64))) problems.push('a cookie value leaked into the F9 detail')
+  return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+/** Review round 2 (blocking): a clear whose LAST Domain attribute is '.' (`Domain=.`,
+ *  `Domain= . `) is rejected outright by Chromium (the sealed login cookie is kept), while the
+ *  RFC reading (drop the '.', empty = host-only) calls it a host-only clear. The defence-in-depth
+ *  jar cannot catch it (the value is empty), so checkLogout must. Also fails closed on
+ *  `Domain=x; Domain=` (Chrome: host-only; RFC: Domain=x). Controls: a later empty Domain
+ *  (`Domain=.; Domain=`, host-only in both readings), a lone empty `Domain=`, and a Domain value
+ *  over 1024 octets (ignored by both) still clear. Mock-driven through runF9. */
+async function testF9FailsOnDomainDotClear() {
+  const problems = []
+  const results = {}
+  const n = ADMIN_COOKIE_NAME
+  const DOMAIN_LOGIN = `${n}=${SEALED}; Path=/; Domain=growmax.io; Max-Age=86400; HttpOnly; Secure; SameSite=Lax`
+  for (const [label, opts, expectedPass, reason] of [
+    ["'Domain=.'", { logout: `${n}=; Path=/; Max-Age=0; Domain=.` }, false, 'domain-empty-after-dot'],
+    ["'Domain= . '", { logout: `${n}=; Path=/; Max-Age=0; Domain= . ` }, false, 'domain-empty-after-dot'],
+    ["'Domain=\\t.\\t'", { logout: `${n}=; Path=/; Max-Age=0; Domain=\t.\t` }, false, 'domain-empty-after-dot'],
+    ["'Domain=; Domain=.' (last is '.')", { logout: `${n}=; Path=/; Max-Age=0; Domain=; Domain=.` }, false, 'domain-empty-after-dot'],
+    ["real-app shape plus 'Domain=.'", { logout: `${REAL_APP_LOGOUT}; Domain=.` }, false, 'domain-empty-after-dot'],
+    ["Domain login, 'Domain=growmax.io; Domain=' (Chrome host-only)", { login: DOMAIN_LOGIN, logout: `${n}=; Path=/; Max-Age=0; Domain=growmax.io; Domain=` }, false, 'domain-last-empty-after-domain'],
+    ["control: 'Domain=.; Domain=' (last empty: host-only)", { logout: `${n}=; Path=/; Max-Age=0; Domain=.; Domain=` }, true, null],
+    ["control: 'Domain=' alone (host-only)", { logout: `${n}=; Path=/; Max-Age=0; Domain=` }, true, null],
+    ['control: Domain over 1024 octets (ignored)', { logout: `${n}=; Path=/; Max-Age=0; Domain=.${'a'.repeat(1024)}` }, true, null],
+    ['control: Domain login, same Domain clear', { login: DOMAIN_LOGIN, logout: `${n}=; Path=/; Max-Age=0; Domain=.growmax.io` }, true, null],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop
+    const outcome = await runF9(opts)
+    results[label] = outcome.result
+    problems.push(
+      ...expectF9(label, outcome, expectedPass, ({ result, A }) => {
+        const p = []
+        if (result.detail?.acceptedByBrowserRules !== expectedPass) p.push(`${label}: expected acceptedByBrowserRules:${expectedPass}, got ${result.detail?.acceptedByBrowserRules}`)
+        const reasons = result.detail?.browserRejectionReasons
+        if (reason && !(Array.isArray(reasons) && reasons.includes(reason))) p.push(`${label}: expected browserRejectionReasons to include ${reason}, got ${JSON.stringify(reasons)}`)
+        if (!reason && !(Array.isArray(reasons) && reasons.length === 0)) p.push(`${label}: expected no browserRejectionReasons, got ${JSON.stringify(reasons)}`)
+        if (expectedPass && A.cookie !== `${n}=`) p.push(`${label}: expected the follow-up jar '${n}=', got ${A.cookie}`)
+        return p
+      }),
+    )
+  }
+  // Direct parser/rule assertions.
+  const fn = runModule.setCookieRejectionReasons
+  if (typeof fn !== 'function') problems.push('run.mjs exports no setCookieRejectionReasons')
+  else {
+    const want = (label, entry, expected) => {
+      const got = fn(entry)
+      if (JSON.stringify(got) !== JSON.stringify(expected)) problems.push(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(got)}`)
+    }
+    want('Domain=.', `${n}=; Max-Age=0; Domain=.`, ['domain-empty-after-dot'])
+    want('Domain=.; Domain=.', `${n}=; Max-Age=0; Domain=.; Domain=.`, ['domain-empty-after-dot'])
+    want('Domain=.; Domain=', `${n}=; Max-Age=0; Domain=.; Domain=`, [])
+    want('Domain=x; Domain=', `${n}=; Max-Age=0; Domain=growmax.io; Domain=`, ['domain-last-empty-after-domain'])
+    want('Domain=; Domain=x', `${n}=; Max-Age=0; Domain=; Domain=growmax.io`, [])
+    want('Domain=.growmax.io', `${n}=; Max-Age=0; Domain=.growmax.io`, [])
+    want('Domain over 1024 octets ignored', `${n}=; Max-Age=0; Domain=${'.'.repeat(1025)}`, [])
+  }
+  const a = parseCookieAttrs(`${n}=; Domain=.`)
+  if (a.domainLast !== '.') problems.push(`parseCookieAttrs('Domain=.').domainLast: expected '.', got ${JSON.stringify(a.domainLast)}`)
+  return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+/** Review round 2 (non-blocking, closed): F4's login-cookie check (checkLoginCookieEntry, run on
+ *  the exact-name entry of a mock login response via the real requestJson/adminCookieEntry)
+ *  also requires an entry a browser accepts, so a login Chromium rejects (`Domain=.`) fails F4
+ *  instead of counting as logged in. The real app's login, as Next serializes it, passes. */
+async function testF4LoginCookieEntryMustBeAccepted() {
+  const problems = []
+  const results = {}
+  const check = runModule.checkLoginCookieEntry
+  if (typeof check !== 'function') return { pass: false, detail: { problems: ['run.mjs exports no checkLoginCookieEntry'] } }
+  const n = ADMIN_COOKIE_NAME
+  const future = 'Mon, 01 Jan 2100 00:00:00 GMT'
+  for (const [label, login, expectedOk, reason] of [
+    ['real-app login (Next ResponseCookies shape)', `${n}=${SEALED}; Path=/; Expires=${future}; Max-Age=86400; Secure; HttpOnly; SameSite=lax`, true, null],
+    ['selftest login', LOGIN_SET_COOKIE, true, null],
+    ["login with 'Domain=.'", `${LOGIN_SET_COOKIE}; Domain=.`, false, 'domain-empty-after-dot'],
+    ["login with 'Domain= . '", `${LOGIN_SET_COOKIE}; Domain= . `, false, 'domain-empty-after-dot'],
+    ['login with Partitioned but no Secure', `${n}=${SEALED}; Path=/; Max-Age=86400; HttpOnly; SameSite=Lax; Partitioned`, false, 'partitioned-without-secure'],
+  ]) {
+    // eslint-disable-next-line no-await-in-loop
+    const server = await startMockAdminServer({ login })
+    try {
+      const { port } = server.address()
+      const A = new Assertions({ base: `http://127.0.0.1:${port}` })
+      // eslint-disable-next-line no-await-in-loop
+      const { res } = await A.requestJson('/api/admin/login', { method: 'POST', body: '{}' })
+      A.captureSetCookie(res)
+      const got = check(Assertions.adminCookieEntry(res))
+      results[label] = got
+      if (got.cookieOk !== expectedOk) problems.push(`${label}: expected cookieOk:${expectedOk}, got ${JSON.stringify(got)}`)
+      const reasons = got.loginRejectionReasons
+      if (reason && !(Array.isArray(reasons) && reasons.includes(reason))) problems.push(`${label}: expected loginRejectionReasons to include ${reason}, got ${JSON.stringify(reasons)}`)
+      if (!reason && !(Array.isArray(reasons) && reasons.length === 0)) problems.push(`${label}: expected no loginRejectionReasons, got ${JSON.stringify(reasons)}`)
+    } finally {
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((resolve) => server.close(resolve))
+    }
+  }
+  if (check(null).cookieOk !== false) problems.push('no login entry must fail F4')
+  if (JSON.stringify(results).includes(SEALED)) problems.push('a cookie value leaked into the F4 detail')
+  return { pass: problems.length === 0, detail: { problems, results } }
+}
+
+/** Round 1 (B): setCookieRejectionReasons itself, including the CTL rule that no mock can send
+ *  (Node's http server refuses CTL bytes in a header, and undici throws on VT/FF). */
+function testSetCookieRejectionReasons() {
+  const problems = []
+  const fn = runModule.setCookieRejectionReasons
+  if (typeof fn !== 'function') return { pass: false, detail: { problems: ['run.mjs exports no setCookieRejectionReasons'] } }
+  const n = ADMIN_COOKIE_NAME
+  const want = (label, entry, expected) => {
+    const got = fn(entry)
+    if (JSON.stringify(got) !== JSON.stringify(expected)) problems.push(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(got)}`)
+  }
+  want('real-app clear', REAL_APP_LOGOUT, [])
+  want('real-app login', LOGIN_SET_COOKIE, [])
+  want('HTAB is allowed', `${n}=;\tPath=/;\tMax-Age=0`, [])
+  want('NUL', `${n}=\x00; Path=/; Max-Age=0`, ['ctl'])
+  want('0x01', `${n}=; Path=/\x01; Max-Age=0`, ['ctl'])
+  want('LF', `${n}=; Path=/; Max-Age=0\n`, ['ctl'])
+  want('DEL', `${n}=\x7f; Path=/; Max-Age=0`, ['ctl'])
+  want('NBSP', `${n}=${NBSP}; Path=/; Max-Age=0`, ['non-ascii'])
+  want('SameSite=none (case-insensitive), no Secure', `${n}=; Max-Age=0; samesite=NONE`, ['samesite-none-without-secure'])
+  want('SameSite=None, Secure', `${n}=; Max-Age=0; SameSite=None; Secure`, [])
+  want('SameSite=Lax, no Secure', `${n}=; Max-Age=0; SameSite=Lax`, [])
+  want('Partitioned, no Secure', `${n}=; Max-Age=0; Partitioned`, ['partitioned-without-secure'])
+  want('Partitioned + SameSite=None, no Secure', `${n}=; Max-Age=0; Partitioned; SameSite=None`, ['samesite-none-without-secure', 'partitioned-without-secure'])
+  want('Secure with a 1024-byte value still counts', `${n}=; Max-Age=0; SameSite=None; Secure=${'x'.repeat(1024)}`, [])
+  want('Secure with a 1025-byte value is ignored', `${n}=; Max-Age=0; SameSite=None; Secure=${'x'.repeat(1025)}`, ['samesite-none-without-secure'])
+  want('name+value 4096', `${n}=${'x'.repeat(4096 - n.length)}`, [])
+  want('name+value 4097', `${n}=${'x'.repeat(4097 - n.length)}`, ['name-value-over-4096'])
+  // An over-long attribute-value is ignored by parseCookieAttrs (RFC 6265bis §5.6).
+  if (parseCookieAttrs(`${n}=; Path=/${'a'.repeat(1024)}`).path !== undefined) problems.push('a 1025-byte Path value must be ignored')
+  if (parseCookieAttrs(`${n}=; Max-Age=${'0'.repeat(1025)}`).maxAge !== undefined) problems.push('a 1025-byte Max-Age value must be ignored')
+  if (parseCookieAttrs(`${n}=; Max-Age=${'0'.repeat(1024)}`).maxAge !== 0) problems.push('a 1024-byte Max-Age value must still count')
+  return { pass: problems.length === 0, detail: { problems } }
+}
+
+/** (2) The RFC 6265 §5.1.1 cookie-date algorithm itself. */
+function testParseCookieDateRfc6265() {
+  const problems = []
+  const parseCookieDate = runModule.parseCookieDate
+  if (typeof parseCookieDate !== 'function') return { pass: false, detail: { problems: ['run.mjs exports no parseCookieDate'] } }
+  const want = (input, expected) => {
+    const got = parseCookieDate(input)
+    if (got !== expected) problems.push(`${JSON.stringify(input)}: expected ${expected}, got ${got}`)
+  }
+  want('Thu, 01 Jan 1970 00:00:00 GMT', 0)
+  want('Sat, 01 Jan 2000 00:00:00 GMT', Date.UTC(2000, 0, 1))
+  want('Sunday, 06-Nov-94 08:49:37 GMT', Date.UTC(1994, 10, 6, 8, 49, 37)) // RFC 850, 2-digit year 94 -> 1994
+  want('Sun Nov  6 08:49:37 1994', Date.UTC(1994, 10, 6, 8, 49, 37)) // asctime
+  want('Thu, 01 Jan 70 00:00:00 GMT', 0) // 70 -> 1970
+  want('Mon, 01 Jan 69 00:00:00 GMT', Date.UTC(2069, 0, 1)) // 69 -> 2069
+  want('1 january 2020 1:2:3', Date.UTC(2020, 0, 1, 1, 2, 3)) // month by its first 3 letters, 1-digit fields
+  for (const bad of ['0', '2020', '-1', '', 'yesterday-ish', 'Thu, 01 Jan 1970 GMT', 'Thu, Jan 1970 00:00:00 GMT', 'Thu, 01 1970 00:00:00 GMT',
+    'Thu, 01 Jan 00:00:00 GMT', 'Thu, 32 Jan 1970 00:00:00 GMT', 'Thu, 00 Jan 1970 00:00:00 GMT', 'Sun, 30 Feb 2020 00:00:00 GMT',
+    'Sat, 01 Jan 1600 00:00:00 GMT', 'Thu, 01 Jan 1970 24:00:00 GMT', 'Thu, 01 Jan 1970 00:60:00 GMT', 'Thu, 01 Jan 1970 00:00:60 GMT',
+    '1970-01-01T00:00:00Z', 'Thu, 01 Jan 19700 00:00:00 GMT']) {
+    want(bad, null)
+  }
+  return { pass: problems.length === 0, detail: { problems } }
 }
 
 /** captureSetCookie on a real-shaped login: records Path/effectivePath and puts the admin
@@ -736,6 +1137,18 @@ async function main() {
     ['f9-fails-when-positive-max-age-with-past-expires (r2 b)', testF9FailsWhenPositiveMaxAgeWithPastExpires],
     ['f9-fails-on-invalid-max-age (r2 c)', testF9FailsOnInvalidMaxAge],
     ['f9-fails-closed-without-login-cookie-attrs (r2 d)', testF9FailsClosedWithoutLoginCookieAttrs],
+    ['f9-fails-on-name-value-without-equals (p6.1)', testF9FailsOnNameValueWithoutEquals],
+    ['f9-fails-on-empty-name (p6.1)', testF9FailsOnEmptyName],
+    ['f9-fails-on-sealed-value-with-expires-0-2020-minus1 (p6.1)', testF9FailsOnSealedValueWithNonCookieDateExpires],
+    ['f9-follow-up-jar-carries-logout-value-defence-in-depth (p6.1)', testF9DefenceInDepthSealedValueInFollowUp],
+    ['f9-passes-imf-fixdate-expires-only-clear-and-jar-holds-cleared-value (p6.1)', testF9PassesImfFixdateExpiresOnlyClearAndJarHoldsClearedValue],
+    ['f9-partitioned-must-match (p6.1)', testF9PartitionedMustMatch],
+    ['parseCookieDate-rfc6265-5.1.1 (p6.1)', async () => testParseCookieDateRfc6265()],
+    ['f9-nbsp-is-not-cookie-whitespace (p6.1 r1-A)', testF9NbspIsNotCookieWhitespace],
+    ['f9-fails-on-entry-the-browser-rejects (p6.1 r1-B)', testF9FailsOnEntryTheBrowserRejects],
+    ['setCookieRejectionReasons-and-attribute-value-limit (p6.1 r1-B)', async () => testSetCookieRejectionReasons()],
+    ['f9-fails-on-domain-dot-clear (p6.1 r2)', testF9FailsOnDomainDotClear],
+    ['f4-login-cookie-entry-must-be-accepted (p6.1 r2)', testF4LoginCookieEntryMustBeAccepted],
     ['captureSetCookie-on-mock-login', testCaptureSetCookieOnMockLogin],
     ['isClearingSetCookie-direct', async () => testIsClearingSetCookieDirect()],
     ['parseCookieAttrs-and-entry-selection', async () => testParseCookieAttrsAndEntrySelection()],

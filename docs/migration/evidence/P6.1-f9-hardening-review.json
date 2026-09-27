@@ -1,0 +1,112 @@
+{
+  "step": "P6.1",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T05:45:00Z",
+  "checkedAtNote": "workflow wf_3d9abcef-fbd completion (approximate); r2 ran after the 05:36:30Z fix evidence",
+  "verifier": "migration-reviewer (opus/high), round 2; persisted by the orchestrator (the reviewer role is read-only)",
+  "approve": true,
+  "blocking": [],
+  "reviewedHashes": {
+    "scripts/migration/functional/run.mjs": "fea6e777a1b557068cf205d9fc7d43486bf6e052",
+    "scripts/migration/functional/selftest-p5.3.mjs": "5da9e6aa3f694de1802a523a777e2d40138a85e4",
+    "scripts/migration/functional/selftest-f9-browser.mjs": "80550e165987755db57b8bc572d7cfb5bae231fd",
+    "docs/migration/evidence/P6.1-f9-hardening.json": "93983d1c8e0eba6ea658cc9963f8c532724fffa4",
+    "docs/migration/evidence/P5.3-harness-fix.json": "8cb812b72d4e84348c396c949db4ab716b4939e5"
+  },
+  "hashesMatchOnDisk": true,
+  "summary": "Round 2: the round-1 blocking item is fixed and I found no blocking issues. F9 is now decided only by a real headless Chromium context. checkLogoutInBrowser (scripts/migration/functional/run.mjs:1120) sends login, session, logout and session through in-page fetch with credentials:'include' and redirect:'manual', then judges the jar by what each cookie puts on the wire. The new f9LeftoverReason/f9WirePair (run.mjs:1057-1084) handle the empty name, the key trimmed of SP/HTAB, and raw plus percent-decoded forms. This covers everything Next's parseCookie can read: the key is exact and never decoded, and the value is decoded once. I ran independent experiments on local https mocks (127.0.0.1), reading cookies the way Next does and checking /api/admin/session, /api/admin/posts and /api/admin/posts/x in Chromium after logout. F9 passed only where Chromium ended logged out: the real-app clear, the Next Expires=1970 clear, and a Domain=localhost cookie that Chromium rejected. F9 failed on every case where Chromium stayed admin: Partitioned narrow-Path sealed, Partitioned empty-name %2A, Partitioned login with an unpartitioned clear, a Partitioned clear against an unpartitioned login, Path=/api/admin/posts/, a sealed cookie re-set by the session response after logout, and never cleared. Playwright's context.cookies() does return partitioned (CHIPS) cookies, so they are covered. A mutation that restores the old jar logic (stored name plus raw value) makes f9b-narrow-path-encoded-empty-name-smuggling-fails fail, so the test kills the regression. Launch failure fails F9 with no parser fallback, both for a bad executablePath and a bad PLAYWRIGHT_CHROMIUM_PATH. The '[SENSITIVE]' password fails fast. The bypass header is added only by an origin-filtered context.route; there is no extraHTTPHeaders or APIRequestContext. The self-test has positive controls: second-origin probes on another port and on localhost arrive without the header, and a followed-redirect control shows why redirect:'manual' is needed. In runTests only the F9 line changed. F4 goes through checkLoginCookieEntry, carried from the round-3 base, and still accepts a realistic iron-session login entry. main(), the F2 guard and the exit codes are unchanged. visual/ has no diff and docs/migration/.scratch/demo-tests is still empty. No leaks appeared in any result.",
+  "nonBlocking": [
+    "docs/migration/evidence/P5.3-harness-fix.json is modified in the working tree. That file is outside this task's 'touch only' list, but the change is the round-3 parser text carried over from the starting point (the P6.1 evidence says so). The orchestrator should confirm it is intended before committing.",
+    "The jar check fails conservatively in cases where the real app would not be admin. Examples: a quoted value \"<sealed>\" at a narrow Path, a percent-encoded key such as growmax%2Dadmin, a key with an inner tab, a value decoded more than once. These give false fails, never false passes, and the real app's clear does not trigger any of them.",
+    "The real-origin path is unexercised: the container proxy with the SPKI pin, no ignoreHTTPSErrors, and the bypass via route.continue against Vercel (listed in notRun). Self-tests reach loopback with a proxy bypass. The first P6.2 run should confirm F9 passes against the real deployment, since F9 now makes one extra login per suite run.",
+    "F9 uses the default executable /opt/pw-browsers/chromium, a symlink to chromium-1194/chrome-linux/chrome. That is the same binary visual/run.mjs uses by default, so the two agree, but they spell the default path differently.",
+    "The redirect-header exposure is mitigated only by redirect:'manual' on F9's own fetches, because Playwright carries route.continue header overrides across followed redirects. Any future F9 fetch that follows redirects would leak the bypass header to the redirect target. A comment at openF9BrowserContext documents this."
+  ],
+  "checks": [
+    {
+      "name": "selftest-f9-browser",
+      "expected": "17/17 pass",
+      "actual": "17/17 pass, exit 0 (38 s)",
+      "pass": true
+    },
+    {
+      "name": "selftest-p5.3 (existing non-F9 and parser tests)",
+      "expected": "35/35",
+      "actual": "35/35 pass",
+      "pass": true
+    },
+    {
+      "name": "Round-1 blocker: empty-name / %2A narrow-Path smuggle",
+      "expected": "F9 fails",
+      "actual": "fails with a jar leftover. With the old jar logic restored in a tmp copy (mutation), f9b-narrow-path-encoded-empty-name-smuggling-fails fails (0/1), so the test kills the regression",
+      "pass": true
+    },
+    {
+      "name": "Independent adversarial mocks: F9 pass iff Chromium logged out at session, posts and posts/x",
+      "expected": "pass only when no endpoint is admin",
+      "actual": "11 cases agree. Passes: real clear, Next 1970 clear, Domain=localhost (rejected by Chromium). Fails: Partitioned narrow sealed, Partitioned empty-name %2A, Partitioned login with unpartitioned clear, Partitioned clear with unpartitioned login, Path=/api/admin/posts/, cookie re-set on the session response, never cleared. Quoted narrow value is a conservative fail",
+      "pass": true
+    },
+    {
+      "name": "context.cookies() includes partitioned cookies",
+      "expected": "yes",
+      "actual": "yes, partitionKey https://127.0.0.1 returned",
+      "pass": true
+    },
+    {
+      "name": "Chromium launch failure",
+      "expected": "F9 fails, no parser fallback",
+      "actual": "pass:false with the 'never falls back' error, for a bad executablePath and for a bad PLAYWRIGHT_CHROMIUM_PATH",
+      "pass": true
+    },
+    {
+      "name": "Bypass header only to the base origin",
+      "expected": "origin-filtered route, no extraHTTPHeaders",
+      "actual": "code review plus self-test positive controls (second origin on another port and on localhost, redirect control)",
+      "pass": true
+    },
+    {
+      "name": "runTests / main unchanged except F9",
+      "expected": "only the F9 line changes (F4 through checkLoginCookieEntry from the round-3 base)",
+      "actual": "confirmed from the diff hunks; F4 accepts a realistic iron-session login entry",
+      "pass": true
+    },
+    {
+      "name": "visual/run.mjs unchanged",
+      "expected": "no diff",
+      "actual": "no diff",
+      "pass": true
+    },
+    {
+      "name": "demo-tests dir empty, no F2, no production endpoint",
+      "expected": "0 entries",
+      "actual": "0; only local mocks were used",
+      "pass": true
+    },
+    {
+      "name": "No secret, sealed value or password in F9 results",
+      "expected": "none",
+      "actual": "none in any experiment result",
+      "pass": true
+    }
+  ],
+  "history": "Parser hardening (wf_24d71701-a95) failed 3 opus rounds on ever more exotic Chrome cookie divergences; redesigned so a real Chromium context decides F9 (wf_3d9abcef-fbd): r1 1 blocking (narrow-Path / percent-encoded empty-name smuggling), r2 approve",
+  "round1": {
+    "approve": false,
+    "blocking": [
+      {
+        "file": "scripts/migration/functional/run.mjs",
+        "issue": "checkLogoutInBrowser (run.mjs:1142-1147) looks only at a cookie's stored name and raw value when it checks the jar after logout. Chromium sends a cookie with an empty name as just its value, and Next's parseCookie (node_modules/next/dist/compiled/@edge-runtime/cookies/index.js:48) runs decodeURIComponent on values. So a logout response of `growmax-admin=; Path=/; Max-Age=0; ...` plus `=growmax-admin=<sealed with %2A for *>; Path=/api/admin/posts; Secure; HttpOnly` gets past both checks. /api/admin/session never receives that cookie, so it reports isAdmin:false. The jar check sees name '' and a value that does not literally contain the sealed string. Meanwhile every request to /api/admin/posts still arrives as growmax-admin=<the sealed value> and is admin. Reproduced on a local mock: F9 pass=true and failures=[], while /api/admin/posts still sees admin=true. A fresh sealed value under an empty name at a narrow Path gets through the same way. F9 therefore does not pass only when Chromium ends logged out; this is the round-3 empty-name smuggle again, one encoding step further.",
+        "fix": "Judge the jar after logout by what each cookie puts on the wire. The pair is c.name === '' ? c.value : `${c.name}=${c.value}`. Split it at the first '=' and trim SP/HTAB from the key only. If the key is growmax-admin and the value is non-empty, count the cookie as a leftover. Also compare the sealed login values against a safe decodeURIComponent of the name and value, not only the raw strings. Add self-test cases for `=growmax-admin=<%2A-encoded sealed>; Path=/api/admin/posts` and `=growmax-admin=<a different non-empty value>; Path=/api/admin/posts` next to the correct clear, and expect both to fail. Optionally also make the mock's session and posts endpoints parse cookies the way Next does: last duplicate wins, values decoded."
+      }
+    ],
+    "reviewedHashes": {
+      "scripts/migration/functional/run.mjs": "bc14737df6aab209c977f9b5baefbb1627795a48",
+      "scripts/migration/functional/selftest-p5.3.mjs": "5da9e6aa3f694de1802a523a777e2d40138a85e4",
+      "scripts/migration/functional/selftest-f9-browser.mjs": "034568d0e11c18b9611b05169d29cc4910b3bc5a",
+      "docs/migration/evidence/P6.1-f9-hardening.json": "33d77e1c43060b321a7c0472aa0474f2d943bbdd",
+      "docs/migration/evidence/P5.3-harness-fix.json": "8cb812b72d4e84348c396c949db4ab716b4939e5"
+    }
+  }
+}

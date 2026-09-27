@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": null,
-  "updatedAt": "2026-09-27T04:50:49.375Z",
+  "updatedAt": "2026-09-27T05:44:49.938Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -350,7 +350,8 @@
       "A2 agenda (P6.1 review, non-blocking): H2 now revalidates /sitemap.xml and /llms*.txt, whose generators swallow DB errors (sitemap.ts:7-15, llms*.ts:9-11) and return an empty post list; a DB failure during an admin-triggered regeneration would cache a sitemap without blog posts until the next edit or deploy. Options: accept, or apply H1-style error semantics to those 3 routes (small change, needs review)",
       "A2 agenda (P6.1 review, pre-existing): lib/db.ts Pool has no error listener, so a Neon compute suspend terminating idle clients (57P01) raises an uncaughtException that can take down a Fluid instance; also no statement timeout. One-line pool.on(\"error\") fix recommended before or soon after cutover",
       "Owner notes (P6.1): blog_redirects rows store full paths (/blog/old) while the middleware, /api/blog-redirects and H1 look up bare slugs, so no redirect ever fires (and a match would double /blog/); unpublished posts stay reachable by slug; post titles render with a doubled suffix (| Growmax Intelligence | Growmax)",
-      "Security hygiene: never attach x-vercel-protection-bypass via Playwright extraHTTPHeaders or any other all-requests mechanism; only origin-scoped (context.route by origin, or fetch to the base URL). The P5.2 probe leak led to a bypass rotation (2026-09-27)"
+      "Security hygiene: never attach x-vercel-protection-bypass via Playwright extraHTTPHeaders or any other all-requests mechanism; only origin-scoped (context.route by origin, or fetch to the base URL). The P5.2 probe leak led to a bypass rotation (2026-09-27)",
+      "F9 real-origin path (review r2, non-blocking): the first P6.2 run is F9's first end-to-end use through the container proxy (SPKI pin, no ignoreHTTPSErrors) with the route-scoped bypass against Vercel; check its detail. Any future F9 fetch must keep redirect:\"manual\" (Playwright carries route.continue header overrides across followed redirects)"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",
@@ -546,7 +547,7 @@
           },
           {
             "id": "C-A3-4",
-            "status": "F9 accepted for G5 (script + real browser); OPEN before P6.2: r3 hardening with opus review (0 blocking), f9Browser on for P6.2/P8.2, update the bug-3 text in P5.3-harness-fix.json",
+            "status": "done (2026-09-27): F9 is now decided by a real Chromium context (in-page fetch, origin-scoped bypass header, jar judged by what goes on the wire; parser kept as diagnostics), opus review r2 approved with 0 blocking (P6.1-f9-hardening-review.json); f9Browser stays on for P6.2/P8.2; the bug-3 text in P5.3-harness-fix.json is updated",
             "text": "C-A3-4 (F9): F9 counts as passed for G5 check 5.3 on deployment dpl_3pt7gJhkymtokAVFXwifHpCjkUoE: run.mjs passes AND a real Chromium context (scratchpad f9-browser.mjs, password from env, in-page POST /api/admin/logout with credentials include) reports isAdmin:false with no growmax-admin cookie left, which is the browser cookie engine's own verdict and does not depend on the parser's two residual weaknesses. Conditions: (a) the round-3 hardening lands before the P6.2 suite and G6a 6a.3 may not pass on run.mjs alone without it: an entry without '=' or with an empty name never matches; Expires accepted only via the RFC 6265 §5.1.1 cookie-date algorithm or at minimum the IMF-fixdate form; the follow-up GET carries growmax-admin=<value from the logout entry> instead of an emptied jar; Partitioned must match between login and logout; self-test cases for no-'=', Expires=0/2020/-1 with the sealed value, and a valid Expires-only clear; an opus review with 0 blocking findings and the reviewed hashes recorded. (b) f9Browser corroboration stays on for the P6.2 and P8.2 suite runs. (c) Update the bug-3 text in P5.3-harness-fix.json that still describes the old A.cookie=null behaviour when the hardening lands."
           },
           {
@@ -601,6 +602,14 @@
       "note": "The P5.1 deploy agent (workflow wf_b7822bd7-7ee) called mcp__Vercel__create_deployment at 20:49:04Z and has had no result since. A read-only Vercel API listing at 22:16Z shows no deployment for d8c8b05 (only the guard-canceled previews), so the call never reached Vercel: it is waiting for a permission decision. Per the P3 lesson the orchestrator does not route around it (no CLI deploy of its own).",
       "resolvedAt": "2026-09-27T01:26:26.687Z",
       "resolution": "The owner approved the pending create_deployment request: deployment dpl_3pt7gJhkymtokAVFXwifHpCjkUoE was created at 01:08:35Z and was READY at 01:09:32Z"
+    },
+    {
+      "id": "B-BYPASS-ROTATE",
+      "step": "P6.2",
+      "action": "Rotate the Vercel \"Protection Bypass for Automation\" secret (the current one was exposed to third-party hosts by two of my test probes; see LOG.md INCIDENT). The permission system refused to let an agent do it ([Secret-Store Writes]). In the Vercel dashboard: team growmax1 -> project growmax-website -> Settings -> Deployment Protection -> Protection Bypass for Automation: click Generate (or Add) to create a new secret, then Revoke the old one (created 2026-09-26 for the migration). Do not paste the secret anywhere: the migration reads the new value from the project itself the next time a check needs it. This does not block the current work (the exposed secret only opens protected deployment URLs that serve the public site), but it must be done before the DNS go/no-go (A2).",
+      "since": "2026-09-27T05:44:49.937Z",
+      "note": "Refused command (never re-run by the orchestrator): node <scratchpad>/rotate.mjs <scratchpad>/rotate-result.json (generate via PATCH /v1/projects/{id}/protection-bypass, atomic write to .scratch/bypass-secret, revoke old, read back). No API call was made. Pipeline continues; A2 precondition.",
+      "resolvedAt": null
     }
   ],
   "gates": {
