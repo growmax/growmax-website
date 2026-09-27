@@ -1,0 +1,99 @@
+{
+  "step": "P8.2",
+  "gate": "G8a",
+  "mode": "post-merge regression check (PR #1 merged to main; production rebuilt from main)",
+  "status": "pass",
+  "checkedAt": "2026-09-27T11:20:45Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "scope": "Independent check that the merge of PR #1 (d22806d) and Vercel's production build from main (dpl_2wGDi1dD7zNWeiAb4yyUPMJidet8) changed nothing user-visible compared with dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx (commit dc54053), on which the P8.2 www capture was taken. The 3 apex expect-location failures carried over from P8.2 are pre-existing owner-side config and are not re-litigated here: they are identical before and after the merge.",
+  "harnessCommit": "22c878f (last commit touching scripts/migration/parity; working tree clean for that path)",
+  "checks": [
+    {
+      "name": "code identity: non-migration diff dc54053..d22806d",
+      "expected": "git diff --stat dc5405357441870b9315a28a7cbb93a201278453 d22806d8f31cc6e1131bdf656ea0f07de984ea19 -- . ':!docs/migration' ':!scripts/migration' ':!.claude' ':!CLAUDE.md' lists only .github/workflows/uptime.yml",
+      "actual": ".github/workflows/uptime.yml | 137 +++ (1 file changed, 137 insertions). d22806d is a merge commit (parents 0ff5864, d2814e6), 'Move growmax.io to Vercel and Neon (#1)'",
+      "pass": true
+    },
+    {
+      "name": "deployment state (Vercel MCP get_deployment)",
+      "expected": "dpl_2wGDi1dD7zNWeiAb4yyUPMJidet8 READY, target production, git SHA d22806d",
+      "actual": "readyState READY, target production, source git, githubCommitRef main, githubCommitSha d22806d8f31cc6e1131bdf656ea0f07de984ea19, project prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu, region iad1, createdAt 2026-09-27T11:01:21Z, ready 2026-09-27T11:02:07Z, aliasError null",
+      "pass": true
+    },
+    {
+      "name": "aliases point at the new deployment",
+      "expected": "www.growmax.io and growmax-website.vercel.app aliased to the new deployment",
+      "actual": "list_deployment_aliases: www.growmax.io, growmax-website.vercel.app, growmax-website-growmax1.vercel.app, growmax-website-git-main-growmax1.vercel.app, growmax.io (redirect to www.growmax.io)",
+      "pass": true
+    },
+    {
+      "name": "live HTML references the new deployment id",
+      "expected": "https://www.growmax.io/ and https://growmax-website.vercel.app/ HTML reference ?dpl=dpl_2wGDi1dD7zNWeiAb4yyUPMJidet8 only",
+      "actual": "both 200, 194862 bytes each, 49 occurrences of dpl=dpl_2wGDi1dD7zNWeiAb4yyUPMJidet8 and no other dpl id; www response server Vercel, x-vercel-cache HIT; parity capture manifest asset keys carry only dpl_2wGDi1dD7zNWeiAb4yyUPMJidet8",
+      "pass": true
+    },
+    {
+      "name": "capture www.growmax.io (container, no bypass header)",
+      "expected": "P8.2 inventory (301 URLs), 0 fetch errors",
+      "actual": "Captured 301 URLs (0 fetch errors), capturedAt 2026-09-27T11:05:17.008Z, stderr 0 bytes, harness marker {embeddedPosts:1, stylesheetRefs:1}, 0 retried requests (no proxy noise this run); manifest sha256 75ea12d74961e2641772ee0eccf732c8ec7a0a5b2f19a3950ee16138ef637c4c; inventory = p8-20260927T0948Z/inventory.json sha256 1c02854776357611850a4e6fef848598a20083ac644601e3062f62a5ce6388d2",
+      "pass": true
+    },
+    {
+      "name": "compare.mjs A = P8.2 www capture (manifest sha256 3e4f9f4e...c341, the B side of P8.2-parity.json) vs B = post-merge capture, no allowlist",
+      "expected": "no content differences apart from deployment-id noise; the only failures allowed are the pre-existing P8.2 apex items",
+      "actual": "exit 1: Compared 301 URLs: FAIL (failedUnallowed=3, allowlisted=0), stderr 0 bytes, stylesheetRefsBothAbsent 0, retriedA 1 (the P8.2-side factory-floor w=3840 retry), retriedB 0. Per-field diff counts: expect-location 3 (category redirect), bytes 2 (report-only). No visibleTextHash, internalLinks, assetRefs, stylesheetRefs, hashedCssSha256, sitemapEntries, status, header, meta or JSON diffs. byCategory {redirect: 3}",
+      "pass": true
+    },
+    {
+      "name": "the 3 unallowed diffs are the pre-existing apex items, unchanged by the merge",
+      "expected": "the same 3 URLs and values as the P8.2 B-vs-B compare (p8-20260927T0948Z/diff-bb-scratch/diff-b-vs-bsbx.json, failedUnallowed 3)",
+      "actual": "http://growmax.io/, https://growmax.io/, https://growmax.io/demo: expected https://<www>/..., got http://<www>/... in both P8.2 and now. Live curl at ~11:20Z: all three 301 to http://www.growmax.io/... (Squarespace domain forwarding); http://www.growmax.io/ 308 to https. Class: config (owner-side DNS), pre-existing, not caused by the merge; still open against G8a 8a.2",
+      "pass": true
+    },
+    {
+      "name": "report-only bytes diff on /blog and /blog?page=2 explained",
+      "expected": "noise only",
+      "actual": "119102 -> 119130 (+28). The new build's prerendered /blog carries the Next.js '<!--<buildId>-->' comment after the doctype (28 bytes); the P8.2 copy lacked it (a runtime ISR re-render at P8.2 time, while 43 other P8.2 pages had it; now 45). visibleTextHash identical (e54f8cd1...). Class: acceptable-diff (build/ISR noise)",
+      "pass": true
+    },
+    {
+      "name": "raw-body residuals are deployment-id noise only",
+      "expected": "any raw differences come from the deployment id, build id or build-time timestamps",
+      "actual": "189/301 raw bodies byte-identical after replacing dpl_* ids; the rest differ only by (a) chunk file names 1255-44cee06ee37773b2 -> 1255-4f909114e15eb57d and 1356-d65a12f637d00755 -> 1356-a73c438635c97ab2, (b) RSC build id z2Vq... -> 5Kis..., (c) RSC flight-chunk ordering on ISR blog pages, (d) sitemap.xml <lastmod> build timestamps (40 entries; 0 lines differ once lastmod is removed). Those two chunks differ only because Next inlines the deployment id (x-deployment-id header and image &dpl= param) and the minifier then renames 18/29 identifiers; same byte size (173851, 13597). Old chunks still serve 200 with ?dpl=dpl_339k... (skew protection). After normalizing dpl, those chunk names and the build id, assetRefs and stylesheetRefs match on all 301 URLs",
+      "pass": true
+    },
+    {
+      "name": "CSS bundles equal the A3 pins",
+      "expected": "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b and e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7",
+      "actual": "/_next/static/css/67ec1cc0bd707d2d.css sha256 b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b; /_next/static/css/b5162b0c557fcf76.css sha256 e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7 (same file names as P8.2)",
+      "pass": true
+    },
+    {
+      "name": "/api/blog byte size and item count unchanged since P8.2",
+      "expected": "same as P8.2 (2322293 bytes, 172 items) unless a post changed; the last delta check-in (p8-delta-20260927T1050Z, LOG 10:54:18Z) moved 0 rows",
+      "actual": "A 2322293 bytes / 172 items, B 2322293 bytes / 172 items; raw sha256 identical; LOG 10:54:18Z confirms 0 rows moved in every table",
+      "pass": true
+    },
+    {
+      "name": "runtime errors since the new deployment was created (Vercel MCP)",
+      "expected": "0 error-level lines not caused by the verifier's own tests, 11:01Z to now",
+      "actual": "get_runtime_errors since 2026-09-27T11:01:00Z: no runtime errors. get_runtime_logs level error/fatal/warning 11:01:00Z to 11:20:30Z: no logs. The log pipeline is live: group_by statusCode shows 200 x294, 404 x2, 307 x1, 401 x1 (5 distinct values; the 404s match the harness 404 probes)",
+      "pass": true
+    }
+  ],
+  "issues": [
+    "Carried over, pre-existing, not a regression: apex growmax.io 301 to http://www.growmax.io (Squarespace forwarding, owner-side DNS). G8a 8a.2 apex expectation still unmet; class config. Same as P8.2-parity.json."
+  ],
+  "artifacts": [
+    "docs/migration/.scratch/post-merge-20260927T1104Z/manifest-b.json",
+    "docs/migration/.scratch/post-merge-20260927T1104Z/raw-b/",
+    "docs/migration/.scratch/post-merge-20260927T1104Z/capture.stdout",
+    "docs/migration/.scratch/post-merge-20260927T1104Z/capture.stderr",
+    "docs/migration/.scratch/post-merge-20260927T1104Z/diff.json",
+    "docs/migration/.scratch/post-merge-20260927T1104Z/diff-scratch/diff.json (full)",
+    "docs/migration/.scratch/post-merge-20260927T1104Z/compare.stdout",
+    "docs/migration/.scratch/post-merge-20260927T1104Z/compare.stderr",
+    "docs/migration/.scratch/p8-20260927T0948Z/manifest-b.json (A side: P8.2 www capture)",
+    "docs/migration/.scratch/p8-20260927T0948Z/inventory.json"
+  ]
+}
