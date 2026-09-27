@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": "P6.1",
-  "updatedAt": "2026-09-27T03:42:09.629Z",
+  "currentStep": null,
+  "updatedAt": "2026-09-27T04:11:36.240Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -129,7 +129,8 @@
       }
     },
     "git": {
-      "mSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d"
+      "mSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+      "hSha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba"
     },
     "cutover": {
       "state": null,
@@ -331,7 +332,10 @@
       "Before P6.2 (F2 may run again there): F9 hardening from review r3 of P5.3 (P5.3-harness-fix-review.json): an entry without = in its name-value pair never matches; Expires only in IMF-fixdate (or the RFC 6265 cookie-date algorithm); for the follow-up GET put growmax-admin=<value from the logout entry> in the jar instead of dropping it (so a re-sent sealed value fails even if an expiry is misread); refuse a Partitioned clear for an unpartitioned login cookie; self-test cases; opus review",
       "Parity harness notes (P5.3 reviews, non-blocking): HASHED_ASSET_PREFIX_RE collapses the first segment under /_next/static/ (chunks vs chunkz would compare equal); link comparison is path+search only (http downgrade, #fragment, www vs apex compare equal); B links to its own vercel.app host count as same-site. Before cutover, grep the Vercel HTML for absolute vercel.app hrefs (a leaked site URL)",
       "A3 (P5.3) C-A3-8 for A2: (a) re-pin / and /sitemap.xml only with the same proof (exact set decomposition, presence in A live /api/blog, unified text diff) and A2 approval, never patterns; (b) A2 decides whether P8.2 pins / and /sitemap.xml or compares them with B own P6.4 capture; (c) A2 sees the P6.4 data-loss guard evidence; (d) the last demo test is reserved for P8.2 on www.growmax.io, P6.2 runs without F2; (e) grep the Vercel HTML for absolute vercel.app hrefs before cutover; (f) A2 states the apex mode; (g) every suite run keeps raw bodies (--raw-dir) so compare writes the text diff",
-      "A3 (P5.3) plan changes to write into the specs: SPEC-04 §4 A-side build-time staleness class; §3/§9 raw-body retention; §6 F9 real-browser corroboration as standing (P6.2, P8.2); §7 normalized failed-request key; P8.2 staleness note; SPEC-03 P6.4 verifier records the schema-diff hash and that the real-data self-test ran. FINAL-REPORT owner tasks: revalidate / and the sitemap and fail the build on DB errors; _system not copied; sslmode=verify-full explicitly in the Neon URL; the analytics beacon aborts are a container-network artefact"
+      "A3 (P5.3) plan changes to write into the specs: SPEC-04 §4 A-side build-time staleness class; §3/§9 raw-body retention; §6 F9 real-browser corroboration as standing (P6.2, P8.2); §7 normalized failed-request key; P8.2 staleness note; SPEC-03 P6.4 verifier records the schema-diff hash and that the real-data self-test ran. FINAL-REPORT owner tasks: revalidate / and the sitemap and fail the build on DB errors; _system not copied; sslmode=verify-full explicitly in the Neon URL; the analytics beacon aborts are a container-network artefact",
+      "A2 agenda (P6.1 review, non-blocking): H2 now revalidates /sitemap.xml and /llms*.txt, whose generators swallow DB errors (sitemap.ts:7-15, llms*.ts:9-11) and return an empty post list; a DB failure during an admin-triggered regeneration would cache a sitemap without blog posts until the next edit or deploy. Options: accept, or apply H1-style error semantics to those 3 routes (small change, needs review)",
+      "A2 agenda (P6.1 review, pre-existing): lib/db.ts Pool has no error listener, so a Neon compute suspend terminating idle clients (57P01) raises an uncaughtException that can take down a Fluid instance; also no statement timeout. One-line pool.on(\"error\") fix recommended before or soon after cutover",
+      "Owner notes (P6.1): blog_redirects rows store full paths (/blog/old) while the middleware, /api/blog-redirects and H1 look up bare slugs, so no redirect ever fires (and a match would double /blog/); unpublished posts stay reachable by slug; post titles render with a doubled suffix (| Growmax Intelligence | Growmax)"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",
@@ -1249,13 +1253,19 @@
       ],
       "gate": "G6a",
       "workflow": ".claude/workflows/mig-p6a-harden.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [
-        "2026-09-27T03:36:12.860Z mig-p6a-harden.js: implement H1-H4 (SPEC-02) -> local verification incl. H-only item 6 -> opus review, up to 3 rounds, no commits. Then the C-A3-4 F9 hardening (harness), sequentially (one code-editing agent at a time), both before P6.2."
+      "evidence": [
+        "docs/migration/evidence/P6.1-implement.json",
+        "docs/migration/evidence/P6.1-local-verify.json",
+        "docs/migration/evidence/P6.1-review.json"
       ],
-      "startedAt": "2026-09-27T03:36:12.860Z"
+      "notes": [
+        "2026-09-27T03:36:12.860Z mig-p6a-harden.js: implement H1-H4 (SPEC-02) -> local verification incl. H-only item 6 -> opus review, up to 3 rounds, no commits. Then the C-A3-4 F9 hardening (harness), sequentially (one code-editing agent at a time), both before P6.2.",
+        "2026-09-27T04:11:36.240Z One round on Opus (wf_13cf6830-263): the Opus implementer reviewed the first-pass Sonnet H1-H4 working tree and fixed 3 real defects (H1 not caching without generateStaticParams on Next 15.5; H2 pre-lookup failure breaking mutations and skipping shared paths; H3 timer not cleared). Local verification 19/19 incl. H-only item 6 (cached post and /api/blog survive a DB stop; admin edit and slug rename revalidate all six routes; middleware timeout yields a cached 308, never a 404). Opus review round 1 approved, 0 blocking. Committed as hSha 2f4b4d5."
+      ],
+      "startedAt": "2026-09-27T03:36:12.860Z",
+      "completedAt": "2026-09-27T04:11:36.240Z"
     },
     {
       "id": "P6.2",
