@@ -71,7 +71,7 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 |---|---|---|---|
 | 6a.1 | Diff limited to SPEC-02 H1–H6 (H5 and H6 added at P6.2); reviewer approves | reviewer | `P6.1-review.json`, `P6.2-fix-review.json` |
 | 6a.2 | Local verification incl. H-only checks (cached post survives a DB stop; admin edit revalidates) and SPEC-02 local step 8 (H5, H6) | verifier | `P6.1-local-verify.json`, `P6.2-fix-local-verify.json` |
-| 6a.3 | Deployment `READY` for `facts.git.hSha`; full suite passes again (no F2) | verifier | `P6.2-suite-summary.json` |
+| 6a.3 | Deployment `READY` for `facts.git.hSha`; full suite passes again (no F2); H4 proven: the second `/api/blog` fetch is served from cache (`x-vercel-cache: HIT`, or `STALE` within `s-maxage=300`), with decoded size and array length recorded (A1 C10; A3 for P6.2, C-A3b-3) | verifier | `P6.2-a3-deploy.json`, `P6.2-suite-summary.json` (and its four suite files), `P6.2-cache-hit.json` |
 
 ## G6: Ready for DNS (P6.3–P6.6)
 | # | Check | Verifier | Evidence |
@@ -81,7 +81,7 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 | 6.3 | ACME DNS-01 challenge records captured for both names; domain verification state recorded (the runbook includes `_vercel` TXT if unverified); CAA absent or permits `letsencrypt.org` (else the runbook adds it) | scout | `P6.3-domains.json` |
 | 6.4 | Final full refresh verified (G4 checks again) and every sequence's next value == `GAP_START` | verifier | `P6.4-verify.json` |
 | 6.5 | Production redeployed after the refresh; DB-driven URLs (`/blog`, sitemap, llms, `/api/blog`, 5 posts) at parity | verifier | `P6.4-quick-parity.json` |
-| 6.5b | Fresh live-Replit baseline captured after the merge and refresh (`P6.5-baseline-manifest.json`), with an inventory count ≥ P1.3 | verifier | `P6.5-baseline-summary.json` |
+| 6.5b | Fresh live-Replit baseline captured after the merge and refresh (`P6.5-baseline-manifest.json`), with an inventory count ≥ P1.3, using the parity harness at `2565667` or later, with `stylesheetRefs` on every 2xx HTML entry (A3 P6.2, C-A3b-5) | verifier | `P6.5-baseline-summary.json` |
 | 6.6 | `CUTOVER-RUNBOOK.md` fully rendered (no `{{…}}`), incl. current and new values for every record touched | orchestrator | runbook |
 | 6.7 | Advisor **A2** = `GO` or `GO_WITH_CONDITIONS`. **A NO_GO can't be overridden** | advisor | `A2-advisor.json` |
 
@@ -90,7 +90,7 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 |---|---|---|---|
 | 8a.1 | Authoritative and public resolvers point `www` to Vercel | scout | `P8.1-dns-tls.json` |
 | 8a.2 | Valid certificate for `www.growmax.io` (and the apex, if moved); HTTP→HTTPS redirect; apex → `https://www.growmax.io` | scout | `P8.1-dns-tls.json` |
-| 8a.3 | Full suite vs the **P6.5** baseline passes (plus vs Replit pinned by IP from the Sandbox, if still reachable) | verifier | `P8.2-suite-summary.json` |
+| 8a.3 | Full suite vs the **P6.5** baseline passes (plus vs Replit pinned by IP from the Sandbox, if still reachable); the compare reports `stylesheetRefsBothAbsent` = 0, and the C-A3b-5 compare.mjs additions landed first (A3 P6.2) | verifier | `P8.2-suite-summary.json` |
 | 8a.4 | No open SEV1/SEV2 | orchestrator | `STATE.json` |
 
 ## G8b: Reconciliation and monitoring (P8.3–P8.4)

@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T08:17:17.149Z",
+  "updatedAt": "2026-09-27T08:33:22.747Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -472,7 +472,12 @@
       "Pre-existing: unused dependencies memorystore and connect-pg-simple (left untouched per A1)",
       "Owner cleanup: the unused sin1 Neon resource rapid-recipe-07132564 / store_IsJjgV1qX1w7nvrP (now billed under Launch; near zero while idle)",
       "Pre-existing: app/sitemap.ts is generated at build time (no revalidate), so Replit's sitemap lacked the 9 posts published after its last build (2026-09-22..25). Its catch {} also swallows DB errors, so a DB outage during a build ships a sitemap with no blog posts. Owner fix: revalidate the sitemap and fail the build on DB errors",
-      "Vercel Standard Protection keeps growmax-website.vercel.app public by design (only generated deployment URLs and previews are protected). The app sets an absolute canonical to https://www.growmax.io, so duplicate-content risk is low; optional: add X-Robots-Tag noindex for non-www hosts, or remove the alias"
+      "Vercel Standard Protection keeps growmax-website.vercel.app public by design (only generated deployment URLs and previews are protected). The app sets an absolute canonical to https://www.growmax.io, so duplicate-content risk is low; optional: add X-Robots-Tag noindex for non-www hosts, or remove the alias",
+      "Owner task (A3 P6.2): middleware.ts runs a Neon HTTP blog_redirects lookup on every /blog and /blog/* request, including ISR cache hits (matcher [\"/blog\",\"/blog/:path*\"]). No row can match today (old_path stores /blog/...), and H1 re-checks redirects at page level, so after cutover the lookup can be dropped or cached.",
+      "Owner note (A3 P6.2): keep the four @source not lines in app/globals.css (H5) while docs/migration, scripts/migration, .claude and CLAUDE.md exist; if the kit is ever deleted, rebuild once locally to confirm the CSS.",
+      "Owner note (A3 P6.2): after the PR merges, Replit's next build also applies H5, so Replit's CSS hash changes. This is expected.",
+      "Owner task (A3 P6.2): add a manual admin Logout button click to the post-cutover smoke test. In headless Chromium the UI click produced no request within 15 s (unchanged code, same on Replit); F9 proves logout through an in-page POST.",
+      "Owner note (A3 P6.2): H6 now spells sslmode=verify-full out in code, so the earlier suggestion to set it in the Neon URL is optional."
     ],
     "ownerActions": [
       {
@@ -681,6 +686,55 @@
             "text": "C-A3-8 (carry into A2): (a) the '/' and '/sitemap.xml' pins will fail again as soon as Replit publishes or edits a post, or B is rebuilt on different data (P6.2 hSha, P6.4 refresh); re-pin only with the same proof standard (exact set decomposition, every extra item present in A's own live /api/blog, unified text diff attached) and A2 approval; never widen to patterns. (b) The P6.5 live-Replit baseline will still carry the stale '/' and '/sitemap.xml', so P8.2 needs equivalent A2-approved pinned entries, or those two URLs compared against B's own P6.4 quick-parity capture; A2 must state which. (c) A2 must see the evidence for the P6.4 data-loss guard (target-only ids in demo_requests / newsletter_subscriptions stop the refresh and are exported to .scratch only), because growmax-website.vercel.app is public. (d) Reserve the last demo test (1 of 3 remaining) for P8.2 on the real domain; P6.2 runs without F2 as specified. (e) Before cutover grep B's HTML for absolute vercel.app hrefs (existing follow-up; the parity harness treats them as same-site). (f) www TTL 300 s is confirmed at the authoritative NS; apex A records are still 14400 s (OA-TTL partly open) and Step C is recommended, so A2 must state the apex mode. (g) Every suite run from now on retains raw bodies or passes --raw-dir so compare.mjs actually writes the SPEC-04 §4 text diff; no future allowlist approval without it."
           }
         ]
+      },
+      {
+        "step": "P6.2",
+        "verdict": "GO_WITH_CONDITIONS",
+        "at": "2026-09-27T08:26:31Z",
+        "evidence": "docs/migration/evidence/A3-advisor-P6.2.json",
+        "run": "wf_49cba31f-63c",
+        "conditions": [
+          {
+            "id": "C-A3b-1",
+            "status": "done: allowlist entry rewritten in place at 2026-09-27T08:30:56Z (approvedBy A3, a unchanged, b=[b22fd05c..., e50a48e4...])",
+            "text": "C-A3b-1 (re-pin write): replace IN PLACE the existing '<hashed-css-assets>' / hashedCssSha256 entry in docs/migration/evidence/allowlist.json (never add a second entry for the same url+field). url and field unchanged; expected.a verbatim [\"5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0\",\"b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b\"]; expected.b = [\"b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b\",\"e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7\"] exactly as diff.full.json emits it (sorted); approvedBy \"A3\"; approvedAt = the real write time; no pattern, no maxMatches, nothing one-sided. The reason must name the cause (A: Replit's Tailwind scan includes untracked workspace files, the class already approved at P5.3; B: strict subset of A after H5; the previous pin 072d7bf0 and the 2f4b4d5 bundle 4377f3cf carried migration-kit tokens and can never be restored) and cite P6.2-fix-local-verify.json (0 gained / 31 lost tokens; 594 raw bodies; 218 tracked files), P6.2-fix-review.json, P6.2-parity.json (0 B-only / 287 A-only tokens, none used in 438 bodies), P6.2-visual.json (20/20, max 0.383 %) and this A3 for P6.2."
+          },
+          {
+            "id": "C-A3b-2",
+            "status": "pending: verifier re-runs compare.mjs on the attempt-3 manifests and re-synthesizes the suite summary",
+            "text": "C-A3b-2 (regenerate gate evidence, verifier not orchestrator): re-run compare.mjs with --raw-dir-a/--raw-dir-b and the updated allowlist on the attempt-3 manifests in docs/migration/.scratch/p6-20260927T0803Z (sha256 1687a934…/9cea5821…, captured 08:04-08:05Z from the still-aliased dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx with the harness at ce8915e; a fresh capture is equally acceptable). P6.2-parity.json must read status pass, failedUnallowed 0, allowlisted 4, entry 2 matched exactly once, stylesheetRefsBothAbsent 0; then re-synthesize P6.2-suite-summary.json (status pass). Only then set G6a passed with 6a.1 = {P6.1-review.json, P6.2-fix-review.json}, 6a.2 = {P6.1-local-verify.json, P6.2-fix-local-verify.json}, 6a.3 = {P6.2-a3-deploy.json, P6.2-suite-summary.json and its four suite files, plus the C-A3b-3 file}. Evidence is harness-generated, never hand-edited."
+          },
+          {
+            "id": "C-A3b-3",
+            "status": "pending: verifier runs the /api/blog two-fetch cache proof -> P6.2-cache-hit.json",
+            "text": "C-A3b-3 (A1 C10 H4 cache proof, missing; required before G6a closes): the P6.2 suite never ran the /api/blog cache proof (functional/run.mjs was not invoked with --expect-cache-hit; P6.2-functional.json contains no x-vercel-cache check). A verifier runs scripts/migration/functional/run.mjs --expect-cache-hit /api/blog against dpl_339k (no --allow-demo-test), or an equivalent two-GET probe sending only the origin-scoped bypass header, and records both responses' x-vercel-cache and cache-control (second fetch HIT, or STALE within s-maxage=300), decoded bytes and array length. Write it as a re-emitted P6.2-functional.json or P6.2-cache-hit.json, list it under G6a 6a.3, and update STATE advisor.A1 C10 status. A MISS on the second fetch is an H4 defect to fix (ladder), never to allowlist."
+          },
+          {
+            "id": "C-A3b-4",
+            "status": "in progress: G5 note, LOG and PR body",
+            "text": "C-A3b-4 (G5 record): G5 STANDS; do not re-open it. Amend STATE.gates.G5.note and LOG: check 5.5 passed on an 'explained, informational' reading of the 42 pg sslmode stderr lines (endorsed by A3 P5.3 C-A3-7), which did not meet the letter of SPEC-04 §8; the class was root-caused (pg-connection-string 2.10 once-per-process notice, verify-full semantics unchanged), fixed by H6 and superseded by the strict 0-error pass on dpl_339k (P6.2-logs-perf.json, window 08:03-08:13Z, 580 lines, 0 error clusters). Correct the PR body 'Logs: 0 unexplained errors' line to say exactly that. In the same note record that P6.2-logs-perf.json's gate field reads G5 although its content is P6.2/dpl_339k (or have the scout re-emit it; never hand-edit), that it did not record the plan's log retention (SPEC-04 §9; P8.2 must), and that P6.2-fix-local-verify.json's B1/B2 self-test counts (15/13) were overstated (14/12 per the harness reviewer; passes either way)."
+          },
+          {
+            "id": "C-A3b-5",
+            "status": "carried into A2: P6.5 baseline with harness >= 2565667; the compare.mjs additions before P8.2 (SPEC-04 §9, VERIFICATION 6.5b/8a.3 amended)",
+            "text": "C-A3b-5 (hardened harness for P6.5/P8.2; carry into A2): the P6.5 live-Replit baseline must be captured with the parity harness at 2565667 or later and the verifier must confirm every 2xx HTML entry carries stylesheetRefs (P8.2's compare must report stylesheetRefsBothAbsent 0, otherwise the whole stylesheet check silently skips). No consult will ever approve an allowlist entry for stylesheetRefs or any one-side-null field. Before P8.2: add a stylesheetRefsMissing field (one side null) to FORBIDDEN_ALLOWLIST_FIELDS in scripts/migration/parity/compare.mjs, make a page where both sides hit htmlError emit a diff, and add the harness.stylesheetRefs manifest marker (reviewer findings 1-2), with a short opus review."
+          },
+          {
+            "id": "C-A3b-6",
+            "status": "carried into A2: P6.4 redeploys HEAD after the main merge once the kit-only diff is confirmed (ORCHESTRATOR §12 and mig-p6b-ready.js guard amended)",
+            "text": "C-A3b-6 (pin lifetime and the P6.4 SHA; carry into A2): the re-pinned entry is valid only while both builds stand. Any origin/main change outside the four excluded paths (app, lib, components, shared, package files, next.config.ts), any dependency change, or a Replit redeploy changes a hash and fails the entry by design; re-pin only with the same proof standard (token diff of old vs new bundle, class/className scan of fresh raw bodies on both sides and of tracked files, visual 20/20) and A2 approval, never a pattern. For the P6.4 redeploy use the branch HEAD as it stands after the origin/main merge (a no-op today, 0ff5864) rather than dc54053, after confirming git diff dc54053..HEAD touches nothing outside docs/migration, scripts/migration, .claude and CLAUDE.md; both SHAs yield the same CSS under H5, but HEAD is what the PR merges and what the post-merge Git build will reproduce."
+          },
+          {
+            "id": "C-A3b-7",
+            "status": "recorded: perf attribution goes in the G6a note; P8.2 perf hygiene in SPEC-04 §8 addendum",
+            "text": "C-A3b-7 (perf, report-only, no gate action): record in the G6a note that the 9/20 flag was reviewed and attributed to the measurement path (A's static pages fell from 65-89 ms at P5.2 to 30-37 ms from the same container class while B's stayed 48-63 ms), to /blog and /sitemap.xml being sampled right after F7/F8 triggered H2 revalidation, and to /demo being dynamic (private, no-store) on both sides. For P8.2 on the real domain (no bypass header): run perf before the functional writes or after a discarded warm-up GET per URL, record x-vercel-cache per sample, and if the flag recurs on ISR/static pages with B medians above 100 ms, take one sample set from the Sandbox to remove the container proxy from the path before A4."
+          },
+          {
+            "id": "C-A3b-8",
+            "status": "standing: last demo test reserved for P8.2; B-BYPASS-ROTATE before A2; bypass origin-scoped; F9 browser corroboration on at P8.2",
+            "text": "C-A3b-8 (standing): the last demo test stays reserved for P8.2 on www.growmax.io (P6.2 correctly ran without F2); B-BYPASS-ROTATE remains an A2 precondition and every capture until then keeps the bypass header origin-scoped; the F9 browser corroboration stays on for P8.2."
+          }
+        ]
       }
     ],
     "A4": null
@@ -787,11 +841,12 @@
         "docs/migration/evidence/P5.2-functional-attempt1.json",
         "docs/migration/evidence/P5.2-visual.json",
         "docs/migration/evidence/P5.2-logs-perf.json",
-        "docs/migration/evidence/A3-advisor-P5.3.json"
+        "docs/migration/evidence/A3-advisor-P5.3.json",
+        "docs/migration/evidence/A3-advisor-P6.2.json"
       ],
       "by": "verifier (P5.2 attempt 2/2c/regenerated parity) + scout (P5.1 re-check, logs) + advisor A3",
-      "at": "2026-09-27T03:34:08.531Z",
-      "note": "5.1 READY for d8c8b05, 0 build errors, protection re-specified; 5.2 failedUnallowed 0 over 297 URLs, allowlist only A3-approved; 5.3 F1 and F3-F11 pass, F9 confirmed in a real browser, F2 from attempt 1 on the same deployment; 5.4 visual 20/20 within 0.3515%, 0 new console errors; 5.5 logs 0 unexplained errors over a window containing the tests, perf reviewed (19/20 equal or faster, none over 1.5x)."
+      "at": "2026-09-27T08:33:22.747Z",
+      "note": "Originally passed at 2026-09-27T03:34:08.531Z; this re-issue only amends the note, per A3 for P6.2 C-A3b-4 (G5 stands, not re-opened). Original note: 5.1 READY for d8c8b05, 0 build errors, protection re-specified; 5.2 failedUnallowed 0 over 297 URLs, allowlist only A3-approved; 5.3 F1 and F3-F11 pass, F9 confirmed in a real browser, F2 from attempt 1 on the same deployment; 5.4 visual 20/20 within 0.3515%, 0 new console errors; 5.5 logs 0 unexplained errors over a window containing the tests, perf reviewed (19/20 equal or faster, none over 1.5x). AMENDMENT (A3 P6.2 C-A3b-4): check 5.5 passed on an 'explained, informational' reading of 42 pg sslmode stderr lines (endorsed by A3 P5.3 C-A3-7), which did not meet the letter of SPEC-04 §8 (zero error-level lines, or each caused by a deliberate test). The class was root-caused (a pg-connection-string 2.10 once-per-process notice; verify-full semantics unchanged), fixed by SPEC-02 H6, and superseded by the strict 0-error pass on dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx (P6.2-logs-perf.json: window 08:03-08:13Z, 580 lines, 0 error clusters). Evidence-label notes: P6.2-logs-perf.json's gate field reads G5 although its content covers P6.2/dpl_339k, and it did not record the plan's log retention (SPEC-04 §9; P8.2 must). P6.2-fix-local-verify.json's B1/B2 self-test counts (15/13) were overstated; they are 14/12 per the harness reviewer and pass either way."
     },
     "G6a": {
       "status": "pending",

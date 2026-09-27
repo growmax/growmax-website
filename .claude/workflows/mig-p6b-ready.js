@@ -24,7 +24,7 @@ const role = r => `Follow the role rules in .claude/agents/migration-${r}.md. `
 const a = args || {}
 if (!['P6.3', 'P6.4', 'P6.5'].includes(a.part)) throw new Error('args.part must be P6.3 | P6.4 | P6.5')
 // Validate everything up front: a missing arg must fail BEFORE the irreversible-ish refresh runs.
-if (a.part === 'P6.4') for (const k of ['sha', 'runLabel', 'gapStart']) if (!a[k]) throw new Error(`mig-p6b-ready P6.4: args.${k} required`)
+if (a.part === 'P6.4') for (const k of ['sha', 'hSha', 'runLabel', 'gapStart']) if (!a[k]) throw new Error(`mig-p6b-ready P6.4: args.${k} required`)
 if (a.part === 'P6.5' && !a.runLabel) throw new Error('mig-p6b-ready P6.5: args.runLabel required')
 // NOTE: the nested mig-p5-deploy-verify call MUST keep skipSuite:true — workflow nesting is one level only.
 
@@ -42,7 +42,7 @@ if (a.part === 'P6.3') {
 if (a.part === 'P6.4') {
   phase('Refresh')
   const refresh = await agent(role('db-operator') +
-    `Step P6.4 final refresh per docs/migration/specs/SPEC-03-data-migration.md §4 "Refresh-mode guard" and "After the P6.4 refresh" (read §0, §4, §5). First confirm yourself that www.growmax.io still resolves to 34.111.179.208 (Replit); if not, STOP with status "blocked". Data-loss pre-check (added at P5.1: the production domain growmax-website.vercel.app is public, so a real submission can reach Neon before cutover): compare the ids of demo_requests and newsletter_subscriptions on the target and the source with fingerprint.mjs --rows (never print row contents). Any target-only row (all migration test rows must already be deleted) means a real submission would be erased: STOP with status "blocked", export those rows to docs/migration/.scratch/ only (never into evidence), and report their ids and created_at. Record the pre-check in the evidence. Then: sync.mjs full-refresh --confirm-pre-cutover, sync.mjs gap with GAP_START=${a.gapStart || '(STATE.sync.gapStart)'}. DB runner: ${a.dbPath || '(STATE.facts.paths.db)'}. Write ${EV}/P6.4-refresh.json (counts, final sequence values).`,
+    `Step P6.4 final refresh per docs/migration/specs/SPEC-03-data-migration.md §4 "Refresh-mode guard" and "After the P6.4 refresh" (read §0, §4, §5). First confirm yourself that www.growmax.io still resolves to 34.111.179.208 (Replit); if not, STOP with status "blocked". Also confirm that \`git diff --name-only ${a.hSha}..${a.sha}\` lists only paths under docs/migration/, scripts/migration/, .claude/ or CLAUDE.md (A3 P6.2 C-A3b-6: the redeploy SHA may differ from the verified hSha only in the migration kit); otherwise STOP with status "blocked" and list the paths. Data-loss pre-check (added at P5.1: the production domain growmax-website.vercel.app is public, so a real submission can reach Neon before cutover): compare the ids of demo_requests and newsletter_subscriptions on the target and the source with fingerprint.mjs --rows (never print row contents). Any target-only row (all migration test rows must already be deleted) means a real submission would be erased: STOP with status "blocked", export those rows to docs/migration/.scratch/ only (never into evidence), and report their ids and created_at. Record the pre-check in the evidence. Then: sync.mjs full-refresh --confirm-pre-cutover, sync.mjs gap with GAP_START=${a.gapStart || '(STATE.sync.gapStart)'}. DB runner: ${a.dbPath || '(STATE.facts.paths.db)'}. Write ${EV}/P6.4-refresh.json (counts, final sequence values).`,
     { label: 'P6.4 refresh+gap', phase: 'Refresh', model: 'opus', effort: 'high', schema: RESULT })
   if (refresh?.status !== 'pass') return { status: refresh?.status || 'fail', refresh }
   const verify = await agent(role('verifier') +
@@ -53,7 +53,7 @@ if (a.part === 'P6.4') {
     step: 'P6.4-redeploy', sha: a.sha, runLabel: a.runLabel, deployMode: a.deployMode, paths: a.paths, skipSuite: true,
   })
   const quick = await agent(role('verifier') +
-    `Quick parity of DB-driven URLs after the redeploy (VERIFICATION.md check 6.5): with the harness, capture and compare https://www.growmax.io vs ${a.baseB || redeploy?.deploy?.facts?.productionAlias || '(new production alias)'} (bypass headers) for /blog, /sitemap.xml, /llms.txt, /llms-full.txt, /api/blog and 5 blog posts, plus 3 DB redirects. Do NOT run functional write tests (the sequence gap is live). Write ${EV}/P6.4-quick-parity.json.`,
+    `Quick parity of DB-driven URLs after the redeploy (VERIFICATION.md check 6.5): with the harness, capture and compare https://www.growmax.io vs ${a.baseB || redeploy?.deploy?.facts?.productionAlias || '(new production alias)'} (bypass headers) for /blog, /sitemap.xml, /llms.txt, /llms-full.txt, /api/blog and 5 blog posts, plus 3 DB redirects, and the <hashed-css-assets> hashedCssSha256 comparison: the A3 P6.2 pin must hold, because under H5 the redeployed SHA builds the same CSS; any other CSS result is an unexplained app change, so fail (C-A3b-6). Use the parity harness at 2565667 or later (stylesheetRefs present on every 2xx HTML entry). Do NOT run functional write tests (the sequence gap is live). Write ${EV}/P6.4-quick-parity.json.`,
     { label: 'P6.4 quick parity', phase: 'Refresh', model: 'opus', effort: 'medium', schema: RESULT })
   return { status: quick?.status === 'pass' ? 'pass' : 'fail', refresh, verify, redeploy, quick }
 }

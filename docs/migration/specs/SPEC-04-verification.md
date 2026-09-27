@@ -163,10 +163,27 @@ Write the result to `evidence/<step>-functional.json`. It holds statuses and boo
 
 - `perf/run.mjs`: 20 URLs (the home page, the key product pages, the blog index, 5 posts, `/api/blog`, `/sitemap.xml`) × 3 samples per side; median TTFB and total time. Flag it for the advisor if Vercel's median TTFB is more than 1.5× Replit's on more than 3 URLs.
 - Logs (scout): Vercel build log warnings summary, plus runtime errors since the deployment (`mcp__Vercel__get_runtime_errors`, or `get_runtime_logs` with `level: ["error","fatal"]`). **Pass** only if there are zero errors, or every error is explained by a test we ran deliberately.
+- **Addendum 2026-09-27 (A3 for P6.2):**
+  - **Logs, strictly.** The scout passes the logs check only on the two literal conditions: zero error-level lines, or every error-level line caused by a test we ran deliberately. Any other error- or warning-level line fails, with a root-cause note. The scout never passes it as "benign" or "informational". Only an advisor consult (A2/A3) may accept such a line, by named class, with its fix or filter tracked to a step. At G5, 42 pg `sslmode` notices were passed as informational; H6 fixed that class. The SPEC-06 uptime workflow filters nothing by default.
+  - **Perf hygiene.**
+    - Record `x-vercel-cache` (B) and `x-nextjs-cache` / `cache-control` (A) for every sample.
+    - Send one discarded warm-up GET per URL.
+    - Run perf before the functional writes, or after the paths H2 revalidates (`/blog`, `/sitemap.xml`, `/llms*.txt`, `/api/blog`) have each been re-fetched once.
+    - Attribute every flag in the gate note.
+    - At P8.2, if the flag recurs on ISR or static pages with B medians above 100 ms, take one sample set from the Sandbox, which removes the container proxy from the path, before A4.
 
 ## 9. Suite composition (`.claude/workflows/mig-verify-suite.js`)
 
-Parity (verifier), functional (verifier) and visual (verifier) run in parallel. **Raw bodies are always retained** (`capture.mjs --raw-dir` on both sides, `compare.mjs --raw-dir-a/--raw-dir-b`) so the §4 unified text diff is written on every text-hash mismatch; no allowlist approval without it (A3, P5.3). For P8.2, `/` and `/sitemap.xml` compared with the P6.5 live-Replit baseline are expected to differ by A-side staleness: A2 either approves pinned entries for them or specifies comparing those two URLs with B's own P6.4 quick-parity capture. Logs+perf (scout) runs **after** functional finishes. It records the `since`/`until` window and the plan's log retention, and treats "no log lines at all while the tests ran" as a **fail**, because an empty window proves nothing. Synthesis (verifier) then writes `evidence/<step>-suite-summary.json`:
+Parity (verifier), functional (verifier) and visual (verifier) run in parallel. **Raw bodies are always retained** (`capture.mjs --raw-dir` on both sides, `compare.mjs --raw-dir-a/--raw-dir-b`) so the §4 unified text diff is written on every text-hash mismatch; no allowlist approval without it (A3, P5.3). For P8.2, `/` and `/sitemap.xml` compared with the P6.5 live-Replit baseline are expected to differ by A-side staleness: A2 either approves pinned entries for them or specifies comparing those two URLs with B's own P6.4 quick-parity capture. Logs+perf (scout) runs **after** functional finishes. It records the `since`/`until` window and the plan's log retention, and treats "no log lines at all while the tests ran" as a **fail**, because an empty window proves nothing. **Addendum 2026-09-27 (A3 for P6.2, C-A3b-5):**
+- The P6.5 live-Replit baseline must be captured with the parity harness at `2565667` or later, and the P6.5 verifier asserts that every 2xx HTML entry carries `stylesheetRefs`.
+- P8.2's compare must report `stylesheetRefsBothAbsent` = 0; otherwise the stylesheet check has silently skipped.
+- Before P8.2, compare.mjs gains three things, with a short opus review:
+  - a `stylesheetRefsMissing` field (one side null) in `FORBIDDEN_ALLOWLIST_FIELDS`;
+  - a diff for a page where both sides hit `htmlError`;
+  - a `harness.stylesheetRefs` manifest marker.
+- No consult ever approves an allowlist entry for `stylesheetRefs` or for any one-side-null field.
+
+Synthesis (verifier) then writes `evidence/<step>-suite-summary.json`:
 
 ```json
 {

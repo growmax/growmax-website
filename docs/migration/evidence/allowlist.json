@@ -2522,17 +2522,17 @@
   {
     "url": "<hashed-css-assets>",
     "field": "hashedCssSha256",
-    "reason": "Cause class: invisible build-environment CSS difference (evidence/P5.3-css-analysis.json; orchestrator cross-check in LOG.md, P5.3). 1 of 2 CSS bundles differs because of the build environment (Tailwind v4 automatic source detection on Replit also scans untracked workspace files); none of the 241 A-only class tokens is used by any of the 277 HTML pages on either side, and every class of the 8 UI components the app uses exists in B CSS (P5.3-css-analysis.json, orchestrator cross-check in LOG.md). Visual check: all 20 page/viewport screenshots within 0.381%. Advisor A3 for P5.3 (evidence/A3-advisor-P5.3.json, C-A3-1).",
+    "reason": "Cause class: invisible build-environment CSS difference (the class approved at P5.3, A3-advisor-P5.3.json C-A3-1). A (Replit): Tailwind v4 on Replit also scans untracked workspace files, so A's main bundle carries extra unused rules. B (Vercel, dc54053, dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx): a strict subset of A after SPEC-02 H5 (0 B-only tokens, 287 A-only tokens, none used in any of the 438 captured HTML bodies). The previous pin 072d7bf0 (d8c8b05) and the 2f4b4d5 bundle 4377f3cf carried migration-kit tokens and can never be restored. Evidence: P6.2-fix-local-verify.json (0 gained / 31 lost tokens; 594 raw bodies; 218 tracked files), P6.2-fix-review.json, P6.2-parity.json, P6.2-visual.json (20/20, max 0.383%), and A3 for P6.2 (A3-advisor-P6.2.json, C-A3b-1). Advisor's approval text: APPROVED re-pin, replacing the P5.3 entry in place (C-A3b-1). Cause class unchanged from P5.3: invisible build-environment CSS difference. A (Replit) still serves e0e0fae895f3fff8.css = 5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0 (152,814 B) whose 260-287 extra class tokens come from untracked workspace files scanned by Tailwind v4 on Replit; B (dc54053, dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx) serves b5162b0c557fcf76.css = e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7 (131,926 B), which the local H5 build reproduced byte-for-byte before the deploy, and which is a strict subset of A (0 B-only tokens; I re-derived this from the captured bundles). Versus the 2f4b4d5 bundle (4377f3cf), H5 removed exactly 31 tokens and added none; none of the 31 is used bare in any class/className value across the 1030 raw bodies of the attempt-3 capture (my own scan; the verifier's 594-body and 218-file scans agree), the only variant-prefixed use (sm:col-span-2) keeps its own selector, and none of the A-only tokens appears in any of the 438 HTML bodies (P6.2-parity.json). The shared bundle 67ec1cc0bd707d2d.css = b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b is byte-identical on both sides. Visual: 20/20 pairs within 0.383 % (P6.2-visual.json). The previous pin 072d7bf0 (d8c8b05 build) carried tokens from the migration docs and cannot be restored. Pin expected.a = [5cca0cd4\u2026, b22fd05c\u2026] unchanged, expected.b = [b22fd05c\u2026, e50a48e4\u2026] sorted as compare.mjs emits; any later CSS change on either side fails again by design.",
     "approvedBy": "A3",
-    "approvedAt": "2026-09-27T03:22:33Z",
+    "approvedAt": "2026-09-27T08:30:56Z",
     "expected": {
       "a": [
         "5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0",
         "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
       ],
       "b": [
-        "072d7bf09da4eeaa6099a59d44d195408acc62a8de9ff0a80baa43cc63ceb8ae",
-        "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
+        "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b",
+        "e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7"
       ]
     }
   },

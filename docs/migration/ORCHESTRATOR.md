@@ -170,6 +170,7 @@ Container reclaim during waits is normal. Everything you need is in git, and the
 ## 12. Git hygiene
 
 - Before P6.4 and before P5.4: `git fetch origin main && git merge --no-edit origin/main` (merge, never rebase) to pick up content the team pushed from Replit. Resolve conflicts preserving both sides. Re-run the affected verification.
+- **P6.4 redeploys the branch HEAD** as it stands after that merge, not an older hSha (A3 for P6.2, C-A3b-6). First confirm that `git diff --name-only <facts.git.hSha>..HEAD` lists only paths under `docs/migration/`, `scripts/migration/`, `.claude/` or `CLAUDE.md`. Under H5 the CSS is then byte-identical, and HEAD is what the PR merges and what the post-merge Git build reproduces. Any other path means an app change: its verification comes first. After the redeploy, set `facts.git.hSha` to the deployed SHA.
 - Never rewrite history. Never push to `main`.
 - The PR description follows the repository's conventions and ends with the session attribution line.
 
