@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
-  "currentStep": null,
-  "updatedAt": "2026-09-27T09:05:16.515Z",
+  "currentStep": "P8.1",
+  "updatedAt": "2026-09-27T09:10:41.101Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -529,6 +529,12 @@
           "gapStart": 1000000
         },
         "startedAt": "2026-09-27T09:07:00Z"
+      },
+      "postcutoverPrep": {
+        "runId": "wf_be26c8eb-5e8",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-postcutover-prep-wf_be26c8eb-5e8.js",
+        "startedAt": "2026-09-27T09:12:00Z",
+        "note": "parallel: P8.1 dns/tls; C-A3b-5 harness (before P8.2); init-watermarks-post-cutover mode, reviewed, run, verified"
       }
     },
     "followUps": [
@@ -1713,10 +1719,13 @@
       ],
       "gate": "G8a",
       "workflow": ".claude/workflows/mig-p8-postcutover.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T09:10:41.101Z Post-cutover prep (wf_be26c8eb-5e8) runs three branches in parallel. (1) P8.1 DNS/TLS on the real domain. (2) A3 C-A3b-5 harness hardening, required before P8.2: stylesheetRefsMissing and htmlError become non-allowlistable, plus the manifest marker. (3) A reviewed init-watermarks-post-cutover mode, run and verified, so the P8.3 deltas can run. P8.2 baseline: the P6.2 attempt-3 live-Replit capture (08:04Z, harness 2565667), plus Replit pinned by IP. mig-p8-postcutover.js and mig-verify-suite.js now accept baselineManifest and baselineRawDir."
+      ],
+      "startedAt": "2026-09-27T09:10:41.100Z"
     },
     {
       "id": "P8.2",

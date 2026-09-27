@@ -26,10 +26,10 @@ if (!['verify', 'monitoring'].includes(a.part)) throw new Error('args.part must 
 if (a.part === 'verify') {
   phase('Verify')
   const dnsTls = await agent(role('scout') +
-    `Step P8.1 (VERIFICATION.md G8a checks 8a.1–8a.2): www.growmax.io on authoritative + public resolvers → Vercel target ${JSON.stringify(a.dnsTarget || '(STATE.facts.dns.target)')}; valid TLS for www.growmax.io (and growmax.io if the apex moved): issuer, SANs, expiry; http://www.growmax.io/ → 308/301 to https; https://growmax.io/ → redirect to https://www.growmax.io/ (compare with the P1.4 baseline apex behavior). DoH resolvers from the container; authoritative NS only via the sandbox runner if needed. Write ${EV}/P8.1-dns-tls.json.`,
+    `Step P8.1 (VERIFICATION.md G8a checks 8a.1–8a.2): www.growmax.io on authoritative + public resolvers → Vercel target ${JSON.stringify(a.dnsTarget || '(STATE.facts.dns.target)')}; valid TLS for www.growmax.io (and growmax.io if the apex moved): issuer, SANs, expiry; http://www.growmax.io/ → 308/301 to https; https://growmax.io/ → redirect to https://www.growmax.io/ (compare with the P1.4 baseline apex behavior). DoH resolvers from the container; authoritative NS only via the sandbox runner if needed. Write ${EV}/P8.1-dns-tls.json in the standard evidence shape (step "P8.1", gate "G8a", status, checkedAt, verifier, checks[], artifacts).${a.note ? ' ' + a.note : ''}`,
     { label: 'P8.1 dns+tls', phase: 'Verify', model: 'opus', effort: 'low', schema: RESULT })
   const suite = await workflow({ scriptPath: '.claude/workflows/mig-verify-suite.js' }, {
-    step: 'P8.2', baselineManifest: `${EV}/P6.5-baseline-manifest.json`, baseB: 'https://www.growmax.io', bypass: false,
+    step: 'P8.2', baselineManifest: a.baselineManifest || `${EV}/P6.5-baseline-manifest.json`, baselineRawDir: a.baselineRawDir, baseB: 'https://www.growmax.io', bypass: false,
     mode: 'post', runLabel: a.runLabel, allowDemoTest: !!a.allowDemoTest /* A3 C-A3-8(d): the last demo test is reserved for P8.2 on www.growmax.io */, paths: a.paths || {}, pinnedReplit: true,
   })
   return { status: dnsTls?.status === 'pass' && suite?.summary?.status === 'pass' ? 'pass' : 'fail', dnsTls, suite }
