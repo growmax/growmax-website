@@ -2,7 +2,9 @@
 // P6.2 harness self-test for the two SPEC-04 §3 addenda dated 2026-09-27:
 //   - "Link header preloads": extract.mjs's RFC 8288 parser + capture.mjs's merge into
 //     assetRefs (recorded as linkHeaderRefs), in full and compact mode;
-//   - "compare.mjs outputs": the full and trimmed diff.json copies never share a path.
+//   - "compare.mjs outputs": the full and trimmed diff.json copies never share a path;
+// plus the P6.2 harness hardening: stylesheetRefs (a header preload can no longer stand in
+// for a missing <link rel=stylesheet>) and the unterminated-target parser case.
 //
 // No network: pure-function cases, plus capture() driven end to end with globalThis.fetch
 // replaced by an in-memory stub (every request is logged, so the bypass-header and
@@ -304,6 +306,18 @@ function testMalformedNeverThrowsAddsNothing() {
   const recovered2 = linkHeaderPreloadRefs('</bad.css> junk, </ok2.css>; rel=preload', PAGE_WWW)
   if (!eq(recovered, ['/ok.css'])) problems.push({ case: 'recovery-after-garbage', recovered })
   if (!eq(recovered2, ['/ok2.css'])) problems.push({ case: 'recovery-after-junk', recovered2 })
+  // P6.2 hardening (reviewer's case): a link-value with no closing '>' must not borrow a later
+  // value's '>' ('/blog/unterminated;%20rel=preload,%20%3C/ok.css' used to be added). A target
+  // containing '<' or whitespace is dropped; the later valid value is still parsed.
+  const reviewerCase = '<unterminated; rel=preload, </ok.css>; rel=preload'
+  const unterminated = linkHeaderPreloadRefs(reviewerCase, PAGE_WWW)
+  const unterminatedMerged = mergeLinkHeaderAssetRefs(['/keep.css'], reviewerCase, PAGE_WWW)
+  const unterminatedParsed = parseLinkHeader(reviewerCase)
+  if (!eq(unterminated, ['/ok.css'])) problems.push({ case: 'unterminated-target-borrows-later-close', unterminated })
+  if (!eq(unterminatedMerged.assetRefs, ['/keep.css', '/ok.css'])) problems.push({ case: 'unterminated-target-merge', unterminatedMerged })
+  if (unterminatedParsed.some((v) => /[<\s]/.test(v.target))) problems.push({ case: 'unterminated-target-parsed', unterminatedParsed })
+  const spaced = linkHeaderPreloadRefs('<bad target.css>; rel=preload, <\t/tab.css>; rel=preload, </ok3.css>; rel=preload', PAGE_WWW)
+  if (!eq(spaced, ['/ok3.css'])) problems.push({ case: 'whitespace-in-target-dropped', spaced })
   // Invalid page URL: no throw.
   try {
     mergeLinkHeaderAssetRefs(['/k.css'], '</a.css>; rel=preload', 'not a url')
@@ -346,8 +360,17 @@ async function testCompactModeSameRefs() {
     c.linkHeaderRefs.length === 7 &&
     eq(f.assetRefs, c.assetRefs) &&
     eq(f.linkHeaderRefs, c.linkHeaderRefs) &&
+    // P6.2 hardening: stylesheetRefs recorded in both modes, identically.
+    eq(f.stylesheetRefs, [...REPLIT_CSS].sort()) &&
+    eq(f.stylesheetRefs, c.stylesheetRefs) &&
     eq(Object.keys(full.assets).sort(), Object.keys(compact.assets).sort())
-  return { pass, detail: { full: { assetRefs: f.assetRefs, linkHeaderRefs: f.linkHeaderRefs }, compact: { assetRefs: c.assetRefs, linkHeaderRefs: c.linkHeaderRefs } } }
+  return {
+    pass,
+    detail: {
+      full: { assetRefs: f.assetRefs, linkHeaderRefs: f.linkHeaderRefs, stylesheetRefs: f.stylesheetRefs },
+      compact: { assetRefs: c.assetRefs, linkHeaderRefs: c.linkHeaderRefs, stylesheetRefs: c.stylesheetRefs },
+    },
+  }
 }
 
 async function testReplitVsVercelIsrEqual() {
@@ -453,6 +476,157 @@ async function testBypassOnlyToBaseHost() {
   return { pass: problems.length === 0, detail: { problems, requests: log } }
 }
 
+// --- stylesheetRefs (P6.2 harness hardening) ---
+//
+// assetRefs can't tell an applied stylesheet from a preload of the same file, so these cases
+// check the separate stylesheetRefs field end to end: extract.mjs records HTML
+// <link rel~=stylesheet> (not alternate) hrefs only, capture.mjs stores them, compare.mjs
+// compares them as an exact multiset after the assetRefs normalization.
+
+/** Capture one page `/blog/some-post` from `base` with `html` and `linkLines`, via the stub. */
+async function capturePage(base, html, linkLines = [], cssPaths = REPLIT_CSS) {
+  const routes = { [`${base}/blog/some-post`]: htmlRoute(html, linkLines), ...assetRoutes(base, cssPaths) }
+  return withStubFetch(routes, () => capture({ base, urls: [{ url: '/blog/some-post', source: 'sitemap' }], concurrency: 2 }))
+}
+
+const fieldDiffs = (cmp, field) => cmp.diffs.filter((d) => d.field === field)
+
+async function testMissingStylesheetMaskedByPreloadNowFails() {
+  // A: the stylesheet elements plus the header (Replit's dynamic render).
+  const { result: a } = await captureReplitPost()
+  // B: same header, NO stylesheet elements: the header's rel=preload as=style entries put the
+  // same CSS paths into assetRefs, which is exactly what used to mask the missing elements.
+  const { result: b } = await capturePage(BASE_A, postHtml([]), REPLIT_LINK_LINES)
+  // B2: the HTML-only form of the same gap (<link rel=preload as=style> instead of stylesheet).
+  const { result: b2 } = await capturePage(BASE_A, postHtml(REPLIT_CSS.map((c) => `<link rel="preload" as="style" href="${c}"/>`)), [REPLIT_LINK_LINES[0]])
+  const cmp = await compareManifests(a, b, {})
+  const cmp2 = await compareManifests(a, b2, {})
+  const eB = b.entries[0]
+  const pass =
+    // Header entries never contribute to stylesheetRefs.
+    eq(eB.stylesheetRefs, []) &&
+    eq(eB.linkHeaderRefs.filter((r) => r.endsWith('.css')).sort(), [...REPLIT_CSS].sort()) &&
+    // The masking still holds for assetRefs (so the new field is what catches it)...
+    fieldDiffs(cmp, 'assetRefs').length === 0 &&
+    fieldDiffs(cmp2, 'assetRefs').length === 0 &&
+    // ...and stylesheetRefs now fails the compare.
+    fieldDiffs(cmp, 'stylesheetRefs').length === 1 &&
+    fieldDiffs(cmp, 'stylesheetRefs')[0].category === 'content' &&
+    eq(fieldDiffs(cmp, 'stylesheetRefs')[0].b, []) &&
+    cmp.failedUnallowed >= 1 &&
+    cmp.passed === false &&
+    fieldDiffs(cmp2, 'stylesheetRefs').length === 1 &&
+    cmp2.passed === false
+  return {
+    pass,
+    detail: {
+      bStylesheetRefs: eB.stylesheetRefs,
+      headerOnly: { failedUnallowed: cmp.failedUnallowed, diffs: cmp.diffs.map((d) => d.field) },
+      htmlPreloadOnly: { failedUnallowed: cmp2.failedUnallowed, diffs: cmp2.diffs.map((d) => d.field) },
+    },
+  }
+}
+
+async function testEqualStylesheetsPass() {
+  const { result: a } = await captureReplitPost()
+  const { result: a2 } = await captureReplitPost()
+  const cmp = await compareManifests(a, a2, {})
+  const pass = eq(a.entries[0].stylesheetRefs, [...REPLIT_CSS].sort()) && cmp.diffs.length === 0 && cmp.passed === true && cmp.stylesheetRefsBothAbsent === 0
+  return { pass, detail: { stylesheetRefs: a.entries[0].stylesheetRefs, diffs: cmp.diffs } }
+}
+
+async function testDplVariantPasses() {
+  // Replit (plain, different content hashes) vs Vercel ISR (?dpl= on every stylesheet): equal
+  // after the hashed-name placeholder + dpl strip.
+  const { result: a } = await captureReplitPost()
+  const { result: b } = await captureVercelPost()
+  const cmp = await compareManifests(a, b, {})
+  // The same file with and without ?dpl only (no hash change), on synthetic entries.
+  const sheet = '/_next/static/css/67ec1cc0bd707d2d.css'
+  const cmp2 = await compareManifests(mkSheetManifest([sheet]), mkSheetManifest([`${sheet}?dpl=${DPL}`]), {})
+  // Negative control: a changed non-dpl query is a different stylesheet.
+  const cmp3 = await compareManifests(mkSheetManifest(['/styles/site.css?v=1']), mkSheetManifest([`/styles/site.css?v=2&dpl=${DPL}`]), {})
+  const pass =
+    b.entries[0].stylesheetRefs.every((r) => r.includes(`dpl=${DPL}`)) &&
+    fieldDiffs(cmp, 'stylesheetRefs').length === 0 &&
+    cmp.passed === true &&
+    cmp2.diffs.length === 0 &&
+    fieldDiffs(cmp3, 'stylesheetRefs').length === 1
+  return {
+    pass,
+    detail: { aSheets: a.entries[0].stylesheetRefs, bSheets: b.entries[0].stylesheetRefs, isr: cmp.diffs, dplOnly: cmp2.diffs, changedQuery: cmp3.diffs },
+  }
+}
+
+function mkSheetManifest(stylesheetRefs, { omit = false } = {}) {
+  const entry = {
+    url: '/x',
+    status: 200,
+    contentType: 'text/html',
+    headers: {},
+    html: { title: 't', externalLinks: [] },
+    internalLinks: [],
+    images: [],
+    assetRefs: [],
+  }
+  if (!omit) entry.stylesheetRefs = stylesheetRefs
+  return { entries: [entry], assets: {}, harness: { embeddedPosts: 1 } }
+}
+
+async function testAlternateStylesheetIgnored() {
+  const alt = '<link rel="alternate stylesheet" href="/_next/static/css/aaaa0000bbbb1111.css" title="print"/>'
+  const altUpper = '<link rel="Stylesheet ALTERNATE" href="/alt2.css"/>'
+  const ex = extractHtml(postHtml([...REPLIT_CSS.map(stylesheetTag), alt, altUpper]), PAGE_WWW)
+  const { result: a } = await captureReplitPost()
+  const { result: b } = await capturePage(BASE_A, postHtml([...REPLIT_CSS.map(stylesheetTag), alt, altUpper]), REPLIT_LINK_LINES)
+  const cmp = await compareManifests(a, b, {})
+  const pass = eq(ex.stylesheetRefs, [...REPLIT_CSS].sort()) && eq(b.entries[0].stylesheetRefs, [...REPLIT_CSS].sort()) && fieldDiffs(cmp, 'stylesheetRefs').length === 0
+  return { pass, detail: { extracted: ex.stylesheetRefs, captured: b.entries[0].stylesheetRefs, diffs: cmp.diffs } }
+}
+
+async function testMultiTokenRelCounted() {
+  const tags = ['<link rel="Stylesheet preload" href="/_next/static/css/e0e0fae895f3fff8.css"/>', '<link rel="  STYLESHEET\tfoo " href="/_next/static/css/67ec1cc0bd707d2d.css"/>']
+  const ex = extractHtml(postHtml(tags), PAGE_WWW)
+  // Third-party and cross-deployment stylesheets never enter (same filter as assetRefs).
+  const ex3p = extractHtml(postHtml(['<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter"/>', '<link rel="stylesheet" href="https://other-preview.vercel.app/o.css"/>', '<link rel="stylesheet" href="https://growmax.io/apex.css"/>']), PAGE_WWW)
+  const { result: a } = await captureReplitPost()
+  const { result: b } = await capturePage(BASE_A, postHtml(tags), REPLIT_LINK_LINES)
+  const cmp = await compareManifests(a, b, {})
+  // Duplicate element on one side: kept by extraction, and the multiset differs.
+  const exDup = extractHtml(postHtml([stylesheetTag('/s.css'), stylesheetTag('/s.css')]), PAGE_WWW)
+  const cmpDup = await compareManifests(mkSheetManifest(['/s.css']), mkSheetManifest(['/s.css', '/s.css']), {})
+  const pass =
+    eq(ex.stylesheetRefs, [...REPLIT_CSS].sort()) &&
+    eq(ex3p.stylesheetRefs, ['/apex.css']) &&
+    fieldDiffs(cmp, 'stylesheetRefs').length === 0 &&
+    eq(exDup.stylesheetRefs, ['/s.css', '/s.css']) &&
+    fieldDiffs(cmpDup, 'stylesheetRefs').length === 1
+  return { pass, detail: { extracted: ex.stylesheetRefs, thirdParty: ex3p.stylesheetRefs, diffs: cmp.diffs, duplicateExtracted: exDup.stylesheetRefs, duplicate: cmpDup.diffs } }
+}
+
+async function testOneSideLacksFieldFails() {
+  const sheets = ['/_next/static/css/67ec1cc0bd707d2d.css']
+  const aOld = await compareManifests(mkSheetManifest(null, { omit: true }), mkSheetManifest(sheets), {})
+  const bOld = await compareManifests(mkSheetManifest(sheets), mkSheetManifest(null, { omit: true }), {})
+  // An empty array is a real value (a page with no stylesheet), not "lacking the field".
+  const aOldEmpty = await compareManifests(mkSheetManifest(null, { omit: true }), mkSheetManifest([]), {})
+  const dA = fieldDiffs(aOld, 'stylesheetRefs')
+  const dB = fieldDiffs(bOld, 'stylesheetRefs')
+  const dE = fieldDiffs(aOldEmpty, 'stylesheetRefs')
+  const pass =
+    dA.length === 1 && dA[0].a === null && Array.isArray(dA[0].b) && dA[0].category === 'content' && aOld.passed === false &&
+    dB.length === 1 && dB[0].b === null && Array.isArray(dB[0].a) && bOld.passed === false &&
+    dE.length === 1 && dE[0].a === null && eq(dE[0].b, []) && aOldEmpty.passed === false
+  return { pass, detail: { aLacks: dA, bLacks: dB, aLacksBEmpty: dE } }
+}
+
+async function testBothSidesLackFieldSkipped() {
+  const r = await compareManifests(mkSheetManifest(null, { omit: true }), mkSheetManifest(null, { omit: true }), {})
+  // The skip is counted and reported, never silent.
+  const pass = r.diffs.length === 0 && r.passed === true && r.stylesheetRefsBothAbsent === 1
+  return { pass, detail: { diffs: r.diffs, stylesheetRefsBothAbsent: r.stylesheetRefsBothAbsent } }
+}
+
 // --- compare.mjs outputs ---
 
 async function testDiffOutputPaths() {
@@ -545,6 +719,13 @@ async function main() {
     ['linkHeaderRefs-diagnostic-not-compared', testLinkHeaderRefsNotCompared],
     ['bypass-only-to-base-host-header-refs-fetched', testBypassOnlyToBaseHost],
     ['compare-outputs-never-share-a-path', testDiffOutputPaths],
+    ['stylesheet-missing-element-masked-by-header-preload-fails', testMissingStylesheetMaskedByPreloadNowFails],
+    ['stylesheet-equal-passes', testEqualStylesheetsPass],
+    ['stylesheet-dpl-variant-passes', testDplVariantPasses],
+    ['stylesheet-alternate-ignored', testAlternateStylesheetIgnored],
+    ['stylesheet-multi-token-rel-counted', testMultiTokenRelCounted],
+    ['stylesheet-one-side-lacks-field-fails', testOneSideLacksFieldFails],
+    ['stylesheet-both-sides-lack-field-skipped', testBothSidesLackFieldSkipped],
   ]
   const checks = []
   for (const [name, fn] of cases) {
@@ -566,6 +747,8 @@ async function main() {
     console.log(`  ${c.pass ? 'PASS' : 'FAIL'}  ${c.name}`)
     if (!c.pass) console.log(`        ${JSON.stringify(c.detail).slice(0, 1500)}`)
   }
+  // One final, unambiguous count line (P6.2 harness hardening). No case here can be deferred.
+  console.log(`SUMMARY selftest-link-header.mjs: ${passed}/${checks.length} PASS, ${checks.length - passed} FAIL, 0 DEFERRED`)
   process.exit(pass ? 0 : 1)
 }
 

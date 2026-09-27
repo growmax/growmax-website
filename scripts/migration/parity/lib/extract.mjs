@@ -74,7 +74,8 @@ export function canonicalStringify(value) {
 
 /**
  * Extract the parity-relevant fields from an HTML document.
- * Returns { fields, jsonLdHash, visibleTextHash, visibleText, internalLinks, images }
+ * Returns { fields, jsonLdHash, visibleTextHash, visibleText, internalLinks, images, assetRefs,
+ * stylesheetRefs }
  */
 export function extractHtml(rawHtml, pageUrl) {
   const html = normalizeHtmlNoise(rawHtml)
@@ -228,6 +229,33 @@ export function extractHtml(rawHtml, pageUrl) {
     }
   }
 
+  // stylesheetRefs (P6.2 harness hardening, reviewer finding on the SPEC-04 §3 "Link header
+  // preloads" diff): assetRefs cannot tell a <link rel=stylesheet> from a preload, so a page
+  // that DROPPED its stylesheet element but still sends `Link: <X>; rel=preload; as=style`
+  // (or an HTML <link rel=preload as=style>) had the same assetRefs as a page that applies X.
+  // This field records only what the browser actually applies as a stylesheet from the HTML:
+  //  - every <link> element whose rel, split into ASCII-whitespace-separated tokens and
+  //    compared case-insensitively, includes "stylesheet" and does not include "alternate"
+  //    (an alternate stylesheet is not applied by default, so it is ignored here). So
+  //    rel="Stylesheet preload" counts; rel="alternate stylesheet" does not;
+  //  - each href goes through sameSiteAssetRef() (the same same-site filter and path+search
+  //    form as assetRefs); a third-party or unresolvable href adds nothing;
+  //  - `Link` response-header entries NEVER contribute (mergeLinkHeaderAssetRefs only touches
+  //    assetRefs), so a header preload can no longer stand in for a missing element;
+  //  - kept as a sorted array WITH duplicates: compare.mjs compares it as an exact multiset
+  //    (after its assetRefs normalization: hashed-name placeholder + dpl strip), so a
+  //    stylesheet linked twice on one side and once on the other still differs.
+  // Deliberately independent of the assetRefs rel test above (exact rel match, unchanged), so
+  // that fetch behaviour is not altered by this field.
+  const stylesheetRefs = []
+  for (const link of rawRoot.querySelectorAll('link[rel]')) {
+    const tokens = (link.getAttribute('rel') || '').toLowerCase().split(/[\t\n\f\r ]+/).filter(Boolean)
+    if (!tokens.includes('stylesheet') || tokens.includes('alternate')) continue
+    const ref = sameSiteAssetRef(link.getAttribute('href'), pageUrl)
+    if (ref !== null) stylesheetRefs.push(ref)
+  }
+  stylesheetRefs.sort()
+
   return {
     fields: {
       title,
@@ -252,6 +280,7 @@ export function extractHtml(rawHtml, pageUrl) {
     internalLinks: [...internalLinks].sort(),
     images: [...images].sort(),
     assetRefs: [...assetRefs].sort(),
+    stylesheetRefs,
   }
 }
 
@@ -318,8 +347,8 @@ function skipToNextLinkValue(value, i) {
  * counts (RFC 8288 §3.3 for `rel`). Several header lines arrive joined with ", " (undici's
  * Headers#get), so link-values are split only on commas outside <...> and outside
  * quoted-strings. A malformed link-value (no leading `<`, no closing `>`, an unterminated
- * quoted-string, junk between parameters) is dropped on its own; parsing resumes at the next
- * top-level comma where one can be found. Never throws: a non-string or unparseable input
+ * quoted-string, junk between parameters, a target containing '<' or whitespace) is dropped
+ * on its own; parsing resumes at the next top-level comma where one can be found. Never throws: a non-string or unparseable input
  * yields [].
  */
 export function parseLinkHeader(value) {
@@ -337,7 +366,18 @@ export function parseLinkHeader(value) {
       }
       const close = value.indexOf('>', i + 1)
       if (close === -1) break // unterminated URI-Reference swallows the rest of the field
-      const target = value.slice(i + 1, close).trim()
+      const rawTarget = value.slice(i + 1, close)
+      // P6.2 harness hardening (reviewer finding): a URI-Reference can never contain '<' or
+      // whitespace (RFC 3986), so a "target" that does is a link-value with no closing '>'
+      // of its own whose indexOf('>') ran into a LATER link-value, e.g.
+      // '<unterminated; rel=preload, </ok.css>; rel=preload' would otherwise yield the bogus
+      // target 'unterminated; rel=preload, </ok.css'. Drop it, and resume at the next
+      // top-level comma after its opening '<' (so the later '</ok.css>' value is still parsed).
+      if (/[<\s]/.test(rawTarget)) {
+        i = skipToNextLinkValue(value, i + 1)
+        continue
+      }
+      const target = rawTarget
       i = close + 1
       const params = {}
       let valid = true

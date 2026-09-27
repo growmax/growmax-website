@@ -289,6 +289,36 @@ function compareEntry(a, b, opts) {
     if (!multisetsEqual(multisetOf(refsA), multisetOf(refsB)))
       diffs.push({ field: 'assetRefs', category: 'content', a: refsA, b: refsB })
 
+    // stylesheetRefs (P6.2 harness hardening; see extract.mjs): the HTML <link rel~=stylesheet>
+    // refs alone, so a stylesheet element missing on one side can no longer hide behind a
+    // `Link` header (or <link rel=preload as=style>) preload of the same file in assetRefs.
+    //  - Both sides carry it: exact multiset after the SAME normalization as assetRefs
+    //    (normalizeAssetRef: hashed-name placeholder + dpl strip); field "stylesheetRefs",
+    //    category "content".
+    //  - Exactly one side lacks it (a manifest from before this field existed on one side
+    //    only): a stylesheetRefs diff with that side null, so the compare fails and forces a
+    //    re-capture of the older side, never a silent pass.
+    //  - Both sides lack it (two older manifests): not compared, but counted in
+    //    opts.stats.stylesheetRefsBothAbsent, which compareManifests reports as
+    //    `stylesheetRefsBothAbsent` and main() prints as a NOTE, so the skip is visible.
+    const hasSheetsA = Array.isArray(a.stylesheetRefs)
+    const hasSheetsB = Array.isArray(b.stylesheetRefs)
+    if (hasSheetsA && hasSheetsB) {
+      const sheetsA = normalizeAssetRefList(a.stylesheetRefs)
+      const sheetsB = normalizeAssetRefList(b.stylesheetRefs)
+      if (!multisetsEqual(multisetOf(sheetsA), multisetOf(sheetsB)))
+        diffs.push({ field: 'stylesheetRefs', category: 'content', a: [...sheetsA].sort(), b: [...sheetsB].sort() })
+    } else if (hasSheetsA || hasSheetsB) {
+      diffs.push({
+        field: 'stylesheetRefs',
+        category: 'content',
+        a: hasSheetsA ? [...normalizeAssetRefList(a.stylesheetRefs)].sort() : null,
+        b: hasSheetsB ? [...normalizeAssetRefList(b.stylesheetRefs)].sort() : null,
+      })
+    } else if (opts?.stats) {
+      opts.stats.stylesheetRefsBothAbsent = (opts.stats.stylesheetRefsBothAbsent || 0) + 1
+    }
+
     // SPEC-04 addendum: /blog and /blog?page=N's embedded post list (capture.mjs's
     // extractEmbeddedBlogPosts) — the PAGE'S OWN client-rendered content, compared directly
     // rather than delegated to /api/blog (a stale cached page could disagree with a fresh
@@ -801,6 +831,7 @@ export async function compareManifests(
   const allowlistHits = new Map() // entry index -> { urls: Set }
   let failedUnallowed = 0
   let allowlisted = 0
+  const stats = { stylesheetRefsBothAbsent: 0 }
 
   for (const url of allUrls) {
     const a = byUrlA.get(url)
@@ -829,7 +860,7 @@ export async function compareManifests(
       if (expectOnly) continue
     }
 
-    const diffs = compareEntry(a, b, { dataFreshnessUrls })
+    const diffs = compareEntry(a, b, { dataFreshnessUrls, stats })
     for (const d of diffs) {
       if (d.needsTextDiff) {
         // The `text` field's full text is inline (see compareEntry above) when that side is
@@ -988,6 +1019,9 @@ export async function compareManifests(
     diffs: allDiffs,
     allowlistReport,
     blogApiSize,
+    // 2xx HTML pages where NEITHER manifest has stylesheetRefs (both predate the field), so
+    // that comparison was skipped for them; see compareEntry.
+    stylesheetRefsBothAbsent: stats.stylesheetRefsBothAbsent,
   }
 }
 
@@ -1097,6 +1131,12 @@ async function main() {
       `B=${result.blogApiSize.sizes.b.bytes ?? 'n/a'} bytes (${result.blogApiSize.sizes.b.jsonArrayLength ?? 'n/a'} items), ` +
       `threshold=${result.blogApiSize.thresholdBytes} bytes`,
   )
+  if (result.stylesheetRefsBothAbsent > 0) {
+    console.log(
+      `NOTE: stylesheetRefs not compared on ${result.stylesheetRefsBothAbsent} HTML page(s): ` +
+        'both manifests predate the field; re-capture both sides to compare stylesheets',
+    )
+  }
   for (const w of result.blogApiSize.warnings) {
     console.log(
       `WARNING: /api/blog side ${w.side} is ${(w.bytes / (1024 * 1024)).toFixed(2)}MB ` +

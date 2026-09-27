@@ -1,0 +1,68 @@
+{
+  "step": "P6.2",
+  "part": "harness hardening",
+  "attempt": "3b",
+  "checkedAt": "2026-09-27T07:49:17Z",
+  "implementer": "migration-implementer",
+  "baseCommit": "367f57b (harness code as of dc54053)",
+  "scope": "Non-blocking findings of docs/migration/evidence/P6.2-harness-fix-review.json: nonBlocking[0] (stylesheet masked by a preload), nonBlocking[1] (unterminated Link target), nonBlocking[4] (liveLinkHeaderCheck stored key / no-header pages), plus one SUMMARY line per self-test (addresses the miscount in nonBlocking[5]). SPEC-04 is not edited; the exact behavior is in code comments.",
+  "changedFiles": [
+    "scripts/migration/parity/lib/extract.mjs",
+    "scripts/migration/parity/capture.mjs",
+    "scripts/migration/parity/compare.mjs",
+    "scripts/migration/parity/selftest.mjs",
+    "scripts/migration/parity/selftest-link-header.mjs",
+    "scripts/migration/parity/selftest-p5.3.mjs",
+    "docs/migration/evidence/P6.2-harness-hardening-implement.json"
+  ],
+  "summary": [
+    "(1) stylesheetRefs. extract.mjs:250 extractHtml() now also returns stylesheetRefs: the hrefs of HTML <link> elements whose rel, split on ASCII whitespace and lower-cased, includes 'stylesheet' and not 'alternate'. Each href goes through sameSiteAssetRef(), the same filter and path+search form assetRefs uses. The array is sorted and keeps duplicates, because it is compared as a multiset. Link-header entries never contribute: mergeLinkHeaderAssetRefs only touches assetRefs. The assetRefs rel test (exact match) is unchanged, so what gets fetched is unchanged.",
+    "capture.mjs records record.stylesheetRefs = extracted.stylesheetRefs next to assetRefs/linkHeaderRefs. That code runs before any compact branch, so full and compact mode record it identically. selftest.mjs rebuildHtmlEntryFromRaw() sets it too, so mutation-matrix entries stay consistent with capture.",
+    "compare.mjs:304 (2xx HTML branch). If both sides have stylesheetRefs, they are compared as an exact multiset after normalizeAssetRef (the hashed-name placeholder plus dpl strip, the same as assetRefs), as field 'stylesheetRefs', category 'content'. If exactly one side lacks the field, a stylesheetRefs diff is emitted with that side null, so the compare fails and forces a re-capture; an empty array counts as present. If both sides lack it, the field is skipped but not silently: compareManifests counts the pages as result.stylesheetRefsBothAbsent, and main() prints 'NOTE: stylesheetRefs not compared on N HTML page(s) ...'.",
+    "(2) extract.mjs:376 parseLinkHeader drops any target (the raw text between '<' and the first '>') that contains '<' or whitespace, then resumes at the next top-level comma after the opening '<'. For '<unterminated; rel=preload, </ok.css>; rel=preload' this gives ['/ok.css'], where it used to give the bogus '/blog/unterminated;%20rel=preload,%20%3C/ok.css'. Side effect: a target with inner whitespace such as '< /a.css >', previously trimmed and accepted, is now dropped. RFC 3986 does not allow whitespace in a URI-Reference, and Next.js never sends it.",
+    "(3) selftest.mjs:882 liveLinkHeaderCheck maps each header ref, with dpl stripped, to the assetRef capture actually stored (the HTML ref's form after dedupe) and looks up manifest.assets under that key. A new detail field, headerRefsDedupedToAnotherForm, counts those cases. The requirement that at least one page has header preloads is removed, so a base with no Link headers passes. pagesWithHeaderPreloads is still reported. A new offline check, 'link-header-check-stored-key-and-no-header', covers the dpl-variant dedupe (pass), the no-header manifest (pass), a stored asset returning 404 (fail) and a header ref missing from assetRefs (fail).",
+    "(4) Each self-test now ends with one line, 'SUMMARY <name>: <pass>/<total> PASS, <fail> FAIL, <deferred> DEFERRED'. In selftest.mjs, pass is counted as pass===true, fail as pass===false and deferred as pass===null.",
+    "Self-test cases added to selftest-link-header.mjs (14 -> 21 cases): stylesheet-missing-element-masked-by-header-preload-fails (A has the stylesheet elements and the header; B has only the header, and separately only <link rel=preload as=style>; assetRefs show no diff while stylesheetRefs fails in both cases), stylesheet-equal-passes, stylesheet-dpl-variant-passes (Replit hashes vs Vercel ?dpl; dpl-only; a changed non-dpl query still fails), stylesheet-alternate-ignored ('alternate stylesheet', 'Stylesheet ALTERNATE'), stylesheet-multi-token-rel-counted (rel='Stylesheet preload' and whitespace/tab tokens are counted; third-party hosts are dropped; a duplicated element is kept and its multiset differs), stylesheet-one-side-lacks-field-fails (both directions, with that side null; missing vs [] also fails), stylesheet-both-sides-lack-field-skipped (0 diffs, stylesheetRefsBothAbsent=1). compact-mode-records-same-refs now also asserts that stylesheetRefs is equal in both modes. malformed-never-throws-adds-nothing adds the reviewer's case, a whitespace-target case and a tab-target case.",
+    "Mutation check (throwaway copies in the session scratchpad, deleted afterwards). Each of these reverts makes at least one new case fail: disabling the '<'/whitespace target drop, disabling the both-present multiset compare, dropping the 'alternate' exclusion, disabling the one-side-null diff, deriving stylesheetRefs from the merged assetRefs (header contributes), skipping normalization, and de-duplicating stylesheetRefs at extraction.",
+    "Live spot check (compact capture of /blog/claude-commerce-agents-b2b from www.growmax.io into .scratch): stylesheetRefs contains the 2 HTML stylesheets; the Link header carries the same 2 CSS files as preloads and does not add to stylesheetRefs.",
+    "Consequence for the verifier and orchestrator: a manifest captured before this change has no stylesheetRefs. Comparing it with a fresh capture now fails with stylesheetRefs diffs (side null) on every 2xx HTML page, by design, so both sides must be re-captured with this harness. Two older manifests still compare, with the NOTE line. No committed manifest (P6.5 baseline) exists yet.",
+    "No secrets used. No --bypass-secret-file was passed and no protection-bypass header was sent. Only www.growmax.io was fetched. 'node scripts/migration/state.mjs scan': clean (6 changed files checked, before this evidence file). Nothing was committed or pushed, and STATE.json and LOG.md are untouched."
+  ],
+  "selftests": [
+    {
+      "name": "selftest-link-header.mjs",
+      "command": "node scripts/migration/parity/selftest-link-header.mjs --out docs/migration/.scratch/p6.2-hardening-20260927T0746Z/selftest-link-header.json",
+      "exit": 0,
+      "summary": "SUMMARY selftest-link-header.mjs: 21/21 PASS, 0 FAIL, 0 DEFERRED"
+    },
+    {
+      "name": "selftest-p5.3.mjs",
+      "command": "node scripts/migration/parity/selftest-p5.3.mjs --out docs/migration/.scratch/p6.2-hardening-20260927T0746Z/selftest-p5.3.json",
+      "exit": 0,
+      "summary": "SUMMARY selftest-p5.3.mjs: 12/12 PASS, 0 FAIL, 0 DEFERRED"
+    },
+    {
+      "name": "selftest.mjs (live)",
+      "command": "NODE_USE_ENV_PROXY=1 node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out docs/migration/.scratch/p6.2-hardening-20260927T0746Z/selftest-live.json",
+      "exit": 0,
+      "summary": "SUMMARY selftest.mjs: 20/21 PASS, 0 FAIL, 1 DEFERRED",
+      "notes": "21 checks: 1 more than the 20 before this change, from the new link-header-check-stored-key-and-no-header. The DEFERRED check is protected-deployment-probe, which is deferred by design. live-link-header-preloads: 218 HTML entries, 174 with header preloads, 0 deduped to another form, 0 missing linkHeaderRefs fields, 0 problems. self-compare-zero-diffs: 297 compared, 0 diffs. The 60s determinism check had 0 failedUnallowed."
+    }
+  ],
+  "fileSha256Prefix": {
+    "scripts/migration/parity/capture.mjs": "fb1c21488f39c760",
+    "scripts/migration/parity/compare.mjs": "2dcdd2f1ea500e66",
+    "scripts/migration/parity/lib/extract.mjs": "c6319f5424be646b",
+    "scripts/migration/parity/selftest-link-header.mjs": "2f3e7584c9902a89",
+    "scripts/migration/parity/selftest-p5.3.mjs": "68ecf11081a7e056",
+    "scripts/migration/parity/selftest.mjs": "9fcac658b63e6927"
+  },
+  "verifierShouldRun": [
+    "node scripts/migration/parity/selftest-link-header.mjs --out <.scratch path>  (expect SUMMARY 21/21 PASS, 0 FAIL, 0 DEFERRED)",
+    "node scripts/migration/parity/selftest-p5.3.mjs --out <.scratch path>  (expect SUMMARY 12/12 PASS, 0 FAIL, 0 DEFERRED)",
+    "NODE_USE_ENV_PROXY=1 node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out <.scratch path>  (expect SUMMARY 20/21 PASS, 0 FAIL, 1 DEFERRED)",
+    "Re-run the reviewer's masking probe (a stylesheet element on A only, the same Link rel=preload as=style on both sides): expect a stylesheetRefs diff and exit 1",
+    "Compare an old manifest (no stylesheetRefs) with a new one: expect stylesheetRefs diffs with the old side null. Compare two old manifests: expect a pass plus the NOTE line",
+    "git diff --stat: only scripts/migration/parity/** plus this evidence file; node scripts/migration/state.mjs scan"
+  ]
+}

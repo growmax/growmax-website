@@ -198,6 +198,11 @@ async function captureOne(entry, base, opts) {
       const merged = mergeLinkHeaderAssetRefs(extracted.assetRefs, res.headers.get('link'), target)
       record.assetRefs = merged.assetRefs
       record.linkHeaderRefs = merged.linkHeaderRefs
+      // P6.2 harness hardening: the HTML <link rel~=stylesheet> refs (not alternate) on their
+      // own, recorded in full AND compact mode (no compact branch touches this field), so
+      // compare.mjs can tell an applied stylesheet from a mere preload of the same file. Link
+      // header entries never contribute (see extract.mjs, stylesheetRefs).
+      record.stylesheetRefs = extracted.stylesheetRefs
       if (rawDir) {
         const safeName = safeFileName(entry.url)
         record.rawTextFile = `${safeName}.text.txt`

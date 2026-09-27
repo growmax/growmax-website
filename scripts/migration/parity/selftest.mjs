@@ -192,6 +192,8 @@ function rebuildHtmlEntryFromRaw(entry, rawHtml, pageUrl) {
   // mutated body of a dynamically rendered page isn't "detected" merely by losing them.
   const replayedHeader = (entry.linkHeaderRefs || []).map((r) => `<${r}>; rel=preload`).join(', ')
   entry.assetRefs = mergeLinkHeaderAssetRefs(extracted.assetRefs, replayedHeader, pageUrl).assetRefs
+  // Same as capture.mjs: HTML stylesheet elements only, never the replayed header.
+  entry.stylesheetRefs = extracted.stylesheetRefs
 }
 
 /**
@@ -865,9 +867,18 @@ function reachabilityFloor(manifest) {
  *  22's autoSelectFamily calls the custom lookup with `{all:true}` and expects an array back
  *  — the un-fixed lookup always called back with a bare (ip, family), which made every
  *  pinned request fail with "Invalid IP address: undefined". */
-/** Every HTML entry carries a linkHeaderRefs array; at least one page (a dynamic render, e.g.
- *  a Replit blog post) actually sent preloads in a `Link` header; each such ref is in that
- *  page's assetRefs (compared with `dpl` stripped) and was fetched by captureAssets with a 2xx. */
+/** Every HTML entry carries a linkHeaderRefs array; each header preload ref is in that page's
+ *  assetRefs (compared with `dpl` stripped) and was fetched by captureAssets with a 2xx.
+ *
+ *  P6.2 harness hardening (reviewer finding):
+ *  - The asset is looked up under the key capture.mjs actually STORED. When a header ref was
+ *    de-duplicated against an HTML ref of a different dpl form (header /x.css vs HTML
+ *    /x.css?dpl=...), only the HTML form is in assetRefs, so only that form was fetched and
+ *    keyed in manifest.assets; looking up the raw header form would report a false
+ *    notFetched2xx.
+ *  - A page (or a whole base) with no `Link` header preloads does not fail the check: a
+ *    prerendered deployment legitimately sends none. pagesWithHeaderPreloads is reported so a
+ *    reader can see how much the check actually exercised. */
 function liveLinkHeaderCheck(manifest) {
   const stripDpl = (r) => {
     const q = r.indexOf('?')
@@ -881,25 +892,52 @@ function liveLinkHeaderCheck(manifest) {
   const missingField = html.filter((e) => !Array.isArray(e.linkHeaderRefs)).map((e) => e.url)
   const withHeader = html.filter((e) => (e.linkHeaderRefs || []).length > 0)
   const problems = []
+  let dedupedToOtherForm = 0
   for (const e of withHeader) {
-    const refs = new Set(e.assetRefs.map(stripDpl))
+    // dpl-stripped form -> the assetRef capture.mjs stored (and captureAssets fetched).
+    const storedByKey = new Map()
+    for (const ref of e.assetRefs) if (!storedByKey.has(stripDpl(ref))) storedByKey.set(stripDpl(ref), ref)
     for (const r of e.linkHeaderRefs) {
-      if (!refs.has(stripDpl(r))) problems.push({ url: e.url, notInAssetRefs: r })
-      const a = manifest.assets?.[r]
-      if (!a || !(a.status >= 200 && a.status < 300)) problems.push({ url: e.url, notFetched2xx: r, asset: a || null })
+      const stored = storedByKey.get(stripDpl(r))
+      if (stored === undefined) {
+        problems.push({ url: e.url, notInAssetRefs: r })
+        continue
+      }
+      if (stored !== r) dedupedToOtherForm++
+      const a = manifest.assets?.[stored]
+      if (!a || !(a.status >= 200 && a.status < 300)) problems.push({ url: e.url, notFetched2xx: stored, headerRef: r, asset: a || null })
     }
   }
-  const pass = missingField.length === 0 && withHeader.length > 0 && problems.length === 0
+  const pass = missingField.length === 0 && problems.length === 0
   return {
     pass,
     detail: {
       htmlEntries: html.length,
       missingLinkHeaderRefsField: missingField.slice(0, 10),
       pagesWithHeaderPreloads: withHeader.length,
+      headerRefsDedupedToAnotherForm: dedupedToOtherForm,
       sample: withHeader[0] ? { url: withHeader[0].url, linkHeaderRefs: withHeader[0].linkHeaderRefs } : null,
       problems: problems.slice(0, 20),
     },
   }
+}
+
+/** Offline guard for liveLinkHeaderCheck itself (P6.2 harness hardening): (a) a header ref
+ *  de-duplicated onto an HTML ref of another dpl form is looked up under the stored HTML form
+ *  and passes; (b) a manifest with no header preloads at all passes; (c) a header ref whose
+ *  stored asset is not 2xx, and one missing from assetRefs, still fail. */
+function testLinkHeaderCheckStoredKeyAndNoHeader() {
+  const page = (url, assetRefs, linkHeaderRefs) => ({ url, status: 200, contentType: 'text/html', assetRefs, linkHeaderRefs })
+  const ok = { status: 200, contentType: 'text/css' }
+  const dedupe = liveLinkHeaderCheck({
+    entries: [page('/blog/p', ['/x.css?dpl=dpl_SelftestOnly', '/f.woff2'], ['/f.woff2', '/x.css'])],
+    assets: { '/x.css?dpl=dpl_SelftestOnly': ok, '/f.woff2': ok },
+  })
+  const noHeader = liveLinkHeaderCheck({ entries: [page('/', ['/a.css'], []), page('/about', [], [])], assets: { '/a.css': ok } })
+  const bad404 = liveLinkHeaderCheck({ entries: [page('/p', ['/y.css?dpl=d1'], ['/y.css'])], assets: { '/y.css?dpl=d1': { status: 404 } } })
+  const notIn = liveLinkHeaderCheck({ entries: [page('/p', ['/a.css'], ['/z.css'])], assets: { '/a.css': ok, '/z.css': ok } })
+  const pass = dedupe.pass && dedupe.detail.headerRefsDedupedToAnotherForm === 1 && noHeader.pass && !bad404.pass && !notIn.pass
+  return { pass, detail: { dedupe: dedupe.detail, noHeader: noHeader.detail, bad404: bad404.detail.problems, notIn: notIn.detail.problems } }
 }
 
 async function testResolveDispatcher() {
@@ -1423,6 +1461,8 @@ async function main() {
   // merged a live dynamic page's `Link` header into assetRefs and fetched those refs.
   const linkHeader = liveLinkHeaderCheck(manifestA)
   checks.push({ name: 'live-link-header-preloads', pass: linkHeader.pass, detail: linkHeader.detail })
+  const linkHeaderSynthetic = testLinkHeaderCheckStoredKeyAndNoHeader()
+  checks.push({ name: 'link-header-check-stored-key-and-no-header', pass: linkHeaderSynthetic.pass, detail: linkHeaderSynthetic.detail })
 
   // --- Check 2c: --resolve pinned-DNS dispatcher against a local server (per review). ---
   console.log('[selftest] testing --resolve pinned dispatcher against a local server ...')
@@ -1752,6 +1792,11 @@ async function main() {
   for (const c of checks) {
     console.log(`  ${c.pass === null ? 'DEFERRED' : c.pass ? 'PASS' : 'FAIL'}  ${c.name}`)
   }
+  // One final, unambiguous count line (P6.2 harness hardening): pass + fail + deferred = total.
+  const nPass = checks.filter((c) => c.pass === true).length
+  const nFail = checks.filter((c) => c.pass === false).length
+  const nDeferred = checks.filter((c) => c.pass === null).length
+  console.log(`SUMMARY selftest.mjs: ${nPass}/${checks.length} PASS, ${nFail} FAIL, ${nDeferred} DEFERRED`)
 
   process.exit(overallPass ? 0 : 1)
 }

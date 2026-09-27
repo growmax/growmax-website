@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T07:41:26.578Z",
+  "updatedAt": "2026-09-27T08:00:05.102Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -437,7 +437,9 @@
       "A2 agenda (P6.1 review, pre-existing): lib/db.ts Pool has no error listener, so a Neon compute suspend terminating idle clients (57P01) raises an uncaughtException that can take down a Fluid instance; also no statement timeout. One-line pool.on(\"error\") fix recommended before or soon after cutover",
       "Owner notes (P6.1): blog_redirects rows store full paths (/blog/old) while the middleware, /api/blog-redirects and H1 look up bare slugs, so no redirect ever fires (and a match would double /blog/); unpublished posts stay reachable by slug; post titles render with a doubled suffix (| Growmax Intelligence | Growmax)",
       "Security hygiene: never attach x-vercel-protection-bypass via Playwright extraHTTPHeaders or any other all-requests mechanism; only origin-scoped (context.route by origin, or fetch to the base URL). The P5.2 probe leak led to a bypass rotation (2026-09-27)",
-      "F9 real-origin path (review r2, non-blocking): the first P6.2 run is F9's first end-to-end use through the container proxy (SPKI pin, no ignoreHTTPSErrors) with the route-scoped bypass against Vercel; check its detail. Any future F9 fetch must keep redirect:\"manual\" (Playwright carries route.continue header overrides across followed redirects)"
+      "F9 real-origin path (review r2, non-blocking): the first P6.2 run is F9's first end-to-end use through the container proxy (SPKI pin, no ignoreHTTPSErrors) with the route-scoped bypass against Vercel; check its detail. Any future F9 fetch must keep redirect:\"manual\" (Playwright carries route.continue header overrides across followed redirects)",
+      "Parity harness (P6.2 hardening review, non-blocking; pre-existing): a page where BOTH sides hit htmlError skips every HTML field (compare never compares htmlError). Add a manifest marker (harness.stylesheetRefs) and fail on both-absent in marked manifests, or emit an htmlError diff. Also optional: stylesheetRefsMissing as a non-allowlistable field; feed stylesheetRefs into the captureAssets fetch set; trim OWS before the Link-target guard; an --expect-link-headers floor for the Replit base.",
+      "Parity harness: per-page hashed CSS names collapse to one placeholder (pre-existing design limit); a per-page swap to another site CSS file is only caught by the site-wide hashedCssSha256 multiset. Possible hardening: compare per-page stylesheet content sha256 via manifest.assets."
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",

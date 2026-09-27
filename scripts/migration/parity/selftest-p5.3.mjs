@@ -295,6 +295,9 @@ async function main() {
   await writeFile(out, JSON.stringify(evidence, null, 2))
   console.log(`P5.3 parity self-test: ${pass ? 'PASS' : 'FAIL'} (${checks.filter((c) => c.pass).length}/${checks.length}) -> ${out}`)
   for (const c of checks) console.log(`  ${c.pass ? 'PASS' : 'FAIL'}  ${c.name}`)
+  // One final, unambiguous count line (P6.2 harness hardening). No case here can be deferred.
+  const nPass = checks.filter((c) => c.pass).length
+  console.log(`SUMMARY selftest-p5.3.mjs: ${nPass}/${checks.length} PASS, ${checks.length - nPass} FAIL, 0 DEFERRED`)
   process.exit(pass ? 0 : 1)
 }
 
