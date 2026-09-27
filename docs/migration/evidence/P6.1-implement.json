@@ -1,0 +1,106 @@
+{
+  "step": "P6.1-implement",
+  "role": "migration-implementer",
+  "checkedAt": "2026-09-27T03:49:56Z",
+  "spec": "docs/migration/specs/SPEC-02-code-changes.md#H-series",
+  "scope": "H1-H4 only. M-series already committed and untouched. This run reviewed the earlier first-pass H1-H4 working tree line by line against SPEC-02 H1-H4 and its Review checklist, kept what was correct and fixed what was wrong or missing.",
+  "reviewOfFirstPass": {
+    "kept": [
+      "H1: revalidate=3600; no try/catch around getBlogPostBySlug in generateMetadata or the page; getRedirect(slug) -> permanentRedirect('/blog/' + newPath) before not-found metadata / notFound()",
+      "H2: revalidatePath (next/cache) per path, each individually try/catch-wrapped, for /blog/<slug> (old and new), /blog, /sitemap.xml, /llms.txt, /llms-full.txt, /api/blog, only after a successful create/update/delete",
+      "H3: lib/db.ts Pool connectionTimeoutMillis 10_000; middleware blog_redirects lookup raced against 5000 ms, failing open through the existing catch",
+      "H4: dynamic='force-dynamic' -> revalidate=300; try/catch removed so errors throw; success body unchanged (NextResponse.json(posts))"
+    ],
+    "fixed": [
+      {
+        "file": "app/blog/[slug]/page.tsx",
+        "item": "H1",
+        "problem": "`export const revalidate = 3600` alone had no effect: in Next 15.5 a dynamic segment with no generateStaticParams stays fully dynamic. Build listed /blog/[slug] as ƒ, prerender-manifest dynamicRoutes was empty, and at runtime every response was `Cache-Control: private, no-cache, no-store`. So H1's ISR (and the stale-page-on-DB-error guarantee) did not exist.",
+        "fix": "Added `export async function generateStaticParams() { return [] }` (dynamicParams stays default true). Prerenders nothing at build (no DB access at build for this route) and caches each slug on first request. After the fix: build shows ● /blog/[slug], dynamicRoutes contains /blog/[slug], responses are x-nextjs-cache MISS then HIT with s-maxage=3600. REVIEWER NOTE: this is the one addition beyond the literal SPEC-02 H1 text; it is what makes H1's stated behaviour (ISR) true."
+      },
+      {
+        "file": "app/api/admin/posts/[id]/route.ts",
+        "item": "H2",
+        "problem": "The pre-mutation getBlogPostById (needed only to learn the old slug for revalidation) ran unguarded inside the handler try: if it threw, the mutation was never attempted and PUT/DELETE returned 500 (PUT could also misreport it as 409 if the message contained 'unique'), i.e. revalidation plumbing could fail/alter the mutation. DELETE also skipped revalidating /blog, /sitemap.xml, /llms.txt, /llms-full.txt, /api/blog entirely when the pre-fetch returned no slug.",
+        "fix": "Added a local `currentSlug(id)` helper that wraps getBlogPostById in try/catch and returns undefined on failure; PUT revalidates [oldSlug, result.slug], DELETE revalidates [oldSlug] and always the common paths. revalidateBlogPaths now takes Array<string | undefined> and drops empty entries. Status codes and bodies of every mutation path are unchanged."
+      },
+      {
+        "file": "middleware.ts",
+        "item": "H3",
+        "problem": "The 5000 ms timeout timer was never cleared, so it stayed pending after a fast lookup.",
+        "fix": "Captured the timer and clearTimeout(timer) in a finally after the existing catch. Fail-open semantics unchanged."
+      }
+    ],
+    "removedAsOutOfScope": []
+  },
+  "changedFiles": [
+    { "file": "app/blog/[slug]/page.tsx", "item": "H1", "change": "revalidate=3600; generateStaticParams() returning []; DB errors from getBlogPostBySlug/getRedirect propagate (no try/catch) in generateMetadata and page; missing post -> getRedirect(slug) -> permanentRedirect(`/blog/${newPath}`) else not-found metadata / notFound()." },
+    { "file": "app/api/admin/posts/route.ts", "item": "H2", "change": "Local revalidateBlogPaths helper (revalidatePath from next/cache, each call try/catch); called after a successful createBlogPost with the new slug." },
+    { "file": "app/api/admin/posts/[id]/route.ts", "item": "H2", "change": "Same helper plus fault-tolerant currentSlug pre-fetch; PUT revalidates old+new slug, DELETE the deleted slug, both plus the 5 common paths, only after success." },
+    { "file": "middleware.ts", "item": "H3", "change": "blog_redirects lookup raced with a 5000 ms rejecting timeout (cleared in finally); timeout falls into the existing fail-open catch." },
+    { "file": "lib/db.ts", "item": "H3", "change": "new Pool({ connectionString, connectionTimeoutMillis: 10_000 }); attachDatabasePool guard under process.env.VERCEL untouched." },
+    { "file": "app/api/blog/route.ts", "item": "H4", "change": "force-dynamic -> revalidate=300; try/catch removed so a DB error throws; success body unchanged." }
+  ],
+  "notChanged": {
+    "M-series": "Committed; not touched. `grep -rn \"chat.googleapis.com\" app lib components` -> no matches.",
+    "app/api/blog/[slug]/route.ts": "Left unchanged per spec (no client usage)."
+  },
+  "diffScopeCheck": {
+    "gitStatusShort": [
+      "M app/api/admin/posts/[id]/route.ts",
+      "M app/api/admin/posts/route.ts",
+      "M app/api/blog/route.ts",
+      "M app/blog/[slug]/page.tsx",
+      "M lib/db.ts",
+      "M middleware.ts",
+      "M tsconfig.tsbuildinfo",
+      "?? docs/migration/evidence/P6.1-implement.json"
+    ],
+    "note": "Source changes are exactly the 6 H-series files. tsconfig.tsbuildinfo was rewritten by `npm run check` (tsc incremental build byproduct, not an H-series change). Per role rules it was NOT reverted; the orchestrator should not stage it (or restore it) when committing."
+  },
+  "checksRunByImplementer": {
+    "typecheck": "npm run check (tsc) -> exit 0 (run after the final edit)",
+    "build": "DATABASE_URL=<local PG16 :54329/growmax> SESSION_SECRET=<random 48 hex> ADMIN_PASSWORD=local-test npm run build -> exit 0. Route table: ○ /api/blog revalidate 5m; ○ /blog 1h; ● /blog/[slug]; ○ /llms.txt 1h; ○ /llms-full.txt 1h; ○ /sitemap.xml.",
+    "localDbNote": "Throwaway PG16 loaded with schema.dump (schema only; 1 ignored error = CREATE SCHEMA public already exists) + blog_posts/blog_redirects data from blog-tables.dump (171 posts, 95 redirects, no PII tables loaded with data). The data dir had to live at /var/lib/postgresql/p61-localpg because the postgres user cannot traverse /home/user/... (SPEC-02's .scratch/localpg path fails initdb with Permission denied); it was stopped and removed afterwards.",
+    "runtimeSanity (next start -p 3100, not a substitute for the verifier's suite)": [
+      "/blog/<slug>: 200 MISS then 200 HIT, s-maxage=3600",
+      "/blog/does-not-exist-xyz: 404 (a real missing post; cached, as intended)",
+      "/api/blog: 200 HIT, s-maxage=300",
+      "DB stopped: cached /blog/<slug> -> 200 HIT with the real title; cached /api/blog -> 200 HIT; uncached slug and uncached missing slug -> 500 no-store (never 404, never cached)",
+      "Admin PUT title change -> 200 with unchanged response shape; next request of /blog/<slug>, /blog, /api/blog, /llms.txt, /llms-full.txt shows the new title",
+      "Admin PUT slug rename -> old slug 404, new slug 200, /sitemap.xml lists the new slug; renaming back restored both",
+      "Unauthenticated PUT 401; PUT/DELETE on missing id 404 (unchanged)"
+    ]
+  },
+  "findingsForReviewerAndOwner": [
+    {
+      "severity": "nonBlocking (pre-existing, out of H1-H4 scope)",
+      "finding": "blog_redirects rows store full paths (old_path '/blog/<old>', new_path '/blog/<new>'; all 95 rows), but middleware.ts, /api/blog-redirects and SPEC-02 H1's getRedirect(slug) all look up the bare slug, so none of them ever matches. If one did match, `/blog/${newPath}` would produce '/blog//blog/<new>'. No impact today: all 95 old paths still exist as live posts, so the post renders and the redirect check is never reached. H1 was kept exactly as spec'd; the spec owner should decide whether to normalise the lookup/target."
+    },
+    {
+      "severity": "nonBlocking (pre-existing, out of H1-H4 scope)",
+      "finding": "lib/db.ts Pool has no 'error' listener: when Postgres terminated idle connections (pg_ctl stop) next start logged `uncaughtException` (57P01) twice (the process survived in this run). Consider pool.on('error', ...) in a later spec item."
+    },
+    {
+      "severity": "info (spec asks to report, not change)",
+      "finding": "Unpublished posts stay reachable by slug: storage.getBlogPostBySlug (lib/storage.ts:47) does not filter on published."
+    },
+    {
+      "severity": "info (pre-existing)",
+      "finding": "Post <title> renders as '<title> | Growmax Intelligence | Growmax' (the root layout template appends '| Growmax' to the page's own suffix). Unchanged by H1."
+    },
+    {
+      "severity": "info",
+      "finding": "Next 15.5 runs revalidatePath's pending work via waitUntil / after the response body (build/templates/app-route.js), so an async revalidation failure cannot change the mutation response; the synchronous revalidatePath throws are caught per path."
+    }
+  ],
+  "checksForVerifierToRun": [
+    "npm ci && npm run check",
+    "SPEC-02 'Local verification' steps 1-5 against the H-series code (note: put the PG16 data dir somewhere the postgres user can traverse, e.g. /var/lib/postgresql/<dir>)",
+    "H-only check 1: admin edit -> /blog/<slug>, /blog, /sitemap.xml, /llms.txt, /llms-full.txt, /api/blog reflect it on the next request (sitemap via slug rename or lastmod)",
+    "H-only check 2: force the middleware lookup to time out (unreachable Neon HTTP URL for middleware only) and confirm the request completes within about 5 s and fails open; note the page-level redirect check only fires for bare-slug rows (see findings)",
+    "H-only check 3: pg_ctl stop -> already cached /blog/<slug> 200 (never 404); /api/blog 200 from cache; uncached slugs 500 not 404",
+    "Confirm build shows ● /blog/[slug] and prerender-manifest dynamicRoutes contains /blog/[slug]",
+    "Review checklist per SPEC-02, with explicit attention to the generateStaticParams addition in app/blog/[slug]/page.tsx"
+  ]
+}

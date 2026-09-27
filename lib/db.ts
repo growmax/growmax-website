@@ -9,7 +9,7 @@ if (!process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL must be set.')
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+export const pool = new Pool({ connectionString: process.env.DATABASE_URL, connectionTimeoutMillis: 10_000 })
 // Release idle clients before a Vercel Fluid compute instance suspends.
 if (process.env.VERCEL) attachDatabasePool(pool)
 export const db = drizzle(pool, { schema })

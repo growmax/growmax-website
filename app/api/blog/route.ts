@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server'
 import { storage } from '@/lib/storage'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export async function GET() {
-  try {
-    const posts = await storage.getPublishedBlogPosts()
-    return NextResponse.json(posts)
-  } catch {
-    return NextResponse.json({ error: 'Failed to fetch blog posts' }, { status: 500 })
-  }
+  // Don't swallow DB errors: let regeneration fail and serve the stale cached response.
+  const posts = await storage.getPublishedBlogPosts()
+  return NextResponse.json(posts)
 }

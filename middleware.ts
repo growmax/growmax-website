@@ -10,12 +10,20 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/blog/') && !pathname.startsWith('/blog/[')) {
     const slug = pathname.replace('/blog/', '')
     if (slug && !slug.includes('/')) {
+      let timer: ReturnType<typeof setTimeout> | undefined
       try {
-        const rows = (await sql`
-          SELECT new_path FROM blog_redirects
-          WHERE old_path = ${slug}
-          LIMIT 1
-        `) as Array<{ new_path: string }>
+        // Race against a 5000ms timeout to cover a Neon cold start; fail open on timeout
+        // exactly like the catch below (H1's page-level redirect check keeps SEO correct).
+        const rows = (await Promise.race([
+          sql`
+            SELECT new_path FROM blog_redirects
+            WHERE old_path = ${slug}
+            LIMIT 1
+          `,
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => reject(new Error('blog_redirects lookup timed out')), 5000)
+          }),
+        ])) as Array<{ new_path: string }>
         if (rows.length > 0 && rows[0].new_path) {
           return NextResponse.redirect(
             new URL(`/blog/${rows[0].new_path}`, request.url),
@@ -24,6 +32,8 @@ export async function middleware(request: NextRequest) {
         }
       } catch {
         // fail open — let the page handler render
+      } finally {
+        clearTimeout(timer)
       }
     }
   }
