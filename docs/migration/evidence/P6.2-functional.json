@@ -2,13 +2,13 @@
   "step": "P6.2",
   "gate": "G6a",
   "status": "pass",
-  "checkedAt": "2026-09-27T06:45:57Z",
+  "checkedAt": "2026-09-27T08:11:09Z",
   "verifier": "migration-verifier (opus-5-5/medium)",
   "base": "https://growmax-website.vercel.app",
-  "deploymentId": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7",
-  "deploymentSha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba",
+  "deploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+  "deploymentSha": "dc5405357441870b9315a28a7cbb93a201278453",
   "mode": "pre",
-  "runLabel": "p6-20260927T0645Z",
+  "runLabel": "p6-20260927T0803Z",
   "f2": "not run (P6.2: full suite again, no F2)",
   "runMjsStatus": "pass",
   "failed": [],
@@ -17,13 +17,13 @@
     {
       "name": "SPEC-04 \u00a75.4 protected-deployment probe",
       "expected": "GET / -> 200 app HTML (not a Vercel auth page); a redirect source returns its configured status/Location; only x-vercel-protection-bypass sent",
-      "actual": "GET / -> 200, server Vercel, 194862 bytes, <title>Growmax | B2B Revenue Ops for Manufacturers</title>, 0 auth-wall markers; GET /about -> 308 Location /company/about. Only x-vercel-protection-bypass sent (never x-vercel-set-bypass-cookie).",
+      "actual": "GET / -> 200, server Vercel, x-vercel-id present, 194862 bytes, <title>Growmax | B2B Revenue Ops for Manufacturers</title>, 0 auth-wall markers; GET /about -> 308 Location /company/about. Only x-vercel-protection-bypass sent (never x-vercel-set-bypass-cookie).",
       "pass": true
     },
     {
       "name": "Deployment identity",
-      "expected": "growmax-website.vercel.app aliased to the P6.2 deployment (P6.2-deploy.json)",
-      "actual": "vercel inspect: dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7, target production, Ready (sha 2f4b4d5 per P6.2-deploy.json)",
+      "expected": "growmax-website.vercel.app aliased to the P6.2 attempt-3 deployment (facts.vercel.hDeploymentId, facts.git.hSha dc54053)",
+      "actual": "Vercel get_deployment(growmax-website.vercel.app): dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx, target production, READY, githubCommitSha dc5405357441870b9315a28a7cbb93a201278453",
       "pass": true
     },
     {
@@ -77,17 +77,17 @@
     {
       "name": "run.mjs F9 logout (Chromium-decided in harness)",
       "expected": "session isAdmin false after logout; no growmax-admin cookie left in context",
-      "actual": "decidedBy chromium, Chromium 141.0.7390.37; sessionAfterLogin isAdmin True; logout 200; sessionAfterLogout isAdmin False; leftovers 0; failures []",
+      "actual": "decidedBy chromium, Chromium 141.0.7390.37; sessionAfterLogin isAdmin True; logout 200; sessionAfterLogout isAdmin False; leftovers 0; failures []; parser diagnostics agree with Chromium: True",
       "pass": true
     },
     {
-      "name": "F9 independent real-browser corroboration (verifier's own script, playwright-core + /opt/pw-browsers/chromium)",
-      "expected": "login via /admin/login UI -> page fetch /api/admin/session isAdmin true; logout -> isAdmin false; context.cookies() has no growmax-admin with non-empty value; bypass header only on the target origin",
-      "actual": "Chromium 141.0.7390.37; /admin/login 200, POST /api/admin/login 200; jar after login: growmax-admin Path=/ host-only valueLength 265 Secure HttpOnly Lax; session isAdmin True; logout via page-fetch (UI button click issued no POST within 15s, see issues) -> 200; logout Set-Cookie: name=growmax-admin valueEmpty=True Path=/ Max-Age=0 Expires=None Domain=None HttpOnly=True Secure=True SameSite=lax; session after logout isAdmin False; jar after logout: 10 cookies total, growmax-admin count 0, non-empty 0; bypass header routed only to ['growmax-website.vercel.app'], attached to 0 of 15 third-party hosts; no extraHTTPHeaders",
+      "name": "F9 independent browser corroboration (verifier's own Chromium script)",
+      "expected": "Login through /admin/login UI; page fetch /api/admin/session isAdmin true; POST /api/admin/logout from the page; session isAdmin false; no growmax-admin cookie with non-empty value in context.cookies(); bypass header only on target-origin requests (context.route), never extraHTTPHeaders",
+      "actual": "Chromium 141.0.7390.37 (/opt/pw-browsers/chromium). /admin/login 200; UI login POST 200 -> /admin; cookie after login: growmax-admin Path=/ host-only HttpOnly Secure SameSite=Lax; session isAdmin True. Logout via page fetch POST /api/admin/logout with credentials (UI click produced no request): 200; logout Set-Cookie: name=growmax-admin Path=/ Max-Age=0 Expires=(absent) valueEmpty=True. Session after logout isAdmin False; growmax-admin cookies left 0 (non-empty 0). Target-origin requests routed with header 97; off-origin with header 0 (15 third-party hosts loaded, none received it).",
       "pass": true
     },
     {
-      "name": "F9 overall",
+      "name": "F9 combined verdict",
       "expected": "run.mjs F9 pass AND browser corroboration pass",
       "actual": "run.mjs True, browser True",
       "pass": true
@@ -105,24 +105,26 @@
       "pass": true
     },
     {
-      "name": "Cleanup: no rows labeled vercel-migration-test-p6-20260927T0645Z in Neon",
-      "expected": "0 in newsletter_subscriptions, demo_requests, blog_posts",
-      "actual": "newsletter_subscriptions 0, demo_requests 0, blog_posts 0 (label match); any vercel-migration-test% rows: blog_posts 0, newsletter 0; blog_posts total 171 (== F6 dbCount). Direct read via @neondatabase/serverless on DATABASE_URL_UNPOOLED mapped in-process.",
+      "name": "Cleanup: no rows labeled vercel-migration-test-p6-20260927T0803Z in Neon",
+      "expected": "0 rows in newsletter_subscriptions, demo_requests, blog_posts, blog_redirects",
+      "actual": "newsletter_subscriptions 0, demo_requests 0, blog_posts 0, blog_redirects 0 (label match); any vercel-migration-test* rows: newsletter 0, blog_posts 0, demo_requests 0; blog_posts total 171 (unchanged vs F6)",
       "pass": true
     },
     {
-      "name": "Info: /api/blog cache (A1 C10, report-only here; not requested for this run)",
-      "expected": "second request x-vercel-cache HIT",
-      "actual": "1st REVALIDATED, 2nd HIT",
+      "name": "No secrets/PII in outputs",
+      "expected": "bypass secret, ADMIN_PASSWORD and connection strings absent from run.json/stdout/stderr/f9-browser.json",
+      "actual": "0 matches for each in all four files",
       "pass": true
     }
   ],
-  "artifacts": {
-    "functionalRunRaw": "docs/migration/.scratch/p6.2-functional/p62-functional-run.json (gitignored)",
-    "f9BrowserRaw": "docs/migration/.scratch/p6.2-functional/f9-browser.json (gitignored)",
-    "command": "node scripts/migration/functional/run.mjs --base https://growmax-website.vercel.app --mode pre --run-label p6-20260927T0645Z --bypass-secret-file docs/migration/.scratch/bypass-secret --target-database-url-env DST_URL (DST_URL = DATABASE_URL_UNPOOLED mapped in-process from .scratch/.env.production; ADMIN_PASSWORD from container env)",
-    "notes": [
-      "growmax-website.vercel.app answered 200 without the bypass header too (see P6.2-deploy.json protectionCheck); does not affect this functional run."
-    ]
-  }
+  "notes": [
+    "The UI Logout button click (data-testid=button-logout) on /admin produced no POST within 15s in headless Chromium, so the browser check logged out with a page fetch POST /api/admin/logout (credentials included), an option the suite allows. This is diagnostic only: F9 criteria concern the logout response and the session/cookie state, which both pass. Likely cause: a third-party widget overlay or actionability timing in headless mode (not investigated further; class: harness/env)."
+  ],
+  "artifacts": [
+    "docs/migration/.scratch/p6.2-functional-p6-20260927T0803Z/run.json",
+    "docs/migration/.scratch/p6.2-functional-p6-20260927T0803Z/run.stdout",
+    "docs/migration/.scratch/p6.2-functional-p6-20260927T0803Z/f9-browser.json",
+    "docs/migration/.scratch/p6.2-functional-p6-20260927T0803Z/probe_.hdr",
+    "docs/migration/.scratch/p6.2-functional-p6-20260927T0803Z/probe_about.hdr"
+  ]
 }

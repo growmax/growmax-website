@@ -2,73 +2,66 @@
  "step": "P6.2",
  "gate": "G6a",
  "status": "pass",
- "checkedAt": "2026-09-27T06:51:31Z",
+ "checkedAt": "2026-09-27T08:11:16Z",
  "verifier": "migration-verifier (opus/medium)",
  "mode": "pre",
- "runLabel": "p6-20260927T0645Z",
+ "runLabel": "p6-20260927T0803Z",
  "baseA": "https://www.growmax.io (live Replit, fresh capture, no bypass header sent)",
- "baseB": "https://growmax-website.vercel.app -> dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7 (READY, production, sha 2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba, the H-series commit), read back via Vercel get_deployment. Only x-vercel-protection-bypass sent, scoped to B's host by run.mjs's route handler; x-vercel-set-bypass-cookie never sent",
+ "baseB": "https://growmax-website.vercel.app -> dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx (READY, production, sha dc5405357441870b9315a28a7cbb93a201278453 per P6.2-a3-deploy.json). Only x-vercel-protection-bypass sent, scoped to B's host by run.mjs's route handler; x-vercel-set-bypass-cookie never sent",
  "harness": {
   "file": "scripts/migration/visual/run.mjs",
   "gitHashObject": "5349fc3b5e3afbb196ceba913ae480cd387810f8",
-  "note": "same blob as the opus-reviewed P5.3 version used for P5.2 attempt2c; unmodified in the working tree",
+  "note": "unchanged since 3d36d03 (P5.3 reviewed version); no local modifications",
   "deps": "playwright-core, pixelmatch, pngjs present in scripts/migration/node_modules; npm ci not needed"
  },
  "facts": {
   "visual": "run",
-  "runs": 2,
-  "primaryRun": "run2",
-  "maxRatioRun2": 0.003635147150112614,
-  "comparableRun2": 20
+  "runs": 1,
+  "window": "2026-09-27T08:08:39Z..08:10:05Z",
+  "comparable": 20,
+  "maxRatio": 0.0038331839559775094,
+  "inBand0_5to3pct": 0,
+  "rawHarnessStatus": "fail (4 flagged: all first-party /demo?_rsc=* net::ERR_ABORTED)"
  },
  "checks": [
   {
-   "name": "SPEC-04 \u00a75.4 protected-deployment probe (curl with bypass header, before any comparison)",
-   "expected": "app's own responses: / 200 with Growmax title; configured redirects keep their status",
-   "actual": "/ -> 200, server: Vercel, x-matched-path: /, title 'Growmax | B2B Revenue Ops for Manufacturers'; /arc/ai -> 308 location /minori-ai (permanent:true); /revenue-platform/dealer-portals -> 307 location /revenue-platform (permanent:false). No 401 and no Vercel auth redirect",
+   "name": "SPEC-04 §5.4 protected-deployment probe (curl with bypass header, before any comparison)",
+   "expected": "app's own responses: / 200 with Growmax title; configured redirects keep their status; no 401 / Vercel auth redirect",
+   "actual": "/ -> 200, server: Vercel, x-matched-path: /, title 'Growmax | B2B Revenue Ops for Manufacturers'; /arc/ai -> 308 location /minori-ai; /revenue-platform/dealer-portals -> 307 location /revenue-platform",
    "pass": true
   },
   {
    "name": "container reachability + browser preflight for both sites",
-   "expected": "run.mjs reaches both sites and the Chromium preflight navigates",
-   "actual": "both runs completed; 20/20 page/viewport combinations captured on both sides in both runs",
+   "expected": "run.mjs reaches both sites and captures every page/viewport",
+   "actual": "20/20 page/viewport combinations captured on both sides, all comparable (same dimensions)",
    "pass": true
   },
   {
    "name": "pixelmatch ratio per page/viewport (<=0.5% pass, 0.5-3% inspect, >3% fail)",
    "expected": "all 20 <=0.5%, or explained",
-   "actual": "run2: 20/20 comparable, max 0.3635% (home/mobile), home/desktop 0.1846%, all others <=0.002%; none in the 0.5-3% band so no diff PNG needed inspection. run1: 19/20 comparable (max 0.3639%); home/desktop not comparable (size mismatch 1440x9152 vs 1440x9249) because B's woff2 font /_next/static/media/26d4368bf94c0ec4-s.p.woff2 got a transient 502 in that capture, so B rendered with the fallback font. The same combination was 0.18% in run2 once the font loaded",
+   "actual": "max 0.3833% (home/mobile), home/desktop 0.1796%, all others <=0.0025%; none in the 0.5-3% band, so no diff PNG required inspection",
    "pass": true
   },
   {
-   "name": "new console errors / HTTP error responses on B not on A",
-   "expected": "0, or each explained with evidence as not originating on Vercel",
-   "actual": "one transient 502 per run, at a different URL each time, never reproduced: run1 home/desktop GET /_next/static/media/26d4368bf94c0ec4-s.p.woff2 502 (plus its console 'Failed to load resource ... 502'); run2 blog-post/desktop GET /company/about?_rsc=HNFLsMnf00gmR_yx 502 (plus console line). Attribution: Vercel runtime logs for dpl_4MpEzLd5 over the last 30m (covering both runs) have 0 5xx (statusCode counts 200:590, 401:6 [functional-suite admin auth negatives], 404:3, 201:2, 307:1; sources cache/middleware/function/redirect all logged), and every /company/about request Vercel logged in the window was 200 (26). So the 502 was produced between Chromium and Vercel, at the container's TLS-terminating egress proxy, not by the app. Direct re-requests: font 200 x3 with bypass, 200 without bypass, 200 on A, x-vercel-cache HIT; /company/about?_rsc=HNFLsMnf00gmR_yx 200. Class: env (container proxy), not code/config",
+   "name": "new console errors / HTTP error responses (>=400) on B not on A",
+   "expected": "0",
+   "actual": "0 new console errors and 0 new error responses on all 20 combinations",
    "pass": true
   },
   {
-   "name": "new failed requests on B by normalized key (SPEC-04 \u00a77, A3/P5.3)",
-   "expected": "0, or each residual listed by key and explained",
-   "actual": "residual keys: run1 firstparty|GET|/demo?_rsc=hfi0T2VoE8N68KxV (minori-ai/desktop), /demo?_rsc=fvVk386B7PbQRK64 (blog-index/desktop), /demo?_rsc=pdoFtOKnmYiwrwh9 (comparison/desktop), all net::ERR_ABORTED; plus the font abort explained above. run2 firstparty|GET|/demo?_rsc=JOYFzgqX9X1y8Hxb (revenue-platform/mobile), /demo?_rsc=fvVk386B7PbQRK64 (blog-index/desktop), all net::ERR_ABORTED; plus thirdparty|POST|https://analytics.google.com/g/collect on blog-post/desktop (GA beacon aborted at teardown, the class the P5.3 fix covers). Explanation: these are Next.js <Link> RSC prefetches cancelled at page teardown. A issues them too: a separate Playwright capture of A (same proxy/pin) showed GET /demo?_rsc=* ERR_ABORTED on /minori-ai desktop and mobile, and 4 /blog/<slug>?_rsc=* aborts on /blog desktop. The _rsc token and which prefetch is still in flight at teardown vary per load, so the first-party key (which includes the query string) never matches A exactly. Direct re-requests on B with RSC:1: /demo?_rsc=hfi0T2VoE8N68KxV 200 text/x-component, /demo?_rsc=JOYFzgqX9X1y8Hxb 200 text/x-component. The set differs between runs, so the aborts are nondeterministic. Class: acceptable-diff (same residual class as P5.2-visual.json)",
+   "name": "new failed requests on B by normalized key (SPEC-04 §7, A3/P5.3)",
+   "expected": "0, or each residual listed by key and explained with evidence",
+   "actual": "4 residual keys, all firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED: revenue-platform/mobile (JOYFzgqX9X1y8Hxb), blog-post/mobile (HNFLsMnf00gmR_yx), industry/desktop (nImZEc4qnCC2pRff), about/desktop (O2kiys8uQuB6QaFq). Explanation: Next.js <Link> RSC prefetches cancelled at page teardown. A issues the same class: a separate Playwright capture of A through the same proxy/pin (a-side-failed-firstparty.json) showed GET /demo?_rsc=* ERR_ABORTED on /revenue-platform desktop and mobile and 5 /blog/<slug>?_rsc=* aborts on /blog; which prefetch is in flight at teardown varies per load and the _rsc token is in the first-party key, so keys never match A exactly. Direct re-requests on B with RSC:1 for all 4 tokens: 200 text/x-component. Class: acceptable-diff (same residual class as P5.2-visual.json and the 06:51Z P6.2 run)",
    "pass": true
   }
  ],
  "residualKeys": [
-  "firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED (RSC prefetch teardown; A issues it too; 200 direct)",
-  "firstparty|GET|/_next/static/media/26d4368bf94c0ec4-s.p.woff2|net::ERR_ABORTED + 502 (run1 only; transient proxy 502; 200 direct; no 5xx in Vercel logs)",
-  "502 GET /company/about?_rsc=HNFLsMnf00gmR_yx (run2 only; transient proxy 502; 200 direct; Vercel logged only 200s for /company/about)",
-  "thirdparty|POST|https://analytics.google.com/g/collect|net::ERR_ABORTED (run2 blog-post/desktop; GA beacon teardown)"
+  "firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED (RSC prefetch teardown; A issues it too; 200 direct)"
  ],
- "rawHarnessStatus": {
-  "run1": "fail (5 flagged)",
-  "run2": "fail (3 flagged)",
-  "note": "run.mjs sets top-level fail on any residual entry; SPEC-04 \u00a77 lets a residual pass when it is listed by key and explained with evidence, which this file does"
- },
  "artifacts": [
-  "docs/migration/.scratch/p6-20260927T0645Z/visual/visual-suite.json",
-  "docs/migration/.scratch/p6-20260927T0645Z/visual-run2/visual-suite.json",
-  "docs/migration/.scratch/p6-20260927T0645Z/visual/ (a-*/b-*/diff-* PNGs)",
-  "docs/migration/.scratch/p6-20260927T0645Z/visual-run2/ (a-*/b-*/diff-* PNGs)",
-  "Vercel runtime logs dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7 since 06:19Z (group_by statusCode/source; 5xx filter empty)"
+  "docs/migration/.scratch/p6-20260927T0803Z/visual/visual-suite.json",
+  "docs/migration/.scratch/p6-20260927T0803Z/visual/run.log",
+  "docs/migration/.scratch/p6-20260927T0803Z/visual/ (a-*/b-*/diff-* PNGs)",
+  "docs/migration/.scratch/p6-20260927T0803Z/visual/a-side-failed-firstparty.json"
  ]
 }
