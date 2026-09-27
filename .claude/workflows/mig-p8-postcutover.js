@@ -30,7 +30,7 @@ if (a.part === 'verify') {
     { label: 'P8.1 dns+tls', phase: 'Verify', model: 'haiku', effort: 'low', schema: RESULT })
   const suite = await workflow({ scriptPath: '.claude/workflows/mig-verify-suite.js' }, {
     step: 'P8.2', baselineManifest: `${EV}/P6.5-baseline-manifest.json`, baseB: 'https://www.growmax.io', bypass: false,
-    mode: 'post', runLabel: a.runLabel, allowDemoTest: false, paths: a.paths || {}, pinnedReplit: true,
+    mode: 'post', runLabel: a.runLabel, allowDemoTest: !!a.allowDemoTest /* A3 C-A3-8(d): the last demo test is reserved for P8.2 on www.growmax.io */, paths: a.paths || {}, pinnedReplit: true,
   })
   return { status: dnsTls?.status === 'pass' && suite?.summary?.status === 'pass' ? 'pass' : 'fail', dnsTls, suite }
 }

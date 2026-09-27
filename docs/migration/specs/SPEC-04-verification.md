@@ -93,6 +93,7 @@ Expect at least 250 URLs. Log the count per source. A shrinking inventory betwee
   - **Mixed modes:** compare works for full/full, compact/full and full/compact. A full side is hashed on the fly with exactly the canonicalization compact capture uses, and sha256 allowlist pins work in every mode. When a text side is compact, the diff is built from the raw body in `--raw-dir` if it's present.
   - **`/api/blog` size:** the output always reports bytes and array length for both sides. Above 3,500,000 bytes it prints a WARNING, which never changes pass/fail.
   - **Tie order:** a diff on `/`, `/blog`, `/llms.txt`, `/llms-full.txt` or `/sitemap.xml` may be allowlisted only when `parity/tie-permutation.mjs` proves, on the page's own raw bodies, that B differs from A only by reordering posts with an identical `created_at`, and the residual text check is byte-identical. The entry must pin both observed values.
+  - **A-side build-time staleness** (added 2026-09-27 per A3 for P5.3): a diff on `/` or `/sitemap.xml` may be allowlisted only when all of these hold: A's response carries a prerender/cache marker that predates the content (`x-nextjs-prerender` or `x-nextjs-cache: HIT` with a long `s-maxage`); every differing item is present in A's own live `/api/blog`; the set decomposition is exact (B-only additions, or a swap of the N latest posts); both observed values are pinned; and the unified text diff is attached. Approved per consult (A2/A3), never as a pattern. The pins break as soon as Replit publishes or edits a post or B is rebuilt on different data; re-pin only with the same proof.
 
 ## 5. Self-test (`selftest.mjs`), required before G1
 
@@ -126,7 +127,7 @@ Options: `--base`, `--bypass-secret-file`, `--mode pre|post`, `--run-label <id>`
 | F6 | `GET /api/admin/posts` | 200; length = `SELECT count(*) FROM blog_posts` |
 | F7 | Create draft `vercel-migration-test-<runLabel>` (`published:false`) | 201; `GET /api/blog/<slug>` → 404 |
 | F8 | Update its title; then delete it | 200 / 200; no residue in Neon |
-| F9 | Logout | then session → `{"isAdmin":false}` |
+| F9 | Logout | then session → `{"isAdmin":false}`. The logout response must clear the exact `growmax-admin` cookie (RFC 6265 attributes, same Path and Domain as the login cookie). **Standing since A3 (P5.3):** corroborate in a real Chromium context (login through `/admin/login`, logout, `isAdmin:false`, no `growmax-admin` cookie left in `context.cookies()`) on every suite run (P6.2, P8.2) |
 | F10 | Unauthenticated admin API: GET, POST, PUT, DELETE | all 401 |
 | F11 | `/api/blog-redirects?slug=<old>` | `{"newSlug":"<new>"}` |
 
@@ -146,6 +147,7 @@ Write the result to `evidence/<step>-functional.json`. It holds statuses and boo
   - 0.5–3% the verifier inspects the diff PNG (it can read images) and explains
   - \> 3% fail unless the difference is explained by data freshness
 - Also collect console errors and failed requests. **New** errors on Vercel that don't happen on Replit fail the check.
+  - Failed requests compare by a normalized key (A3, P5.3): third-party = method + `scheme://host` + pathname + failure text (query and fragment ignored, since analytics beacons randomize them); first-party (the page host, `www.growmax.io`, `growmax.io`) = method + pathname + search + failure text. Raw URLs stay in the evidence. A residual entry passes only when it is listed by key and explained with evidence (for example a Next.js RSC prefetch cancelled at page teardown that answers 200 when requested directly and that A issues too).
 - If the container can't reach both sites, record `status: "not_run"` with the reason (it doesn't block G5 if parity and functional passed).
 
 ## 8. Performance (report-only) and logs
@@ -155,7 +157,7 @@ Write the result to `evidence/<step>-functional.json`. It holds statuses and boo
 
 ## 9. Suite composition (`.claude/workflows/mig-verify-suite.js`)
 
-Parity (verifier), functional (verifier) and visual (verifier) run in parallel. Logs+perf (scout) runs **after** functional finishes. It records the `since`/`until` window and the plan's log retention, and treats "no log lines at all while the tests ran" as a **fail**, because an empty window proves nothing. Synthesis (verifier) then writes `evidence/<step>-suite-summary.json`:
+Parity (verifier), functional (verifier) and visual (verifier) run in parallel. **Raw bodies are always retained** (`capture.mjs --raw-dir` on both sides, `compare.mjs --raw-dir-a/--raw-dir-b`) so the §4 unified text diff is written on every text-hash mismatch; no allowlist approval without it (A3, P5.3). For P8.2, `/` and `/sitemap.xml` compared with the P6.5 live-Replit baseline are expected to differ by A-side staleness: A2 either approves pinned entries for them or specifies comparing those two URLs with B's own P6.4 quick-parity capture. Logs+perf (scout) runs **after** functional finishes. It records the `since`/`until` window and the plan's log retention, and treats "no log lines at all while the tests ran" as a **fail**, because an empty window proves nothing. Synthesis (verifier) then writes `evidence/<step>-suite-summary.json`:
 
 ```json
 {
