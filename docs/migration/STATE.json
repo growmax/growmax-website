@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
-  "currentStep": "P8.1",
-  "updatedAt": "2026-09-27T09:40:19.239Z",
+  "currentStep": "P8.2",
+  "updatedAt": "2026-09-27T09:41:26.972Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -535,6 +535,15 @@
         "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-postcutover-prep-wf_be26c8eb-5e8.js",
         "startedAt": "2026-09-27T09:12:00Z",
         "note": "parallel: P8.1 dns/tls; C-A3b-5 harness (before P8.2); init-watermarks-post-cutover mode, reviewed, run, verified"
+      },
+      "p8verify": {
+        "runId": "wf_3775e118-4f2",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-p8-verify-and-delta-wf_3775e118-4f2.js",
+        "args": {
+          "runLabel": "p8-20260927T0948Z"
+        },
+        "startedAt": "2026-09-27T09:49:00Z",
+        "note": "P8.2 suite (baseline P6.2 manifest-a; allowDemoTest true = the 3rd and last demo test; pinnedReplit), P8.1 Sandbox NS+TLS, first P8.3 delta (full)"
       }
     },
     "followUps": [
@@ -1740,10 +1749,13 @@
       ],
       "gate": "G8a",
       "workflow": ".claude/workflows/mig-p8-postcutover.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T09:41:26.972Z Full suite on https://www.growmax.io (wf_3775e118-4f2): the baseline is the P6.2 attempt-3 live-Replit capture (manifest-a and raw-a, 08:04Z, harness 2565667), plus Replit pinned by IP (report-only). F2 runs once: the 3rd and last demo test, which the owner was told about. The first P8.3 delta check-in and the P8.1 Sandbox NS/TLS completion run in parallel."
+      ],
+      "startedAt": "2026-09-27T09:41:26.972Z"
     },
     {
       "id": "P8.3",
