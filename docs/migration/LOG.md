@@ -219,3 +219,5 @@
 - 2026-09-27T03:35:19.622Z set flags.prUrl
 - 2026-09-27T03:35:19.675Z set facts.pr
 - 2026-09-27T03:35:19.733Z [P5.4] step in_progress → done — Opened https://github.com/growmax/growmax-website/pull/1 (ready for review, not draft; never merge). Body: owner actions (GOOGLE_CHAT_WEBHOOK_URL in Replit Secrets, rotate the webhook, DNS A record per the runbook), M1-M4, G0-G5 evidence summary, pre-existing issues. Subscribed to PR activity.
+- 2026-09-27T03:36:12.861Z [P6.1] step pending → in_progress — mig-p6a-harden.js: implement H1-H4 (SPEC-02) -> local verification incl. H-only item 6 -> opus review, up to 3 rounds, no commits. Then the C-A3-4 F9 hardening (harness), sequentially (one code-editing agent at a time), both before P6.2.
+- 2026-09-27T03:36:23.861Z set facts.runs

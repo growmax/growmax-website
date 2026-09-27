@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": null,
-  "updatedAt": "2026-09-27T03:35:19.732Z",
+  "currentStep": "P6.1",
+  "updatedAt": "2026-09-27T03:36:23.860Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -291,6 +291,13 @@
         "args": null,
         "startedAt": "2026-09-27T03:23:47Z",
         "note": "C-A3-2 text diff of / (P5.3-text-diff.json) and C-A3-5 visual re-run (P5.2-visual.json), two verifiers sonnet/medium"
+      },
+      "p61": {
+        "runId": "wf_e5c85e37-07f",
+        "scriptPath": ".claude/workflows/mig-p6a-harden.js",
+        "args": {},
+        "startedAt": "2026-09-27T03:36:23Z",
+        "note": "resume with args {}"
       }
     },
     "followUps": [
@@ -1225,10 +1232,13 @@
       ],
       "gate": "G6a",
       "workflow": ".claude/workflows/mig-p6a-harden.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T03:36:12.860Z mig-p6a-harden.js: implement H1-H4 (SPEC-02) -> local verification incl. H-only item 6 -> opus review, up to 3 rounds, no commits. Then the C-A3-4 F9 hardening (harness), sequentially (one code-editing agent at a time), both before P6.2."
+      ],
+      "startedAt": "2026-09-27T03:36:12.860Z"
     },
     {
       "id": "P6.2",
