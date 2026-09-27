@@ -1,0 +1,92 @@
+{
+  "step": "P5.3",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T01:57:25Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "mode": "read-only-css-analysis",
+  "baseA": "https://www.growmax.io",
+  "baseB": "https://growmax-website.vercel.app (dpl_3pt7gJhkymtokAVFXwifHpCjkUoE, commit d8c8b05)",
+  "scope": "Re-derives build identity and visitor-impact facts independently of docs/migration/evidence/P5.3-investigation.json; that file's headline claim ('A is an old Vite build') is treated as unproven per the task brief and is directly contradicted below.",
+  "checks": [
+    {
+      "name": "(1) Build identity: buildId exposed to client",
+      "expected": "a comparable buildId artifact",
+      "actual": "Not applicable: this is a Next.js App Router app (no pages/ directory), which does not expose a client-fetchable buildId file the way Pages Router's /_next/static/<buildId>/_buildManifest.js does. Confirmed no such manifest exists (404 on both A and B). Build identity was instead derived from content-hashed chunk/CSS filenames, which is the App Router's actual identity signal.",
+      "pass": true
+    },
+    {
+      "name": "(1) JS chunk names identical across sampled pages (/, /blog, one post, one company page)",
+      "expected": "identical names imply identical compiled code; report which differ",
+      "actual": "NOT all identical. On every one of the 4 sampled pages, three JS chunk names differ between A and B: 1255-<hash>.js (A: b28ea36bf0cdbd65, B: 05e4ca1d0431e76b), 1356-<hash>.js (A: 8ac2296275443024, B: 0cfa22146b90e860), and main-app-<hash>.js (A: 5545a15157b0d1ce, B: 5eb0d9c55a395822). Per-route app/layout-<hash>.js and app/page-<hash>.js also differ on every sampled page (expected to differ per-route, but notable that even the shared root app/layout chunk differs). All other shared numbered chunks match byte-for-byte by filename: 2619-3c9e02e22d10480a.js, 3896-83c7d9eaf9394b71.js, 4bd1b696-f785427dddbba9fb.js, 5330-7c821197adf048a2.js, 7112-5e443b00e4a6e59e.js, polyfills-42372ed130431b0a.js, webpack-725eb186f623cc2b.js. Since Next.js names chunks by content hash, the differing names prove A and B are running genuinely different compiled JS for those chunks (not merely a query-string/dpl cosmetic difference) -- this directly contradicts the framing that 'asset references differ only by Vercel's ?dpl= parameter': that framing came from the P5.2 harness's own assetRefs comparator, which replaces every hash segment with the literal placeholder '<hash>' before diffing (confirmed by reading its output in P5.2-diff-full.json), so it is structurally incapable of detecting a hash difference -- it only ever proves 'same number of chunks, same non-hash naming shape', not 'identical code'. Also newly confirmed: A itself serves x-nextjs-cache / x-nextjs-prerender / x-powered-by:Next.js headers on every page (re-checked live), so A is a Next.js deployment (most likely an earlier Next.js build of this same app already running on Replit), not a legacy Vite/wouter/Express SPA as P5.3-investigation.json's root_cause speculated.",
+      "pass": true
+    },
+    {
+      "name": "(1) CSS file names that differ",
+      "expected": "name the differing CSS file(s)",
+      "actual": "Two CSS files are referenced on every sampled page. /_next/static/css/67ec1cc0bd707d2d.css is byte-identical on A and B (sha256 b22fd05c..., re-verified). The other differs: A serves /_next/static/css/e0e0fae895f3fff8.css (sha256 5cca0cd4..., 152814 bytes), B serves /_next/static/css/5ae60ac95c5812a0.css (sha256 072d7bf0..., 132014 bytes). Re-fetched directly just now; hashes match P5.2/P5.3-investigation's recorded values exactly, confirming the bundles are unchanged since attempt 1.",
+      "pass": true
+    },
+    {
+      "name": "(2) Visitor impact: do any A-only / B-only / differing-declaration classes appear in rendered class attributes on any of the 297 captured pages, on either side",
+      "expected": "an explicit yes/no per page+class, or an explicit 'none used anywhere' if that's what the evidence shows",
+      "actual": "Re-derived the full rule-level CSS diff (not just the examples in P5.3-investigation.json): 291 selector-keys only in A, 6 only in B, 7 common keys with differing declarations. After deduplicating grouped comma-lists into individual class tokens and checking literal presence anywhere in the OTHER side's full CSS (both chunks, not just the differing one): the 6 'only in B' keys and all 7 'differing-declaration' keys are pure Tailwind v4 class-co-occurrence grouping/property-ordering artifacts -- every one of those class tokens (e.g. absolute, sr-only, grow, outline, shrink, backdrop-blur-sm, bg-gradient-to-b, ring-1, tabular-nums) is present with equivalent effective declarations on BOTH sides, just attached to a differently-grouped selector list or in a different property-emission order; spot-checked ring-1/sr-only/tabular-nums/backdrop-blur-sm/bg-gradient-to-b declarations directly and confirmed equivalence. Of the 291 'only in A' keys, 241 distinct class tokens are genuinely absent from B's CSS (checked against B's full combined CSS, both chunks). Fetched all 277 text/html URLs from the 297-URL P5.2 inventory on BOTH A and B live (raw bodies were not retained from the P5.2 attempt-1 capture -- only metadata/hashes were stored in the manifests -- so this analysis re-fetched fresh), and searched every page's markup (including inline RSC/self.__next_f payload text) for all 241 tokens as whitespace/quote-delimited tokens. Result: zero genuine matches on any of the 277 pages on either side. The only hit ('isolate', found identically on 2 blog posts on BOTH A and B) is a false positive: it is the English word 'isolate' inside blog body prose ('...allows the middleware to isolate problematic data...'), not a CSS class. Caveat: this crawl only sees first-paint/static HTML; classes belonging to components that only mount into the DOM after client interaction (e.g. modal/dialog/sheet open state) would not appear in this crawl on either side regardless of whether the CSS rule exists, so this check cannot rule out a rendering difference for content that never appears in the initial HTML.",
+      "pass": true
+    },
+    {
+      "name": "(3) Cause: do sample/all A-only classes appear in tracked source (HEAD and origin/main)",
+      "expected": "a definite yes/no supporting or refuting the Tailwind-v4-scans-untracked-files hypothesis",
+      "actual": "Checked all 241 genuinely-A-only tokens (not just a sample) with git grep against both HEAD (this branch) and origin/main, excluding docs/migration/ (which only contains the investigation's own prose). 215 of 241 (89%) appear in NO tracked file on either branch -- e.g. bare '@container', 'animate-bounce', '!bg-transparent', '!border-0', '!container', '!rounded-none', '!shadow-none', every 'bg-amber-*'/'bg-indigo-950'/'bg-blue-*' color-scale utility, 'col-12', 'aspect-[4/3]', print:* variants, RTL border-x/e/s, table-display utilities, etc. For these 215, the evidence supports the stated hypothesis: since Tailwind v4's default automatic content detection scans the whole project filesystem (not just the git-tracked tree, and not gated by webpack's import graph) for candidate classes, and none of these class names exist anywhere a human could have typed them in this repository's history, they most likely came from extra file(s) present in A's live build filesystem (e.g. Replit's workspace) that are not committed to git -- plausibly a demo/style-guide/kitchen-sink page exercising many unrelated Tailwind utilities, consistent with the breadth and randomness of the list. HOWEVER 26 of 241 (11%) DO appear in tracked source, as genuine component-level utility classes (not incidental substring hits): animate-out, fade-out, slide-in-from-{bottom,left,right,top}, slide-out-to-{bottom,left,right,top}, zoom-out, zoom-out-95 (Radix/shadcn dialog, alert-dialog, sheet, dropdown-menu, hover-card, context-menu, menubar, navigation-menu, popover, select, toast animation classes), plus antialiased, ease-out (app/globals.css), h-screen (app/admin, app/blog, app/company/about and others), duration-500 (sheet.tsx), border-s (button.tsx, sidebar.tsx), col-span-2 (Footer.tsx), rounded-b (button-group.tsx), self-start (item.tsx), px-5/paused (MinoriWorkbench.tsx), isolate (terms-of-service/page.tsx). All 26 were independently confirmed present in the exact file+blob checked out at commit d8c8b05 (B's deployed commit) via `git show d8c8b05:<path>`, meaning B's own source tree at build time DID contain these classes' usages, yet B's compiled CSS still lacks the corresponding rules. This is a second, distinct phenomenon that the untracked-file hypothesis does NOT explain -- it points instead to B's Tailwind build having incomplete content-scan coverage of some tracked component files (a plausible but unconfirmed candidate: Tailwind v4's Oxide scanner cache/incremental-build behavior across Vercel deployments), which is outside the scope of a read-only check and is flagged as an open item rather than asserted as proven. Net verdict: the evidence partially, not wholly, supports the stated hypothesis -- it explains the large majority (89%) of the A-only classes but not all of them.",
+      "pass": true
+    }
+  ],
+  "facts": {
+    "buildIdentity": {
+      "appRouter": true,
+      "buildManifestEndpoint": "not present (404 on both sides) -- expected for App Router, not evidence of anything",
+      "sampledPages": ["/", "/blog", "/blog/how-to-migrate-from-tradgecko", "/company/about"],
+      "sharedChunksIdenticalOnAllSampledPages": [
+        "2619-3c9e02e22d10480a.js", "3896-83c7d9eaf9394b71.js", "4bd1b696-f785427dddbba9fb.js",
+        "5330-7c821197adf048a2.js", "7112-5e443b00e4a6e59e.js", "polyfills-42372ed130431b0a.js",
+        "webpack-725eb186f623cc2b.js", "67ec1cc0bd707d2d.css"
+      ],
+      "chunksDifferingOnEverySampledPage": {
+        "1255": {"a": "1255-b28ea36bf0cdbd65.js", "b": "1255-05e4ca1d0431e76b.js"},
+        "1356": {"a": "1356-8ac2296275443024.js", "b": "1356-0cfa22146b90e860.js"},
+        "main-app": {"a": "main-app-5545a15157b0d1ce.js", "b": "main-app-5eb0d9c55a395822.js"}
+      },
+      "perRouteChunksDiffering": "app/layout-<hash>.js and app/page-<hash>.js differ (different hash) on every one of the 4 sampled pages between A and B",
+      "cssDiffering": {"a": "e0e0fae895f3fff8.css (sha256 5cca0cd4...)", "b": "5ae60ac95c5812a0.css (sha256 072d7bf0...)"},
+      "aServerHeaders": "x-nextjs-cache: HIT, x-nextjs-prerender: 1, x-powered-by: Next.js, server: Google Frontend, via: 1.1 google -- A is itself a Next.js deployment (contradicts P5.3-investigation.json's 'A is an old Vite build' speculation)",
+      "conclusion": "A and B are running different compiled builds of the same Next.js app framework (not different frameworks). Common vendor/framework chunks match; a subset of chunks (1255, 1356, main-app) plus every per-route layout/page chunk differ, consistent with A running an earlier or otherwise different snapshot of the same codebase than B's commit d8c8b05."
+    },
+    "cssRuleDiffCounts": {"onlyInA_selectorKeys": 291, "onlyInB_selectorKeys": 6, "commonKeysWithDifferingDecls": 7, "onlyInA_distinctClassTokens": 272, "onlyInA_genuinelyAbsentFromB_tokens": 241},
+    "visitorImpact": {
+      "pagesSearchedPerSide": 277,
+      "totalUrlsInInventory": 297,
+      "nonHtmlUrlsSkipped": 20,
+      "candidateTokensSearched": 241,
+      "genuineMatchesFound": 0,
+      "falsePositive": {"token": "isolate", "reason": "matched as the English word inside blog prose ('...to isolate problematic data...'), on 2 posts identically on both A and B, not a CSS class attribute usage", "pages": ["/blog/b2b-ecommerce-without-replacing-erp", "/blog/b2b-returns-rma-management-distributors"]},
+      "verdict": "No page uses any class whose rule exists on only one side. The CSS bundle difference is confirmed to have zero effect on any of the 297 captured pages' static/first-paint rendering. Caveat: does not cover post-hydration/interaction-only DOM (modals, sheets, dropdowns)."
+    },
+    "causeAnalysis": {
+      "tokensChecked": 241,
+      "foundInTrackedSourceHEADorMain": 26,
+      "notFoundInAnyTrackedSource": 215,
+      "notFoundExamples": ["@container", "animate-bounce", "!bg-transparent", "!border-0", "!container", "!rounded-none", "!shadow-none", "bg-amber-50", "bg-indigo-950", "bg-blue-800", "col-12", "aspect-[4/3]"],
+      "foundExamples_confirmedAtDeployedCommitD8c8b05": ["animate-out (components/ui/dialog.tsx)", "slide-in-from-left (components/ui/alert-dialog.tsx)", "zoom-out-95 (components/ui/context-menu.tsx)", "h-screen (app/blog/BlogListClient.tsx)", "isolate (app/terms-of-service/page.tsx)"],
+      "hypothesisSupport": "partial: explains 215/241 (89%); does not explain 26/241 (11%) which are real component classes present in B's own deployed commit's source tree but still missing from B's compiled CSS -- flagged as an open item, not resolved by this read-only check."
+    }
+  },
+  "artifacts": {
+    "note": "All work is in this session's scratchpad only; nothing under docs/migration/.scratch was modified.",
+    "sampledPageFetches": "scratchpad/p53b/{A,B}_*.html",
+    "cssBundles": "scratchpad/p53/cssA.css, scratchpad/p53/cssB.css (reused from prior session, sha256-verified unchanged), scratchpad/p53b/shared.css + shared_a.css (the byte-identical shared chunk)",
+    "fullSelectorDiff": "scratchpad/p53b/full_selector_diff.json (291/6/7 keys, re-derived from tcss_diff.py)",
+    "realDiffTokens": "scratchpad/p53b/real_diffs.json, scratchpad/p53b/search_tokens.txt (241 genuinely-only-in-A tokens after de-duplicating grouping artifacts)",
+    "pageCrawl": "scratchpad/p53b/rawA/ and rawB/ (277 pages each, freshly fetched), scratchpad/p53b/scan.py + scan_result.json",
+    "gitGrepResults": "scratchpad/p53b/gitgrep_results.txt (HEAD), scratchpad/p53b/gitgrep_main_fixed.txt (origin/main)"
+  },
+  "verdict": "All three questions answered with direct, re-derived, live evidence. (1) JS chunk names are NOT all identical -- 3 shared chunks (1255, 1356, main-app) plus every per-route layout/page chunk differ by content hash between A and B, proving genuinely different compiled code for those chunks; only the 2 CSS files differ by name, one of which (the smaller, non-shared one) carries the 291/6/7 rule differences. This contradicts the P5.2 harness's 'assetRefs differ only by ?dpl=' framing, which is a normalization artifact of that harness stripping all hash segments before comparing, not evidence of identical code; it also contradicts P5.3-investigation.json's 'A is an old Vite build' claim, since A itself serves Next.js response headers. (2) Zero visitor-visible impact was found across all 277 captured HTML pages on both sides for any of the 241 genuinely-differing classes (one apparent hit was a false-positive English-word match), with the caveat that this only covers static/first-paint HTML, not post-interaction DOM. (3) The Tailwind-v4-scans-untracked-files hypothesis is well supported for 89% of the differing classes (confirmed absent from all tracked source on both branches) but does not account for the remaining 11%, which are real component classes present in B's own deployed commit's tracked source yet still missing from B's compiled CSS -- an unresolved, separate content-scan-coverage gap that is out of scope for this read-only check and is flagged rather than asserted as solved."
+}
