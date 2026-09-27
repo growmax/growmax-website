@@ -1,0 +1,103 @@
+{
+  "step": "P5.3",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T03:11:13Z",
+  "author": "migration-implementer",
+  "note": "self-run; certification is the reviewer's",
+  "problem": {
+    "source": "docs/migration/evidence/P5.2-visual-attempt2.json",
+    "summary": "All 20 page/viewport screenshots were within 0.381% pixel diff, with 0 new console errors and 0 new HTTP error responses, but the 'new failed network requests on B not present on A' check flagged 20/20 combinations because scripts/migration/visual/run.mjs compared failed requests by exact full URL. The failures were net::ERR_ABORTED Google Analytics / Google Ads / DoubleClick beacons (analytics.google.com/g/collect, www.google.com/ccm|rmkt/collect, ad.doubleclick.net/ccm/s/collect) that also abort on A, but their query strings are randomized per page load (cid/auid session ids, rnd/tft timestamps, cache-busters), so they never matched exactly."
+  },
+  "changes": [
+    {
+      "file": "scripts/migration/visual/run.mjs",
+      "what": "Added CANONICAL_PRODUCTION_HOSTS, isFirstPartyHost(), and two new exported pure functions: normalizeFailedRequestKey({url, method, failure}, pageOrigin) and diffNewFailedRequests(failedA, failedB). Cross-origin (third-party) requests key on method + scheme://host + pathname + failure text, dropping the query string (where the per-load randomness lives). First-party requests (host matches the page's own capturing host, or is www.growmax.io/growmax.io) key on method + pathname + search + failure text, dropping the host itself, so A's www.growmax.io capture and B's *.vercel.app capture of the same path+search reconcile instead of every first-party request being flagged as new purely because the hostname differs."
+    },
+    {
+      "file": "scripts/migration/visual/run.mjs",
+      "what": "page.on('requestfailed', ...) in captureShots() now also captures req.method() and computes entry.key = normalizeFailedRequestKey(entry, base) at capture time (base = the origin that page/context was actually navigated against), alongside the existing raw url/failure fields."
+    },
+    {
+      "file": "scripts/migration/visual/run.mjs",
+      "what": "In main()'s per-page/viewport loop, newFailedRequests is now computed via diffNewFailedRequests(failedA, failedB) (key equality) instead of failedB.filter(f => !failedA.some(fa => fa.url === f.url)). Raw URLs, method and failure text are still kept on every entry in the evidence output (newFailedRequestsOnB); only the comparison itself changed. The unrelated newErrorResponses comparison (HTTP 4xx/5xx responses, not requestfailed events) was left untouched -- it already passed 0-new in P5.2 attempt 2 and is out of scope for this fix."
+    },
+    {
+      "file": "scripts/migration/visual/run.mjs",
+      "what": "Guarded the top-level main().catch(...) call with `if (import.meta.url === \\`file://${process.argv[1]}\\`)` so importing run.mjs (for normalizeFailedRequestKey/diffNewFailedRequests) from the new self-test no longer launches a browser / runs the full suite as a side effect of the import."
+    },
+    {
+      "file": "scripts/migration/visual/selftest-failed-requests.mjs",
+      "what": "New pure, offline self-test (no network, no browser) exercising the real normalizeFailedRequestKey/diffNewFailedRequests exports with synthetic failed-request entries, in the same style as scripts/migration/parity/selftest-p5.3.mjs. 8 cases, all passing (see checks below and docs/migration/evidence/P5.3-visual-selftest.json for the full run)."
+    }
+  ],
+  "checks": [
+    {
+      "name": "node --check scripts/migration/visual/run.mjs",
+      "expected": "valid syntax",
+      "actual": "OK",
+      "pass": true
+    },
+    {
+      "name": "node --check scripts/migration/visual/selftest-failed-requests.mjs",
+      "expected": "valid syntax",
+      "actual": "OK",
+      "pass": true
+    },
+    {
+      "name": "node scripts/migration/visual/selftest-failed-requests.mjs",
+      "expected": "all self-test cases pass, exit 0",
+      "actual": "PASS 8/8: analytics-beacons-different-query-not-new, third-party-new-path-is-new, third-party-different-failure-text-is-new, first-party-only-on-b-is-new, first-party-same-path-across-hosts-not-new, first-party-different-search-is-new, canonical-host-on-b-reconciles-with-a, unparseable-url-does-not-throw-and-compares-exactly. Evidence: docs/migration/evidence/P5.3-visual-selftest.json",
+      "pass": true
+    },
+    {
+      "name": "GA/Ads/DoubleClick beacons with different query strings on A and B are not flagged as new (the P5.2 attempt-2 bug)",
+      "expected": "diffNewFailedRequests returns empty",
+      "actual": "empty (case analytics-beacons-different-query-not-new)",
+      "pass": true
+    },
+    {
+      "name": "a third-party failure on a genuinely new path is still flagged as new",
+      "expected": "diffNewFailedRequests returns exactly that one entry",
+      "actual": "1 entry, the new path (case third-party-new-path-is-new)",
+      "pass": true
+    },
+    {
+      "name": "the same third-party path failing with a different failure text is still flagged as new",
+      "expected": "diffNewFailedRequests returns that entry",
+      "actual": "1 entry (case third-party-different-failure-text-is-new)",
+      "pass": true
+    },
+    {
+      "name": "a first-party /_next/static/... failure that exists only on B is flagged as new",
+      "expected": "diffNewFailedRequests returns that entry",
+      "actual": "1 entry (case first-party-only-on-b-is-new)",
+      "pass": true
+    },
+    {
+      "name": "the same first-party path+search failing on both A (www.growmax.io) and B (vercel.app) is not flagged as new, despite the different hosts",
+      "expected": "diffNewFailedRequests returns empty",
+      "actual": "empty (case first-party-same-path-across-hosts-not-new)",
+      "pass": true
+    },
+    {
+      "name": "a first-party failure with a different search string is still flagged as new",
+      "expected": "diffNewFailedRequests returns that entry",
+      "actual": "1 entry (case first-party-different-search-is-new)",
+      "pass": true
+    },
+    {
+      "name": "npm dependency check for scripts/migration/node_modules",
+      "expected": "only node:url/node:crypto builtins needed for the new key-normalization logic; no new third-party dependency introduced",
+      "actual": "no change to scripts/migration/package.json; scripts/migration/node_modules untouched -- npm ci was not needed",
+      "pass": true
+    },
+    {
+      "name": "touched files are confined to scripts/migration/visual/",
+      "expected": "git status shows only scripts/migration/visual/run.mjs (modified) and scripts/migration/visual/selftest-failed-requests.mjs (new), plus this evidence file and its own selftest evidence output under docs/migration/evidence/",
+      "actual": "git status --porcelain scripts/migration/visual/ docs/migration/evidence/ shows exactly: M scripts/migration/visual/run.mjs, ?? scripts/migration/visual/selftest-failed-requests.mjs, ?? docs/migration/evidence/P5.3-visual-selftest.json (this evidence file added on top)",
+      "pass": true
+    }
+  ],
+  "recommendationForVerifier": "Re-run the full P5.2/P5.3 visual harness (scripts/migration/visual/run.mjs) against the live A/B origins with the bypass secret and confirm: (1) the 20/20 'new failed requests on B' false-positive is gone (0 new failed requests expected, since P5.2 attempt 2 already showed 0 new console errors and 0 new error responses and the beacons are the only thing that changed), (2) a deliberately introduced new first-party or new-path third-party failure (e.g. temporarily point one asset at a broken path) is still correctly flagged, and (3) re-run node scripts/migration/visual/selftest-failed-requests.mjs directly. This implementer did not run the full visual suite per task instructions (container/browser/network verification is the verifier's job)."
+}

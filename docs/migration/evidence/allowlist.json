@@ -1,1 +1,2539 @@
-[]
+[
+  {
+    "url": "/",
+    "field": "internalLinks",
+    "reason": "Cause class: A-side build-time staleness (evidence/P5.3-investigation.json check (c); A serves the page from a prerender cache that predates the differing posts, all published in A own live /api/blog). Same stale-homepage cause: exactly 3 links differ (A-only: b2b-customer-portal-vs-dealer-portal, b2b-ecommerce-without-replacing-erp, tiered-pricing-for-b2b-distributors; B-only: the 3 newest posts above); the other 39 of 42 links are identical. Advisor A3 for P5.3 (evidence/A3-advisor-P5.3.json, C-A3-1).",
+    "approvedBy": "A3",
+    "approvedAt": "2026-09-27T03:22:33Z",
+    "expected": {
+      "a": [
+        "/",
+        "/blog",
+        "/blog/b2b-customer-portal-vs-dealer-portal",
+        "/blog/b2b-ecommerce-without-replacing-erp",
+        "/blog/claude-commerce-agents-b2b",
+        "/blog/tiered-pricing-for-b2b-distributors",
+        "/company/about",
+        "/comparisons/bigcommerce-b2b-alternatives",
+        "/comparisons/dynamics-365-commerce-alternatives",
+        "/comparisons/magento-b2b-alternatives",
+        "/comparisons/netsuite-suitecommerce-alternatives",
+        "/comparisons/oracle-commerce-alternatives",
+        "/comparisons/orocommerce-alternatives",
+        "/comparisons/salesforce-commerce-alternatives",
+        "/comparisons/sana-commerce-alternatives",
+        "/comparisons/sap-commerce-cloud-alternatives",
+        "/comparisons/shopify-plus-b2b-alternatives",
+        "/comparisons/woocommerce-b2b-alternatives",
+        "/comparisons/zoho-commerce-alternatives",
+        "/demo",
+        "/industries/automotive-aftermarket",
+        "/industries/building-materials",
+        "/industries/chemical-distributors",
+        "/industries/electrical-distributors",
+        "/industries/food-beverage",
+        "/industries/industrial-fasteners",
+        "/industries/industrial-manufacturing",
+        "/industries/janitorial-sanitation",
+        "/industries/packaging-distributors",
+        "/industries/plumbing-hvac",
+        "/industries/pump-valve",
+        "/industries/safety-ppe",
+        "/minori-ai",
+        "/minori-ai/commerce-agents",
+        "/minori-ai/connect",
+        "/minori-ai/how-it-works",
+        "/privacy",
+        "/revenue-platform",
+        "/revenue-platform/compare",
+        "/solutions/spare-parts-ecommerce",
+        "/terms-of-service",
+        "/write-for-us"
+      ],
+      "b": [
+        "/",
+        "/blog",
+        "/blog/ai-helps-distributors-sell-more",
+        "/blog/b2b-order-management-software-distributors",
+        "/blog/b2b-returns-rma-management-distributors",
+        "/blog/claude-commerce-agents-b2b",
+        "/company/about",
+        "/comparisons/bigcommerce-b2b-alternatives",
+        "/comparisons/dynamics-365-commerce-alternatives",
+        "/comparisons/magento-b2b-alternatives",
+        "/comparisons/netsuite-suitecommerce-alternatives",
+        "/comparisons/oracle-commerce-alternatives",
+        "/comparisons/orocommerce-alternatives",
+        "/comparisons/salesforce-commerce-alternatives",
+        "/comparisons/sana-commerce-alternatives",
+        "/comparisons/sap-commerce-cloud-alternatives",
+        "/comparisons/shopify-plus-b2b-alternatives",
+        "/comparisons/woocommerce-b2b-alternatives",
+        "/comparisons/zoho-commerce-alternatives",
+        "/demo",
+        "/industries/automotive-aftermarket",
+        "/industries/building-materials",
+        "/industries/chemical-distributors",
+        "/industries/electrical-distributors",
+        "/industries/food-beverage",
+        "/industries/industrial-fasteners",
+        "/industries/industrial-manufacturing",
+        "/industries/janitorial-sanitation",
+        "/industries/packaging-distributors",
+        "/industries/plumbing-hvac",
+        "/industries/pump-valve",
+        "/industries/safety-ppe",
+        "/minori-ai",
+        "/minori-ai/commerce-agents",
+        "/minori-ai/connect",
+        "/minori-ai/how-it-works",
+        "/privacy",
+        "/revenue-platform",
+        "/revenue-platform/compare",
+        "/solutions/spare-parts-ecommerce",
+        "/terms-of-service",
+        "/write-for-us"
+      ]
+    }
+  },
+  {
+    "url": "/sitemap.xml",
+    "field": "sitemapEntries",
+    "reason": "Cause class: A-side build-time staleness (evidence/P5.3-investigation.json check (c); A serves the page from a prerender cache that predates the differing posts, all published in A own live /api/blog). A sitemap is a build-time snapshot: B has exactly 9 more entries (the posts published 2026-09-22..25: ai-helps-distributors-sell-more, b2b-order-management-software-distributors, b2b-returns-rma-management-distributors, edi-vs-b2b-portal-distributors, moq-credit-limits-customer-catalogs-b2b, multi-warehouse-inventory-visibility-for-distributors, offline-mobile-ordering-for-field-sales, purchase-order-replenishment-multi-branch-distributors, quote-to-order-for-wholesale); 0 entries only on A and 0 changed entries. Advisor A3 for P5.3 (evidence/A3-advisor-P5.3.json, C-A3-1).",
+    "approvedBy": "A3",
+    "approvedAt": "2026-09-27T03:22:33Z",
+    "expected": {
+      "a": [
+        {
+          "loc": "https://www.growmax.io/",
+          "changefreq": "weekly",
+          "priority": "1"
+        },
+        {
+          "loc": "https://www.growmax.io/blog",
+          "changefreq": "daily",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/4-critical-features-to-win-digital-customer-experience-with-b2b-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.281Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/a-comprehensive-sales-order-booking-app-for-zoho-inventory",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.791Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/advantages-of-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-06-16T18:16:56.358Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-chatbots-b2b-customer-service-industrial",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.027Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-driven-lead-scoring-industrial-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.073Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-powered-ordering-apps-the-future-of-b2b-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.180Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-powered-product-recommendations-spare-parts",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.707Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-predictive-inventory-management-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.936Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-reshaping-b2b-ecommerce-industrial-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.656Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-transforms-after-sales-service-manufacturing",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.119Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/automating-sales-pipeline-industrial-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.940Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-buying-process",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.591Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-customer-portal-vs-dealer-portal",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-21T04:15:07.147Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-a-new-sales-channel-for-b2b-manufacturers-wholesalers-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.954Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-for-soare-parts-businesses",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.835Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-sales-team-visibility-problem",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T17:57:49.901Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-strategy-industrial-manufacturers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.338Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-without-replacing-erp",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-21T04:59:16.062Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-marketplace-industrial-mro-supplies",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.573Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-mobile-ordering-app-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.513Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-sales-tips-strategies-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.027Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-wholesale",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.820Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-b2b-ecommerce-platforms-2026",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.017Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-b2b-ordering-apps-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.063Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-competitors-and-alternatives-to-handshake",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.226Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-dealer-portal-software-2026",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.155Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-ecommerce-software",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.408Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-sap-b2b-commerce-solutions",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.109Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-spare-parts-management-software",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.200Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-wholesale-inventory-management-software-for-distributors-in-2026",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-20T08:53:41.917Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/boost-efficiency-in-f-b-fmcg-wholesale-with-a-zoho-integrated-order-booking-sales-app",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.689Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/boost-sales-product-recommendations",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.636Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/boost-your-industrial-sales-performance-with-smart-target-setting-and-automation",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.457Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/bridging-partner-visibility-gap-quotation-order",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.247Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/bridging-the-partner-visibility-gap-streamlining-the-quotation-to-order-process-for-industrial-brands",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.999Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/calculate-finished-goods-inventory",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.088Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/channel-conflict-resolution-multi-channel-industrial",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.102Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/channel-partner-management-spreadsheets-to-digital",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.040Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/chemical-distributor-increased-online-orders-case-study",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.620Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/claude-commerce-agents-b2b",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-05T00:00:00.000Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/complete-guide-b2b-customer-specific-pricing",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.754Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/cpq-software-guide-small-medium-industrial-businesses",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.422Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/crm-vs-sfa-sales-force-automation-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.133Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/customer-specific-product-catalogs-b2b-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.430Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/d2c-trends",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.336Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/dealer-portal-best-practices-industrial-equipment",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.800Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/digital-can-drive-5x-growth-for-b2b-companies",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.382Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/digital-enabled-fmcg-wholesale-benefits-of-launching-self-ordering-apps-for-b2b-and-horeca-customers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.641Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/digital-partner-engagement-revolution-manufacturing",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.608Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/direct-store-delivery-dsd-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:15.928Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ecommerce-personalization",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.682Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ecommerce-shipping-method",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.727Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ecommerce-terms-glossary",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.316Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ecommerce-trends",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.430Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/edi-vs-b2b-ecommerce-differences",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.419Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/effective-management-of-moq-and-volume-based-pricing-is-essential-for-food-and-personal-care-wholesalers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.478Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/electrical-distributor-order-processing-case-study",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.846Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/embrace-the-digital-shift-building-a-b2b-ecommerce-platform-for-manufacturers-and-wholesalers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.525Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/empower-sales-rep-with-digital-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.571Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/empower-your-business-with-advantage-of-b2b-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.618Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/enhancing-industry-collaboration-a-case-study-from-a-leading-paint-manufacturer-in-india",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.880Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/enterprise-marketplace-opportunities-d2c",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.664Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/everything-you-need-to-know-about-b2b-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.499Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/fastener-distributor-revenue-growth-case-study",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.664Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/from-data-to-decisions-how-kpis-and-opportunity-management-drive-growth-for-industrial-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.709Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/future-b2b-commerce-headless-architecture-manufacturers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.521Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/growmax-vs-b2b-wave",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-20T10:17:04.872Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/harnessing-the-power-of-ai-unlocking-insights-from-historical-data",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.755Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/heavy-equipment-spare-parts-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.185Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-can-you-grow-your-bike-spare-parts-business",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.906Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-textile-machinery-spare-parts-manufacturers-can-move-online",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.746Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-boost-spare-parts-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.951Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-migrate-from-tradgecko",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:32.044Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-sell-automotive-accessories-online",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.048Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-sell-car-spare-parts",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.866Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-write-invoice-email-for-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.502Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/implement-tiered-pricing-b2b-wholesale-distribution",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.475Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/increase-b2b-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.800Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/increase-construction-equipment-spare-parts-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.139Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/independent-partner-portals-for-industrial-channels",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:32.090Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/industrial-manufacturers-ai-sales-forecasting",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.981Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/integrating-zoho-crm-b2b-ecommerce-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.845Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/inventory-management-techniques",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.676Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/inventory-stockout-risk-insight-the-modern-manufacturers-guide-to-preventing-revenue-loss",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.596Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/just-in-time-inventory-jit",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.256Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/make-2x-faster-decisions-in-your-sales-cycle",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.844Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/managing-spare-parts-business-for-an-industrial-oem",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.321Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/manufacturers-dedicated-spare-parts-ordering-system",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.210Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/maximize-automotive-aftermarket-sales-with-growmaxs-channel-partner-hub",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.897Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/maximizing-growth-through-partner-sales-management-a-comprehensive-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.230Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/migrate-legacy-edi-modern-b2b-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.800Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/minimum-order-quantity",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.812Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/multi-tier-b2b-pricing-modeling",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.292Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/multi-warehouse-b2b-ecommerce-platform-architecture",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.384Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/obo-bettermann-digital-transformation-case-study",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.374Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/offline-order-taking-app-industrial-b2b-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.326Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/opportunity-pipeline-management-for-industrial-businesses-your-data-driven-path-to-predictable-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.945Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/opportunity-pipeline-management-predictable-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.278Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/own-your-data-in-your-private-cloud-embrace-technology-for-your-b2b-business",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.993Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/partner-engagement-strategy-industrial-brands",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.220Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/partner-onboarding-automation-time-to-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.152Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/partner-performance-analytics-channel-growth",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.199Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/pepperi-alternatives-and-competitors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.362Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/perpetual-inventory",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.721Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/product-catalog-management-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.630Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/progressive-web-app-pwa-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.038Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/push-vs-pull-marketing-b2b-strategy",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.324Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/quickbooks-commerce-tradegecko-alternatives",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.862Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/quotation-to-order-process-converting-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.894Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/receive-customer-orders-through-multiple-channels-transforming-your-b2b-sales-experience",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.084Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/reckitt-pro-solution-india-revolutionizing-b2b-with-e-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.926Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/reduce-sales-costs-in-f-b-wholesale-with-a-zoho-integrated-self-order-booking-app",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.129Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/revamping-the-order-process-obo-bettermanns-digital-transformation",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.174Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/roi-digital-channel-management-building-materials",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.890Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/sales-territory-management-industrial-b2b",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.994Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/sell-machine-spare-parts-online",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.275Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/set-up-b2b-ecommerce-website",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.224Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/shopify-plus-alternatives",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.270Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/shopify-vs-woocommerce-vs-magento-vs-bigcommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.911Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/siemens-partner-commerce-dealer-portal",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-20T10:09:26.741Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/signs-b2b-ecommerce-creating-revenue-silos",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T17:57:49.804Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/spare-parts-ecommerce-self-service-portal",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.165Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/spare-parts-identification-ai-visual-lookup",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.710Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/spare-parts-pricing-strategy-margin-retention",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.755Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/stop-losing-deals-streamline-your-industrial-sales-with-growmax",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.316Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/the-crucial-role-of-manufacturers-in-the-supply-chain-tailoring-b2b-ecommerce-to-meet-their-unique-needs",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.363Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/the-digital-partner-engagement-revolution-how-industrial-brands-can-transform-channel-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.094Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/the-ultimate-guide-to-cpq-software-for-small-and-medium-scale-industrial-businesses",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.409Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/tiered-pricing-for-b2b-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-21T04:04:59.795Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/tips-for-managing-spare-parts-inventory",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.544Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/top-b2b-software",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.453Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/top-wholesale-ordering-platforms-2026",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.244Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/trade-promotions-guide-wholesale-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.228Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/transform-your-digital-landscape-by-building-an-integration-layer-to-interact-with-new-age-applications",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:32.135Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/transforming-your-digital-landscape-integrating-third-party-applications-with-sap-ecc-through-sap-connector",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.042Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/uncovering-hidden-customer-needs-for-cross-selling-and-upselling-through-a-recommendations-engine",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.454Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/unlocking-growth-for-industrial-distributors-how-opportunity-management-drives-sales-success",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.550Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-are-the-new-trends-in-b2b-sales-for-150-growth-in-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.498Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-an-online-marketplace",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.543Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-b2b-marketplace",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.270Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-backordering",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.588Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-d2c",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.485Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-deadstock",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.956Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-ecommerce-crm",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.766Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-headless-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.633Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-inventory-control",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.301Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-lead-time",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.531Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-order-management",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.347Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-order-to-cash-o2c",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.392Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-product-experience-management",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.002Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-purchase-order",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.584Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-safety-stock",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.679Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-spares-parts-management",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.133Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-the-difference-between-b2c-b2b-ecommerce-platforms",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.725Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/wholesale-distributors-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.772Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/wholesale-marketing",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.997Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/why-a-channel-partner-hub-with-performance-analytics-is-essential-for-business-growth",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.817Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/why-an-offline-order-taking-app-is-essential-for-fmcg-and-industrial-b2b-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.411Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/why-b2b-marketers-should-invest-in-b2b-ecommerce-a-hybrid-approach-for-competitive-advantage",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.864Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/why-product-categorization-matters-in-sales-self-ordering-apps",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.909Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/winning-the-aftermarket-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.367Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/writing-product-description-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.774Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/your-traditional-competitors-are-not-your-threats",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.971Z"
+        },
+        {
+          "loc": "https://www.growmax.io/company/about",
+          "changefreq": "monthly",
+          "priority": "0.7"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/bigcommerce-b2b-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/dynamics-365-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/handshake-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/magento-b2b-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/netsuite-suitecommerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/oracle-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/orocommerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/salesforce-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/sana-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/sap-commerce-cloud-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/shopify-plus-b2b-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/tradegecko-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/woocommerce-b2b-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/zoho-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/demo",
+          "changefreq": "monthly",
+          "priority": "0.9"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/automotive-aftermarket",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/building-materials",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/chemical-distributors",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/electrical-distributors",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/food-beverage",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/industrial-fasteners",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/industrial-manufacturing",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/janitorial-sanitation",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/packaging-distributors",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/plumbing-hvac",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/pump-valve",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/safety-ppe",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/minori-ai",
+          "changefreq": "weekly",
+          "priority": "0.9"
+        },
+        {
+          "loc": "https://www.growmax.io/minori-ai/commerce-agents",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/minori-ai/connect",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/minori-ai/how-it-works",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/privacy",
+          "changefreq": "yearly",
+          "priority": "0.3"
+        },
+        {
+          "loc": "https://www.growmax.io/revenue-platform",
+          "changefreq": "weekly",
+          "priority": "0.9"
+        },
+        {
+          "loc": "https://www.growmax.io/revenue-platform/compare",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/solutions/spare-parts-ecommerce",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/terms-of-service",
+          "changefreq": "yearly",
+          "priority": "0.3"
+        },
+        {
+          "loc": "https://www.growmax.io/write-for-us",
+          "changefreq": "monthly",
+          "priority": "0.5"
+        }
+      ],
+      "b": [
+        {
+          "loc": "https://www.growmax.io/",
+          "changefreq": "weekly",
+          "priority": "1"
+        },
+        {
+          "loc": "https://www.growmax.io/blog",
+          "changefreq": "daily",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/4-critical-features-to-win-digital-customer-experience-with-b2b-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.281Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/a-comprehensive-sales-order-booking-app-for-zoho-inventory",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.791Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/advantages-of-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-06-16T18:16:56.358Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-chatbots-b2b-customer-service-industrial",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.027Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-driven-lead-scoring-industrial-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.073Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-helps-distributors-sell-more",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-25T03:54:24.062Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-powered-ordering-apps-the-future-of-b2b-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.180Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-powered-product-recommendations-spare-parts",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.707Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-predictive-inventory-management-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.936Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-reshaping-b2b-ecommerce-industrial-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.656Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ai-transforms-after-sales-service-manufacturing",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.119Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/automating-sales-pipeline-industrial-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.940Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-buying-process",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.591Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-customer-portal-vs-dealer-portal",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-21T04:15:07.147Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-a-new-sales-channel-for-b2b-manufacturers-wholesalers-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.954Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-for-soare-parts-businesses",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.835Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-sales-team-visibility-problem",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T17:57:49.901Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-strategy-industrial-manufacturers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.338Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-ecommerce-without-replacing-erp",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-21T04:59:16.062Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-marketplace-industrial-mro-supplies",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.573Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-mobile-ordering-app-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.513Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-order-management-software-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-25T03:59:21.237Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-returns-rma-management-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-25T04:04:35.353Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-sales-tips-strategies-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.027Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/b2b-wholesale",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.820Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-b2b-ecommerce-platforms-2026",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.017Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-b2b-ordering-apps-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.063Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-competitors-and-alternatives-to-handshake",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.226Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-dealer-portal-software-2026",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.155Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-ecommerce-software",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.408Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-sap-b2b-commerce-solutions",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.109Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-spare-parts-management-software",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.200Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/best-wholesale-inventory-management-software-for-distributors-in-2026",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-20T08:53:41.917Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/boost-efficiency-in-f-b-fmcg-wholesale-with-a-zoho-integrated-order-booking-sales-app",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.689Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/boost-sales-product-recommendations",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.636Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/boost-your-industrial-sales-performance-with-smart-target-setting-and-automation",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.457Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/bridging-partner-visibility-gap-quotation-order",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.247Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/bridging-the-partner-visibility-gap-streamlining-the-quotation-to-order-process-for-industrial-brands",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.999Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/calculate-finished-goods-inventory",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.088Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/channel-conflict-resolution-multi-channel-industrial",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.102Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/channel-partner-management-spreadsheets-to-digital",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.040Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/chemical-distributor-increased-online-orders-case-study",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.620Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/claude-commerce-agents-b2b",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-05T00:00:00.000Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/complete-guide-b2b-customer-specific-pricing",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.754Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/cpq-software-guide-small-medium-industrial-businesses",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.422Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/crm-vs-sfa-sales-force-automation-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.133Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/customer-specific-product-catalogs-b2b-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.430Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/d2c-trends",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.336Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/dealer-portal-best-practices-industrial-equipment",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.800Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/digital-can-drive-5x-growth-for-b2b-companies",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.382Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/digital-enabled-fmcg-wholesale-benefits-of-launching-self-ordering-apps-for-b2b-and-horeca-customers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.641Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/digital-partner-engagement-revolution-manufacturing",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.608Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/direct-store-delivery-dsd-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:15.928Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ecommerce-personalization",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.682Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ecommerce-shipping-method",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.727Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ecommerce-terms-glossary",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.316Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/ecommerce-trends",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.430Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/edi-vs-b2b-ecommerce-differences",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.419Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/edi-vs-b2b-portal-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-23T04:07:11.444Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/effective-management-of-moq-and-volume-based-pricing-is-essential-for-food-and-personal-care-wholesalers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.478Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/electrical-distributor-order-processing-case-study",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.846Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/embrace-the-digital-shift-building-a-b2b-ecommerce-platform-for-manufacturers-and-wholesalers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.525Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/empower-sales-rep-with-digital-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.571Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/empower-your-business-with-advantage-of-b2b-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.618Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/enhancing-industry-collaboration-a-case-study-from-a-leading-paint-manufacturer-in-india",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.880Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/enterprise-marketplace-opportunities-d2c",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.664Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/everything-you-need-to-know-about-b2b-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.499Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/fastener-distributor-revenue-growth-case-study",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.664Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/from-data-to-decisions-how-kpis-and-opportunity-management-drive-growth-for-industrial-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.709Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/future-b2b-commerce-headless-architecture-manufacturers",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.521Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/growmax-vs-b2b-wave",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-20T10:17:04.872Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/harnessing-the-power-of-ai-unlocking-insights-from-historical-data",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.755Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/heavy-equipment-spare-parts-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.185Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-can-you-grow-your-bike-spare-parts-business",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.906Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-textile-machinery-spare-parts-manufacturers-can-move-online",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.746Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-boost-spare-parts-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.951Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-migrate-from-tradgecko",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:32.044Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-sell-automotive-accessories-online",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.048Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-sell-car-spare-parts",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.866Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/how-to-write-invoice-email-for-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.502Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/implement-tiered-pricing-b2b-wholesale-distribution",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.475Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/increase-b2b-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.800Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/increase-construction-equipment-spare-parts-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.139Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/independent-partner-portals-for-industrial-channels",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:32.090Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/industrial-manufacturers-ai-sales-forecasting",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.981Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/integrating-zoho-crm-b2b-ecommerce-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.845Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/inventory-management-techniques",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.676Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/inventory-stockout-risk-insight-the-modern-manufacturers-guide-to-preventing-revenue-loss",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.596Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/just-in-time-inventory-jit",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.256Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/make-2x-faster-decisions-in-your-sales-cycle",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.844Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/managing-spare-parts-business-for-an-industrial-oem",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.321Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/manufacturers-dedicated-spare-parts-ordering-system",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.210Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/maximize-automotive-aftermarket-sales-with-growmaxs-channel-partner-hub",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.897Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/maximizing-growth-through-partner-sales-management-a-comprehensive-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.230Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/migrate-legacy-edi-modern-b2b-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.800Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/minimum-order-quantity",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.812Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/moq-credit-limits-customer-catalogs-b2b",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-23T04:02:12.089Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/multi-tier-b2b-pricing-modeling",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.292Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/multi-warehouse-b2b-ecommerce-platform-architecture",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.384Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/multi-warehouse-inventory-visibility-for-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-22T06:45:57.212Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/obo-bettermann-digital-transformation-case-study",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.374Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/offline-mobile-ordering-for-field-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-22T06:53:42.809Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/offline-order-taking-app-industrial-b2b-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.326Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/opportunity-pipeline-management-for-industrial-businesses-your-data-driven-path-to-predictable-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.945Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/opportunity-pipeline-management-predictable-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.278Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/own-your-data-in-your-private-cloud-embrace-technology-for-your-b2b-business",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:30.993Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/partner-engagement-strategy-industrial-brands",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.220Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/partner-onboarding-automation-time-to-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.152Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/partner-performance-analytics-channel-growth",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.199Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/pepperi-alternatives-and-competitors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.362Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/perpetual-inventory",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.721Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/product-catalog-management-ecommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.630Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/progressive-web-app-pwa-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.038Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/purchase-order-replenishment-multi-branch-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-23T04:10:09.687Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/push-vs-pull-marketing-b2b-strategy",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.324Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/quickbooks-commerce-tradegecko-alternatives",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.862Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/quotation-to-order-process-converting-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.894Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/quote-to-order-for-wholesale",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-22T06:37:38.634Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/receive-customer-orders-through-multiple-channels-transforming-your-b2b-sales-experience",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.084Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/reckitt-pro-solution-india-revolutionizing-b2b-with-e-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.926Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/reduce-sales-costs-in-f-b-wholesale-with-a-zoho-integrated-self-order-booking-app",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.129Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/revamping-the-order-process-obo-bettermanns-digital-transformation",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.174Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/roi-digital-channel-management-building-materials",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.890Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/sales-territory-management-industrial-b2b",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:13.994Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/sell-machine-spare-parts-online",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.275Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/set-up-b2b-ecommerce-website",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.224Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/shopify-plus-alternatives",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.270Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/shopify-vs-woocommerce-vs-magento-vs-bigcommerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.911Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/siemens-partner-commerce-dealer-portal",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-20T10:09:26.741Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/signs-b2b-ecommerce-creating-revenue-silos",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T17:57:49.804Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/spare-parts-ecommerce-self-service-portal",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.165Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/spare-parts-identification-ai-visual-lookup",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.710Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/spare-parts-pricing-strategy-margin-retention",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:14.755Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/stop-losing-deals-streamline-your-industrial-sales-with-growmax",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.316Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/the-crucial-role-of-manufacturers-in-the-supply-chain-tailoring-b2b-ecommerce-to-meet-their-unique-needs",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.363Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/the-digital-partner-engagement-revolution-how-industrial-brands-can-transform-channel-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.094Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/the-ultimate-guide-to-cpq-software-for-small-and-medium-scale-industrial-businesses",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.409Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/tiered-pricing-for-b2b-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-09-21T04:04:59.795Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/tips-for-managing-spare-parts-inventory",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.544Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/top-b2b-software",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.453Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/top-wholesale-ordering-platforms-2026",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:18.244Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/trade-promotions-guide-wholesale-distributors",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T14:29:16.228Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/transform-your-digital-landscape-by-building-an-integration-layer-to-interact-with-new-age-applications",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:32.135Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/transforming-your-digital-landscape-integrating-third-party-applications-with-sap-ecc-through-sap-connector",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.042Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/uncovering-hidden-customer-needs-for-cross-selling-and-upselling-through-a-recommendations-engine",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.454Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/unlocking-growth-for-industrial-distributors-how-opportunity-management-drives-sales-success",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.550Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-are-the-new-trends-in-b2b-sales-for-150-growth-in-revenue",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.498Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-an-online-marketplace",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.543Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-b2b-marketplace",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.270Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-backordering",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.588Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-d2c",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.485Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-deadstock",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.956Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-ecommerce-crm",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.766Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-headless-commerce",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.633Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-inventory-control",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.301Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-lead-time",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.531Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-order-management",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.347Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-order-to-cash-o2c",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.392Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-product-experience-management",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.002Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-purchase-order",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.584Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-safety-stock",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.679Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-spares-parts-management",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.133Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/what-is-the-difference-between-b2c-b2b-ecommerce-platforms",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.725Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/wholesale-distributors-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.772Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/wholesale-marketing",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:15.997Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/why-a-channel-partner-hub-with-performance-analytics-is-essential-for-business-growth",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.817Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/why-an-offline-order-taking-app-is-essential-for-fmcg-and-industrial-b2b-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.411Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/why-b2b-marketers-should-invest-in-b2b-ecommerce-a-hybrid-approach-for-competitive-advantage",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.864Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/why-product-categorization-matters-in-sales-self-ordering-apps",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T13:14:31.909Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/winning-the-aftermarket-sales",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.367Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/writing-product-description-guide",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:16.774Z"
+        },
+        {
+          "loc": "https://www.growmax.io/blog/your-traditional-competitors-are-not-your-threats",
+          "changefreq": "weekly",
+          "priority": "0.7",
+          "lastmod": "2026-03-06T09:02:17.971Z"
+        },
+        {
+          "loc": "https://www.growmax.io/company/about",
+          "changefreq": "monthly",
+          "priority": "0.7"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/bigcommerce-b2b-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/dynamics-365-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/handshake-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/magento-b2b-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/netsuite-suitecommerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/oracle-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/orocommerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/salesforce-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/sana-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/sap-commerce-cloud-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/shopify-plus-b2b-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/tradegecko-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/woocommerce-b2b-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/comparisons/zoho-commerce-alternatives",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/demo",
+          "changefreq": "monthly",
+          "priority": "0.9"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/automotive-aftermarket",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/building-materials",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/chemical-distributors",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/electrical-distributors",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/food-beverage",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/industrial-fasteners",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/industrial-manufacturing",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/janitorial-sanitation",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/packaging-distributors",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/plumbing-hvac",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/pump-valve",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/industries/safety-ppe",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/minori-ai",
+          "changefreq": "weekly",
+          "priority": "0.9"
+        },
+        {
+          "loc": "https://www.growmax.io/minori-ai/commerce-agents",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/minori-ai/connect",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/minori-ai/how-it-works",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/privacy",
+          "changefreq": "yearly",
+          "priority": "0.3"
+        },
+        {
+          "loc": "https://www.growmax.io/revenue-platform",
+          "changefreq": "weekly",
+          "priority": "0.9"
+        },
+        {
+          "loc": "https://www.growmax.io/revenue-platform/compare",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/solutions/spare-parts-ecommerce",
+          "changefreq": "monthly",
+          "priority": "0.8"
+        },
+        {
+          "loc": "https://www.growmax.io/terms-of-service",
+          "changefreq": "yearly",
+          "priority": "0.3"
+        },
+        {
+          "loc": "https://www.growmax.io/write-for-us",
+          "changefreq": "monthly",
+          "priority": "0.5"
+        }
+      ]
+    }
+  },
+  {
+    "url": "<hashed-css-assets>",
+    "field": "hashedCssSha256",
+    "reason": "Cause class: invisible build-environment CSS difference (evidence/P5.3-css-analysis.json; orchestrator cross-check in LOG.md, P5.3). 1 of 2 CSS bundles differs because of the build environment (Tailwind v4 automatic source detection on Replit also scans untracked workspace files); none of the 241 A-only class tokens is used by any of the 277 HTML pages on either side, and every class of the 8 UI components the app uses exists in B CSS (P5.3-css-analysis.json, orchestrator cross-check in LOG.md). Visual check: all 20 page/viewport screenshots within 0.381%. Advisor A3 for P5.3 (evidence/A3-advisor-P5.3.json, C-A3-1).",
+    "approvedBy": "A3",
+    "approvedAt": "2026-09-27T03:22:33Z",
+    "expected": {
+      "a": [
+        "5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0",
+        "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
+      ],
+      "b": [
+        "072d7bf09da4eeaa6099a59d44d195408acc62a8de9ff0a80baa43cc63ceb8ae",
+        "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
+      ]
+    }
+  }
+]

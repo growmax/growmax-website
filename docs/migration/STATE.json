@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P5.2",
-  "updatedAt": "2026-09-27T03:09:02.476Z",
+  "updatedAt": "2026-09-27T03:22:34.019Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -312,7 +312,9 @@
       "Harness env hygiene (P5.2 finding): vercel env pull writes sensitive vars (ADMIN_PASSWORD, SESSION_SECRET, GOOGLE_CHAT_WEBHOOK_URL) as the literal \"[SENSITIVE]\", so node --env-file=.scratch/.env.production clobbers the real container values; use a DB-only env file or an in-process mapping, and make run.mjs fail fast on the placeholder",
       "Harness deps: scripts/migration/node_modules can be missing after a container restart (the P5.2 visual run failed on playwright-core at 01:18Z; a later agent reinstalled at 01:19Z). Every suite run first does npm --prefix scripts/migration ci when a declared dependency is missing",
       "Before P6.2 (F2 may run again there): F9 hardening from review r3 of P5.3 (P5.3-harness-fix-review.json): an entry without = in its name-value pair never matches; Expires only in IMF-fixdate (or the RFC 6265 cookie-date algorithm); for the follow-up GET put growmax-admin=<value from the logout entry> in the jar instead of dropping it (so a re-sent sealed value fails even if an expiry is misread); refuse a Partitioned clear for an unpartitioned login cookie; self-test cases; opus review",
-      "Parity harness notes (P5.3 reviews, non-blocking): HASHED_ASSET_PREFIX_RE collapses the first segment under /_next/static/ (chunks vs chunkz would compare equal); link comparison is path+search only (http downgrade, #fragment, www vs apex compare equal); B links to its own vercel.app host count as same-site. Before cutover, grep the Vercel HTML for absolute vercel.app hrefs (a leaked site URL)"
+      "Parity harness notes (P5.3 reviews, non-blocking): HASHED_ASSET_PREFIX_RE collapses the first segment under /_next/static/ (chunks vs chunkz would compare equal); link comparison is path+search only (http downgrade, #fragment, www vs apex compare equal); B links to its own vercel.app host count as same-site. Before cutover, grep the Vercel HTML for absolute vercel.app hrefs (a leaked site URL)",
+      "A3 (P5.3) C-A3-8 for A2: (a) re-pin / and /sitemap.xml only with the same proof (exact set decomposition, presence in A live /api/blog, unified text diff) and A2 approval, never patterns; (b) A2 decides whether P8.2 pins / and /sitemap.xml or compares them with B own P6.4 capture; (c) A2 sees the P6.4 data-loss guard evidence; (d) the last demo test is reserved for P8.2 on www.growmax.io, P6.2 runs without F2; (e) grep the Vercel HTML for absolute vercel.app hrefs before cutover; (f) A2 states the apex mode; (g) every suite run keeps raw bodies (--raw-dir) so compare writes the text diff",
+      "A3 (P5.3) plan changes to write into the specs: SPEC-04 §4 A-side build-time staleness class; §3/§9 raw-body retention; §6 F9 real-browser corroboration as standing (P6.2, P8.2); §7 normalized failed-request key; P8.2 staleness note; SPEC-03 P6.4 verifier records the schema-diff hash and that the real-data self-test ran. FINAL-REPORT owner tasks: revalidate / and the sitemap and fail the build on DB errors; _system not copied; sslmode=verify-full explicitly in the Neon URL; the analytics beacon aborts are a container-network artefact"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",
@@ -459,7 +461,57 @@
       ]
     },
     "A2": null,
-    "A3": [],
+    "A3": [
+      {
+        "step": "P5.3",
+        "verdict": "GO_WITH_CONDITIONS",
+        "at": "2026-09-27T03:18:08Z",
+        "evidence": "docs/migration/evidence/A3-advisor-P5.3.json",
+        "run": "wf_2eb24807-6b0",
+        "conditions": [
+          {
+            "id": "C-A3-1",
+            "status": "in progress: 3 of 4 entries written; the / visibleTextHash entry waits for C-A3-2",
+            "text": "C-A3-1 (allowlist write): write exactly the four entries listed in allowlistApprovals to docs/migration/evidence/allowlist.json, each with approvedBy \"A3\", approvedAt = the real write time, url exactly as compare.mjs emits it (\"/\", \"/\", \"/sitemap.xml\", \"<hashed-css-assets>\"), and expected.a / expected.b copied verbatim from docs/migration/evidence/P5.3-allowlist-proposal.json (sorted arrays as emitted). No pattern entries, no maxMatches, nothing one-sided. The reason text must name the cause class (A-side build-time staleness, or invisible build-environment CSS) and cite P5.3-investigation.json check (c), P5.3-css-analysis.json and the LOG.md P5.3 cross-check."
+          },
+          {
+            "id": "C-A3-2",
+            "status": "open",
+            "text": "C-A3-2 (the '/' visibleTextHash entry is gated on the missing artifact): SPEC-04 §4 requires a unified diff of the normalized text on every text-hash mismatch; attempt 2 produced none (diff-full.json shows needsTextDiff:true, the manifests store only the hash, and docs/migration/.scratch/p5.2-attempt2 holds no raw bodies). Before writing that one entry, a verifier (not the orchestrator) must produce the diff with the harness's own extractor (compare.mjs with --raw-dir-a/--raw-dir-b from a raw-retaining capture of '/', or extract.mjs normalizeText over freshly fetched bodies) and record its summary in the entry reason and in the regenerated P5.2-parity.json. The diff must consist solely of the DB-derived text of the six swapped post cards (titles, excerpts, dates, labels of the 3 A-only and 3 B-only posts). Any other line means this approval does not cover the entry: do not write it and escalate. The other three entries may be written immediately."
+          },
+          {
+            "id": "C-A3-3",
+            "status": "open",
+            "text": "C-A3-3 (gate evidence): after the write, the verifier re-runs compare.mjs (on the attempt-2 manifests or a fresh capture) with the allowlist and regenerates P5.2-parity.json: status pass, failedUnallowed 0, allowlisted 4, every allowlisted diff carrying approvedBy A3. Evidence files are regenerated by the harness, never hand-edited."
+          },
+          {
+            "id": "C-A3-4",
+            "status": "open",
+            "text": "C-A3-4 (F9): F9 counts as passed for G5 check 5.3 on deployment dpl_3pt7gJhkymtokAVFXwifHpCjkUoE: run.mjs passes AND a real Chromium context (scratchpad f9-browser.mjs, password from env, in-page POST /api/admin/logout with credentials include) reports isAdmin:false with no growmax-admin cookie left, which is the browser cookie engine's own verdict and does not depend on the parser's two residual weaknesses. Conditions: (a) the round-3 hardening lands before the P6.2 suite and G6a 6a.3 may not pass on run.mjs alone without it: an entry without '=' or with an empty name never matches; Expires accepted only via the RFC 6265 §5.1.1 cookie-date algorithm or at minimum the IMF-fixdate form; the follow-up GET carries growmax-admin=<value from the logout entry> instead of an emptied jar; Partitioned must match between login and logout; self-test cases for no-'=', Expires=0/2020/-1 with the sealed value, and a valid Expires-only clear; an opus review with 0 blocking findings and the reviewed hashes recorded. (b) f9Browser corroboration stays on for the P6.2 and P8.2 suite runs. (c) Update the bug-3 text in P5.3-harness-fix.json that still describes the old A.cookie=null behaviour when the hardening lands."
+          },
+          {
+            "id": "C-A3-5",
+            "status": "open",
+            "text": "C-A3-5 (visual): no objection to the normalized-key fix now in the working tree (scripts/migration/visual/run.mjs normalizeFailedRequestKey/diffNewFailedRequests; third-party = method+scheme://host+pathname+failure, first-party = method+pathname+search+failure across the page host and the canonical hosts; 8/8 offline self-test cases in P5.3-visual-selftest.json). Conditions: a short opus review of that diff with 0 blocking; commit run.mjs, selftest-failed-requests.mjs, P5.3-visual-fix.json and P5.3-visual-selftest.json; the verifier re-runs the visual harness against both origins: 20/20 combinations <= 0.5 %, 0 new console errors, 0 new error responses, 0 newFailedRequestsOnB (any residual entry must be listed by its normalized key and explained, otherwise fail); the result is written as the G5 file P5.2-visual.json with status pass and P5.2-visual-attempt2.json stays as history."
+          },
+          {
+            "id": "C-A3-6",
+            "status": "done: G4 stands; the G6 6.4 conditions are carried into the P6.4 prompt",
+            "text": "C-A3-6 (P4.3 amendment ratified, G4 stands): the NOT NULL reconciliation is not an exclusion (each side's contype 'n' rows must match that side's NOT NULL columns and cross-side nullability is still compared through the columns; 31 real-inventory mutations caught), _system is Replit bookkeeping outside the --schema=public copy with no public dependants and no app references (independently re-derived in P4.3-schema-diff.json), and --accept-pg-major 18 encodes A1 C2 exactly (upgrade only, target major must equal the flag). Conditions for G6 6.4: run the tool at the reviewed hash 1b26f04b7cccd16da82675aa58991ff98b7f231a or a later opus-reviewed hash, with --accept-pg-major 18, and require the JSON output with empty === true (the main guard fails open under a symlinked or space-containing path, so exit 0 alone proves nothing); the P6.4 verifier confirms the self-test's real-data case ran rather than skipped; ignored.schemas must list only _system on a and only _migration (and neon_auth if present) on b."
+          },
+          {
+            "id": "C-A3-7",
+            "status": "open",
+            "text": "C-A3-7 (G5 closure): mark G5 passed only when 5.1 (P5.1-deploy-verify.json 8/8), 5.2 (regenerated per C-A3-3), 5.3 (P5.2-functional.json; F2 carried from attempt 1 is acceptable because deploymentIdMatches is true and the deployment is unchanged), 5.4 (re-run per C-A3-5) and 5.5 (P5.2-logs-perf.json; the 42 pg sslmode notices are explained, informational) all read pass, and STATE.gates.G5.evidence lists those files. Do not open P5.4 (PR) before that."
+          },
+          {
+            "id": "C-A3-8",
+            "status": "open",
+            "text": "C-A3-8 (carry into A2): (a) the '/' and '/sitemap.xml' pins will fail again as soon as Replit publishes or edits a post, or B is rebuilt on different data (P6.2 hSha, P6.4 refresh); re-pin only with the same proof standard (exact set decomposition, every extra item present in A's own live /api/blog, unified text diff attached) and A2 approval; never widen to patterns. (b) The P6.5 live-Replit baseline will still carry the stale '/' and '/sitemap.xml', so P8.2 needs equivalent A2-approved pinned entries, or those two URLs compared against B's own P6.4 quick-parity capture; A2 must state which. (c) A2 must see the evidence for the P6.4 data-loss guard (target-only ids in demo_requests / newsletter_subscriptions stop the refresh and are exported to .scratch only), because growmax-website.vercel.app is public. (d) Reserve the last demo test (1 of 3 remaining) for P8.2 on the real domain; P6.2 runs without F2 as specified. (e) Before cutover grep B's HTML for absolute vercel.app hrefs (existing follow-up; the parity harness treats them as same-site). (f) www TTL 300 s is confirmed at the authoritative NS; apex A records are still 14400 s (OA-TTL partly open) and Step C is recommended, so A2 must state the apex mode. (g) Every suite run from now on retains raw bodies or passes --raw-dir so compare.mjs actually writes the SPEC-04 §4 text diff; no future allowlist approval without it."
+          }
+        ]
+      }
+    ],
     "A4": null
   },
   "blockers": [

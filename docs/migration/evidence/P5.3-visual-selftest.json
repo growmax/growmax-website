@@ -1,0 +1,99 @@
+{
+  "kind": "P5.3-visual-selftest",
+  "generatedAt": "2026-09-27T03:11:01.350Z",
+  "pass": true,
+  "checks": [
+    {
+      "name": "analytics-beacons-different-query-not-new",
+      "pass": true,
+      "detail": {
+        "newOnes": []
+      }
+    },
+    {
+      "name": "third-party-new-path-is-new",
+      "pass": true,
+      "detail": {
+        "newOnes": [
+          {
+            "url": "https://analytics.google.com/g/some-other-endpoint?cid=bbb",
+            "method": "GET",
+            "failure": "net::ERR_ABORTED",
+            "key": "thirdparty|GET|https://analytics.google.com/g/some-other-endpoint|net::ERR_ABORTED"
+          }
+        ]
+      }
+    },
+    {
+      "name": "third-party-different-failure-text-is-new",
+      "pass": true,
+      "detail": {
+        "newOnes": [
+          {
+            "url": "https://analytics.google.com/g/collect?cid=bbb",
+            "method": "GET",
+            "failure": "net::ERR_CONNECTION_RESET",
+            "key": "thirdparty|GET|https://analytics.google.com/g/collect|net::ERR_CONNECTION_RESET"
+          }
+        ]
+      }
+    },
+    {
+      "name": "first-party-only-on-b-is-new",
+      "pass": true,
+      "detail": {
+        "newOnes": [
+          {
+            "url": "https://growmax-website.vercel.app/_next/static/chunks/main-abc123.js",
+            "method": "GET",
+            "failure": "net::ERR_ABORTED",
+            "key": "firstparty|GET|/_next/static/chunks/main-abc123.js|net::ERR_ABORTED"
+          }
+        ]
+      }
+    },
+    {
+      "name": "first-party-same-path-across-hosts-not-new",
+      "pass": true,
+      "detail": {
+        "newOnes": []
+      }
+    },
+    {
+      "name": "first-party-different-search-is-new",
+      "pass": true,
+      "detail": {
+        "newOnes": [
+          {
+            "url": "https://growmax-website.vercel.app/_next/static/chunks/main-abc123.js?w=200",
+            "method": "GET",
+            "failure": "net::ERR_ABORTED",
+            "key": "firstparty|GET|/_next/static/chunks/main-abc123.js?w=200|net::ERR_ABORTED"
+          }
+        ]
+      }
+    },
+    {
+      "name": "canonical-host-on-b-reconciles-with-a",
+      "pass": true,
+      "detail": {
+        "newOnes": []
+      }
+    },
+    {
+      "name": "unparseable-url-does-not-throw-and-compares-exactly",
+      "pass": true,
+      "detail": {
+        "sameNewOnes": [],
+        "differentNewOnes": [
+          {
+            "url": "also not a url",
+            "method": "GET",
+            "failure": "net::ERR_ABORTED",
+            "key": "unparseable|GET|also not a url|net::ERR_ABORTED"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -59,6 +59,65 @@ const VIEWPORTS = [
 
 const INJECT_CSS = '*{animation:none!important;transition:none!important;caret-color:transparent!important}'
 
+// Hosts treated as "first-party" even when they differ from the capturing page's own host:
+// A is captured from www.growmax.io, B from a *.vercel.app deployment alias, and neither is
+// itself in this list, but a same-site absolute link/asset on either side should still
+// reconcile with the other (mirrors CANONICAL_PRODUCTION_HOSTS in parity/lib/extract.mjs).
+const CANONICAL_PRODUCTION_HOSTS = ['www.growmax.io', 'growmax.io']
+
+// P5.3 fix: a P5.2 attempt-2 run flagged 20/20 page/viewport combinations as having "new
+// failed requests on B" purely because run.mjs compared failed requests by exact full URL.
+// The failures were net::ERR_ABORTED Google Analytics / Google Ads / DoubleClick beacons
+// (analytics.google.com/g/collect, www.google.com/ccm|rmkt/collect, ad.doubleclick.net/ccm/s/collect)
+// that also abort identically on A — confirmed by independent standalone reproduction — but
+// their query strings are randomized per page load (cid/auid session ids, rnd/tft
+// timestamps, cache-busting params), so they never match byte-for-byte across captures.
+//
+// Fix: compare failed requests by a normalized key instead of the raw URL.
+//  - Cross-origin (third-party) requests: the query string is where the random noise lives,
+//    so it's dropped entirely — key is method + scheme://host + pathname + failure text.
+//    Two different third-party paths, or the same path failing for a different reason, still
+//    produce different keys and are still flagged.
+//  - First-party requests (the page's own host, or one of CANONICAL_PRODUCTION_HOSTS): these
+//    should compare exactly, query string included, since a first-party querystring (e.g. a
+//    cache-busted /_next/static/ chunk) is meaningful, not random noise. The host itself is
+//    dropped from the key so that A's www.growmax.io and B's *.vercel.app — which are the same
+//    site captured from two different origins — reconcile instead of every first-party
+//    request being flagged as "new" purely because the hostname changed.
+function isFirstPartyHost(host, pageHost) {
+  return host === pageHost || CANONICAL_PRODUCTION_HOSTS.includes(host)
+}
+
+export function normalizeFailedRequestKey({ url, method, failure }, pageOrigin) {
+  const m = method || ''
+  const f = failure || ''
+  let u
+  try {
+    u = new URL(url)
+  } catch {
+    // Unparseable request URL: fall back to the raw url as the key so it still compares
+    // (exactly, since there's nothing safe to normalize) rather than being silently dropped.
+    return `unparseable|${m}|${url}|${f}`
+  }
+  let pageHost = null
+  try {
+    pageHost = new URL(pageOrigin).host
+  } catch {
+    // leave pageHost null; isFirstPartyHost then only matches CANONICAL_PRODUCTION_HOSTS
+  }
+  if (isFirstPartyHost(u.host, pageHost)) {
+    return `firstparty|${m}|${u.pathname}${u.search}|${f}`
+  }
+  return `thirdparty|${m}|${u.protocol}//${u.host}${u.pathname}|${f}`
+}
+
+/** Pure diff: which of B's failed requests (by normalized key) don't occur among A's failed
+ *  requests on the same page/viewport. Exported so the self-test can exercise the exact
+ *  comparison the main loop uses, without needing a browser. */
+export function diffNewFailedRequests(failedA, failedB) {
+  return failedB.filter((f) => !failedA.some((fa) => fa.key === f.key))
+}
+
 function parseArgs(argv) {
   const out = {}
   for (let i = 0; i < argv.length; i++) {
@@ -152,7 +211,11 @@ async function captureShots({ chromium, base, bypassSecret, shotsDir, label, pag
         page.on('console', (msg) => {
           if (msg.type() === 'error') errs.push(msg.text())
         })
-        page.on('requestfailed', (req) => failedReqs.push({ url: req.url(), failure: req.failure()?.errorText }))
+        page.on('requestfailed', (req) => {
+          const entry = { url: req.url(), method: req.method(), failure: req.failure()?.errorText }
+          entry.key = normalizeFailedRequestKey(entry, base)
+          failedReqs.push(entry)
+        })
         // 'requestfailed' never fires for an HTTP 4xx/5xx — the request itself succeeded at
         // the network level, it just came back with a bad status (e.g. a missing public/
         // asset, a broken image optimizer, a 404'd JS/CSS chunk). Catch those here instead.
@@ -316,7 +379,9 @@ async function main() {
       const newErrors = errsB.filter((e) => !errsA.includes(e))
       const failedA = capA.failedRequests[key] || []
       const failedB = capB.failedRequests[key] || []
-      const newFailedRequests = failedB.filter((f) => !failedA.some((fa) => fa.url === f.url))
+      // Normalized-key comparison (P5.3): see normalizeFailedRequestKey/diffNewFailedRequests
+      // above. Raw URLs (and method/failure) are still kept on each entry for evidence.
+      const newFailedRequests = diffNewFailedRequests(failedA, failedB)
       const errorRespA = capA.errorResponses[key] || []
       const errorRespB = capB.errorResponses[key] || []
       const newErrorResponses = errorRespB.filter((f) => !errorRespA.some((fa) => fa.url === f.url && fa.status === f.status))
@@ -351,7 +416,9 @@ async function main() {
   process.exit(evidence.status === 'pass' ? 0 : 1)
 }
 
-main().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}
