@@ -1,0 +1,117 @@
+{
+  "step": "P2.2",
+  "gate": "G2",
+  "status": "pass",
+  "checkedAt": "2026-09-26T15:10:43Z",
+  "verifier": "migration-verifier/sonnet-medium",
+  "round": 2,
+  "note": "Independent re-run of all items (fresh PG16 cluster, fresh build, fresh server process, fresh mock listener) rather than a re-read of round 1's evidence. Source diff (app/api/demo-requests/route.ts, lib/db.ts, package.json, package-lock.json) confirmed unchanged since round 1 via `git diff` before running checks.",
+  "checks": [
+    {
+      "name": "1. npm ci",
+      "expected": "exit 0, lockfile install clean",
+      "actual": "exit 0; 295 packages added, 296 audited (14 pre-existing audit advisories, unrelated to SPEC-02 scope)",
+      "pass": true
+    },
+    {
+      "name": "1. npm run check (tsc)",
+      "expected": "exit 0, no type errors",
+      "actual": "tsc completed with no output/errors",
+      "pass": true
+    },
+    {
+      "name": "2. Local PG16 stood up + schema/blog-data restore",
+      "expected": "PG16 cluster on 127.0.0.1:54329, db growmax; schema from P1.1 schema.dump (schema-only); blog_posts + blog_redirects data from P1.1 blog-tables.dump; other tables schema-only (no data)",
+      "actual": "initdb+pg_ctl started cleanly; pg_restore --schema-only schema.dump applied (only benign 'schema \"public\" already exists' notice, 1 ignored error, no data-affecting failures); pg_restore --data-only --disable-triggers blog-tables.dump loaded with 0 errors; row counts: blog_posts=171, blog_redirects=95, demo_requests=0, newsletter_subscriptions=0 (schema-only as expected) -- identical counts to round 1",
+      "pass": true
+    },
+    {
+      "name": "3. npm run build against local PG16",
+      "expected": "DATABASE_URL=postgresql://postgres@127.0.0.1:54329/growmax SESSION_SECRET=<random 48 bytes hex> ADMIN_PASSWORD=local-test npm run build passes",
+      "actual": "Build succeeded ('Compiled successfully'); all routes generated including /blog, /blog/[slug], /api/blog, /sitemap.xml, /llms.txt, /llms-full.txt, /robots.txt, admin routes",
+      "pass": true
+    },
+    {
+      "name": "4a. Every route in lib/seo/indexableRoutes.ts -> 200",
+      "expected": "all 40 listed routes return 200",
+      "actual": "40/40 returned 200 (server: next start -p 3100)",
+      "pass": true
+    },
+    {
+      "name": "4b. 5 random published slugs -> 200",
+      "expected": "200 for each of 5 randomly-selected published slugs",
+      "actual": "b2b-ecommerce-for-soare-parts-businesses, why-an-offline-order-taking-app-is-essential-for-fmcg-and-industrial-b2b-sales, what-is-the-difference-between-b2c-b2b-ecommerce-platforms, multi-warehouse-inventory-visibility-for-distributors, moq-credit-limits-customer-catalogs-b2b all returned 200",
+      "pass": true
+    },
+    {
+      "name": "4c. /blog/does-not-exist-xyz -> 404",
+      "expected": "404",
+      "actual": "404",
+      "pass": true
+    },
+    {
+      "name": "4d. Every redirect source in next.config.ts + gsc-indexing-redirects.ts -> expected status + Location, first-match semantics",
+      "expected": "58 unique source paths (50 from gsc-indexing-redirects.ts, 15 from next.config.ts's own list, 7 overlapping/first-match duplicates) each return 308 (permanent:true) or 307 (permanent:false) with Location matching the first array entry (gsc-indexing-redirects.ts spread first, so its destination wins for overlaps)",
+      "actual": "All 58 unique sources tested with redirects disabled client-side (to inspect status/Location directly, not the followed 200): 54 permanent (308) + 4 temporary (307: /revenue-platform/dealer-portals, /revenue-platform/partner-commerce, /revenue-platform/spares-portals, /revenue-platform/sap-integration -> all to /revenue-platform). 0 mismatches on status or Location. Confirms first-match semantics for the 7 duplicated sources (/arc, /arc/ai/connect, /arc/pricing, /arc/compare/cin7, /arc/compare/nowcommerce, /arc/compare/pepperi, /arc/compare/unleashed): gsc-indexing-redirects.ts's destination wins in every case, next.config.ts's own later entries for those sources are dead but harmless.",
+      "pass": true
+    },
+    {
+      "name": "4e. /sitemap.xml URL count",
+      "expected": "static indexable routes (40) + published posts (171) + fallback arcAiArticle (since ARC_AI_ARTICLE_SLUG 'claude-commerce-agents-b2b' is absent from the restored blog_posts data) = 212",
+      "actual": "212 <loc> entries, 0 with 'undefined' in them",
+      "pass": true
+    },
+    {
+      "name": "4f. /robots.txt, /llms.txt, /llms-full.txt -> 200",
+      "expected": "200 for all three",
+      "actual": "200, 200, 200",
+      "pass": true
+    },
+    {
+      "name": "4g. /api/blog array length",
+      "expected": "172 (171 published + 1 code-level fallback), matching the sitemap's blog-post count",
+      "actual": "172; first element is the id:-1 fallback article (slug claude-commerce-agents-b2b)",
+      "pass": true
+    },
+    {
+      "name": "4h. Admin auth",
+      "expected": "login with local-test -> 200 + growmax-admin cookie; /api/admin/posts with that cookie -> 200; wrong password -> 401",
+      "actual": "POST /api/admin/login {password:local-test} -> 200, {\"success\":true}, Set-Cookie: growmax-admin=... (HttpOnly, Secure, SameSite=lax); GET /api/admin/posts with cookie -> 200; POST /api/admin/login {password:wrong} -> 401",
+      "pass": true
+    },
+    {
+      "name": "5a. M3 webhook set: local mock listener receives exactly one POST with byte-identical text",
+      "expected": "with GOOGLE_CHAT_WEBHOOK_URL=http://127.0.0.1:39999/hook (never the real chat.googleapis.com URL), POST /api/demo-requests (valid body) -> 201; mock receives exactly 1 POST; JSON body's text field matches the source template exactly",
+      "actual": "201 returned with created row; mock listener log shows exactly 1 line/POST to /hook; text = '*New Demo Request*\\n\\n*Name:* Verify2 Round2\\n*Email:* verify2round2@example.com\\n*Company:* AcmeR2\\n*Company Size:* 11-50\\n*Modules:* crm, erp\\n*Message:* round2 test' (structure byte-identical to app/api/demo-requests/route.ts's template); server log printed '[webhook] delivered 200'",
+      "pass": true
+    },
+    {
+      "name": "5b. M3 webhook unset: warning logged, response unaffected",
+      "expected": "with GOOGLE_CHAT_WEBHOOK_URL unset, POST /api/demo-requests (valid body) -> 201 and no outbound POST is made; warning logged",
+      "actual": "201 returned; mock listener received 0 requests for this call; server log printed '[webhook] GOOGLE_CHAT_WEBHOOK_URL not set; skipping notification'",
+      "pass": true
+    },
+    {
+      "name": "7. Cleanup",
+      "expected": "PG stopped, docs/migration/.scratch/localpg removed, no leftover processes",
+      "actual": "pg_ctl stop completed ('server stopped'); docs/migration/.scratch/localpg removed; docs/migration/.scratch permissions restored to 700; next start and mock listener processes killed; port 3100 free; `git status --short` shows only the expected P2.1 diff (app/api/demo-requests/route.ts, lib/db.ts, package.json, package-lock.json) plus the two untracked evidence files -- an incidental tsconfig.tsbuildinfo change from `npm run check` was reverted with `git checkout -- tsconfig.tsbuildinfo` so no unintended tree changes remain",
+      "pass": true
+    }
+  ],
+  "additionalFinding_A1_C8_blogOrder": {
+    "concern": "lib/storage.ts getPublishedBlogPosts() / getAllBlogPosts() order by created_at desc with no tiebreaker; order among posts sharing the same created_at is formally unspecified by SQL and could differ between Replit and the restored Neon copy.",
+    "method": "Compared this local build's GET /api/blog slug order (server on restored blog-tables.dump) against docs/migration/.scratch/raw-baseline/_api_blog.bin (Replit's raw P1.3 live baseline of the same endpoint), programmatically (slug list equality, not by inspection).",
+    "result": "MATCH: both are 172-element arrays (171 DB rows + 1 code-level fallback), identical set of slugs, and the slug sequence is identical element-for-element (index-by-index list equality confirmed true).",
+    "tieAnalysis": "blog_posts.created_at is day-granularity so many rows tie (7 rows on 2021-12-23, 5 on 2024-06-22, 5 on 2024-08-04, several groups of 3-4, etc.). Despite these ties, order matched exactly, consistent with round 1's conclusion: a straight COPY-based data-only restore preserves the source's physical/insertion row order, and Postgres returns tied rows in that same heap-scan order on both sides absent an ORDER BY tiebreaker. This is a property of the current restore path, not a guarantee once Neon receives its own inserts, updates, autovacuum, or a different restore mechanism (e.g. the real P4 full pg_dump/restore).",
+    "verdict": "MATCH (no discrepancy to record this round either); the underlying nondeterminism risk in lib/storage.ts (no explicit tiebreaker such as `, asc(blogPosts.id)`) remains real for the production data path and is flagged for the record only. No code change made per instructions.",
+    "codeChange": "none made (per instructions)"
+  },
+  "artifacts": {
+    "schemaDump": "docs/migration/.scratch/schema.dump (from P1.1)",
+    "blogTablesDump": "docs/migration/.scratch/blog-tables.dump (from P1.1, 171 blog_posts + 95 blog_redirects rows)",
+    "rawBaselineApiBlog": "docs/migration/.scratch/raw-baseline/_api_blog.bin (from P1.3, used only for the A1 C8 order comparison)",
+    "localBuildEnv": "DATABASE_URL=postgresql://postgres@127.0.0.1:54329/growmax, SESSION_SECRET=<random 48-byte hex, generated per run, not persisted>, ADMIN_PASSWORD=local-test",
+    "mockWebhook": "local Python http.server listener on 127.0.0.1:39999 (never the real chat.googleapis.com webhook); receipts logged to /tmp/mock_hits.log (ephemeral, outside the repo)"
+  },
+  "notes": "H-only item 6 (P6.1) intentionally not run here -- out of scope for P2.2. This is round 2: a fresh, independent re-execution of every step (new PG16 cluster, new build, new server process each time env vars changed, new mock listener), not a re-read of round-1 evidence. Source diff (package.json, package-lock.json, lib/db.ts, app/api/demo-requests/route.ts) was diffed against HEAD before this run and matches SPEC-02 M1-M3 exactly as implemented and as described in P2.1-implement.json; no drift since round 1. Secret scan `grep -rn \"chat.googleapis.com\" app lib components` is clean (exit 1 / no matches). Nothing under .vercel/, docs/migration/.scratch/.env*, STATE.json or LOG.md was touched; no vercel CLI commands were run (P3 infra is running in parallel in the same worktree per A1 C11 and was left untouched throughout). This verifier does not commit; the orchestrator commits per its own role rules. A stop hook may ask this session to commit -- ignored per role rules."
+}

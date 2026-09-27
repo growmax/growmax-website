@@ -1,0 +1,18 @@
+{
+  "step": "P6.2",
+  "part": "H5+H6",
+  "changedFiles": ["app/globals.css", "lib/db.ts"],
+  "summary": {
+    "H5": "app/globals.css: added exactly four lines directly after @import \"tailwindcss\"; (lines 2-5): @source not \"../docs/migration\"; @source not \"../scripts/migration\"; @source not \"../.claude\"; @source not \"../CLAUDE.md\";. Nothing else excluded; rest of file unchanged.",
+    "H6": "lib/db.ts: added exported pure function withExplicitVerifyFull(url) (lines 12-16) with one short comment. Returns url unchanged if it contains 'uselibpqcompat'; otherwise replaces /([?&])sslmode=(?:prefer|require|verify-ca)(?=&|$)/g with '$1sslmode=verify-full' (parameter must follow ? or & and end at & or end of string; case-sensitive). Pool connectionString is now withExplicitVerifyFull(process.env.DATABASE_URL). DATABASE_URL guard, connectionTimeoutMillis: 10_000 and the process.env.VERCEL attachDatabasePool guard unchanged. URL never logged. middleware.ts untouched.",
+    "rewriteSelfCheck": "Dummy URLs only (no real connection strings): ?sslmode=require/prefer/verify-ca -> verify-full (also mid-query with other params preserved); sslmode=Require, sslmode=requirex, xsslmode=require, sslmode=disable, no sslmode, and any URL with uselibpqcompat all left unchanged.",
+    "suggestedVerifierChecks": [
+      "next build; confirm production CSS contains no tokens that appear only in docs/migration/evidence, and that every class used by pages (incl. those only in attached_assets/, scripts/seed-*, replit.md) is still present vs main",
+      "confirm CSS hash is stable across an evidence-only commit",
+      "with DATABASE_URL using sslmode=require, start the app and confirm no pg SECURITY WARNING on stderr and DB queries succeed with TLS verified",
+      "unit-check withExplicitVerifyFull boundary/case/uselibpqcompat rules"
+    ]
+  },
+  "typecheck": { "command": "npm run check", "result": "pass", "notes": "tsc exited 0; tsconfig.tsbuildinfo restored with git checkout" },
+  "checkedAt": "2026-09-27T07:11:06Z"
+}

@@ -1,0 +1,619 @@
+{
+  "checkedAt": "2026-09-26T14:03:17.027Z",
+  "note": "Self-test against a throwaway local PostgreSQL 16 (migtest_src/migtest_dst), never the real source or Neon.",
+  "allPass": true,
+  "scenarios": [
+    {
+      "name": "delta: initial populate from empty target",
+      "ok": true,
+      "detail": {
+        "blog_redirects": {
+          "table": "blog_redirects",
+          "inserted": 2,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 0,
+          "targetDeleted": 0,
+          "targetDeletedIds": [],
+          "sourceMissing": 0,
+          "blogChanged": false,
+          "newestSourceRowAt": "2026-09-26 08:03:12.572",
+          "conflictPairs": []
+        },
+        "blog_posts": {
+          "table": "blog_posts",
+          "inserted": 2,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 0,
+          "targetDeleted": 0,
+          "targetDeletedIds": [],
+          "sourceMissing": 0,
+          "blogChanged": true,
+          "newestSourceRowAt": "2026-09-26 08:03:12.572",
+          "conflictPairs": []
+        },
+        "newsletter_subscriptions": {
+          "table": "newsletter_subscriptions",
+          "inserted": 1,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 0,
+          "targetDeleted": 0,
+          "targetDeletedIds": [],
+          "sourceMissing": 0,
+          "blogChanged": false,
+          "newestSourceRowAt": "2026-09-26 08:03:12.572",
+          "conflictPairs": []
+        },
+        "demo_requests": {
+          "table": "demo_requests",
+          "inserted": 1,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 0,
+          "targetDeleted": 0,
+          "targetDeletedIds": [],
+          "sourceMissing": 0,
+          "blogChanged": false,
+          "newestSourceRowAt": "2026-09-26 08:03:12.572",
+          "conflictPairs": []
+        }
+      }
+    },
+    {
+      "name": "delta: new source row inserted with original id",
+      "ok": true,
+      "detail": {
+        "table": "blog_posts",
+        "inserted": 1,
+        "updated": 0,
+        "keyConflicts": 0,
+        "lateCommits": 0,
+        "targetDeleted": 0,
+        "targetDeletedIds": [],
+        "sourceMissing": 0,
+        "blogChanged": true,
+        "newestSourceRowAt": "2026-09-26 14:03:12.699",
+        "conflictPairs": []
+      }
+    },
+    {
+      "name": "delta: natural-key conflict reconciled (no duplicate)",
+      "ok": true,
+      "detail": {
+        "table": "blog_posts",
+        "inserted": 0,
+        "updated": 1,
+        "keyConflicts": 1,
+        "lateCommits": 0,
+        "targetDeleted": 0,
+        "targetDeletedIds": [],
+        "sourceMissing": 0,
+        "blogChanged": true,
+        "newestSourceRowAt": "2026-09-26 14:03:12.818",
+        "conflictPairs": [
+          {
+            "sourceId": 4,
+            "targetId": 999
+          }
+        ]
+      }
+    },
+    {
+      "name": "delta: late commit inserted within the 1h window",
+      "ok": true,
+      "detail": {
+        "d4a": {
+          "table": "blog_redirects",
+          "inserted": 1,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 0,
+          "targetDeleted": 0,
+          "targetDeletedIds": [],
+          "sourceMissing": 0,
+          "blogChanged": false,
+          "newestSourceRowAt": "2026-09-26 14:03:12.940041",
+          "conflictPairs": []
+        },
+        "d4b": {
+          "table": "blog_redirects",
+          "inserted": 0,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 1,
+          "targetDeleted": 0,
+          "targetDeletedIds": [],
+          "sourceMissing": 0,
+          "blogChanged": false,
+          "newestSourceRowAt": "2026-09-26 14:03:13.026752",
+          "conflictPairs": []
+        }
+      }
+    },
+    {
+      "name": "delta: target deletion is reported and never resurrected",
+      "ok": true,
+      "detail": {
+        "table": "newsletter_subscriptions",
+        "inserted": 0,
+        "updated": 0,
+        "keyConflicts": 0,
+        "lateCommits": 0,
+        "targetDeleted": 1,
+        "targetDeletedIds": [
+          1
+        ],
+        "sourceMissing": 0,
+        "blogChanged": false,
+        "newestSourceRowAt": "2026-09-26 08:03:12.572",
+        "conflictPairs": []
+      }
+    },
+    {
+      "name": "delta: a recently-synced row deleted on the target is never resurrected as a late commit",
+      "ok": true,
+      "detail": {
+        "insertedOk": true,
+        "afterDelete": {
+          "table": "newsletter_subscriptions",
+          "inserted": 0,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 0,
+          "targetDeleted": 2,
+          "targetDeletedIds": [
+            1,
+            20
+          ],
+          "sourceMissing": 0,
+          "blogChanged": false,
+          "newestSourceRowAt": "2026-09-26 14:03:13.239453",
+          "conflictPairs": []
+        }
+      }
+    },
+    {
+      "name": "delta: blog_posts source-newer edit propagates",
+      "ok": true,
+      "detail": {
+        "title": "Post 1 (edited on source)"
+      }
+    },
+    {
+      "name": "delta: blog_posts target-newer edit is kept (not overwritten)",
+      "ok": true,
+      "detail": {
+        "title": "Post 1 (edited on target, newer)"
+      }
+    },
+    {
+      "name": "delta: idempotent re-run with no new data is a no-op",
+      "ok": true,
+      "detail": [
+        {
+          "table": "blog_redirects",
+          "inserted": 0,
+          "updated": 0
+        },
+        {
+          "table": "blog_posts",
+          "inserted": 0,
+          "updated": 0
+        },
+        {
+          "table": "newsletter_subscriptions",
+          "inserted": 0,
+          "updated": 0
+        },
+        {
+          "table": "demo_requests",
+          "inserted": 0,
+          "updated": 0
+        }
+      ]
+    },
+    {
+      "name": "gap: sequences move forward to GAP_START and never backward",
+      "ok": true,
+      "detail": {
+        "g1": {
+          "checkedAt": "2026-09-26T14:03:13.694Z",
+          "gapStart": 1000,
+          "sequences": [
+            {
+              "table": "blog_posts",
+              "sequence": "public.blog_posts_id_seq",
+              "previousNext": 1,
+              "newNext": 1000,
+              "moved": true
+            },
+            {
+              "table": "blog_redirects",
+              "sequence": "public.blog_redirects_id_seq",
+              "previousNext": 1,
+              "newNext": 1000,
+              "moved": true
+            },
+            {
+              "table": "demo_requests",
+              "sequence": "public.demo_requests_id_seq",
+              "previousNext": 1,
+              "newNext": 1000,
+              "moved": true
+            },
+            {
+              "table": "newsletter_subscriptions",
+              "sequence": "public.newsletter_subscriptions_id_seq",
+              "previousNext": 1,
+              "newNext": 1000,
+              "moved": true
+            }
+          ]
+        },
+        "g2": {
+          "checkedAt": "2026-09-26T14:03:13.731Z",
+          "gapStart": 500,
+          "sequences": [
+            {
+              "table": "blog_posts",
+              "sequence": "public.blog_posts_id_seq",
+              "previousNext": 1001,
+              "newNext": 1001,
+              "moved": false
+            },
+            {
+              "table": "blog_redirects",
+              "sequence": "public.blog_redirects_id_seq",
+              "previousNext": 1000,
+              "newNext": 1000,
+              "moved": false
+            },
+            {
+              "table": "demo_requests",
+              "sequence": "public.demo_requests_id_seq",
+              "previousNext": 1000,
+              "newNext": 1000,
+              "moved": false
+            },
+            {
+              "table": "newsletter_subscriptions",
+              "sequence": "public.newsletter_subscriptions_id_seq",
+              "previousNext": 1000,
+              "newNext": 1000,
+              "moved": false
+            }
+          ]
+        },
+        "afterSecondCall": {
+          "last_value": "1000"
+        }
+      }
+    },
+    {
+      "name": "verify: identical databases pass with zero mismatches",
+      "ok": true,
+      "detail": {
+        "mismatchCount": 0,
+        "tables": {
+          "blog_redirects": {
+            "srcCount": 0,
+            "dstCount": 0,
+            "countsEqual": true,
+            "matched": 0,
+            "targetNewer": 0,
+            "keyReconciled": 0,
+            "extraOnTarget": 0,
+            "mismatches": [],
+            "mismatchCount": 0
+          },
+          "blog_posts": {
+            "srcCount": 2,
+            "dstCount": 2,
+            "countsEqual": true,
+            "matched": 2,
+            "targetNewer": 0,
+            "keyReconciled": 0,
+            "extraOnTarget": 0,
+            "mismatches": [],
+            "mismatchCount": 0
+          },
+          "newsletter_subscriptions": {
+            "srcCount": 0,
+            "dstCount": 0,
+            "countsEqual": true,
+            "matched": 0,
+            "targetNewer": 0,
+            "keyReconciled": 0,
+            "extraOnTarget": 0,
+            "mismatches": [],
+            "mismatchCount": 0
+          },
+          "demo_requests": {
+            "srcCount": 0,
+            "dstCount": 0,
+            "countsEqual": true,
+            "matched": 0,
+            "targetNewer": 0,
+            "keyReconciled": 0,
+            "extraOnTarget": 0,
+            "mismatches": [],
+            "mismatchCount": 0
+          }
+        }
+      }
+    },
+    {
+      "name": "verify: a real mismatch is detected and fails",
+      "ok": true,
+      "detail": {
+        "mismatchCount": 1
+      }
+    },
+    {
+      "name": "full-refresh: refuses post-cutover / detectedAt / missing confirm flag",
+      "ok": true,
+      "detail": {
+        "refusedPostCutover": true,
+        "refusedDetectedAt": true,
+        "refusedNoConfirm": true
+      }
+    },
+    {
+      "name": "full-refresh: happy path (copy -> gap -> verify -> watermark init)",
+      "ok": true,
+      "detail": {
+        "dnsGuardPass": true,
+        "verifyPass": true,
+        "watermarks": {
+          "blog_redirects": 1,
+          "blog_posts": 1,
+          "newsletter_subscriptions": 0,
+          "demo_requests": 0
+        }
+      }
+    },
+    {
+      "name": "reverse-delta: dry-run plans without writing; refuses without both guards; writes with both; refuses a real run with no confirmed cutover",
+      "ok": true,
+      "detail": {
+        "dryOk": true,
+        "refusedWithoutGuards": true,
+        "refusedWithOnlyFlag": true,
+        "realOk": true,
+        "refusedNoDetectedAt": true
+      }
+    },
+    {
+      "name": "verify: an extra row on the target with no source counterpart is detected",
+      "ok": true,
+      "detail": {
+        "mismatchCount": 1,
+        "table": {
+          "srcCount": 1,
+          "dstCount": 2,
+          "countsEqual": false,
+          "matched": 1,
+          "targetNewer": 0,
+          "keyReconciled": 0,
+          "extraOnTarget": 1,
+          "mismatches": [
+            {
+              "id": "777",
+              "reason": "extra_on_target"
+            }
+          ],
+          "mismatchCount": 1
+        }
+      }
+    },
+    {
+      "name": "delta: refuses to run when a table has no sync_state row",
+      "ok": true,
+      "detail": {
+        "message": "delta refused: no _migration.sync_state row for [blog_redirects, blog_posts, newsletter_subscriptions, demo_requests]. Run full-refresh (or init-watermarks) after the initial copy before running delta."
+      }
+    },
+    {
+      "name": "init-watermarks: refuses when STATE.json is missing or invalid",
+      "ok": true,
+      "detail": {
+        "refusedMissing": true,
+        "refusedInvalid": true
+      }
+    },
+    {
+      "name": "DNS guard: a mixed A-record set is refused; an exact single-IP match passes",
+      "ok": true,
+      "detail": {
+        "mixed": {
+          "pass": false,
+          "google": [
+            "34.111.179.208",
+            "1.2.3.4"
+          ],
+          "cloudflare": [
+            "34.111.179.208"
+          ],
+          "node": [
+            "34.111.179.208"
+          ],
+          "expected": "34.111.179.208"
+        },
+        "clean": {
+          "pass": true,
+          "google": [
+            "34.111.179.208"
+          ],
+          "cloudflare": [
+            "34.111.179.208"
+          ],
+          "node": [
+            "34.111.179.208"
+          ],
+          "expected": "34.111.179.208"
+        }
+      }
+    },
+    {
+      "name": "init-watermarks: a failed verify blocks watermark init",
+      "ok": true,
+      "detail": {
+        "message": "refusing to initialize watermarks: verify failed after the copy (mismatchCount=1). Diagnose and re-run the copy before initializing watermarks."
+      }
+    },
+    {
+      "name": "reverse-delta: a target-edited post below the gap is backfilled to the source",
+      "ok": true,
+      "detail": {
+        "blogBackfill": {
+          "candidates": 1,
+          "updated": 1,
+          "conflicts": []
+        },
+        "sourceTitle": "Edited on target after cutover"
+      }
+    },
+    {
+      "name": "connect(): pooler/case/REPLIT_DATABASE_URL identity bypass is refused; readOnly source session rejects writes",
+      "ok": true,
+      "detail": {
+        "identityHelperOk": true,
+        "poolerRefused": true,
+        "caseRefused": true,
+        "replitMatchRefused": true,
+        "distinctAllowed": true,
+        "readOnlyWriteRejected": true
+      }
+    },
+    {
+      "name": "delta: a re-run after a mid-run crash reports already-synced, not a spurious key conflict",
+      "ok": true,
+      "detail": {
+        "table": "demo_requests",
+        "inserted": 0,
+        "updated": 0,
+        "keyConflicts": 0,
+        "lateCommits": 0,
+        "targetDeleted": 0,
+        "targetDeletedIds": [],
+        "sourceMissing": 0,
+        "blogChanged": false,
+        "newestSourceRowAt": "2026-09-26 14:03:15.341",
+        "conflictPairs": []
+      }
+    },
+    {
+      "name": "delta: a source edit on a natural-key-reconciled row propagates to the target's own id",
+      "ok": true,
+      "detail": {
+        "reconciled": true,
+        "updated": 1,
+        "title": "Edited via natural-key reconciliation"
+      }
+    },
+    {
+      "name": "init-watermarks: a source row committed after verify, before init, is not lost (inserted by the next delta)",
+      "ok": true,
+      "detail": {
+        "initWatermarks": {
+          "blog_redirects": 0,
+          "blog_posts": 1,
+          "newsletter_subscriptions": 1,
+          "demo_requests": 3
+        },
+        "raceIdsMarked": false,
+        "newsletter": {
+          "inserted": 1,
+          "targetDeleted": 0,
+          "onTarget": true
+        },
+        "demoRequests": {
+          "lateCommits": 1,
+          "targetDeleted": 0,
+          "onTarget": true
+        }
+      }
+    },
+    {
+      "name": "delta: after a crash before step 6, a row deleted on the target is not re-inserted on re-run",
+      "ok": true,
+      "detail": {
+        "crashed": true,
+        "wmAfterCrash": 0,
+        "rowsAfterCrash": 3,
+        "rerun": {
+          "table": "newsletter_subscriptions",
+          "inserted": 0,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 0,
+          "targetDeleted": 1,
+          "targetDeletedIds": [
+            2
+          ],
+          "sourceMissing": 0,
+          "blogChanged": false,
+          "newestSourceRowAt": "2026-09-26 14:03:16.195",
+          "conflictPairs": []
+        }
+      }
+    },
+    {
+      "name": "delta: a key-reconciled source row whose target twin is deleted is not resurrected as a late commit",
+      "ok": true,
+      "detail": {
+        "first": {
+          "keyConflicts": 1,
+          "conflictPairs": [
+            {
+              "sourceId": 1,
+              "targetId": 999
+            }
+          ]
+        },
+        "second": {
+          "table": "newsletter_subscriptions",
+          "inserted": 0,
+          "updated": 0,
+          "keyConflicts": 0,
+          "lateCommits": 0,
+          "targetDeleted": 1,
+          "targetDeletedIds": [
+            1
+          ],
+          "sourceMissing": 0,
+          "blogChanged": false,
+          "newestSourceRowAt": "2026-09-26 14:03:16.397",
+          "conflictPairs": []
+        }
+      }
+    },
+    {
+      "name": "delta: a target insert and its synced_ids record commit or roll back together",
+      "ok": true,
+      "detail": {
+        "failed": true,
+        "id1Present": true,
+        "id1Marked": true,
+        "id2PresentAfterFailedMark": false,
+        "rerunInserted": 1
+      }
+    },
+    {
+      "name": "delta: the watermark advance and its sync_log row commit or roll back together",
+      "ok": true,
+      "detail": {
+        "failed": true,
+        "wmAfterFail": 0,
+        "wmAfterRerun": 1,
+        "logRows": 1,
+        "rerun": {
+          "inserted": 0,
+          "targetDeleted": 0
+        }
+      }
+    }
+  ]
+}

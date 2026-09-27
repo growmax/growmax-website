@@ -1,0 +1,488 @@
+{
+  "step": "P5.3",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T02:39:09Z",
+  "author": "migration-implementer",
+  "note": "self-run; certification is the reviewer's. Round 3: fixes review round 2's one blocking finding (F9 still false-passed four broken logouts because cookie attributes were not read per RFC 6265) and the cheap, safety-relevant non-blocking F2/run.mjs notes; see reviewRound2Response. Only functional/run.mjs and functional/selftest-p5.3.mjs changed in round 3; every parity file is byte-identical to the round-2 reviewed hashes.",
+  "task": "P5.3 harness fixes (6 bugs found in P5.2 attempt 1): assetRefs ?dpl skew-protection param, internalLinks/externalLinks same-site host classification, F9 logout cookie-clearing, F2 demo-test double-send guard, ADMIN_PASSWORD/SESSION_SECRET placeholder fail-fast, /blog + /blog?page=2 coverage gap. Round 2: fixes review round 1's two blocking findings on top of that (F2's cap formula could still be exceeded under a stale STATE.json + new runLabel; F9's cookie-clearing check could false-pass three realistic broken-logout regressions). Round 3: fixes review round 2's blocking finding (F9 RFC 6265 cookie semantics: missing Path, Max-Age precedence over Expires, invalid Max-Age, missing login cookie attributes) plus the F2/run.mjs non-blocking notes.",
+  "constraints": {
+    "noProductionWrites": true,
+    "f2AllowDemoTestUsed": false,
+    "filesTouched": [
+      "scripts/migration/parity/lib/extract.mjs",
+      "scripts/migration/parity/capture.mjs",
+      "scripts/migration/parity/compare.mjs",
+      "scripts/migration/parity/urls.mjs",
+      "scripts/migration/parity/selftest.mjs",
+      "scripts/migration/parity/selftest-p5.3.mjs",
+      "scripts/migration/functional/run.mjs",
+      "scripts/migration/functional/selftest-p5.3.mjs",
+      "docs/migration/evidence/P5.3-harness-fix.json"
+    ]
+  },
+  "changes": [
+    {
+      "bug": 1,
+      "area": "parity/compare.mjs — assetRefs (216/234 of attempt-1's failures)",
+      "summary": "extract.mjs keeps assetRefs as the raw, literally-fetchable URL (capture.mjs needs the real ?dpl=<deploymentId> to fetch it); compare.mjs was diffing that raw string exactly, so every Vercel-served script/css/preload ref failed parity purely on its per-deployment dpl value.",
+      "fix": "compare.mjs:stripDplQueryParam (new) removes only the literal `dpl` query key via URLSearchParams (other params and their relative order kept; a trailing empty `?` dropped), applied to BOTH sides at compare time inside normalizeAssetRef, before the existing hashed-/_next/static/ placeholder substitution. capture.mjs/extract.mjs are unchanged: capture still fetches the real, un-stripped URL.",
+      "files": [
+        "scripts/migration/parity/compare.mjs"
+      ]
+    },
+    {
+      "bug": 2,
+      "area": "parity/extract.mjs + compare.mjs — internalLinks/externalLinks (15/234)",
+      "summary": "isSameSite (extract.mjs) compared a link's host only against the CAPTURING page's own host, so a byte-identical absolute href to https://www.growmax.io/... classified as internal when captured from www.growmax.io (A) but external when captured from growmax-website.vercel.app (B).",
+      "fix": "extract.mjs: new exported CANONICAL_PRODUCTION_HOSTS = ['www.growmax.io','growmax.io'], shared with capture.mjs's KNOWN_HOSTS (KNOWN_HOSTS = [...CANONICAL_PRODUCTION_HOSTS, '*.vercel.app'] — the *.vercel.app wildcard stays capture-only, for redirect Location normalization, and is deliberately NOT part of same-site page-body classification). isSameSite now also treats either canonical host as same-site. Additionally, since assetRefs/internalLinks/externalLinks are baked into a manifest at capture time and the attempt-1 manifests predate this fix, compare.mjs gained reclassifyLinks() (compare time, both sides): recovers each externalLinks entry's host and moves a canonical-host href into internalLinks (as path+search), leaving third-party hosts untouched. This makes old and new manifests agree without a re-capture, mirroring bug 1's compare-time approach.",
+      "files": [
+        "scripts/migration/parity/lib/extract.mjs",
+        "scripts/migration/parity/capture.mjs",
+        "scripts/migration/parity/compare.mjs"
+      ]
+    },
+    {
+      "bug": 3,
+      "area": "functional/run.mjs — F9 logout (false fail / would-be false pass on a real regression)",
+      "summary": "F9 read `A.cookie` unchanged from F4's login and never inspected logout's own Set-Cookie. iron-session is stateless, so POST /api/admin/logout followed by GET /api/admin/session with the SAME (pre-logout) cookie still decrypts to isAdmin:true — F9 failed even though logout behaved correctly, and would have equally PASSED a regression that stopped clearing the cookie (since the old cookie would still read isAdmin:true, and the check's `body?.isAdmin === false` clause was the only thing anchoring it — coincidentally saving it here, but for the wrong reason: it depended on replay behavior, not on verifying the clear).",
+      "fix": "New exported checkLogout(A) (run.mjs): passes only when logout's response is 200 AND its Set-Cookie for growmax-admin actually clears the cookie AND a follow-up GET /api/admin/session reports isAdmin:false. 'Clears' means: exactly one entry whose name-value pair has an '=' and whose name, with only SP/HTAB stripped (never JS .trim(), which also strips U+00A0), is exactly growmax-admin (a pair without '=' or with an empty name never matches, RFC 6265 §5.2), in an entry a browser would accept at all (not SameSite=None or Partitioned without Secure, name+value at most 4096 octets, no CTL, fail-closed on non-ASCII, a last Domain attribute that is neither '.' (Chromium rejects `Domain=.`) nor empty after a real Domain; attribute-values over 1024 octets ignored); a valid Max-Age<=0, or without a valid Max-Age an Expires in the past parsed only by the RFC 6265 §5.1.1 cookie-date algorithm (parseCookieDate; anything it rejects, e.g. Expires=0/2020/-1, counts as no Expires); and the same effective Path, Domain and Partitioned state as the login cookie captured at F4 (fail closed without one). The follow-up GET is sent with growmax-admin=<the clearing entry's own value> in the client jar, never the stale pre-logout cookie and never an emptied jar (the earlier 'A.cookie set to null' behaviour was replaced in P6.1, see docs/migration/evidence/P6.1-f9-hardening.json): that is what a browser would hold if the harness misread the expiry, so a regression that re-sends the sealed value fails on isAdmin even then. The real app clears with an empty value (growmax-admin=; Path=/; Max-Age=0), which /api/admin/session reads as not admin. An app regression that stops clearing the cookie fails outright on clearsAdminCookie alone.",
+      "files": [
+        "scripts/migration/functional/run.mjs"
+      ]
+    },
+    {
+      "bug": 4,
+      "area": "functional/run.mjs — F2 demo-request double-send guard",
+      "summary": "F2 (a real Google Chat message, capped at 3 for the whole migration) fired twice in one run because the verifier re-ran the suite while STATE.json's flags.demoTestsSent still read the old value.",
+      "fix": "New marker file docs/migration/.scratch/demo-tests/<runLabel>.sent (JSON: runLabel, sentAt, base — no PII), written unconditionally right after the POST /api/demo-requests is issued (in a finally, even on a non-201/throw, since the real send may already have reached the server). Before sending, F2 now refuses outright if a marker for this exact runLabel already exists (reported as skipped:true, pass:false, with the reason — never a silent pass). The cap-vs-3 check uses resolveDemoTestsSentCount(fromState, markerCount) = Math.max(...) of the caller-supplied/STATE counter and the number of .sent files on disk, so a stale STATE counter can no longer undercount.",
+      "files": [
+        "scripts/migration/functional/run.mjs"
+      ]
+    },
+    {
+      "bug": 5,
+      "area": "functional/run.mjs — env hygiene fail-fast",
+      "summary": "vercel env pull writes ADMIN_PASSWORD/SESSION_SECRET/GOOGLE_CHAT_WEBHOOK_URL to docs/migration/.scratch/.env.production as the literal string \"[SENSITIVE]\"; sourcing that file wholesale would silently clobber the real container env vars with the placeholder and run F3/F4/F9 against a password that was never real.",
+      "fix": "main() now exits 2 with a clear message before any network call if process.env.ADMIN_PASSWORD or process.env.SESSION_SECRET === '[SENSITIVE]'.",
+      "files": [
+        "scripts/migration/functional/run.mjs"
+      ]
+    },
+    {
+      "bug": 6,
+      "area": "parity/urls.mjs + selftest.mjs — /blog and /blog?page=2 coverage gap",
+      "summary": "Neither /blog nor /blog?page=2 carried a fixed status expectation. compareEntry's is2xxHtml gate (keyed off A's status) silently skipped the ENTIRE embedded-post-list comparison whenever B's listing page came back non-2xx, including the case where A happened to fail the same way — reporting a clean pass instead of surfacing that B's listing page was down (STATE.json followUps, review r4).",
+      "fix": "buildInventory (urls.mjs) now merges expect:{status:200} onto both list entries after the full inventory is built (a post-process merge, not a fresh record() call, since /blog is already recorded — with no expect — by the sitemap source, and push()'s dedupe is first-write-wins; /blog?page=2 keeps its existing xRobotsTag expectation, additively). selftest.mjs's SPEC_EXPECT_URLS (the inventory-expect-blocks-match-spec check) updated to match. Both entries stay additive: the ordinary A/B compare still runs for them.",
+      "files": [
+        "scripts/migration/parity/urls.mjs",
+        "scripts/migration/parity/selftest.mjs"
+      ]
+    },
+    {
+      "bug": "infra",
+      "area": "functional/run.mjs — importability",
+      "summary": "run.mjs called `main()` unconditionally at module scope (unlike every sibling harness script), so merely `import`ing it — needed to unit-test checkLogout/the demo-test helpers directly — immediately parsed argv, failed its own arg checks and process.exit(2)'d, killing the importing process.",
+      "fix": "Added the same `if (import.meta.url === \\`file://${process.argv[1]}\\`) { main()... }` guard every other harness script already uses. No change to CLI behavior when run directly.",
+      "files": [
+        "scripts/migration/functional/run.mjs"
+      ]
+    },
+    {
+      "bug": "3b (round 2, blocking)",
+      "area": "functional/run.mjs — F9 checkLogout could still false-pass a broken logout",
+      "summary": "Review round 1: checkLogout matched the admin cookie by `rawSetCookie.includes('growmax-admin=')` over Node's `headers.get('set-cookie')`, which COMMA-JOINS every Set-Cookie header into one string, and ran its Max-Age/Expires regexes over that whole joined string. Three real regressions still passed: (a) an unrelated cookie cleared (Max-Age=0) right before growmax-admin was RE-SET (Max-Age=86400, not cleared) — the substring match and whole-string regex both still fired; (b) growmax-admin genuinely cleared but under Path=/api/admin instead of the login cookie's Path=/, so a browser keeps sending the Path=/ cookie on every other request; (c) only a similarly-named `xgrowmax-admin` cookie cleared, growmax-admin itself untouched.",
+      "fix": "New parseCookieAttrs(entry)/isClearingCookieAttrs(attrs)/getSetCookieEntries(headers) (run.mjs): getSetCookieEntries uses `headers.getSetCookie()` (each Set-Cookie as its own entry, never the joined string), and checkLogout selects the ONE entry whose name (before '=') is EXACTLY 'growmax-admin' (ambiguous if more than one — treated as not-clearing rather than picking arbitrarily). Assertions.captureSetCookie (used by F4) now also records that login response's growmax-admin cookie's own Path/Domain onto `A.loginCookieAttrs`. checkLogout requires: exactly one growmax-admin Set-Cookie entry, that entry's own Max-Age<=0 or an expired Expires, AND its Path (default '/') and Domain (if either side sets one) match the LOGIN cookie's own Path/Domain — a clear on a different Path/Domain, or a re-set/wrong-name cookie, no longer satisfies clearsAdminCookie. isClearingSetCookie is kept (now backed by parseCookieAttrs+isClearingCookieAttrs) for the existing single-string self-test case.",
+      "files": [
+        "scripts/migration/functional/run.mjs"
+      ]
+    },
+    {
+      "bug": "4b (round 2, blocking)",
+      "area": "functional/run.mjs — F2 cap could still be exceeded under a stale STATE.json + a new runLabel",
+      "summary": "Review round 1's own simulation: STATE.json=2 (2 real historical sends, no markers on disk — the actual state of the world before this fix). resolveDemoTestsSentCount(fromState, markerCount) = Math.max(fromState, markerCount) alone: send #3 under runLabel L writes a marker (markerCount becomes 1); a re-run under a NEW runLabel L2, with STATE.json STILL stale at 2 (the orchestrator hasn't caught up yet — the entire premise of the staleness bug), recomputes max(2, 1) = 2, which is UNDER the cap of 3 and would incorrectly send #4 — with exactly one send left in the whole migration's budget, this is live risk.",
+      "fix": "writeDemoTestMarker now also records countBefore (the effective count resolveDemoTestsSentCount reported immediately before that send) on every marker, and is called TWICE per send: once with status:'pending' BEFORE the POST (so a process killed mid-request still leaves a marker — fail-safe, since an orphaned pending marker can only inflate a later count, never let one undercount), and once with status:'sent' after, in the same finally as before. resolveDemoTestsSentCount(fromState, markers) now takes the marker array itself (via new readDemoTestMarkers(), which parses every .sent file's JSON) and returns Math.max(fromState, markerCount, ...markers.map(m => (m.countBefore ?? 0) + 1)) — so L's own marker (countBefore:2) alone resolves to 3 regardless of what STATE.json still says, correctly refusing L2. Also added DEMO_TEST_MARKER_DIR_OVERRIDE (env, test-only): lets selftest-p5.3.mjs point every F2 case at an isolated throwaway temp directory instead of the real docs/migration/.scratch/demo-tests (addresses a review round-1 non-blocking note).",
+      "files": [
+        "scripts/migration/functional/run.mjs"
+      ]
+    },
+    {
+      "bug": "3c (round 3, blocking)",
+      "area": "functional/run.mjs: F9 checkLogout read cookie attributes differently from RFC 6265 and browsers",
+      "summary": "Review round 2 found four broken logouts that F9 still passed, all driven through the real requestJson/captureSetCookie/checkLogout: (a) a logout Set-Cookie with no Path attribute was treated as Path=/, but a browser uses the default-path of POST /api/admin/logout (/api/admin, RFC 6265 §5.1.4), so it misses the Path=/ login cookie; (b) Max-Age=86400 with a past Expires counted as a clear, but a valid Max-Age takes precedence (§5.3 step 3) and keeps the cookie for 24h; (c) an empty Max-Age= counted as a clear because Number('') is 0, but browsers ignore an invalid Max-Age; (d) with A.loginCookieAttrs null the Path/Domain check was skipped entirely.",
+      "fix": "parseCookieAttrs (run.mjs:69) now follows RFC 6265 §5.2: Max-Age counts only if its trimmed value matches /^-?\\d+$/ (an invalid one is ignored and never overwrites an earlier valid one); Expires counts only if it parses; a Path that is empty or does not start with '/' is 'no Path'; Domain drops a leading '.', is lower-cased, and an empty one is ignored. isClearingCookieAttrs (run.mjs:122): a valid Max-Age alone decides (<=0 clears) and Expires is ignored; only without one does a past Expires clear. New cookieDefaultPath (run.mjs:96) and effectiveCookiePath (run.mjs:111) compute the RFC default-path and the Path the browser really stores the cookie under. Assertions.captureSetCookie(res, requestUrl = res.url) (run.mjs:482) records the login cookie's effectivePath (only when exactly one exact-name growmax-admin entry exists) and puts that cookie itself in the jar. checkLogout (run.mjs:541) compares logout's effective Path (from the logout request URL) with login's (run.mjs:570), and fails closed when loginCookieAttrs is null, with detail.error 'no login cookie attributes were captured ... failing closed'. The jar is only cleared when all of the above hold, so a clear a browser would ignore leaves the stale cookie in place. The real app still passes: iron-session 8.0.4 destroy() plus Next's cookie normalizer emit Path=/; Max-Age=0 (self-test 'real-app' case).",
+      "files": [
+        "scripts/migration/functional/run.mjs"
+      ]
+    },
+    {
+      "bug": "4c (round 3, review round 2 non-blocking)",
+      "area": "functional/run.mjs: F2 cap fail-closed edge cases, lock, marker safety",
+      "summary": "Round 2 non-blocking notes: a NaN count (--demo-tests-sent two) made Math.max NaN, and NaN >= 3 is false, so F2 would send; a truncated marker counted as countBefore 0; there was no lock between two concurrent runs; DEMO_TEST_MARKER_DIR_OVERRIDE was honoured in real runs; runLabel was not sanitized before path.join; an unreadable STATE counter defaulted to 0.",
+      "fix": "resolveDemoTestsSentCount (run.mjs:309) returns the cap (DEMO_TEST_CAP = 3) for a non-integer or negative fromState, and counts any marker without an integer countBefore (or read back as corrupt) as the cap. readDemoTestMarkers (run.mjs:206) keeps an unparseable marker as {corrupt:true}. writeDemoTestMarker (run.mjs:255) writes atomically (tmp file + rename). New createPendingDemoTestMarker (run.mjs:269) creates the pending marker exclusively (tmp file + link(), which fails with EEXIST). The whole pre-send decision moved into exported reserveDemoTestSend (run.mjs:336, called at run.mjs:684). It checks for a duplicate label, then the cap, then creates the marker exclusively, then re-counts over every other marker. It refuses if any other marker is pending or corrupt, or if the re-count is at the cap. A higher re-count under the cap becomes this send's countBefore. On any refusal it removes its own pending marker, since nothing was POSTed. assertSafeRunLabel (run.mjs:170) rejects '', '.', '..' and labels containing '/', '\\\\' or NUL. main() rejects a --demo-tests-sent that is not a non-negative integer with exit 2 (run.mjs:1030). The check runs before any DB or network step. main() also exits 2 if DEMO_TEST_MARKER_DIR_OVERRIDE is set together with --allow-demo-test (run.mjs:1016). An unreadable or non-integer STATE flags.demoTestsSent now yields null, which resolves to the cap, and F2 refuses (run.mjs:973) instead of treating it as 0. F4's cookieOk (run.mjs:752) runs its attribute checks on the single exact-name growmax-admin entry, not the comma-joined header. The entry-point guard (run.mjs:1165) compares import.meta.url with pathToFileURL(realpathSync(argv[1])).href, so a path with a space or a symlink still runs main().",
+      "files": [
+        "scripts/migration/functional/run.mjs"
+      ]
+    }
+  ],
+  "reviewRound1Response": {
+    "summary": "Round 1 approved the parity half (assetRefs/link-classification fixes) as-is and found 2 blocking issues, both in functional/run.mjs, both now fixed with a dedicated self-test case each (see bugs 3b/4b above and selfTests.newFocusedSelfTests below). Non-blocking notes are addressed where cheap/safe (DEMO_TEST_MARKER_DIR_OVERRIDE for cleaner self-tests) and otherwise left as follow-ups per the note text, since the task scoped this round to the blocking findings.",
+    "blockingFindingsFixed": [
+      {
+        "reviewerFinding": "F2 can still exceed the cap of 3: max(STATE, markerCount) undercounts whenever STATE is stale and a marker exists for a send STATE doesn't know about yet. Reviewer's own simulation: STATE=2, send under label L -> total 3; same label -> refused; a re-run under a new label before STATE updates -> max(2,1)=2 -> SENT (total 4).",
+        "fix": "bug 4b above: resolveDemoTestsSentCount now folds in each marker's own countBefore+1, and a pending marker is written before the POST (not just after).",
+        "selfTestCase": "f2-cap-never-exceeds-with-stale-state-and-new-runlabel (functional/selftest-p5.3.mjs)",
+        "verified": "Reproduces the reviewer's exact scenario (STATE=2, no markers; send #3 under L; re-run attempt under NEW label L2 with STATE still 2): effective count before L2 is now 3 (not 2), so the send is refused. PASS."
+      },
+      {
+        "reviewerFinding": "F9 can pass while logout is broken: checkLogout parsed Node's comma-joined set-cookie string and substring-matched the cookie name, never checking the growmax-admin cookie's own Path. Reviewer's mock showed 3 false passes: re-set after an unrelated clear, a wrong-Path clear, and a clear of 'xgrowmax-admin'.",
+        "fix": "bug 3b above: getSetCookieEntries()+parseCookieAttrs() select the exact-name growmax-admin entry and compare its own Max-Age/Expires/Path/Domain against the login cookie's (captured at F4 via Assertions.captureSetCookie).",
+        "selfTestCases": [
+          "f9-fails-when-admin-cookie-re-set-after-unrelated-clear",
+          "f9-fails-on-wrong-path-clear",
+          "f9-fails-when-wrong-cookie-name-cleared"
+        ],
+        "verified": "All three of the reviewer's exact mock scenarios now report pass:false / clearsAdminCookie:false against a local mock server. PASS (3/3)."
+      }
+    ],
+    "nonBlockingAddressedThisRound": [
+      "DEMO_TEST_MARKER_DIR_OVERRIDE env var added so every F2 self-test case (including the new cap simulation) runs against an isolated throwaway temp dir per case, never the real docs/migration/.scratch/demo-tests — closes the reviewer's note about the old lifecycle test briefly touching real state."
+    ],
+    "nonBlockingDeferred": [
+      "Scheme-blindness in reclassifyLinks/isSameSite (an https->http downgrade on a canonical link is hidden) — parity-side, out of this round's touch surface (functional/run.mjs only).",
+      "Pre-existing: a page's own vercel.app host is same-site on B but external on A for a hardcoded absolute self-link — allowed by the task's own spec wording ('the page's own host'); flagged for the owner pre-cutover.",
+      "main()'s import.meta.url guard fragility under a symlinked path or a path containing a space — shared by every sibling harness script, not unique to this round's changes.",
+      "urls.mjs's /blog status:200 merge depends on /blog already being in the inventory from the sitemap; if both sitemaps ever dropped /blog the expectation would quietly vanish (selftest.mjs's inventory-expect check is the only guard).",
+      "stripDplQueryParam's URLSearchParams re-encoding (space -> '+', bare key -> 'key=') is fail-safe (can only cause a false diff, never a false pass) and only affects refs that already carried dpl.",
+      "The demo-test markers are container-local/gitignored and give no protection across sandboxes or checkouts — a process/organizational note, not a code fix.",
+      "Both selftest-p5.3.mjs files' default --out is docs/migration/evidence; verifiers should always pass --out explicitly.",
+      "docs/migration/evidence/P5.3-css-analysis.json, flagged by the reviewer as unexplained/untracked, is not present in this session's working tree and was not produced by this task."
+    ]
+  },
+  "selfTests": {
+    "newFocusedSelfTests": [
+      {
+        "file": "scripts/migration/parity/selftest-p5.3.mjs",
+        "covers": "bugs 1, 2, 6 — pure synthetic manifests through the real compareManifests()/extractHtml()/buildInventory(), no network",
+        "command": "node scripts/migration/parity/selftest-p5.3.mjs --out docs/migration/.scratch/p5.3-harness-fix/r3/parity-selftest-p53.json",
+        "result": "PASS 12/12",
+        "cases": [
+          "assetRefs-dpl-only-passes",
+          "assetRefs-changed-path-fails",
+          "assetRefs-changed-non-dpl-param-fails",
+          "assetRefs-added-asset-fails",
+          "assetRefs-dpl-stripping-preserves-order",
+          "links-third-party-stays-external",
+          "links-different-internal-path-fails",
+          "links-cross-origin-canonical-host-reconcile",
+          "extract-isSameSite-direct",
+          "urls-blog-and-page2-status-expect",
+          "blog-equal-non-2xx-fails-not-skips",
+          "blog-both-200-no-expect-noise"
+        ]
+      },
+      {
+        "file": "scripts/migration/functional/selftest-p5.3.mjs",
+        "covers": "bugs 3/3b/3c, 4/4b/4c, 5. F9: the real Assertions.requestJson + captureSetCookie + checkLogout against a 127.0.0.1 mock of login/logout/session (never a real endpoint). The mock's session reports isAdmin:true whenever the exact growmax-admin=<sealed> pair is still sent. F2: the real exported marker helpers and reserveDemoTestSend, pointed at an isolated temp dir per case; nothing is ever POSTed. CLI guards and the entry-point guard run as subprocesses that exit 2 before any DB or network step.",
+        "command": "node scripts/migration/functional/selftest-p5.3.mjs --out docs/migration/.scratch/p5.3-harness-fix/r3/functional-selftest-r3.json",
+        "result": "PASS 23/23",
+        "cases": [
+          "f9-passes-when-cookie-cleared",
+          "f9-fails-when-cookie-not-cleared",
+          "f9-fails-when-admin-cookie-re-set-after-unrelated-clear",
+          "f9-fails-on-wrong-path-clear",
+          "f9-fails-when-wrong-cookie-name-cleared",
+          "f9-fails-on-clear-without-path (r2 a)",
+          "f9-fails-when-positive-max-age-with-past-expires (r2 b)",
+          "f9-fails-on-invalid-max-age (r2 c)",
+          "f9-fails-closed-without-login-cookie-attrs (r2 d)",
+          "captureSetCookie-on-mock-login",
+          "isClearingSetCookie-direct",
+          "parseCookieAttrs-and-entry-selection",
+          "rfc6265-attribute-parsing",
+          "f2-demo-test-marker-lifecycle",
+          "f2-resolveDemoTestsSentCount-uses-max",
+          "f2-resolveDemoTestsSentCount-fails-closed",
+          "f2-cap-never-exceeds-with-stale-state-and-new-runlabel",
+          "f2-corrupt-marker-and-atomic-write",
+          "f2-unsafe-runlabel-refused",
+          "f2-reserveDemoTestSend-lock-and-recount",
+          "env-hygiene-fails-fast-on-sensitive-placeholder",
+          "cli-guards-demo-tests-sent-and-override",
+          "entrypoint-guard-space-and-symlink"
+        ],
+        "againstRound2Code": "Same self-test against round-2 run.mjs (609ce217), from a scratch copy: 10/23. The reviewer's cases a-d all false-PASS F9 there. Missing exports and CLI guards account for the rest."
+      }
+    ],
+    "existingParitySelfTest": {
+      "file": "scripts/migration/parity/selftest.mjs",
+      "command": "node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out docs/migration/.scratch/p5.3-harness-fix/r3/P1.2-harness-selftest-rerun.json",
+      "note": "Live GET-only capture of the real Replit production site (read-only; no writes, no demo-request/F2 involvement) — same as every prior harness run against this base.",
+      "result": "overall pass (18 PASS, 1 DEFERRED: protected-deployment-probe, deferred since P1.2), exit 0; re-run in round 3",
+      "checks": [
+        "self-compare-zero-diffs: PASS",
+        "inventory-expect-blocks-match-spec: PASS (confirms the new /blog + /blog?page=2 status:200 expect blocks match the updated SPEC_EXPECT_URLS)",
+        "extractor-sanity-home: PASS",
+        "reachability-floor-sitemap: PASS",
+        "resolve-dispatcher-pinned-fetch: PASS",
+        "mutation-matrix: PASS",
+        "determinism-two-captures-60s-apart: PASS",
+        "coverage-sources: PASS",
+        "tie-permutation-checker: PASS",
+        "tie-permutation-real-data: PASS",
+        "tie-swap-real-data: PASS",
+        "embedded-posts-coverage-guard: PASS",
+        "flight-row-batching-robustness: PASS",
+        "mutation-matrix-compact: PASS",
+        "determinism-compact-mode: PASS",
+        "mixed-mode-compare-both-directions: PASS",
+        "mixed-mode-mutation-cases: PASS",
+        "real-compact-capture-path: PASS",
+        "protected-deployment-probe: DEFERRED (pre-existing, unrelated to this fix — deferred since P1.2)"
+      ]
+    }
+  },
+  "attempt1CompareRegression": {
+    "note": "Re-run in round 3. 'before' = the HEAD parity tree (git archive HEAD into scratch); 'after' = the working tree, whose parity files are byte-identical to round 2's reviewed hashes. The attempt-1 raw dirs were never saved, so neither run has --raw-dir-a/--raw-dir-b; that only affects text-diff previews. Counts are from the full diff in the --scratch copy, because the --out file keeps only the first 200 diffs.",
+    "description": "compare.mjs run before and after this change on the SAME frozen attempt-1 manifests (docs/migration/.scratch/p5.2-20260926/P5.2-manifest-{a,b}.json — no raw-dir-a/raw-dir-b: those were never persisted from the attempt-1 verifier's container, so text-diff previews fall back to the no-rawDir path; this affects only diagnostic preview text, not any of the fields below). Command both times: node scripts/migration/parity/compare.mjs --a docs/migration/.scratch/p5.2-20260926/P5.2-manifest-a.json --b docs/migration/.scratch/p5.2-20260926/P5.2-manifest-b.json --out <out> --scratch <scratch>",
+    "before": {
+      "compared": 297,
+      "failedUnallowed": 234,
+      "failingUrls": 218,
+      "byField": {
+        "assetRefs": 216,
+        "internalLinks": 8,
+        "externalLinks": 7,
+        "visibleTextHash": 1,
+        "sitemapEntries": 1,
+        "hashedCssSha256": 1
+      },
+      "reportOnly": {
+        "cache-control": 123,
+        "content-encoding": 230,
+        "strict-transport-security": 297,
+        "bytes": 280,
+        "contentType": 58
+      }
+    },
+    "after": {
+      "compared": 297,
+      "failedUnallowed": 4,
+      "failingUrls": 3,
+      "byField": {
+        "assetRefs": 0,
+        "internalLinks": 1,
+        "externalLinks": 0,
+        "visibleTextHash": 1,
+        "sitemapEntries": 1,
+        "hashedCssSha256": 1
+      },
+      "reportOnly": {
+        "cache-control": 123,
+        "content-encoding": 230,
+        "strict-transport-security": 297,
+        "bytes": 280,
+        "contentType": 58
+      }
+    },
+    "verdict": "Only the assetRefs and link-classification classes disappeared, and nothing else changed. No new diff appeared and the report-only diffs are identical. The internalLinks diff left on '/' is a real content difference: different recent-post links, the same homepage data-freshness item attempt 1 already identified. These results match review round 2's independent run.",
+    "artifacts": {
+      "beforeDiff": "docs/migration/.scratch/p5.3-harness-fix/r3/before-scratch/before-diff.json",
+      "afterDiff": "docs/migration/.scratch/p5.3-harness-fix/r3/after-scratch/after-diff.json"
+    },
+    "diffOfDiffs": {
+      "disappeared": {
+        "assetRefs": 216,
+        "externalLinks": 7,
+        "internalLinks": 7
+      },
+      "newInAfter": 0,
+      "reportOnlyIdentical": true,
+      "remaining": [
+        [
+          "/",
+          "visibleTextHash"
+        ],
+        [
+          "/",
+          "internalLinks"
+        ],
+        [
+          "/sitemap.xml",
+          "sitemapEntries"
+        ],
+        [
+          "<hashed-css-assets>",
+          "hashedCssSha256"
+        ]
+      ]
+    }
+  },
+  "checks": [
+    {
+      "name": "node --check on run.mjs and functional/selftest-p5.3.mjs",
+      "expected": "no syntax errors",
+      "actual": "ok",
+      "pass": true
+    },
+    {
+      "name": "parity files unchanged since review round 2",
+      "expected": "git hash-object equals reviewedHashes for capture/compare/extract/selftest/urls/selftest-p5.3",
+      "actual": "all 6 identical",
+      "pass": true
+    },
+    {
+      "name": "functional/selftest-p5.3.mjs (round 3)",
+      "expected": "23/23 pass",
+      "actual": "PASS 23/23",
+      "pass": true
+    },
+    {
+      "name": "F9 r2 case (a) no Path / Path=foo / empty Path",
+      "expected": "F9 fails",
+      "actual": "fail; logoutEffectivePath /api/admin vs login /",
+      "pass": true
+    },
+    {
+      "name": "F9 r2 case (b) Max-Age=86400 + past Expires",
+      "expected": "F9 fails",
+      "actual": "fail; clearsValue false",
+      "pass": true
+    },
+    {
+      "name": "F9 r2 case (c) empty/blank/0x0/0.0 Max-Age",
+      "expected": "F9 fails",
+      "actual": "fail in all four",
+      "pass": true
+    },
+    {
+      "name": "F9 r2 case (d) loginCookieAttrs null (captured through captureSetCookie)",
+      "expected": "F9 fails closed with an explanatory detail",
+      "actual": "fail in all three variants, detail.error names the missing login cookie attributes",
+      "pass": true
+    },
+    {
+      "name": "F9 real app output (Path=/; Max-Age=0) and other genuine clears",
+      "expected": "F9 passes",
+      "actual": "PASS (6 variants)",
+      "pass": true
+    },
+    {
+      "name": "F9 round-1 regressions (re-set after unrelated clear, wrong Path, xgrowmax-admin)",
+      "expected": "F9 fails",
+      "actual": "fail in all three",
+      "pass": true
+    },
+    {
+      "name": "new self-test against round-2 run.mjs (609ce217, scratch copy)",
+      "expected": "cases a-d fail there (they detect the bug)",
+      "actual": "10/23; a, b, c and d each report F9 pass:true on the old code",
+      "pass": true
+    },
+    {
+      "name": "reviewer's /tmp/rev2/exp/f9mock.mjs re-pointed at round-3 run.mjs (scratch copy, 127.0.0.1)",
+      "expected": "only correct-clear passes",
+      "actual": "correct-clear PASS; no-path-attr, max-age-positive-expires-past, empty-max-age, max-age-whitespace-only, path-trailing-slash, domain-added, two-admin-entries and loginAttrs-null + wrong-path all fail",
+      "pass": true
+    },
+    {
+      "name": "F2 fail-closed edge cases",
+      "expected": "never under the cap when unknown",
+      "actual": "NaN/null/negative/fractional count -> 3; corrupt marker with STATE=2 -> 3; CLI --demo-tests-sent two -> exit 2",
+      "pass": true
+    },
+    {
+      "name": "F2 lock (reserveDemoTestSend)",
+      "expected": "a concurrent run refuses while another is pending; the count stays correct under stale STATE",
+      "actual": "Y refused while X pending, own marker removed; Z re-counted to countBefore 2; 4th refused",
+      "pass": true
+    },
+    {
+      "name": "parity/selftest-p5.3.mjs",
+      "expected": "12/12 pass",
+      "actual": "PASS 12/12",
+      "pass": true
+    },
+    {
+      "name": "parity/selftest.mjs live GET-only vs https://www.growmax.io",
+      "expected": "overall pass",
+      "actual": "18 PASS, 1 DEFERRED (protected-deployment-probe), exit 0",
+      "pass": true
+    },
+    {
+      "name": "compare.mjs attempt-1 manifests before (HEAD) vs after",
+      "expected": "only assetRefs and link-classification classes disappear",
+      "actual": "234 -> 4; gone: assetRefs 216, externalLinks 7, internalLinks 7; 0 new; report-only identical",
+      "pass": true
+    },
+    {
+      "name": "real docs/migration/.scratch/demo-tests untouched",
+      "expected": "empty",
+      "actual": "empty (0 entries)",
+      "pass": true
+    },
+    {
+      "name": "state.mjs scan",
+      "expected": "clean",
+      "actual": "scan: clean (9 changed/untracked file(s) checked)",
+      "pass": true
+    },
+    {
+      "name": "no F2 run, no production writes",
+      "expected": "true",
+      "actual": "no --allow-demo-test against any real host; only GETs to https://www.growmax.io (live parity self-test); all F9/F2 tests on 127.0.0.1 mocks or temp dirs",
+      "pass": true
+    },
+    {
+      "name": "no secrets printed or written",
+      "expected": "true",
+      "actual": "bypass secret, VERCEL_TOKEN, DB URLs and ADMIN_PASSWORD not read or used by this round",
+      "pass": true
+    }
+  ],
+  "verifierShouldRun": [
+    "node scripts/migration/functional/selftest-p5.3.mjs --out <tmp>",
+    "node scripts/migration/parity/selftest-p5.3.mjs --out <tmp>",
+    "node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out <tmp> (live, read-only, ~3 min)",
+    "node scripts/migration/parity/compare.mjs --a docs/migration/.scratch/p5.2-20260926/P5.2-manifest-a.json --b docs/migration/.scratch/p5.2-20260926/P5.2-manifest-b.json --out <tmp> --scratch <tmp> (expect failedUnallowed=4)",
+    "Re-drive the reviewer's /tmp/rev2/exp/f9mock.mjs cases (a)-(d) against round-3 run.mjs",
+    "Review reserveDemoTestSend and resolveDemoTestsSentCount for the F2 cap, and checkLogout, parseCookieAttrs and effectiveCookiePath for F9",
+    "node scripts/migration/state.mjs scan before any commit"
+  ],
+  "reviewRound2Response": {
+    "summary": "Round 2 approved the parity half and the F2 cap fix, and found one blocking issue (F9 RFC 6265 semantics, cases a-d). It is fixed as bug 3c, with a mock case for each of a-d. The mock drives captureSetCookie on a mock login response instead of hand-setting LOGIN_COOKIE_ATTRS. The existing F9 cases were converted to the same login-driven flow. Every new case was also run against the round-2 run.mjs (reviewed hash 609ce217, copied from /tmp/rev2/after into scratch). All four of the reviewer's cases false-PASS there and fail on the round-3 code, so the tests discriminate.",
+    "blockingFindingsFixed": [
+      {
+        "reviewerFinding": "F9 passes (a) logout clear without Path, (b) Max-Age=86400 + past Expires, (c) empty Max-Age=, (d) loginCookieAttrs null.",
+        "fix": "bug 3c above",
+        "selfTestCases": [
+          "f9-fails-on-clear-without-path (r2 a): also covers Path=foo and an empty Path=",
+          "f9-fails-when-positive-max-age-with-past-expires (r2 b)",
+          "f9-fails-on-invalid-max-age (r2 c): empty, blank, 0x0, 0.0",
+          "f9-fails-closed-without-login-cookie-attrs (r2 d): no admin entry on login with a wrong-Path clear, the same with a correct clear, and two ambiguous admin entries on login",
+          "captureSetCookie-on-mock-login",
+          "rfc6265-attribute-parsing (pure: Max-Age/Expires/Path/Domain/default-path)",
+          "f9-passes-when-cookie-cleared: the real-app Path=/; Max-Age=0, Expires-only, Max-Age=0 with a future Expires, an invalid Max-Age with a past Expires, no Path on both login and logout (both /api/admin), and Domain=.growmax.io vs growmax.io"
+        ],
+        "verified": "Round-3 code: all PASS (23/23). Round-2 code (609ce217) under the same self-test: cases a, b, c and d each report F9 pass:true, the reviewer's false passes, so the self-test fails as intended."
+      }
+    ],
+    "nonBlockingAddressedThisRound": [
+      "NaN/non-integer demo-test count: fail closed (resolve -> cap) and the CLI rejects it with exit 2 before any DB or network step",
+      "Corrupt or truncated marker: counted as the cap; marker writes are atomic (tmp + rename)",
+      "No lock: the pending marker is created exclusively (link EEXIST), then re-counted; refuses while another marker is pending, and removes its own pending marker on refusal",
+      "DEMO_TEST_MARKER_DIR_OVERRIDE: refused together with --allow-demo-test; otherwise a loud warning",
+      "runLabel sanitization: assertSafeRunLabel; reserveDemoTestSend refuses unsafe labels and nothing is written",
+      "import.meta.url guard: pathToFileURL(realpathSync(argv[1])); tested with a path containing a space and with a symlink",
+      "F4 cookieOk: exact-name entry only (no substring match on 'xgrowmax-admin=')",
+      "Also: an unreadable STATE flags.demoTestsSent is now unknown (the cap), not 0"
+    ],
+    "nonBlockingDeferred": [
+      "Markers are container-local and gitignored: a verifier in another container relies on STATE alone. The two historical sends are covered only by STATE flags.demoTestsSent=2, and the real docs/migration/.scratch/demo-tests is still empty. This is organizational, not a code fix.",
+      "An orphaned pending marker left by a killed run now blocks every later F2 (fail closed) until the orchestrator removes it by hand. The refusal reason says so.",
+      "Parity: scheme and fragment are ignored in link comparison (http downgrade or added #fragment on a canonical link). This predates the change and parity is out of this round's scope.",
+      "Parity: an absolute link from B to its own vercel.app host compares equal to A's www link. The spec allows this. Recommend a pre-cutover grep of B's HTML for vercel.app hrefs.",
+      "The sibling parity scripts still use the old file:// entry-point guard. Parity files were left untouched this round."
+    ]
+  }
+}

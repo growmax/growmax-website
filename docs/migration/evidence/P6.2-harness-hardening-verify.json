@@ -1,0 +1,89 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T07:52:40Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "scope": "Independent verification round 1 of the working-tree parity harness hardening (git diff dc54053 -- scripts/migration/parity). No protection-bypass header was sent anywhere.",
+  "checks": [
+    {
+      "name": "selftest-link-header.mjs",
+      "expected": "all cases PASS, exit 0",
+      "actual": "SUMMARY selftest-link-header.mjs: 21/21 PASS, 0 FAIL, 0 DEFERRED (exit 0)",
+      "pass": true
+    },
+    {
+      "name": "selftest-p5.3.mjs",
+      "expected": "all cases PASS, exit 0",
+      "actual": "SUMMARY selftest-p5.3.mjs: 12/12 PASS, 0 FAIL, 0 DEFERRED (exit 0)",
+      "pass": true
+    },
+    {
+      "name": "selftest.mjs --base https://www.growmax.io",
+      "expected": "no FAIL, exit 0; new check link-header-check-stored-key-and-no-header PASS",
+      "actual": "SUMMARY selftest.mjs: 20/21 PASS, 0 FAIL, 1 DEFERRED (exit 0). DEFERRED = protected-deployment-probe (no bypass secret passed, by task rule). live-link-header-preloads PASS (218 HTML entries, 174 with header preloads, 0 deduped to another form); link-header-check-stored-key-and-no-header PASS.",
+      "pass": true
+    },
+    {
+      "name": "mini-capture both sides, no bypass",
+      "expected": "6 URLs captured per side, 0 fetch errors",
+      "actual": "A=https://www.growmax.io: 6 URLs, 0 fetch errors; B=https://growmax-website.vercel.app: 6 URLs, 0 fetch errors",
+      "pass": true
+    },
+    {
+      "name": "stylesheetRefs present on every HTML page, both sides, equal",
+      "expected": "array on all 6 entries per side; no stylesheetRefs diff; stylesheetRefsBothAbsent=0",
+      "actual": "All 6 entries on both sides carry 2 stylesheetRefs. A: /_next/static/css/67ec1cc0bd707d2d.css, /_next/static/css/e0e0fae895f3fff8.css. B: /_next/static/css/67ec1cc0bd707d2d.css?dpl=dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7, /_next/static/css/b05e81efd48e3db7.css?dpl=dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7. Equal after normalization; no stylesheetRefs diff; stylesheetRefsBothAbsent=0.",
+      "pass": true
+    },
+    {
+      "name": "posts' assetRefs equal",
+      "expected": "no assetRefs diff on the 3 blog posts",
+      "actual": "No assetRefs diff on any URL. (A posts send 7 Link-header preloads each, B posts send 0; merged assetRefs still equal: 27 each.)",
+      "pass": true
+    },
+    {
+      "name": "no new diff field",
+      "expected": "only fields already known/allowlisted or report-only",
+      "actual": "Diff fields: report-only cache-control, content-encoding, strict-transport-security, bytes (all 6 URLs except /demo lacks cache-control); allowlisted (A3) / visibleTextHash and / internalLinks; unallowed hashedCssSha256. byCategory {content:3}. No other field.",
+      "pass": true
+    },
+    {
+      "name": "compare.mjs result and the only unallowed failure",
+      "expected": "only unallowed failure is the hashedCssSha256 pin (B being redeployed)",
+      "actual": "Compared 6 URLs: FAIL (failedUnallowed=1, allowlisted=2), exit 1. The single unallowed diff is <hashed-css-assets> hashedCssSha256: A=[5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0, b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b] (matches pin); B=[4377f3cf5b68a4bbf15f47105ed6b736531f3943571a923f0d17ead8f78197ab, b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b] vs pinned B [072d7bf09da4eeaa6099a59d44d195408acc62a8de9ff0a80baa43cc63ceb8ae, b22fd05c...]. B now serves a new CSS hash: /_next/static/css/b05e81efd48e3db7.css?dpl=dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7 sha256 4377f3cf5b68a4bbf15f47105ed6b736531f3943571a923f0d17ead8f78197ab. Class: acceptable-diff pending the redeploy (allowlist pin needs re-derivation for the new B build; not a harness defect).",
+      "pass": true
+    },
+    {
+      "name": "mutation: delete stylesheet <link> from one post's raw B body (scratch copy)",
+      "expected": "compare reports stylesheetRefs; also when a Link-header preload of the same file masks assetRefs",
+      "actual": "Post /blog/advantages-of-ecommerce, copy of raw-B body in docs/migration/.scratch/p6.2-hardening-verify-mutation-20260927/ (original raw-B untouched); 1 <link rel=stylesheet> for b05e81efd48e3db7.css removed. Control (unmutated): 0 page diffs. Deleted, no header: page diffs assetRefs + stylesheetRefs (a 2 refs, b 1 ref), failedUnallowed 1->3. Deleted + synthetic 'Link: <same css>; rel=preload; as=style': assetRefs equal (masked), stylesheetRefs still reported (a 2, b 1), failedUnallowed 1->2.",
+      "pass": true
+    },
+    {
+      "name": "git status scope",
+      "expected": "only scripts/migration/parity/** and docs/migration/evidence/P6.2-harness-hardening-implement.json changed since dc54053 (plus this file)",
+      "actual": "Working tree: M capture.mjs, compare.mjs, lib/extract.mjs, selftest-link-header.mjs, selftest-p5.3.mjs, selftest.mjs (all scripts/migration/parity); ?? docs/migration/evidence/P6.2-harness-hardening-implement.json; plus this verify file. Committed since dc54053 (HEAD 367f57b, commits 9da5316 and 367f57b): only docs/migration/LOG.md and docs/migration/STATE.json (orchestrator bookkeeping commits, not the implementer's working tree).",
+      "pass": true
+    }
+  ],
+  "notes": [
+    "protected-deployment-probe DEFERRED reason text in selftest.mjs is stale ('No Vercel deployment exists yet (this is P1.2...)'); it is deferred here because no bypass secret was passed. Info only, class harness (message wording).",
+    "The hashedCssSha256 allowlist pin for B (072d7bf0...) no longer matches the redeployed vercel.app build (4377f3cf...); re-derive/approve after the redeploy settles before any full P6.2 parity run."
+  ],
+  "artifacts": [
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/selftest-link-header.log",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/selftest-link-header.json",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/selftest-p5.3.log",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/selftest-p5.3.json",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/selftest.log",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/selftest.json",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/urls.json",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/manifest-A.json",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/manifest-B.json",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/diff.json",
+    "docs/migration/.scratch/p6.2-hardening-mini-20260927T0745Z/diff.full.json",
+    "docs/migration/.scratch/p6.2-hardening-verify-mutation-20260927/mutate.mjs",
+    "docs/migration/.scratch/p6.2-hardening-verify-mutation-20260927/mutation-result.json"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "step": "P6.1",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T04:08:00Z",
+  "checkedAtNote": "workflow completion time (wf_13cf6830-263); the reviewer ran right after the 04:05:10Z verification and no agent ran after it",
+  "verifier": "migration-reviewer (opus/high), round 1; persisted by the orchestrator from the reviewer hand-back (the reviewer role is read-only)",
+  "approve": true,
+  "blocking": [],
+  "nonBlocking": [
+    {
+      "file": "tsconfig.tsbuildinfo",
+      "issue": "This file is tracked and shows as modified, but it is generated tsc incremental output from `npm run check`, not an H-series change. The review checklist says the diff may touch only the named files. No migration commit has ever included it; its last change was 0ff5864. Tell the orchestrator to stage only the 6 source files plus the evidence files, and to leave tsconfig.tsbuildinfo out of the commit."
+    },
+    {
+      "file": "app/blog/[slug]/page.tsx",
+      "issue": "The one addition beyond the spec, `generateStaticParams() { return [] }`, is justified and stays in scope. Without it, Next 15.5 treats /blog/[slug] as fully dynamic (no-store), so `revalidate = 3600` does nothing. It is in the H1 file, it prerenders nothing at build time, and dynamicParams stays at its default of true. The verifier confirmed the route builds as ISR and appears in the prerender manifest's dynamicRoutes."
+    },
+    {
+      "file": "app/blog/[slug]/page.tsx",
+      "issue": "I checked that a DB error cannot produce a cached 404 or a generic title, and it holds. storage.getBlogPostBySlug and storage.getRedirect (lib/storage.ts:47-70) have no try/catch, and neither do generateMetadata or the page, so a failure throws instead of returning `undefined`. notFound() and the 'Article Not Found' metadata are reached only after both queries succeed and find nothing. The old generic `{ title: 'Growmax Intelligence' }` fallback is gone. Neither app/layout.tsx nor app/not-found.tsx reads the DB. The verifier confirmed that a DB stop serves cached pages with 200, and that uncached slugs get 500 with no-store."
+    },
+    {
+      "file": "app/blog/[slug]/page.tsx, middleware.ts",
+      "issue": "The page-level redirect safety net (and the middleware lookup) never fires on real data. I confirmed this against the local dump. All 95 blog_redirects rows have an old_path starting with '/blog/'. 86 of them have a new_path under '/blog/'; the other 9 point to non-blog paths such as /comparisons/... and /industries/.... Lookups use the bare slug, so nothing matches. If something did match, `/blog/${newPath}` would build '/blog//blog/x' or '/blog//comparisons/x'. This is not a regression: H1 does exactly what the spec says, and the middleware behaved the same way before. Normalizing the lookup would redirect live posts, which is a user-visible change, so the spec owner has to decide."
+    },
+    {
+      "file": "app/sitemap.ts, app/llms.txt/route.ts, app/llms-full.txt/route.ts",
+      "issue": "These existing routes swallow DB errors (sitemap.ts:7-15 and llms*.ts:9-11 use try/catch that returns an empty posts list). H2 now revalidates them after every admin edit. If the DB call fails during that background regeneration, the cached sitemap has no blog posts at all. sitemap.ts has no `revalidate` export, so that stays cached until the next admin edit or deploy. The llms files stay cached for up to an hour. The chance is low, since the DB was just written to successfully. The fix (let the error throw, as H1/H4 do) is outside the H-series, so it needs a spec decision."
+    },
+    {
+      "file": "app/api/admin/posts/[id]/route.ts",
+      "issue": "The claim that revalidation failures never break mutations holds for user code. Each synchronous revalidatePath call has its own try/catch, and currentSlug() swallows a failed pre-lookup, so the response is unchanged: 404 for a missing id, 409 or 500 as before. The async part runs inside Next, outside user code. It is executeRevalidates, set up at next/dist/server/route-modules/app-route/module.js:214. On Vercel it goes to ctx.waitUntil and cannot affect the response. On self-hosted `next start` (Replit), pipe-readable.js:103-111 awaits it before res.end(), so an incremental-cache write failure could abort a response whose status and body were already sent after the DB commit. The implementer's statement that it 'cannot change the mutation response' is therefore slightly too strong for Replit. The risk is negligible and can't be fixed in app code."
+    },
+    {
+      "file": "app/api/admin/posts/[id]/route.ts",
+      "issue": "If the pre-update getBlogPostById fails but the update then succeeds, the old slug is not revalidated. After a rename, the old URL can then serve cached old content for up to an hour. This is acceptable because the spec's priority is never failing the mutation."
+    },
+    {
+      "file": "lib/db.ts",
+      "issue": "connectionTimeoutMillis bounds only how long it takes to get a connection. There is still no statement or query timeout, so a query that hangs after connecting is bounded only by the function's maxDuration. The Pool also has no 'error' listener: the implementer saw 57P01 uncaughtException when Postgres terminated idle connections. That matters on Neon when compute suspends. Both are outside the H3 spec; consider them for a later item."
+    },
+    {
+      "file": "app/api/blog/route.ts",
+      "issue": "H4 is correct. The body is the same NextResponse.json(posts), so it is byte-identical, and errors now throw so a stale response is served. The payload is about 2.3 MB against Vercel's 4.5 MB function response cap. A1-advisor already tracks this with the 3.5 MB warning and the x-vercel-cache HIT check in P6.2. Also, the verifier saw Cache-Control change with cache state (s-maxage=300 with or without stale-while-revalidate, and s-maxage=30 after a failed regeneration); make sure the SPEC-04 allowlist covers all of these."
+    }
+  ],
+  "hashesAtPersist": {
+    "app/api/admin/posts/[id]/route.ts": "3955d9ad8fd9d2b06da63ed5416bc5a0b056f29c",
+    "app/api/admin/posts/route.ts": "d4d65aa63c6c1b99c3bbe3394532fa0c722d56b1",
+    "app/api/blog/route.ts": "6a7d818c01492300b6a72ee1f1dc16611bbc1717",
+    "app/blog/[slug]/page.tsx": "e867d1ea3c3edcd651d838a1101c357d0040f52c",
+    "lib/db.ts": "4122b7cb51525a7dcd58e64517494705663f7db0",
+    "middleware.ts": "359061687f7516f8221f4d1187588e99304d9708"
+  },
+  "checks": [
+    {
+      "name": "6a.1 diff limited to SPEC-02 H1-H4",
+      "expected": "only the named H-series files",
+      "actual": "6 source files (app/blog/[slug]/page.tsx, app/api/admin/posts/route.ts, app/api/admin/posts/[id]/route.ts, app/api/blog/route.ts, middleware.ts, lib/db.ts); tsconfig.tsbuildinfo is generated and excluded from the commit; the one addition beyond the literal H1 text (generateStaticParams returning []) is approved as required for H1 to cache on Next 15.5",
+      "pass": true
+    },
+    {
+      "name": "No DB error can produce a cached 404 or generic title",
+      "expected": "errors throw; notFound only after both queries succeed",
+      "actual": "getBlogPostBySlug/getRedirect have no try/catch; notFound and the not-found metadata are reached only after both queries succeed and find nothing",
+      "pass": true
+    },
+    {
+      "name": "Revalidation failures never break mutations",
+      "expected": "responses unchanged",
+      "actual": "each revalidatePath has its own try/catch and the pre-lookup fails soft; 404/409/500 behaviour unchanged",
+      "pass": true
+    },
+    {
+      "name": "H3 bounded waits and H4 byte-identical body",
+      "expected": "5000 ms fail-open lookup; 10 s connect timeout; same JSON body",
+      "actual": "as specified (timer cleared in finally); /api/blog body unchanged, errors throw so a stale response is served",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "implement": "docs/migration/evidence/P6.1-implement.json",
+    "localVerify": "docs/migration/evidence/P6.1-local-verify.json",
+    "workflowRun": "wf_13cf6830-263"
+  }
+}

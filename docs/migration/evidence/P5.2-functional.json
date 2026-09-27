@@ -1,0 +1,115 @@
+{
+  "step": "P5.2",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T02:56:28Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "base": "https://growmax-website.vercel.app",
+  "deploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+  "deploymentSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+  "mode": "pre",
+  "runLabel": "p5-20260927T0248Z",
+  "checks": [
+    {
+      "name": "SPEC-04 §5.4 protected-deployment probe",
+      "expected": "GET / -> 200 with the app's own HTML (not a Vercel auth page); one redirect source returns its configured status/Location, with only x-vercel-protection-bypass sent (never x-vercel-set-bypass-cookie)",
+      "actual": "GET / -> 200, server: Vercel, x-vercel-cache: HIT, 194862 bytes of the app's own HTML (Next.js document, no auth-wall markers); GET /about -> 308 Location: /company/about (matches expected redirect target). Only x-vercel-protection-bypass sent.",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F1 newsletter signup",
+      "expected": "201; row exists in Neon; deleted by id; row gone",
+      "actual": "201; row existed; cleaned:true",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F2 demo request",
+      "expected": "F2 must NOT run in this attempt (no --allow-demo-test); carried instead from a prior passing attempt",
+      "actual": "run.mjs invoked without --allow-demo-test: F2 recorded as skipped:true (\"--allow-demo-test not set\"), pass:true. Carried result used for gate purposes (see f2Carried below).",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F3 admin wrong password",
+      "expected": "401",
+      "actual": "401",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F4 admin correct password",
+      "expected": "200; Set-Cookie growmax-admin HttpOnly/Secure/SameSite=Lax/Max-Age=86400",
+      "actual": "200; setCookie present, cookieOk:true",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F5 admin session true",
+      "expected": "GET /api/admin/session -> {isAdmin:true}",
+      "actual": "200; {isAdmin:true}",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F6 admin posts count",
+      "expected": "200; length == SELECT count(*) FROM blog_posts",
+      "actual": "200; returned 171, dbCount 171",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F7 create draft not public",
+      "expected": "201 create; GET /api/blog/<slug> -> 404",
+      "actual": "createStatus 201; publicGetStatus 404",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F8 update then delete draft",
+      "expected": "200/200; no residue in Neon",
+      "actual": "putStatus 200; deleteStatus 200; residue 0",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F9 logout (script)",
+      "expected": "logout 200; subsequent GET /api/admin/session -> {isAdmin:false}",
+      "actual": "logoutStatus 200; clearsAdminCookie:true; pathMatches:true; domainMatches:true; sessionAfter {isAdmin:false}",
+      "pass": true
+    },
+    {
+      "name": "F9 logout - real-browser corroboration (playwright-core + Chromium, /opt/pw-browsers/chromium)",
+      "expected": "After login via /admin/login, fetch('/api/admin/session') reports isAdmin:true; after logout, fetch('/api/admin/session') reports isAdmin:false and the browser context holds no growmax-admin cookie with a non-empty value",
+      "actual": "Logged in via /admin/login (input[data-testid=input-password] + button[data-testid=button-login]) with the container's ADMIN_PASSWORD; sessionAfterLogin={isAdmin:true}. Logged out via in-page POST /api/admin/logout (credentials:'include'; the UI logout button exists but is occluded by the fixed header at this viewport, so the in-page fetch alternative named in the task was used instead - this still exercises the real browser cookie engine end-to-end). sessionAfterLogout={isAdmin:false}. context.cookies() after logout contains no growmax-admin entry at all (adminCookiePresentAfterLogout:false, adminCookieNonEmptyValueAfterLogout:false).",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F10 unauthenticated 401s",
+      "expected": "GET/POST/PUT/DELETE admin API all 401",
+      "actual": "statuses [401,401,401,401]",
+      "pass": true
+    },
+    {
+      "name": "functional/run.mjs F11 blog-redirects lookup",
+      "expected": "{newSlug:'<new>'}",
+      "actual": "200; {newSlug:'/blog/spare-parts-ecommerce-self-service-portal'}",
+      "pass": true
+    },
+    {
+      "name": "Cleanup: no residual rows for vercel-migration-test-p5-20260927T0248Z",
+      "expected": "0 rows in Neon (newsletter_subscriptions, demo_requests, blog_posts) matching this run's label/email",
+      "actual": "Independent Neon query (direct, outside run.mjs's own cleanup): newsletter_subscriptions=0, demo_requests=0, blog_posts matching label=0",
+      "pass": true
+    }
+  ],
+  "f2Carried": {
+    "carriedFrom": "docs/migration/evidence/P5.2-functional-attempt1.json",
+    "checkedAt": "2026-09-27T01:17:11Z",
+    "deploymentIdMatches": true,
+    "deploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+    "f2Result": "pass",
+    "f2Detail": "status 201; row existed in Neon; Vercel runtime logs showed '[webhook] delivered 200' for POST /api/demo-requests within 90s; row deleted immediately after, 0 residual rows confirmed independently in that attempt's cleanupVerified block.",
+    "note": "F2 was not re-run in this attempt (--allow-demo-test omitted, as required). The carried attempt-1 result is against the same production deployment id, so it stands for gate purposes here."
+  },
+  "failed": [],
+  "pending": [],
+  "overallAssessment": "All 11 functional checks (F1-F11) pass on production deployment dpl_3pt7gJhkymtokAVFXwifHpCjkUoE / d8c8b05. F9 passes both via run.mjs's own script assertions and an independent real-browser (Chromium via playwright-core) corroboration: login sets an isAdmin:true session, logout clears it (Set-Cookie growmax-admin; Path=/; Max-Age=0) and the browser's cookie jar holds no growmax-admin cookie afterward, and a follow-up session check reports isAdmin:false. F2 was correctly skipped in this attempt and is carried from the P5.2-functional-attempt1.json evidence, which passed against the same deployment id with a confirmed delivered webhook and 0 residual rows. No test-labeled rows (vercel-migration-test-p5-20260927T0248Z) remain in Neon.",
+  "artifacts": {
+    "functionalRunOutput": "run.mjs stdout: \"Functional suite: pass (0 failed, 0 pending)\"",
+    "f9BrowserCheck": "playwright-core + Chromium (/opt/pw-browsers/chromium), proxy-CA SPKI-pinned per scripts/migration/visual/run.mjs's existing pattern (--ignore-certificate-errors-spki-list), HTTPS_PROXY passed to the browser launch",
+    "cleanupCheckSource": "direct Neon query via @neondatabase/serverless against DATABASE_URL_UNPOOLED, mapped in-process from docs/migration/.scratch/.env.production (not sourced wholesale)"
+  }
+}

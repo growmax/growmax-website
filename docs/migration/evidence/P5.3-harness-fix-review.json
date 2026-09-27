@@ -1,0 +1,132 @@
+{
+  "step": "P5.3",
+  "gate": "G5",
+  "status": "fail",
+  "checkedAt": "2026-09-27T02:40:00Z",
+  "checkedAtNote": "r3 hand-back time (approximate: the workflow completed 02:45Z); the rounds carry their own times in their summaries",
+  "verifier": "migration-reviewer (opus/high), rounds 1-3; persisted by the orchestrator from the reviewer hand-backs (the reviewer role is read-only)",
+  "approve": false,
+  "verdictByPart": {
+    "parity": "no blocking finding in any round; the six parity files are byte-identical since round 2 and held against 19 (r1) and more (r3) mutations. compare.mjs on the attempt-1 manifests: failedUnallowed 234 -> 4 (assetRefs 216, externalLinks 7, internalLinks 7 gone; nothing new; report-only counts identical). Remaining: / visibleTextHash, / internalLinks, /sitemap.xml sitemapEntries, hashed CSS",
+    "functionalF2": "round-1 cap bypass fixed and verified in round 3 (countBefore in markers, exclusive pending marker, fail-closed on corrupt or unknown counts)",
+    "functionalF9": "OPEN: round 3 blocking finding. The cookie parser still accepts two contrived broken-logout serializations (a set-cookie string without = in the name-value pair; an Expires that V8 Date.parse accepts but the RFC 6265 cookie-date algorithm rejects). The real app sends growmax-admin=; Path=/; Max-Age=0, which the parser reads correctly."
+  },
+  "reviewedHashesFinal": {
+    "scripts/migration/functional/run.mjs": "9a512596e572a255fe447d662f09e04f661e4b64",
+    "scripts/migration/functional/selftest-p5.3.mjs": "00035a6688717c2780acfbecc3acf58fe7c7cd44",
+    "scripts/migration/parity/capture.mjs": "7f4211b1de4d9d46f4c34d5e842616d4c18f4875",
+    "scripts/migration/parity/compare.mjs": "882f48e6719b95532aadb09a264bf56d47437d78",
+    "scripts/migration/parity/lib/extract.mjs": "e072dbebce657d1d521092a71d4d14dcca7ef18c",
+    "scripts/migration/parity/selftest.mjs": "cd89186cd4e09428eed24cf29c5ee15c83f37825",
+    "scripts/migration/parity/urls.mjs": "25c0f7a117f415e0a4e3b61c70d642395da2f6a1",
+    "scripts/migration/parity/selftest-p5.3.mjs": "a6f26e2e46f51a898fe163bebba218a4a3a40a92",
+    "docs/migration/evidence/P5.3-harness-fix.json": "315179f556c88a82ffb94ef86e9b0c5b84a64cd2"
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "approve": false,
+      "blocking": [
+        {
+          "file": "scripts/migration/functional/run.mjs",
+          "issue": "F2 can still go past the cap of 3. resolveDemoTestsSentCount = max(STATE flags.demoTestsSent, number of .sent markers). The 2 real historical sends have no markers (docs/migration/.scratch/demo-tests is empty), so the two counters cover different sends and max() undercounts whenever STATE is stale, which is the exact failure mode bug 4 is about. A simulation in a temp copy of run.mjs, using the exported helpers with no network, gave: STATE=2, send under label L -> total 3; same label -> refused; a re-run under a new label before the orchestrator updates STATE -> max(2,1)=2 -> SENT (total 4); the next label -> SENT (total 5). The per-runLabel marker only stops re-runs that reuse the same label. A verifier may well pick a new label, because cleanup is keyed on vercel-migration-test-<runLabel>. With exactly one send left in the budget, this matters now.",
+          "fix": "Make the marker set authoritative on its own. Option (a): record countBefore (the resolved count at send time) in each marker and use effective = max(STATE, markerCount, max(marker.countBefore)+1), so a single marker written at count 2 yields 3 and refuses. Option (b): also backfill two legacy markers (for example legacy-1.sent and legacy-2.sent) so markerCount alone covers the whole migration. Either way, write a 'pending' marker BEFORE the POST rather than in the finally after it, so a process killed mid-request cannot send without leaving a marker. Add a self-test case for a stale STATE plus a different runLabel."
+        },
+        {
+          "file": "scripts/migration/functional/run.mjs",
+          "issue": "checkLogout/isClearingSetCookie can pass F9 while logout is broken. It runs its regexes over res.headers.get('set-cookie'), which Node joins with ', ', and it matches the cookie name with a substring includes('growmax-admin='). It never checks the growmax-admin cookie's own Max-Age/Expires or its Path, and on a pass it just sets A.cookie = null, so the isAdmin:false follow-up holds against any server. Against a local 127.0.0.1 mock (the session returns isAdmin:true whenever the admin cookie is still valid), F9 PASSED for all three of these broken logouts: (1) Set-Cookie 'other=; Max-Age=0' followed by 'growmax-admin=<sealed>; Max-Age=86400' (admin session re-set, still admin); (2) 'growmax-admin=; Path=/api/admin; Max-Age=0' (a browser keeps the Path=/ login cookie, so the user stays logged in); (3) only 'xgrowmax-admin=; Max-Age=0'. The task requires that 'an app regression that stops clearing the cookie must still fail F9'.",
+          "fix": "Use res.headers.getSetCookie(). Select the entry whose name before '=' is exactly 'growmax-admin'. Require that entry's own attributes to clear the cookie (Max-Age<=0, or a parsed Expires in the past). Require its Path, and its Domain if either side sets one, to equal the login cookie's, which F4 captured. Only then drop that cookie from the jar and do the session GET. Add mock cases for the three scenarios above to functional/selftest-p5.3.mjs."
+        }
+      ],
+      "reviewedHashes": {
+        "scripts/migration/functional/run.mjs": "0d3055e4b66d1eb28ac00aeb8b3dc2a18afd97fe",
+        "scripts/migration/parity/capture.mjs": "7f4211b1de4d9d46f4c34d5e842616d4c18f4875",
+        "scripts/migration/parity/compare.mjs": "882f48e6719b95532aadb09a264bf56d47437d78",
+        "scripts/migration/parity/lib/extract.mjs": "e072dbebce657d1d521092a71d4d14dcca7ef18c",
+        "scripts/migration/parity/selftest.mjs": "cd89186cd4e09428eed24cf29c5ee15c83f37825",
+        "scripts/migration/parity/urls.mjs": "25c0f7a117f415e0a4e3b61c70d642395da2f6a1",
+        "scripts/migration/functional/selftest-p5.3.mjs": "7f304270cc4ac44bed1a83f8747c4692ffd66213",
+        "scripts/migration/parity/selftest-p5.3.mjs": "a6f26e2e46f51a898fe163bebba218a4a3a40a92",
+        "docs/migration/evidence/P5.3-harness-fix.json": "3bbfe967a68cea5ad624fadf49e5af28fff38786"
+      }
+    },
+    {
+      "round": 2,
+      "approve": false,
+      "blocking": [
+        {
+          "file": "scripts/migration/functional/run.mjs",
+          "issue": "F9 still passes broken logouts, because checkLogout and isClearingCookieAttrs read cookie attributes differently from RFC 6265 and from browsers. The mock (/tmp/rev2/exp/f9mock.mjs, 127.0.0.1) returns isAdmin:true whenever the sealed admin cookie is still sent, and its login sets growmax-admin=<sealed> with Path=/ and Max-Age=86400. F9 reported PASS for four broken cases:\n(a) The logout sends 'growmax-admin=; Max-Age=0' with no Path attribute. pathMatches treats a missing Path as '/'. A browser instead uses the default-path of POST /api/admin/logout, which is /api/admin (RFC 6265 §5.1.4). That clear misses the Path=/ login cookie, so the user stays admin. This is the same wrong-Path class as round 1, reached by leaving the attribute out.\n(b) The logout sends 'growmax-admin=<sealed>; Path=/; Max-Age=86400; Expires=<1970>'. A valid Max-Age takes precedence over Expires (§5.3 step 3), so the cookie is kept for 24h. The code counts the past Expires as a clear.\n(c) The logout sends 'Max-Age=' (empty or whitespace). Number('') is 0, so the code counts it as a clear. Browsers ignore an invalid Max-Age and keep the cookie.\n(d) A.loginCookieAttrs is null, which happens whenever F4 did not capture an exact-name growmax-admin entry. The code then skips the Path/Domain check (`!loginAttrs ||`), so a clear on Path=/api/admin passes.\nIn each case the harness sets A.cookie = null by itself, so the follow-up isAdmin:false says nothing about what a browser would still send.",
+          "fix": "1. Parse Max-Age only if it matches /^-?\\d+$/ after trimming. If a valid Max-Age is present, it alone decides (<=0 clears), and Expires is ignored. Otherwise use a parsed Expires in the past.\n2. Compute each cookie's effective Path as RFC 6265 does: use the attribute if it starts with '/'; otherwise use the default-path of the request that set the cookie (for /api/admin/login and /api/admin/logout both, that is /api/admin). Compare logout's effective Path with login's.\n3. Fail closed when loginCookieAttrs is null: F9 fails with a detail saying no login cookie attributes were captured.\n4. Add mock cases (a)-(d) to functional/selftest-p5.3.mjs, driving captureSetCookie on a mock login response rather than setting LOGIN_COOKIE_ATTRS by hand.\nThe real app still passes after this fix: iron-session 8.0.4's destroy() sets maxAge:0, and Next's cookie normalizer adds Path=/, so logout emits Path=/ and Max-Age=0."
+        }
+      ],
+      "reviewedHashes": {
+        "scripts/migration/functional/run.mjs": "609ce21735efe6a05a33d3460f8117fc63a32b7d",
+        "scripts/migration/parity/capture.mjs": "7f4211b1de4d9d46f4c34d5e842616d4c18f4875",
+        "scripts/migration/parity/compare.mjs": "882f48e6719b95532aadb09a264bf56d47437d78",
+        "scripts/migration/parity/lib/extract.mjs": "e072dbebce657d1d521092a71d4d14dcca7ef18c",
+        "scripts/migration/parity/selftest.mjs": "cd89186cd4e09428eed24cf29c5ee15c83f37825",
+        "scripts/migration/parity/urls.mjs": "25c0f7a117f415e0a4e3b61c70d642395da2f6a1",
+        "scripts/migration/functional/selftest-p5.3.mjs": "811cbb74bc1f8a15c5a4acfa43a3db066971dbee",
+        "scripts/migration/parity/selftest-p5.3.mjs": "a6f26e2e46f51a898fe163bebba218a4a3a40a92",
+        "docs/migration/evidence/P5.3-harness-fix.json": "cc66abdd3bccfb0c222d69a19e8793154f97bb9a"
+      }
+    },
+    {
+      "round": 3,
+      "approve": false,
+      "blocking": [
+        {
+          "file": "scripts/migration/functional/run.mjs",
+          "issue": "F9 can still pass a broken logout. `parseCookieAttrs` (run.mjs:69-91) doesn't follow RFC 6265 §5.2 in two places. I ran each case against a 127.0.0.1 mock (`/tmp/rev3/exp/f9.mjs`) through the real `requestJson`, `captureSetCookie` and `checkLogout`. The login sets `growmax-admin=<sealed>; Path=/; Max-Age=86400`, and the mock's session route returns isAdmin:true whenever the sealed cookie is sent. F9 reported PASS for all of these:\n(1) Logout sends `growmax-admin; Path=/; Max-Age=0`, with no '=' in the name-value pair. §5.2 step 2 says to ignore such a set-cookie-string entirely; RFC 6265bis and Chrome instead store it as a cookie with an empty name. Either way the sealed growmax-admin cookie is kept. The parser reads it as name 'growmax-admin' with an empty value, so it counts as a clear.\n(2) Logout re-sends the sealed value with an Expires that V8's lenient `Date.parse` accepts but the RFC 6265 §5.1.1 cookie-date algorithm rejects: `Expires=0` (parsed as 2000-01-01), `Expires=2020` or `Expires=-1`. Browsers ignore that Expires, so the sealed cookie becomes a session cookie and the user stays admin. The harness counts the past date as a clear.\nIn every case `clearsAdminCookie` becomes true and run.mjs:577 sets `A.cookie = null`. The follow-up GET then reports isAdmin:false no matter what a browser would still send. The task requires that an app regression that stops clearing the cookie must still fail F9.",
+          "fix": "1. In `parseCookieAttrs`, when the name-value pair has no '=' or the trimmed name is empty, return a name that never matches (for example null), so the entry is never selected as the admin cookie.\n2. Parse Expires with the RFC 6265 §5.1.1 cookie-date algorithm: day-of-month, month, year and hh:mm:ss are all required, plus the year fix-ups. The minimum is to accept only the IMF-fixdate form, `^[A-Za-z]{3}, \\d{2} [A-Za-z]{3} \\d{4} \\d{2}:\\d{2}:\\d{2} GMT$`. Treat anything else as no Expires.\n3. Defence in depth: for the follow-up GET, don't set `A.cookie = null`. Put `growmax-admin=<value from the logout entry>` in the jar instead, which is what the browser would hold if the harness misread the expiry. The real app's clear has an empty value, and `/api/admin/session` reads that as not admin, so the real app still passes. A regression that re-sends the sealed value then fails, even if some other expiry syntax is misread.\n4. Add these cases to `functional/selftest-p5.3.mjs`: no '=' in the name-value pair; sealed value with `Expires=0`, `Expires=2020` and `Expires=-1`. Also keep a case for a correct Expires-only clear with a valid IMF date."
+        }
+      ],
+      "reviewedHashes": {
+        "scripts/migration/functional/run.mjs": "9a512596e572a255fe447d662f09e04f661e4b64",
+        "scripts/migration/functional/selftest-p5.3.mjs": "00035a6688717c2780acfbecc3acf58fe7c7cd44",
+        "scripts/migration/parity/capture.mjs": "7f4211b1de4d9d46f4c34d5e842616d4c18f4875",
+        "scripts/migration/parity/compare.mjs": "882f48e6719b95532aadb09a264bf56d47437d78",
+        "scripts/migration/parity/lib/extract.mjs": "e072dbebce657d1d521092a71d4d14dcca7ef18c",
+        "scripts/migration/parity/selftest.mjs": "cd89186cd4e09428eed24cf29c5ee15c83f37825",
+        "scripts/migration/parity/urls.mjs": "25c0f7a117f415e0a4e3b61c70d642395da2f6a1",
+        "scripts/migration/parity/selftest-p5.3.mjs": "a6f26e2e46f51a898fe163bebba218a4a3a40a92",
+        "docs/migration/evidence/P5.3-harness-fix.json": "315179f556c88a82ffb94ef86e9b0c5b84a64cd2"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "name": "parity harness fix (?dpl=, host-alias link classification, /blog expect 200)",
+      "expected": "no blocking finding",
+      "actual": "no blocking finding in r1-r3; 234 -> 4 on attempt-1 manifests",
+      "pass": true
+    },
+    {
+      "name": "F2 send guard",
+      "expected": "cap of 3 cannot be exceeded; no double send",
+      "actual": "fixed in r2, verified in r3",
+      "pass": true
+    },
+    {
+      "name": "F9 logout check cannot pass a broken logout",
+      "expected": "no false pass",
+      "actual": "F9 can still pass a broken logout. `parseCookieAttrs` (run.mjs:69-91) doesn't follow RFC 6265 §5.2 in two places. I ran each case against a 127.0.0.1 mock (`/tmp/rev3/exp/f9.mjs`) through the real `requestJson`, `captureSetCookie` and `checkLogout`. The login sets `growmax-admin=<sealed>; Path=/; Max-Age=86400`, and the mock's session route returns isAdmin:true whenever the sealed cookie is sent. F9 reported PASS for all of these:\n(1) Logout sends `growmax-admin; Path=/; Max-Age=0`, with no '=' in the name-value pair. §5.2 step 2 says to ignore such a set-cookie-string entirely; RFC 6265bis an",
+      "pass": false
+    }
+  ],
+  "nonBlocking": [
+    "F9: a clear that carries `Partitioned` (CHIPS) is accepted as clearing an unpartitioned login cookie. Chrome stores partitioned cookies under their own key, so the login cookie would survive. This is an unlikely regression. A simple guard is to require that the Partitioned flag matches between login and logout.",
+    "F9 `Expires` also accepts forms that browsers do parse but RFC 6265 does not strictly require. The IMF-fixdate restriction in the blocking fix covers this.",
+    "Parity, already known: the hashed-prefix normalization (`HASHED_ASSET_PREFIX_RE` = `/^\\/_next\\/static\\/[^/]+\\//`) collapses the first segment under `/_next/static/`, including `chunks`. So a ref renamed from `/_next/static/chunks/X` to `/_next/static/chunkz/X` compares equal. This comes from HEAD, not from this change. hashedCssSha256 covers CSS content; JS directory moves are not checked.",
+    "Parity, already known and allowed by the spec: an http downgrade, an added #fragment, or www vs bare growmax.io on a canonical link all compare equal after `reclassifyLinks`. Only path+search is compared.",
+    "Parity, already known and allowed by the spec: an absolute link from B to its own vercel.app host is treated as same-site. That would hide a leaked NEXT_PUBLIC_SITE_URL=vercel.app in body links before cutover. Before cutover, grep B's HTML for vercel.app hrefs.",
+    "F2: any hand-written or backfilled marker that lacks an integer `countBefore` counts as the cap. That includes a marker in the task's minimal format of runLabel, sentAt and base. It fails closed, but it blocks F2 until someone removes it. Document this for the orchestrator.",
+    "F2 markers live in this container only. A verifier in another container relies on STATE flags.demoTestsSent alone, which reads 2. This is organizational, as noted before.",
+    "Evidence `P5.3-harness-fix.json` text for bug 3 still says the F9 check is `Max-Age<=0 or an expired Expires` with `A.cookie set to null`. That will need updating with the blocking fix."
+  ],
+  "artifacts": {
+    "fix": "docs/migration/evidence/P5.3-harness-fix.json",
+    "workflowRun": "wf_ff3b574e-ed0"
+  }
+}

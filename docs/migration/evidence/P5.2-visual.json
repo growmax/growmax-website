@@ -1,0 +1,98 @@
+{
+  "step": "P5.2",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T03:28:03Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "mode": "attempt2c, visual only, reviewed harness (advisor condition C-A3-5)",
+  "runLabel": "p5.2-attempt2c-20260927T0324Z",
+  "baseA": "https://www.growmax.io (live Replit)",
+  "baseB": "https://growmax-website.vercel.app (dpl_3pt7gJhkymtokAVFXwifHpCjkUoE, production alias; public under Standard Protection, so the bypass header is not strictly required for this alias -- sent anyway per task instructions, only as x-vercel-protection-bypass, never x-vercel-set-bypass-cookie)",
+  "harness": {
+    "file": "scripts/migration/visual/run.mjs",
+    "gitHashObject": "5349fc3b5e3afbb196ceba913ae480cd387810f8",
+    "workingTreeState": "clean, committed at 3d36d034 ('migration(P5.3): ... visual failed-request fix (opus-approved)'), matches the reviewed hash exactly (git status showed no diff before this run)",
+    "changeSource": "docs/migration/evidence/P5.3-visual-fix.json: added CANONICAL_PRODUCTION_HOSTS/isFirstPartyHost/normalizeFailedRequestKey/diffNewFailedRequests so first-party requests key on method+pathname+search+failure (host-agnostic across www.growmax.io and the *.vercel.app alias) and third-party requests key on method+scheme://host+pathname+failure (query string dropped)",
+    "advisorCondition": "A3-advisor-P5.3.json C-A3-5: 'no objection ... a short opus review of that diff with 0 blocking; commit run.mjs, selftest-failed-requests.mjs, P5.3-visual-fix.json and P5.3-visual-selftest.json' -- satisfied: commit 3d36d034 carries 'Co-Authored-By: Claude Opus 5.5' and the file on disk is that committed, unmodified version (hash matches)."
+  },
+  "dependencyPrep": {
+    "check": "scripts/migration/node_modules had playwright-core, pixelmatch, pngjs present (all three declared in scripts/migration/package.json) -- no npm ci needed this run",
+    "chromium": "/opt/pw-browsers/chromium (symlink to /opt/pw-browsers/chromium-1194/chrome-linux/chrome, the run.mjs default); not reinstalled"
+  },
+  "checks": [
+    {
+      "name": "node scripts/migration/visual/run.mjs --base-a https://www.growmax.io --base-b https://growmax-website.vercel.app --bypass-secret-file docs/migration/.scratch/bypass-secret, per SPEC-04 §7",
+      "expected": "Playwright screenshots captured for both sites at 1440x900 and 390x844 across the 10 listed pages (20 page/viewport combinations), pixelmatch ratios computed, evidence written under docs/migration/.scratch/p5.2-attempt2c/",
+      "actual": "Ran to completion: 20/20 page/viewport combinations captured and compared, all pixelDiff.comparable == true. Output: docs/migration/.scratch/p5.2-attempt2c/visual-suite.json; screenshots+diff PNGs in docs/migration/.scratch/p5.2-attempt2c/shots/",
+      "pass": true
+    },
+    {
+      "name": "pixelmatch ratio per page/viewport (SPEC-04 §7: <=0.5% pass, 0.5-3% needs inspection, >3% fail)",
+      "expected": "<= 0.5% on all 20 combinations, or a manually inspected/explained higher ratio",
+      "actual": "max ratio 0.3515% (home/mobile); second-highest 0.1780% (home/desktop); all other 18 combinations <= 0.0035%. All 20/20 <= 0.5%; 0 combinations fall in the 0.5-3% inspection band (verified programmatically over the full pixelDiff.ratio array, not just the summary)",
+      "pass": true
+    },
+    {
+      "name": "new console errors on B not present on A",
+      "expected": "0 new console errors across all 20 combinations",
+      "actual": "0 new console errors on any of the 20 page/viewport combinations (newConsoleErrorsOnB empty on all 20)",
+      "pass": true
+    },
+    {
+      "name": "new HTTP error responses on B not present on A",
+      "expected": "0 new error responses across all 20 combinations",
+      "actual": "0 new error responses on any of the 20 page/viewport combinations (newErrorResponsesOnB empty on all 20)",
+      "pass": true
+    },
+    {
+      "name": "new failed network requests on B not present on A, by normalizeFailedRequestKey (third-party: method+scheme://host+pathname+failure; first-party: method+pathname+search+failure, host-agnostic across the page host and www.growmax.io/growmax.io)",
+      "expected": "0 new failed requests, or every residual entry listed by its normalized key and explained per SPEC-04 §7 (otherwise fail)",
+      "actual": "4 of 20 combinations show residual newFailedRequestsOnB entries, all first-party, all net::ERR_ABORTED on a `_rsc=<token>` Next.js RSC prefetch URL: revenue-platform/desktop and revenue-platform/mobile each flag `firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED`; blog-index/mobile flags the same `/demo` key; blog-index/desktop flags both the `/demo` key and `firstparty|GET|/blog/b2b-order-management-software-distributors?_rsc=<token>|net::ERR_ABORTED`. Every one of these residuals is explained and proven below (probe section); no unexplained residual remains.",
+      "pass": true
+    }
+  ],
+  "residualFailedRequests": {
+    "note": "Raw harness output (docs/migration/.scratch/p5.2-attempt2c/visual-suite.json) is 'status: fail (4 flagged)' because its own top-level status is anyFail-on-any-residual; this evidence file's checks above and G5.4 pass because every residual is proven to be a Next.js RSC prefetch cancelled by navigation/teardown timing, present identically on A, and 200 on direct re-request -- the literal SPEC-04 §7 condition for a residual counting as explained.",
+    "entries": [
+      {
+        "normalizedKey": "firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED",
+        "occurrences": [
+          { "page": "revenue-platform", "viewport": "desktop", "rawUrl": "https://growmax-website.vercel.app/demo?_rsc=JOYFzgqX9X1y8Hxb" },
+          { "page": "revenue-platform", "viewport": "mobile", "rawUrl": "https://growmax-website.vercel.app/demo?_rsc=JOYFzgqX9X1y8Hxb" },
+          { "page": "blog-index", "viewport": "desktop", "rawUrl": "https://growmax-website.vercel.app/demo?_rsc=fvVk386B7PbQRK64" },
+          { "page": "blog-index", "viewport": "mobile", "rawUrl": "https://growmax-website.vercel.app/demo?_rsc=fvVk386B7PbQRK64" }
+        ],
+        "explanation": "Next.js client-side <Link> hover/viewport prefetch of /demo, issued by every page that links to the demo CTA, raced against page-teardown at the end of the harness's own navigation/wait step and aborted before the response was consumed by the page. Proven with a standalone Playwright probe (/tmp/rsc-probe.mjs, same Chromium binary /opt/pw-browsers/chromium, same proxy CA pin as run.mjs, run outside the reviewed harness) navigating revenue-platform and blog-index at both viewports on both origins: (1) RSC prefetch markers -- the captured request carries `_rsc=<token>` in its URL and the request headers `rsc: 1`, `next-router-prefetch: 1`, `next-url: <the page's own path>`, `next-router-state-tree: ...` -- textbook Next.js App Router prefetch headers, not a normal navigation; (2) cancellation, not a real error -- Playwright's own requestfailed handler reports failure text exactly `net::ERR_ABORTED` (never a 4xx/5xx or a DNS/TLS failure) on both A and B, and which specific prefetch aborts vs. completes varies nondeterministically between runs (in the probe, /demo aborted on A for revenue-platform/desktop and revenue-platform/mobile, and again on A for blog-index/mobile, while it completed with 200 on B in every probe run) -- consistent with a race against teardown timing rather than a stable failure; (3) 200 on direct re-request with the same headers -- a direct fetch() of the exact URLs recorded in this run's visual-suite.json (https://growmax-website.vercel.app/demo?_rsc=JOYFzgqX9X1y8Hxb and .../demo?_rsc=fvVk386B7PbQRK64), sending RSC:1, Next-Router-Prefetch:1 and the bypass header (never argv; read from docs/migration/.scratch/bypass-secret), returned 200, content-type text/x-component, in 446ms and 142ms respectively; (4) A issues the same prefetch for the same path/page/viewport -- the probe's `page.on('request')` capture shows www.growmax.io firing an identical `_rsc=`-tagged, `rsc:1`/`next-router-prefetch:1`-tagged GET /demo for revenue-platform (both viewports) and blog-index (both viewports); on A the /demo prefetch was itself observed aborting (net::ERR_ABORTED) on revenue-platform/desktop and blog-index/mobile in the probe, and completing (200) on the others -- i.e. present and racing on A too, just not necessarily the exact same combination that aborted in the harness's own run (expected, since the abort/complete race is timing-dependent and the probe is a separate run from the harness capture)."
+      },
+      {
+        "normalizedKey": "firstparty|GET|/blog/b2b-order-management-software-distributors?_rsc=<token>|net::ERR_ABORTED",
+        "occurrences": [
+          { "page": "blog-index", "viewport": "desktop", "rawUrl": "https://growmax-website.vercel.app/blog/b2b-order-management-software-distributors?_rsc=fvVk386B7PbQRK64" }
+        ],
+        "explanation": "Same class as above: the blog index page prefetches every visible post-card link, including this one, and this particular prefetch lost the same navigation/teardown race in this run. RSC markers, cancellation and direct-200 proven exactly as above (the direct re-request of this run's own recorded URL https://growmax-website.vercel.app/blog/b2b-order-management-software-distributors?_rsc=fvVk386B7PbQRK64 with RSC:1/Next-Router-Prefetch:1 headers returned 200, content-type text/x-component, in 356ms). A issues the same prefetch for the same page/viewport: the probe's blog-index/desktop navigation on www.growmax.io shows an identical `_rsc=`-tagged GET to /blog/b2b-order-management-software-distributors, and A's own copy of that exact prefetch aborted with net::ERR_ABORTED in the probe run (A's requestfailed log for blog-index/desktop lists .../blog/b2b-order-management-software-distributors?_rsc=fvVk386B7PbQRK64 -> net::ERR_ABORTED, alongside three other post-card prefetches that also aborted on A in that run: /demo, /blog/ai-helps-distributors-sell-more, /blog/claude-commerce-agents-b2b) -- the same page fires several concurrent post-card prefetches and, on both origins, some race-lose to teardown; which ones is not stable run to run, but the phenomenon (RSC prefetch, aborted, present on A, 200 direct) is identical."
+      }
+    ],
+    "probeMethod": "Throwaway script /tmp/rsc-probe.mjs (os.tmpdir(), not committed): launches the same Chromium binary as the reviewed harness with the same proxy-CA SPKI pin, navigates revenue-platform and blog-index at both viewports against both www.growmax.io (no auth header) and growmax-website.vercel.app (bypass header injected via context.route, same mechanism run.mjs uses, read from the bypass-secret file, never passed on argv), captures every `_rsc=`-tagged request's headers/outcome via page.on('request'|'requestfailed'|'requestfinished'), then directly fetch()-es each aborted URL seen on B with its own captured headers plus the bypass header. Full raw output: /tmp/rsc-probe-out/result.json (not committed; contains no secrets -- the bypass header value itself was never printed, only forwarded)."
+  },
+  "facts": {
+    "visual": "ran",
+    "pixelmatchMaxRatio": 0.003515108580342656,
+    "pixelmatchPagesNeedingInspection": [],
+    "newConsoleErrorsCount": 0,
+    "newErrorResponsesCount": 0,
+    "newFailedRequestsFlaggedCombinations": 4,
+    "newFailedRequestsDistinctNormalizedPaths": 2,
+    "newFailedRequestsAllExplained": true
+  },
+  "likelyClass": "acceptable-diff",
+  "classNote": "G5.4's literal criterion (visual pass; no new console errors) and the SPEC-04 §7 extension (new failed requests explained by normalized key) are both satisfied: 20/20 pixel ratios <=0.5%, 0 new console errors, 0 new HTTP error responses, and every one of the 4 flagged newFailedRequestsOnB combinations is a Next.js RSC prefetch abort meeting all four of the task's proof requirements (RSC/prefetch headers, ERR_ABORTED not a real error, 200 on direct re-request, and the identical prefetch present on A for the same page/viewport). This is a slightly larger residual than the prior attempt (2b: 2 combinations, both /demo) because attempt2c is a fresh capture and which concurrent prefetch loses the teardown race is nondeterministic -- the class of residual, and the proof standard it meets, is unchanged.",
+  "recommendation": "Non-blocking for G5.4/G5, same as attempt2b. Unresolved lower-priority harness improvement (carried from P5.2-visual-attempt2b.json, still open): strip the `_rsc` query key before computing the first-party key in normalizeFailedRequestKey, so a prefetch abort with different tokens on A and B reconciles instead of being flagged at all; add a self-test case for it. Doing so would likely reduce future runs' residual count to 0 without weakening the check (a first-party querystring is still compared in full for every other case).",
+  "artifacts": [
+    "docs/migration/.scratch/p5.2-attempt2c/visual-suite.json (full harness output, 20 page/viewport results)",
+    "docs/migration/.scratch/p5.2-attempt2c/shots/ (screenshots + diff PNGs for both sites, all 20 combinations)",
+    "docs/migration/evidence/P5.3-visual-fix.json (the harness change this run verifies, now committed at 3d36d034)",
+    "docs/migration/evidence/P5.3-visual-selftest.json (implementer's offline self-test, 8/8, not re-run this pass -- needs no network/browser)",
+    "docs/migration/evidence/P5.2-visual-attempt2.json (history: pre-fix, 20/20 false-positive on beacon query randomization)",
+    "docs/migration/evidence/P5.2-visual-attempt2b.json (history: post-fix first re-run, 2/20 residual, same RSC-prefetch class, narrower scope)"
+  ]
+}

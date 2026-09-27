@@ -1,0 +1,43 @@
+{
+  "step": "P6.3",
+  "gate": "G6",
+  "status": "pass",
+  "checkedAt": "2026-09-27T08:48:49Z",
+  "verifier": "migration-scout (opus/low)",
+  "recordedBy": "orchestrator, transcribed verbatim from the independent check agent's structured result in workflow wf_81e660f1-33d (resumed after a container restart; the P6.3 check prompt does not write a file). Verdict and actuals are the scout's.",
+  "checks": [
+    {
+      "name": "domains on project growmax-website (G6 6.2)",
+      "expected": "www.growmax.io and growmax.io present, verified",
+      "actual": "Vercel MCP list_project_domains (prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu, team growmax1): both present, verified=true",
+      "pass": true
+    },
+    {
+      "name": "apex redirect (G6 6.2)",
+      "expected": "growmax.io redirects 308 to www.growmax.io",
+      "actual": "redirect=www.growmax.io, redirectStatusCode=308",
+      "pass": true
+    },
+    {
+      "name": "recommended records captured (G6 6.2)",
+      "expected": "non-empty recommendedIPv4 and recommendedCNAME for both names in P6.3-domains.json",
+      "actual": "liveDomainConfig non-empty for both names",
+      "pass": true
+    },
+    {
+      "name": "ACME DNS-01 challenges captured (G6 6.3)",
+      "expected": "non-empty TXT for _acme-challenge.growmax.io and _acme-challenge.www.growmax.io; no cert issued",
+      "actual": "acmeChallenge.records non-empty for both, exit code 0, certIssued=false",
+      "pass": true
+    }
+  ],
+  "issues": [
+    {
+      "severity": "info",
+      "description": "Both domains show misconfigured=true in liveDomainConfig. This is expected before cutover because DNS still points to the old hosts."
+    }
+  ],
+  "artifacts": [
+    "docs/migration/evidence/P6.3-domains.json"
+  ]
+}

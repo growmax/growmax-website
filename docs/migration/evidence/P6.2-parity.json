@@ -1,0 +1,314 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "mode": "pre",
+  "runLabel": "p6-20260927T0803Z (attempt-3 capture, regenerated against re-pinned allowlist per A3 C-A3b-2)",
+  "status": "pass",
+  "checkedAt": "2026-09-27T08:36:25Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "baseA": "https://www.growmax.io",
+  "baseB": "https://growmax-website.vercel.app",
+  "capturedAt": {
+    "a": "2026-09-27T08:05:17.134Z",
+    "b": "2026-09-27T08:04:57.748Z"
+  },
+  "deploymentB": {
+    "id": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+    "sha": "dc5405357441870b9315a28a7cbb93a201278453",
+    "source": "task input and prior P6.2-parity.json (attempt 3); capture not repeated"
+  },
+  "failureClass": null,
+  "checks": [
+    {
+      "name": "Manifest sha256 match A3 citation (A=1687a934..., B=9cea5821...)",
+      "expected": "manifest-a 1687a934..., manifest-b 9cea5821...",
+      "actual": "manifest-a 1687a934c08a85547a9449384b9ee8b414df736886b20d0e012fd880b71cbfec; manifest-b 9cea582136fe18b2a86f29960f31a4720ed66fab579d88dbbfe2477066e05754",
+      "pass": true
+    },
+    {
+      "name": "Allowlist: exactly 4 entries, exactly one <hashed-css-assets>/hashedCssSha256 re-pinned per C-A3b-1",
+      "expected": "4 entries; 1 CSS entry, approvedBy A3, expected.a=[5cca0cd4...,b22fd05c...], expected.b=[b22fd05c...,e50a48e4...], no pattern/maxMatches",
+      "actual": "4 entries; 1 CSS entry; approvedBy A3; approvedAt 2026-09-27T08:30:56Z; keys url,field,reason,approvedBy,approvedAt,expected; expected.a matches; expected.b matches",
+      "pass": true
+    },
+    {
+      "name": "compare.mjs exit code and summary",
+      "expected": "exit 0; Compared 297 URLs: PASS (failedUnallowed=0, allowlisted=4)",
+      "actual": "exit=0; Compared 297 URLs: PASS (failedUnallowed=0, allowlisted=4)",
+      "pass": true
+    },
+    {
+      "name": "URLs compared",
+      "expected": "297 (urlsA 297, urlsB 297)",
+      "actual": "297 (urlsA 297, urlsB 297); retriedA 0, retriedB 0",
+      "pass": true
+    },
+    {
+      "name": "failedUnallowed",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "allowlisted",
+      "expected": "4 (3 P5.3 pins + re-pinned CSS entry)",
+      "actual": "4: //visibleTextHash; //internalLinks; /sitemap.xml/sitemapEntries; <hashed-css-assets>/hashedCssSha256",
+      "pass": true
+    },
+    {
+      "name": "Each allowlist entry matched exactly once",
+      "expected": "entries 0-3 each matchedUrls length 1; entry 2 (CSS) matched <hashed-css-assets> once",
+      "actual": "#0 //internalLinks matched 1x; #1 /sitemap.xml/sitemapEntries matched 1x; #2 <hashed-css-assets>/hashedCssSha256 matched 1x; #3 //visibleTextHash matched 1x",
+      "pass": true
+    },
+    {
+      "name": "CSS diff equals pinned values",
+      "expected": {
+        "a": [
+          "5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0",
+          "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
+        ],
+        "b": [
+          "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b",
+          "e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7"
+        ]
+      },
+      "actual": {
+        "a": [
+          "5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0",
+          "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
+        ],
+        "b": [
+          "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b",
+          "e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7"
+        ]
+      },
+      "pass": true
+    },
+    {
+      "name": "stylesheetRefsBothAbsent",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "assetRefs/linkHeaderRefs/stylesheetRefs/images diffs",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "data-freshness diffs",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "/api/blog identical",
+      "expected": "same status, bytes, sha256, canonical JSON and array length; no non-report-only diff",
+      "actual": "A: 200 2322293 bytes, 172 items, sha256 e755c7da24f71ef6...; B: 200 2322293 bytes, 172 items, sha256 e755c7da24f71ef6...; canonical equal true; blogApiSize a={\"present\":true,\"bytes\":2322293,\"jsonArrayLength\":172} b={\"present\":true,\"bytes\":2322293,\"jsonArrayLength\":172}, warnings 0; non-report-only diffs 0",
+      "pass": true
+    },
+    {
+      "name": "No other diff classes (only report-only headers/bytes/contentType plus the 4 allowlisted)",
+      "expected": "non-report-only diffs = 4 allowlisted",
+      "actual": "non-report-only 4, allowlisted 4; byCategory {\"content\":3,\"seo\":1}",
+      "pass": true
+    },
+    {
+      "name": "compare stderr empty",
+      "expected": "0 bytes",
+      "actual": "0 bytes",
+      "pass": true
+    }
+  ],
+  "compareCommand": "node scripts/migration/parity/compare.mjs --a docs/migration/.scratch/p6-20260927T0803Z/manifest-a.json --b docs/migration/.scratch/p6-20260927T0803Z/manifest-b.json --allowlist docs/migration/evidence/allowlist.json --raw-dir-a docs/migration/.scratch/p6-20260927T0803Z/raw-a --raw-dir-b docs/migration/.scratch/p6-20260927T0803Z/raw-b --out docs/migration/.scratch/p6-20260927T0803Z/regen/diff.json --scratch docs/migration/.scratch/p6-20260927T0803Z/regen",
+  "compareStdout": [
+    "Compared 297 URLs: PASS (failedUnallowed=0, allowlisted=4)",
+    "/api/blog size: A=2322293 bytes (172 items), B=2322293 bytes (172 items), threshold=3500000 bytes"
+  ],
+  "diffSummary": {
+    "urlsA": 297,
+    "urlsB": 297,
+    "compared": 297,
+    "passed": true,
+    "failedUnallowed": 0,
+    "allowlisted": 4,
+    "byCategory": {
+      "content": 3,
+      "seo": 1
+    },
+    "stylesheetRefsBothAbsent": 0,
+    "blogApiSize": {
+      "sizes": {
+        "a": {
+          "present": true,
+          "bytes": 2322293,
+          "jsonArrayLength": 172
+        },
+        "b": {
+          "present": true,
+          "bytes": 2322293,
+          "jsonArrayLength": 172
+        }
+      },
+      "warnings": [],
+      "thresholdBytes": 3500000
+    },
+    "totalDiffs": 1165,
+    "diffsByField": {
+      "report-only/cache-control": 296,
+      "report-only/content-encoding": 230,
+      "report-only/strict-transport-security": 297,
+      "report-only/bytes": 280,
+      "content/visibleTextHash (allowlisted)": 1,
+      "content/internalLinks (allowlisted)": 1,
+      "report-only/contentType": 58,
+      "seo/sitemapEntries (allowlisted)": 1,
+      "content/hashedCssSha256 (allowlisted)": 1
+    },
+    "nonReportOnly": [
+      {
+        "url": "/",
+        "field": "visibleTextHash",
+        "category": "content",
+        "allowlisted": true,
+        "approvedBy": "A3",
+        "diffFile": "docs/migration/.scratch/p6-20260927T0803Z/regen/text-diffs/_.diff"
+      },
+      {
+        "url": "/",
+        "field": "internalLinks",
+        "category": "content",
+        "allowlisted": true,
+        "approvedBy": "A3"
+      },
+      {
+        "url": "/sitemap.xml",
+        "field": "sitemapEntries",
+        "category": "seo",
+        "allowlisted": true,
+        "approvedBy": "A3"
+      },
+      {
+        "url": "<hashed-css-assets>",
+        "field": "hashedCssSha256",
+        "category": "content",
+        "allowlisted": true,
+        "approvedBy": "A3",
+        "a": [
+          "5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0",
+          "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
+        ],
+        "b": [
+          "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b",
+          "e50a48e4967d60051a295132d998f6fd3f0f73530528c8bacdb281f4fd9f70b7"
+        ]
+      }
+    ]
+  },
+  "unallowed": [],
+  "allowlistReport": [
+    {
+      "index": 0,
+      "url": "/",
+      "field": "internalLinks",
+      "pattern": null,
+      "approvedBy": "A3",
+      "approvedAt": "2026-09-27T03:22:33Z",
+      "matchedUrls": [
+        "/"
+      ]
+    },
+    {
+      "index": 1,
+      "url": "/sitemap.xml",
+      "field": "sitemapEntries",
+      "pattern": null,
+      "approvedBy": "A3",
+      "approvedAt": "2026-09-27T03:22:33Z",
+      "matchedUrls": [
+        "/sitemap.xml"
+      ]
+    },
+    {
+      "index": 2,
+      "url": "<hashed-css-assets>",
+      "field": "hashedCssSha256",
+      "pattern": null,
+      "approvedBy": "A3",
+      "approvedAt": "2026-09-27T08:30:56Z",
+      "matchedUrls": [
+        "<hashed-css-assets>"
+      ]
+    },
+    {
+      "index": 3,
+      "url": "/",
+      "field": "visibleTextHash",
+      "pattern": null,
+      "approvedBy": "A3",
+      "approvedAt": "2026-09-27T03:30:56Z",
+      "matchedUrls": [
+        "/"
+      ]
+    }
+  ],
+  "artifacts": {
+    "manifestA": {
+      "path": "docs/migration/.scratch/p6-20260927T0803Z/manifest-a.json",
+      "sha256": "1687a934c08a85547a9449384b9ee8b414df736886b20d0e012fd880b71cbfec"
+    },
+    "manifestB": {
+      "path": "docs/migration/.scratch/p6-20260927T0803Z/manifest-b.json",
+      "sha256": "9cea582136fe18b2a86f29960f31a4720ed66fab579d88dbbfe2477066e05754"
+    },
+    "rawDirA": "docs/migration/.scratch/p6-20260927T0803Z/raw-a",
+    "rawDirB": "docs/migration/.scratch/p6-20260927T0803Z/raw-b",
+    "regen": {
+      "diff": {
+        "path": "docs/migration/.scratch/p6-20260927T0803Z/regen/diff.json",
+        "sha256": "c4ac92060714a4e4683463d721fd018fb4bad8946f6b5f2b1af94f99d19d07ab"
+      },
+      "diffFull": {
+        "path": "docs/migration/.scratch/p6-20260927T0803Z/regen/diff.full.json",
+        "sha256": "dbc6fa56a507f4283c96d4e760f9901182fd3313a9f632e348b148e043d8f10f"
+      },
+      "textDiffs": [
+        {
+          "path": "docs/migration/.scratch/p6-20260927T0803Z/regen/text-diffs/_.diff",
+          "sha256": "e24839298cb65678000e4160a734c0b4a2da8eba4b3003b2bb2a7f90ec35948a"
+        }
+      ],
+      "stdout": {
+        "path": "docs/migration/.scratch/p6-20260927T0803Z/regen/compare.stdout",
+        "sha256": "6f62a1f69703a6b787f49b08e1afb108df856e2e88346dea05ad8677ef870c32"
+      },
+      "stderr": "docs/migration/.scratch/p6-20260927T0803Z/regen/compare.stderr",
+      "exit": "docs/migration/.scratch/p6-20260927T0803Z/regen/compare.exit"
+    },
+    "allowlist": {
+      "path": "docs/migration/evidence/allowlist.json",
+      "gitHashObject": "543f222616bc6907a873e2c0922f3761aefd7eca",
+      "committedAt": "c887286 (unchanged in working tree)"
+    },
+    "advisor": "docs/migration/evidence/A3-advisor-P6.2.json (C-A3b-1, C-A3b-2)",
+    "harness": {
+      "headCommit": "49d7028a175cc373403f9566b9e5fb61e73434fb",
+      "parityDirClean": true,
+      "compareMjs": "ce4b3d878222e860f71b2f7b11e9bc6782ab5bf6",
+      "captureMjs": "59e9b6dbef1e49b6ccf80515434bd374aa4067a4",
+      "urlsMjs": "25c0f7a117f415e0a4e3b61c70d642395da2f6a1",
+      "libDiffMjs": "1eaa535d1a84bbf41a64acad62ee151675af5901",
+      "libExtractMjs": "dfdafbb1c5bd78c04352807e1e623e82fe4ab0f4",
+      "libFetcherMjs": "2aea68436af78d5e14d3f405959158787369765b"
+    },
+    "supersedes": "attempt-3 P6.2-parity.json (status fail, checkedAt 2026-09-27T08:06:53Z; sole unallowed diff was hashedCssSha256 before the C-A3b-1 re-pin)"
+  },
+  "notes": [
+    "Evidence generated by script from compare.mjs outputs; no values hand-edited.",
+    "Manifests not re-captured: A3 C-A3b-2 allows the attempt-3 manifests; only the comparison was re-run with the updated allowlist.",
+    "Report-only diffs (cache-control, content-encoding, strict-transport-security, bytes, contentType) are informational per harness design.",
+    "The / visibleTextHash text diff is the P5.3-approved stale-homepage \"Latest Insights\" block; full diff at regen/text-diffs/_.diff."
+  ]
+}

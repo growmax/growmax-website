@@ -1,0 +1,67 @@
+{
+  "step": "P5.1",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T01:40:36Z",
+  "verifier": "migration-scout (haiku/low)",
+  "checks": [
+    {
+      "name": "Deployment readyState",
+      "expected": "READY",
+      "actual": "READY",
+      "pass": true
+    },
+    {
+      "name": "Deployment target",
+      "expected": "production",
+      "actual": "production",
+      "pass": true
+    },
+    {
+      "name": "GitHub commit SHA",
+      "expected": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+      "actual": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+      "pass": true
+    },
+    {
+      "name": "Build errors count",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "Production alias exists",
+      "expected": "growmax-website.vercel.app",
+      "actual": "growmax-website.vercel.app",
+      "pass": true
+    },
+    {
+      "name": "Generated URL protected (no header)",
+      "expected": "401/403 or redirect to auth",
+      "actual": "302 (redirect to Vercel SSO login)",
+      "pass": true
+    },
+    {
+      "name": "Production domain (no header)",
+      "expected": 200,
+      "actual": 200,
+      "pass": true
+    },
+    {
+      "name": "Generated URL with bypass header",
+      "expected": "200 with Growmax in title",
+      "actual": "200 with title: Growmax | B2B Revenue Ops for Manufacturers",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "deployment_id": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+    "team_id": "team_r7yanNuXwyp3P3jzhnxkDNaD",
+    "expected_commit": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+    "aliases_verified": [
+      "growmax-website.vercel.app",
+      "growmax-website-growmax1.vercel.app",
+      "growmax-website-git-claude-wonderful-edison-823y83-growmax1.vercel.app"
+    ]
+  }
+}

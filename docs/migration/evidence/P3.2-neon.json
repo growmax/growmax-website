@@ -1,0 +1,41 @@
+{
+  "step": "P3.2",
+  "checkedAt": "2026-09-26T15:24:10Z",
+  "status": "blocked",
+  "intendedAction": {
+    "description": "Provision a NEW Neon resource via the Vercel Marketplace on the existing installation icfg_tEtDWAPJTdmHAD8eL9GtfV5H (already on plan launch_v3, owner-authorized 2026-09-26T12:26:19Z per LOG.md), per SPEC-01 §3 addendum (A1 condition C1, binding).",
+    "commandPlanned": "npx --yes vercel@latest integration add neon --name growmax-db-iad1 -m region=iad1 -m auth=false -e production --no-env-pull --installation-id icfg_tEtDWAPJTdmHAD8eL9GtfV5H --non-interactive --scope growmax1 --format json",
+    "helpReadFirst": true,
+    "regionMetadataDiscovered": {
+      "flag": "-m region=<value>",
+      "validValues": ["cle1", "iad1", "pdx1", "fra1", "lhr1", "syd1", "sin1", "gru1"],
+      "chosenValue": "iad1",
+      "note": "The Neon integration's metadata schema for `neon` on this Vercel CLI/installation uses Vercel region codes directly (e.g. `iad1`), not an AWS region string like `us-east-1`; iad1 is Vercel's Washington D.C. region, matching the source addendum's 'iad1 / us-east-1' description."
+    },
+    "planFlagOmitted": true,
+    "versionMetadataFlagOmitted": true,
+    "neonAuth": "off (-m auth=false)"
+  },
+  "blocker": {
+    "id": "B-IAC-PERMISSION",
+    "source": "this session's own Bash permission system (auto mode classifier), not a Vercel/Neon interactive prompt",
+    "classifierReason": "Protected-Scope IaC Apply",
+    "detail": "The `vercel integration add neon ...` command that would provision the new billable growmax-db-iad1 resource was refused before execution by the harness's auto-mode classifier as a protected-scope infrastructure-provisioning action. No purchase/plan-change confirmation was ever shown by the Vercel CLI itself -- the command was blocked pre-execution.",
+    "neverAttempted": "No workaround (direct REST call, MCP create_connector, or retry) was attempted after the denial, per the denial's own instructions not to pursue the same outcome through another tool/path."
+  },
+  "ownerAction": "Either (a) grant this session's Bash tool permission to run infrastructure-provisioning commands and re-run P3.2, or (b) provision the resource directly: Vercel dashboard -> team growmax1 -> Storage -> Marketplace -> Neon (installation icfg_tEtDWAPJTdmHAD8eL9GtfV5H, plan Launch) -> Create database -> name growmax-db-iad1, region iad1 (Washington, D.C., USA), Postgres major >= 16, Neon Auth off -> connect to project growmax-website, Production environment only (no preview branching). Then re-run this step so it can read back and record facts.neon (resourceName, resourceId, region, pgVersion, pooledHost, unpooledHost) and connect it via `vercel integration resource connect`.",
+  "recordedFacts": {
+    "resourceName": null,
+    "resourceId": null,
+    "region": null,
+    "pgVersion": null,
+    "pooledHost": null,
+    "unpooledHost": null,
+    "plan": "launch_v3 (installation-level, already applied 2026-09-26T12:26:19Z; not re-confirmed here since provisioning did not run)"
+  },
+  "legacySin1Untouched": {
+    "storeId": "store_IsJjgV1qX1w7nvrP",
+    "externalResourceId": "rapid-recipe-07132564",
+    "action": "none taken; not deleted, modified, connected, or read from"
+  }
+}

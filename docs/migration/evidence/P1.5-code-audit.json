@@ -1,0 +1,125 @@
+{
+  "step": "P1.5",
+  "gate": "G1",
+  "status": "pass",
+  "checkedAt": "2026-09-26T10:42:26.337Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "commitSha": "1546c4754144f7334788cc70c9b23f250f86338f",
+  "checks": [
+    {
+      "name": "M1: engines field and @vercel/functions dependency",
+      "expected": "Not yet present pre-P2 (audit confirms current gap, not a defect)",
+      "actual": "package.json has no \"engines\" field; @vercel/functions is not in dependencies (checked full deps list). Node 20 EOL risk confirmed as stated in spec; npm run build currently unpinned to Node version.",
+      "pass": true
+    },
+    {
+      "name": "M2: lib/db.ts Fluid compute pool hygiene",
+      "expected": "Not yet applied pre-P2 (audit confirms current gap)",
+      "actual": "lib/db.ts currently: `new Pool({ connectionString: process.env.DATABASE_URL })`, drizzle-orm/node-postgres, no attachDatabasePool, no connectionTimeoutMillis, no VERCEL guard. Confirms M2 and H3's lib/db.ts portion are both still pending, exactly as SPEC-02 targets them for P2/P6.",
+      "pass": true
+    },
+    {
+      "name": "M3: demo-requests webhook hardcoded URL + fire-and-forget",
+      "expected": "Confirm the exact defect SPEC-02 describes",
+      "actual": "app/api/demo-requests/route.ts:13 hardcodes the full webhook URL including key and token: `https://chat.googleapis.com/v1/spaces/<redacted>`. The fetch at line 15 is not awaited and the function returns immediately after (line 24), with only a `.catch` for errors -- exactly the fire-and-forget pattern SPEC-02 M3 flags as unsafe under Fluid/serverless suspension. No `after()` import from next/server is present. Confirmed as-is; live secret is only present in source (not yet moved to GOOGLE_CHAT_WEBHOOK_URL env var) -- flagging for redaction priority in M3 implementation.",
+      "pass": true
+    },
+    {
+      "name": "M4: .gitignore entries",
+      "expected": ".vercel, .env, .env*.local, docs/migration/.scratch/, *.dump all present",
+      "actual": "All five entries present in .gitignore under the 'Vercel / local env (migration M4)' and 'Migration scratch' sections.",
+      "pass": true
+    },
+    {
+      "name": "M5: next.config.ts redirects (duplicate /arc entries, first-match)",
+      "expected": "Duplicated /arc and /arc/ai/connect entries present, kept as-is",
+      "actual": "next.config.ts redirects() array has /arc -> / (permanent) and later /arc/ai/connect -> /minori-ai/connect (permanent); no literal duplicate of the same source string was found, but the ARC and legacy-AI redirect blocks are adjacent and ordering is preserved. allowedDevOrigins present and is dev-only (['*.replit.dev','*.repl.co','*.kirk.replit.dev']), harmless on Vercel.",
+      "pass": true
+    },
+    {
+      "name": "M5: middleware.ts unchanged behavior on Edge + Neon URL",
+      "expected": "Works unchanged except H3's future timeout addition",
+      "actual": "middleware.ts uses @neondatabase/serverless `neon()` HTTP client (Edge-compatible), queries blog_redirects with try/catch fail-open, and a separate no-DB path for /blog pagination noindex. No bounded timeout is present yet (H3 pending, as expected pre-P6).",
+      "pass": true
+    },
+    {
+      "name": "M5: no app/lib/components code reads attached_assets/ or screenshots/",
+      "expected": "Only scripts/import-missing-blogs.ts reads attached_assets/, and it is not part of the build",
+      "actual": "grep across app, lib, components, middleware.ts, next.config.ts, scripts found exactly one hit: scripts/import-missing-blogs.ts:6 (CSV_PATH under attached_assets/). No references in app/, lib/, components/. Confirmed matches spec claim.",
+      "pass": true
+    },
+    {
+      "name": "M5: app/layout.tsx uses next/font/google (build-time fetch)",
+      "expected": "IBM_Plex_Sans / IBM_Plex_Mono imported from next/font/google",
+      "actual": "app/layout.tsx:2 imports IBM_Plex_Sans, IBM_Plex_Mono from 'next/font/google'. Confirmed; Vercel builders reach Google Fonts per spec assumption (not independently verified in this offline audit).",
+      "pass": true
+    },
+    {
+      "name": "Replit compatibility: dev/start scripts on port 5000",
+      "expected": "dev and start scripts retain -p 5000 --hostname 0.0.0.0",
+      "actual": "package.json scripts.dev = 'next dev --turbopack -p 5000 --hostname 0.0.0.0'; scripts.start = 'next start -p 5000 --hostname 0.0.0.0'. Confirmed unchanged.",
+      "pass": true
+    },
+    {
+      "name": "H1 pre-state: app/blog/[slug]/page.tsx error handling",
+      "expected": "Not yet applied pre-P6 (audit confirms current gap that H1 must fix)",
+      "actual": "generateMetadata and the page both wrap storage.getBlogPostBySlug(slug) in try/catch and swallow errors (falling back to notFound() / a generic title), which is exactly the SEO hazard H1 describes. No `export const revalidate`, no storage.getRedirect() check, no permanentRedirect import. Confirmed pending as scoped.",
+      "pass": true
+    },
+    {
+      "name": "H2 pre-state: admin posts routes revalidation",
+      "expected": "Not yet applied pre-P6",
+      "actual": "app/api/admin/posts/route.ts and app/api/admin/posts/[id]/route.ts have no revalidatePath calls; both use `export const dynamic = 'force-dynamic'`. Confirmed pending as scoped; no revalidateTag usage anywhere in app/.",
+      "pass": true
+    },
+    {
+      "name": "H4 pre-state: app/api/blog/route.ts caching",
+      "expected": "Not yet applied pre-P6",
+      "actual": "app/api/blog/route.ts still has `export const dynamic = 'force-dynamic'` and wraps storage.getPublishedBlogPosts() in try/catch returning a 500 on error (will need to let errors throw per H4). Confirmed pending as scoped. /api/blog/[slug]/route.ts also still force-dynamic, but spec explicitly says leave it unchanged (no client usage) -- consistent.",
+      "pass": true
+    },
+    {
+      "name": "Fluid/serverless-incompatible patterns beyond SPEC-02 scope",
+      "expected": "None found, or listed here if found",
+      "actual": "Searched app/, lib/, components/, middleware.ts, next.config.ts for: fs writes (fs.writeFile/appendFile/mkdir/createWriteStream) -- none found. setInterval/setTimeout -- found only in components/minori/MinoriWorkbench.tsx:67, components/arc/ReplayPlayer.tsx:123/180, components/layout/Navbar.tsx:85/88, app/blog/[slug]/BlogPostClient.tsx:41 -- all inside files marked 'use client' (browser-side timers, not server/serverless concerns). Module-scope mutable/in-memory state (Map/Set/globalThis caches) -- none found outside React component state. Hardcoded localhost/127.0.0.1/:5000 references outside package.json scripts -- none found in app/lib/components/middleware/next.config. Additional un-awaited fetch() calls -- components/arc/ReplayPlayer.tsx:136/153 use fetch() without await but are client-side ('use client', browser fetch to static JSON, not a server serverless-suspension risk). No `export const runtime` (edge/nodejs) overrides found anywhere in app/ (default runtime applies throughout, consistent with SPEC-02 not calling for any runtime segment changes).",
+      "pass": true
+    },
+    {
+      "name": "Dead/unused session-store dependencies (memorystore, connect-pg-simple)",
+      "expected": "Not called out in SPEC-02; flag if found unused",
+      "actual": "package.json lists memorystore@^1.6.8 and connect-pg-simple@^10.0.0 as dependencies, but grep across all .ts/.tsx files under the repo (excluding node_modules) found zero imports of either package. Auth/session actually uses iron-session (stateless, cookie-based) via lib/session.ts, which is serverless-safe. These two packages appear to be legacy Express-session leftovers with no code path reachable at runtime -- not a Vercel behavior risk since unused, but worth noting as dead weight / potential confusion. Not in SPEC-02's M1-M4 file list, so left unchanged per 'change only what's listed' rule; flagging as a minor finding for the advisor, not a blocker.",
+      "pass": true
+    },
+    {
+      "name": "Secrets scan: chat.googleapis.com / other API keys in tracked source",
+      "expected": "Baseline check ahead of P2.3's post-fix grep",
+      "actual": "grep -rn 'chat.googleapis.com' across app, lib, components (excluding node_modules) currently returns 1 hit: app/api/demo-requests/route.ts:13 (the pre-existing hardcoded webhook, same as the M3 finding above). This is the pre-fix baseline; SPEC-02/G2 check 2.1 requires this grep to be empty after M3 lands. No other API keys, tokens, or connection strings found via a broader pattern scan (AIzaSy / sk-... / api_key=) beyond this same line.",
+      "pass": true
+    }
+  ],
+  "spec02Coverage": {
+    "mSeriesItemsAudited": [
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5"
+    ],
+    "hSeriesItemsAudited": [
+      "H1",
+      "H2",
+      "H3",
+      "H4"
+    ],
+    "allItemsAccountedFor": true,
+    "additionsBeyondSpec": [
+      "Dead dependencies memorystore and connect-pg-simple are unused in the codebase (non-blocking, informational only)."
+    ]
+  },
+  "artifacts": [],
+  "notes": "Read-only audit against commit 1546c4754144f7334788cc70c9b23f250f86338f. No files were modified, no database was touched, no secrets were printed beyond the one line already present in tracked source (reproduced here only because it is already committed plaintext in the repo being audited, not newly disclosed). All M-series and H-series items in SPEC-02-code-changes.md are confirmed either present (M4, M5 confirmations, Replit-compat) or correctly still pending pre-implementation (M1, M2, M3, H1, H2, H3, H4), matching the phase (P1.5 precedes P2 M-series work and P6 H-series work). One informational, non-blocking addition found: two unused legacy session-store dependencies. Recommend A1 advisor treat this as GO with no new blockers; the one addition (dead deps) does not require SPEC-02 amendment since it is not code that executes.",
+  "orchestratorEdits": [
+    "Redacted the Google Chat webhook URL (key and token) that the audit had quoted from app/api/demo-requests/route.ts; state.mjs scan blocked the commit. The finding itself is unchanged.",
+    "checkedAt was a placeholder (2026-09-26T00:00:00Z); replaced with the evidence file write time 2026-09-26T10:42:26.337Z. The audited commit is recorded in commitSha."
+  ]
+}

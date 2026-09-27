@@ -1,0 +1,108 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T07:35:57Z",
+  "verifier": "migration-reviewer (opus/high)",
+  "scope": "Adversarial review round 1 of SPEC-02 H5 (app/globals.css) and H6 (lib/db.ts), working tree vs 2f4b4d5",
+  "approve": true,
+  "blocking": [],
+  "nonBlocking": [
+    {
+      "file": "docs/migration/evidence/P6.2-fix-local-verify.json",
+      "issue": "The verifier's ownerAction says the hashedCssSha256 pin should clear once H5 is deployed. It will not clear. The local H5 main CSS (.next/static/css/b5162b0c557fcf76.css) has sha256 e50a48e4..., which matches neither the A3 pin 072d7bf0... (old-5ae60ac95c5812a0.css; that build also had the classes collapse, lowercase and shrink, which came from migration files) nor A's 5cca0cd4.... H5 makes B's CSS stable across migration commits, but allowlist entry 2 still needs one advisor re-pin to the hash B actually serves after the H5 deploy. Plan that re-pin; don't expect the check to pass on its own."
+    },
+    {
+      "file": "app/globals.css",
+      "issue": "This predates H5 and H5 does not cause it. Replit's main CSS (a-e0e0fae895f3fff8.css, 1629 class selectors) has 260 selectors that the H5 build (1369) lacks. Replit's workspace probably scans extra files that aren't gitignored. Every class in the H5 build is also in A's CSS (L minus A is empty), and none of the 260 A-only classes appears in any class/className value in the 594 raw-a/raw-b bodies. No user-visible effect today. Recorded only so nobody later blames it on H5."
+    },
+    {
+      "file": "lib/db.ts:15",
+      "issue": "Contrived edge case, allowed by the literal H6 rule. A URL with no '?' whose database path ends in '&sslmode=require' (for example /fakedb&sslmode=require) gets its database name rewritten, because pg decodes the path as the database name. No real Neon or Replit URL has this shape, so no fix is needed."
+    },
+    {
+      "file": "lib/db.ts:14",
+      "issue": "A URL that contains 'uselibpqcompat' anywhere, including uselibpqcompat=false or inside a password, is left untouched and keeps emitting the warning. The spec requires this, and parsing is unchanged. Informational only."
+    }
+  ],
+  "checks": [
+    {
+      "name": "Diff touches only named files, no formatting churn",
+      "expected": "app/lib/components/middleware.ts diff vs 2f4b4d5 = app/globals.css (+4) and lib/db.ts only",
+      "actual": "git diff 2f4b4d5 --stat outside docs/migration, scripts/migration, .claude and CLAUDE.md: app/globals.css 4+, lib/db.ts 7+/1-. No untracked non-migration files. middleware.ts and next.config.ts unchanged. tsconfig.tsbuildinfo clean",
+      "pass": true
+    },
+    {
+      "name": "No secret in tree (chat.googleapis.com in app lib components)",
+      "expected": "0 hits",
+      "actual": "0 hits",
+      "pass": true
+    },
+    {
+      "name": "after from next/server, revalidatePath from next/cache, attachDatabasePool guarded by VERCEL",
+      "expected": "unchanged from the approved H-series",
+      "actual": "revalidatePath imported from next/cache in app/api/admin/posts/route.ts:5 and [id]/route.ts:5. The after import is from next/server. lib/db.ts:20 still reads 'if (process.env.VERCEL) attachDatabasePool(pool)'",
+      "pass": true
+    },
+    {
+      "name": "Error semantics (H1/H2) not affected",
+      "expected": "no change to page, route or middleware error paths",
+      "actual": "this round doesn't touch those files. The only runtime change is the connection-string string transform, which cannot throw: it is String.includes plus String.replace, and a 20000-case random fuzz threw 0 times",
+      "pass": true
+    },
+    {
+      "name": "package-lock.json consistent, no dependency bumps",
+      "expected": "no diff",
+      "actual": "git diff 2f4b4d5 -- package.json package-lock.json is empty",
+      "pass": true
+    },
+    {
+      "name": "H5: exactly four @source not lines directly after @import \"tailwindcss\", paths correct relative to app/",
+      "expected": "4 added lines, nothing else",
+      "actual": "the diff is exactly those 4 '+' lines, with no whitespace or CRLF changes (checked with cat -A). The compiler is tailwindcss 4.3.0, nested under @tailwindcss/postcss 4.3.0, and its lib.js @source handler strips a 'not ' prefix and records {base: context.base (the stylesheet dir, app/), pattern, negated: true}. It rejects nested or unquoted @source, and these lines are neither. An oxide 4.3.0 Scanner run (base=app, the same 4 negated patterns) drops exactly 151 files: docs/migration 103, scripts/migration 28, .claude 19, and CLAUDE.md itself. That shows single-file and directory negation both work. It adds 0 files and keeps replit.md, attached_assets (25 files) and the 13 non-migration scripts. None of the four paths exists on origin/main",
+      "pass": true
+    },
+    {
+      "name": "H5: no class used by any page disappears",
+      "expected": "0 gained; lost tokens unused as classes in pages, DB blog HTML, runtime-built names and Radix variants",
+      "actual": "my own selector diff of new-b05e81efd48e3db7.css against the local b5162b0c557fcf76.css: 0 gained and the same 31 lost tokens the verifier listed. No lost token is a variant; every data-[state=...] selector in B is still present, e.g. data-[state=closed]:animate-out and zoom-out-95, data-[state=open]:animate-in, plus the enter/exit keyframes. A token-boundary grep of all tracked files outside the excluded paths finds only antialiased (inside @apply on body; body still gets -webkit-font-smoothing:antialiased) and ease-out (a CSS value). pg_restore of blog-tables.dump (DB blog HTML) has 0 class attributes, and the raw hits collapse, isolate and shrink are prose. Runtime-built classNames all use full literal tokens. None of the 260 A-only classes appears in any raw-a/raw-b class value either",
+      "pass": true
+    },
+    {
+      "name": "H6: follows the rules (boundaries, case, uselibpqcompat, no logging, guard and H3 timeout unchanged)",
+      "expected": "regex anchored on [?&] ... (?=&|$), case-sensitive, uselibpqcompat short-circuit, no console",
+      "actual": "lib/db.ts:13-16 matches the spec. No i flag, so REQUIRE and SSLMODE stay unchanged, which matches pg's case-sensitive switch. The DATABASE_URL guard (lines 8-10) and connectionTimeoutMillis 10_000 are unchanged, and there is no logging. tsc --noEmit --incremental false exits 0",
+      "pass": true
+    },
+    {
+      "name": "H6: parsed ssl identical for every local item 8 shape, and warning removed",
+      "expected": "10/10 deep-equal, normalized emits 0 warnings",
+      "actual": "independent run against pg-connection-string 2.10.0, one fresh node process per URL, fake host and credentials: all 10 spec shapes give equal ssl, database and host, and the normalized form emits 0 warnings. uselibpqcompat and application_name=xsslmode=require stay unchanged. 11 extra adversarial shapes also give equal ssl: duplicate sslmode in both orders, #fragment, trailing &, &&, upper case, uselibpqcompat=false, sslmode=requirex, and an encoded value inside options",
+      "pass": true
+    },
+    {
+      "name": "H6: Replit behavior unchanged",
+      "expected": "same parse result on any Replit DATABASE_URL shape",
+      "actual": "the transform only swaps aliases that pg 8.17 already treats as verify-full (index.js:140-146), so the ssl config and connection behavior are identical for every shape. Only the stderr warning goes away. Pool options are otherwise unchanged",
+      "pass": true
+    },
+    {
+      "name": "Nothing else in app code changed",
+      "expected": "only globals.css and db.ts",
+      "actual": "confirmed. middleware.ts, components, next.config.ts and package files are unchanged versus 2f4b4d5",
+      "pass": true
+    }
+  ],
+  "artifacts": [
+    "app/globals.css:2-5",
+    "lib/db.ts:12-18",
+    "node_modules/@tailwindcss/postcss/node_modules/tailwindcss/dist/lib.js (@source not parser)",
+    "node_modules/pg-connection-string/index.js:102-146",
+    "docs/migration/evidence/P6.2-fix-local-verify.json",
+    "docs/migration/.scratch/p6.2-p6-20260927T0645Z/css/",
+    "docs/migration/.scratch/p6.2-p6-20260927T0645Z/raw-a/",
+    "docs/migration/.scratch/p6.2-p6-20260927T0645Z/raw-b/",
+    "docs/migration/.scratch/blog-tables.dump",
+    ".next/static/css/b5162b0c557fcf76.css"
+  ]
+}

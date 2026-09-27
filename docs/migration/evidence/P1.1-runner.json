@@ -1,0 +1,42 @@
+{
+  "checkedAt": "2026-09-26T11:24:43.444Z",
+  "transport": "sandbox-sdk",
+  "sandboxName": "growmax-migration-runner",
+  "sandboxScope": {
+    "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
+    "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+    "projectName": "growmax-website",
+    "note": "Bare project used only to host this Sandbox; not linked to Git, no deploys, no env vars (P3.1 owns that project's real settings later)."
+  },
+  "toolchain": {
+    "note": "The sandbox image's default apt repo only ships the newest major; postgresql-client-16 was pinned via the PGDG apt repo to match the source server (16.15) and this container's own pg_restore, so P1.1's local-verification fixtures are restorable outside the Sandbox too.",
+    "pg_dump": {
+      "raw": "pg_dump (PostgreSQL) 16.15 (Ubuntu 16.15-1.pgdg26.04+2)",
+      "major": 16
+    },
+    "pg_restore": {
+      "raw": "pg_restore (PostgreSQL) 16.15 (Ubuntu 16.15-1.pgdg26.04+2)",
+      "major": 16
+    },
+    "psql": {
+      "raw": "psql (PostgreSQL) 16.15 (Ubuntu 16.15-1.pgdg26.04+2)",
+      "major": 16
+    },
+    "proves": "pg_dump/pg_restore major (16) >= source major (16); source is PostgreSQL 16.15"
+  },
+  "fixtures": {
+    "schemaDump": {
+      "path": "docs/migration/.scratch/schema.dump",
+      "kind": "schema-only, public schema, no data",
+      "tocEntryCount": 40,
+      "verifiedLocally": "pg_restore --list succeeded with this container's own pg_restore 16.13; 0 TABLE DATA entries"
+    },
+    "blogTablesDump": {
+      "path": "docs/migration/.scratch/blog-tables.dump",
+      "kind": "schema + data for blog_posts and blog_redirects only (no PII: excludes demo_requests, newsletter_subscriptions)",
+      "tocEntryCount": 31,
+      "verifiedLocally": "restored into a throwaway local PG16 database with this container's own pg_restore 16.13: blog_posts=171, blog_redirects=95 rows, matching the source fingerprint counts exactly"
+    },
+    "notCommitted": "Both files are gitignored under docs/migration/.scratch/ per CLAUDE.md; only this evidence summary (no row contents) is committed."
+  }
+}

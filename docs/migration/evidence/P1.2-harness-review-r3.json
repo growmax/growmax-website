@@ -1,0 +1,111 @@
+{
+  "step": "P1.2",
+  "gate": "G1",
+  "status": "fail",
+  "checkedAt": "2026-09-26T13:17:14.870Z",
+  "verifier": "migration-reviewer (opus/high), P1 review round 3; persisted verbatim by the orchestrator (the reviewer role is read-only and cannot write files)",
+  "approve": false,
+  "blocking": [
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "Allowlist value-pinning doesn't work for the `text` and `jsonBySlug.<slug>` fields. For these fields compareEntry sets both a and b to the constant placeholder '<diff>' (compare.mjs:191 and :205), so an entry with `expected: {a:'<diff>', b:'<diff>'}` matches every future diff on that URL and field. I reproduced this with compareManifests: an approved entry for /robots.txt (field text) also hid a later change from 'Allow: /' to 'Disallow: /'. The comment at compare.mjs:231-247 says pinning stops a later, different diff from being covered, which is not true for these fields. robots.txt, llms*.txt and each /api/blog element all go through this path, and they matter most to search engines. A text diff also writes no preview or diff file, so the approver cannot see what they are approving.",
+      "fix": "Put real values in a/b for these fields: the sha256 of the normalized text, or of the canonical JSON per slug. Make validateAllowlistEntry reject an `expected` that contains the '<diff>' placeholder. For text entries, also write a unified diff to .scratch and a 5-line preview, as is already done for visibleTextHash."
+    },
+    {
+      "file": "scripts/migration/parity/urls.mjs",
+      "issue": "Post-cutover checks (SPEC-04 §2.8) cannot give a meaningful result. The harness only compares A with B and has no expected-value assertions, even though §2.4/§2.6/§2.8 state expectations. I probed live just now: http://www.growmax.io/ returns 301 to https://www.growmax.io:443/, and the apex returns a Squarespace 301 to http://www.growmax.io (see also P1.4-dns-baseline.json). Vercel issues 308s, so a P8.2 run against the P6.5 baseline must show `status` and `location` diffs. `status` and `presence` cannot be allowlisted (compare.mjs:249). The only way to reach exit 0 is to leave these four URLs out of both manifests. Then apex and http→https behavior after cutover (wrong scheme, loop, apex left on Squarespace) is never verified, even though users and crawlers depend on it.",
+      "fix": "Allow an `expect` block on inventory entries (status, normalized location, x-robots-tag, JSON body) and assert it against B alone in compare.mjs, failing on mismatch. Give post-cutover entries fixed expectations, e.g. http://www → 308 https://<www>/ and apex → 308/301 https://<www>/<path>, and compare them only against those expectations, not the baseline. Also encode the §2.4/§2.6 expectations ({\"isAdmin\":false}, 401, X-Robots-Tag noindex, follow) the same way."
+    },
+    {
+      "file": "scripts/migration/parity/lib/fetcher.mjs",
+      "issue": "`--resolve` (the IP-pinned capture that SPEC-04 §3 requires on the Sandbox runner, used as P8.2's secondary baseline) does not work. The custom lookup at fetcher.mjs:42-49 always calls `callback(null, ip, 4)`. Node 22 connects with autoSelectFamily, which calls lookup with `{all:true}` and expects an array. I tested locally with a pinned host and a local HTTP server: `fetch failed: Invalid IP address: undefined`. Every pinned request would come back as a fetch error. undici is also imported without being a direct dependency in scripts/migration/package.json; it is only present transitively.",
+      "fix": "In lookup, when options.all is set, call callback(null, [{address: pinned, family: 4}]); otherwise call callback(null, pinned, 4). Add undici as a direct dependency with a pinned version. Add a self-test case that captures through a pinned dispatcher against a local server."
+    },
+    {
+      "file": "scripts/migration/functional/run.mjs",
+      "issue": "Nothing checks that the site answering is Vercel before the write tests run. The only guard is a hostname check in `--mode pre` (run.mjs:423-438). If `--mode post --base https://www.growmax.io` runs while the container's resolver or proxy still resolves www to Replit (TTL is 300s and DoH answers are cached), then F1, F2, F7 and F8 run against the Replit app and write to the source DB. F1's cleanup and the residue check query Neon only, so the test newsletter row is left in Replit. The next `delta` then copies it into the authoritative Neon DB as a new source row. F2 would also fire the Replit webhook. This breaks the rule that automation never writes to the source.",
+      "fix": "Before any write, send a GET to the base and require a Vercel origin signature (for example an `x-vercel-id` header, or `server: Vercel`) on that response and on each write response. Abort as a `harness` failure otherwise. Optionally allow pinning to the Vercel IP via the fixed --resolve."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "`delta` can resurrect rows that were deleted on the target. This breaks the file's own invariant at sync.mjs:26 and SPEC-03 §5 step 4 ('Never re-insert them'). The late-commit branch (sync.mjs:481-489) re-inserts any source row with id ≤ w that is missing on the target and has created_at > last_run_at − 1h. It cannot tell a true late commit (a row the previous run never saw) from a row the previous run inserted that was then deleted on Neon. Example: a row is created at 10:00, run N at 10:30 inserts it and sets w and last_run_at, an editor deletes it on Neon at 10:45, and run N+1 re-inserts it as a late commit. The self-test's deletion scenario only uses a row created 6h earlier (evidence newestSourceRowAt 06:33 vs 12:33), so this path is never exercised.",
+      "fix": "Record the ids delta has inserted or observed, e.g. `_migration.synced_ids(table_name, id)` filled at init-watermarks (all ids ≤ w) and on every insert. Treat a missing row as a late commit only if its id is not in that set; otherwise count it as target_deleted. Add a self-test: sync a fresh row, delete it on the target, run delta again, and assert targetDeleted=1 and the row stays absent. If needed, get the SPEC-03 §5 step 3 wording clarified by the advisor."
+    },
+    {
+      "file": "scripts/migration/db/runner.mjs",
+      "issue": "`runner.mjs exec --with-dst` skips the full-refresh and cutover guards. pg_restore through the dedicated subcommand runs runPreCopyGuards (runner.mjs:417-423). `exec --with-dst` only runs the source-identity check (runner.mjs:450-452) and then runs any command with DST_URL/DST_URL_UNPOOLED in the environment. For example, `exec --with-dst -- bash -lc 'pg_restore --clean --if-exists --dbname=\"$DST_URL_UNPOOLED\" /tmp/src.dump'` or a psql DROP/TRUNCATE works after cutover with no confirm flag, no STATE check and no DNS check. That goes against SPEC-03 §0.5 (after detectedAt, only additive operations).",
+      "fix": "When `--with-dst` is given, require runPreCopyGuards (with --confirm-pre-cutover) to pass, or refuse `--with-dst` outright once STATE shows POST_CUTOVER/ROLLED_BACK/COMPLETE or facts.cutover.detectedAt is set. Target writes after cutover should go only through sync.mjs delta/gap."
+    }
+  ],
+  "nonBlocking": [
+    {
+      "file": "docs/migration/evidence/P1.2-harness-review.json",
+      "issue": "I could not write this file. My role is read-only (no Write/Edit tool; Bash is limited to read-only use). The orchestrator needs to save this StructuredOutput as the review evidence. checkedAt=2026-09-26T13:16:20Z. evidenceChecked: SPEC-03, SPEC-04, P1.2-harness-selftest.json (every harnessFileHashes entry matches the current sha256 of the working-tree files; the git tree is dirty and the harness is uncommitted), P1.1-sync-selftest.json, P1.1-runner.json, P1.1-db-redirects.json (95 old_paths, all already in the live sitemap, so the db-blog-redirect count is 0 by dedup, not by loss), P1.1-source-inventory.json, P1.4-dns-baseline.json, a live probe of the 4 post-cutover URLs, a local reproduction of the --resolve failure, and a reproduction of the allowlist placeholder bypass."
+    },
+    {
+      "file": "scripts/migration/parity/capture.mjs",
+      "issue": "/api/blog is compared only as jsonBySlug. Items without a slug are dropped and duplicate slugs collapse (capture.mjs:293-295), and the array length and jsonHash are never compared. If B returned a duplicated post or a slug-less row, parity would pass. Also compare the item count and the multiset of slugs."
+    },
+    {
+      "file": "scripts/migration/parity/capture.mjs",
+      "issue": "The bypass secret is attached to every request, including absolute post-cutover URLs that reach Squarespace or Replit (https://growmax.io/*) and --resolve-pinned Replit captures. In visual/run.mjs:117, context-wide extraHTTPHeaders also send it to third-party hosts such as googletagmanager. Attach x-vercel-protection-bypass only when the target host is the Vercel deployment host."
+    },
+    {
+      "file": "scripts/migration/parity/selftest.mjs",
+      "issue": "The §5.4 protected-deployment probe is only recorded as deferred; there is no code for it. Also, nothing sets a reachability floor. If both A and B return the same non-2xx response (for example a proxy denial page), every non-404 URL compares equal and the run passes. Implement the probe as code in capture/compare (B `/` must be 200, and a redirect source must return its configured status), and fail as `harness` if fewer than about 95% of sitemap URLs are 2xx/3xx on either side."
+    },
+    {
+      "file": "scripts/migration/parity/lib/extract.mjs",
+      "issue": "Head-level SEO coverage has gaps. Only the first meta[name=robots] is read, so a second injected noindex would be invisible. googlebot meta, link rel=alternate/prev/next, img alt text and external hrefs are not compared. The harness never fetches with a crawler UA, and Next 15 streaming metadata behaves differently for html-limited bots. Consider collecting all robots/googlebot metas, alternates and external link sets, plus a crawler-UA spot check of about 10 URLs."
+    },
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "Hashed /_next/static assets are only checked for 2xx, so CSS content is never compared. visual/run.mjs takes viewport-only screenshots (no fullPage), so a below-the-fold styling regression would pass both. CSS filenames are content hashes, so comparing the CSS sha256 multiset across sides is cheap. Also consider fullPage screenshots. Separately, if an asset fetch fails on both sides, the two entries compare equal (undefined === undefined)."
+    },
+    {
+      "file": "scripts/migration/parity/lib/extract.mjs",
+      "issue": "blockJoinedText adds a space at every element boundary. This removes the streaming-marker noise, but it also hides a real user-visible spacing difference (e.g. 'foo<b>bar</b>' renders as 'foobar' while 'foo <b>bar</b>' renders as 'foo bar'). Accepted as a tradeoff; document it in the evidence."
+    },
+    {
+      "file": "scripts/migration/parity/urls.mjs",
+      "issue": "The inventory-shrink check runs only when --previous is passed, and nothing requires it (selftest calls buildInventory without it). Make --previous mandatory once a committed P1.3 inventory exists."
+    },
+    {
+      "file": "scripts/migration/functional/run.mjs",
+      "issue": "Fallback paths are fragile. directNeonQuery ignores params (findRow/deleteRow pass `$1` with no values), so the fallback always throws and F1 leaves its row behind. F8 throws before its finally-cleanup when F7 created a draft but returned no id. F11 counts as a pass when no redirect row exists. Pass params through, run a slug-based cleanup even when the id is missing, and make F11 fail if blog_redirects is empty."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "Step 6 takes a fresh `max(id)` (sync.mjs:537-540) instead of the maximum id actually seen in step 2 (SPEC-03 §5.6). On neon-https every query is its own snapshot, so rows committed between the two reads are skipped and only picked up later through the 1h late-commit heuristic. Bookkeeping is also not atomic with the data (separate HTTP transactions). Use the maximum of the ids returned by step 2, or run the table's delta in one withTransaction on neon-https-pool."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "target_deleted is recounted on every run and stored only as a count in sync_log, and the delta output lists no ids. G8b needs each missing row to be 'listed as target_deleted', but verify will report the same rows as missing_on_target with no id list to reconcile against. Emit targetDeletedIds (ids only, no PII) in the delta output, or keep them in _migration."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "Minor guard and consistency points. (1) runPreCopyGuards does not deny STATE.status COMPLETE; detectedAt covers it today, but add it for defense in depth. (2) reverse-delta skips the blog backfill with only a reason string (and exit 0) when STATE is unreadable or detectedAt is missing; in a non-dry run this should be a hard error. (3) A re-run after a mid-run crash counts already-inserted rows as keyConflicts with targetId=null for tables without a natural key. (4) Source edits to rows reconciled by natural key (different ids) never propagate in step 5."
+    },
+    {
+      "file": "scripts/migration/db/runner.mjs",
+      "issue": "SRC_URL_RO relies on the `options=-c default_transaction_read_only=on` startup parameter, and I found no evidence that Neon's proxy or pooler honours it rather than ignoring it. Add a self-test: `exec -- bash -lc 'psql \"$SRC_URL_RO\" -Atc \"show default_transaction_read_only\"'` must print `on`, and a write attempt must fail. Also, the runner does not upload scripts/migration/ to run db/*.mjs inside the Sandbox as SPEC-03 §1 describes; that is acceptable while the transport is neon-https, but it matters if the deferred identity-check path is ever needed."
+    },
+    {
+      "file": "scripts/migration/db/fingerprint.mjs",
+      "issue": "fingerprint.mjs and inventory.mjs open the target (dst) read-write (`readOnly = args.db === 'src'`) even though they only read. Open both sides read-only."
+    },
+    {
+      "file": "scripts/migration/db/lib.mjs",
+      "issue": "The db self-test only uses the container-tcp (pg) transport. The production transport, neon-https (sql.transaction readOnly, driver-side type parsing, row_to_json round-trip), is never exercised. Before P4, run a read-only smoke test on neon-https against the source (count plus one write that must fail) and record it."
+    }
+  ],
+  "checks": [
+    {
+      "name": "G1 1.3 reviewer approves harness + DB scripts (no blocking finding)",
+      "expected": "approve=true, 0 blocking",
+      "actual": "approve=false, 6 blocking, 15 non-blocking",
+      "pass": false
+    }
+  ],
+  "notes": "Round 3 of 3 in workflow run wf_be59e661-e9c. Rounds 1 and 2 found 13 and 7 blocking findings; both were fixed."
+}

@@ -1,0 +1,20 @@
+{
+  "step": "P8.1",
+  "gate": "G8a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T09:41:39Z",
+  "verifier": "migration-scout (opus/low)",
+  "context": "Run inside Vercel Sandbox growmax-migration-runner via runner.mjs exec (no DB env used); probes started 2026-09-27T09:41:26Z",
+  "checks": [
+    {"name": "8a.1 authoritative ns-cloud-a1 www A", "expected": "subset of [216.150.1.1, 216.150.16.1]", "actual": ["216.150.1.1"], "pass": true},
+    {"name": "8a.1 authoritative ns-cloud-a2 www A", "expected": "subset of [216.150.1.1, 216.150.16.1]", "actual": ["216.150.1.1"], "pass": true},
+    {"name": "8a.1 authoritative ns-cloud-a3 www A", "expected": "subset of [216.150.1.1, 216.150.16.1]", "actual": ["216.150.1.1"], "pass": true},
+    {"name": "8a.1 authoritative ns-cloud-a4 www A", "expected": "subset of [216.150.1.1, 216.150.16.1]", "actual": ["216.150.1.1"], "pass": true},
+    {"name": "8a.1 apex A (record only, ns-cloud-a1)", "expected": "recorded", "actual": ["198.49.23.145", "198.49.23.144", "198.185.159.145", "198.185.159.144"], "pass": true, "note": "apex still points at non-Vercel (Squarespace-range) IPs, not STATE.facts.dns.target.apexIPv4"},
+    {"name": "8a.2 TLS cert valid now", "expected": "notBefore <= now <= notAfter", "actual": {"notBefore": "2026-09-27T07:54:47Z", "notAfter": "2026-12-26T07:54:46Z"}, "pass": true},
+    {"name": "8a.2 TLS SAN includes www.growmax.io", "expected": "DNS:www.growmax.io", "actual": ["DNS:www.growmax.io"], "pass": true},
+    {"name": "8a.2 TLS issuer public CA", "expected": "public CA", "actual": {"issuer": "C=US, O=Let's Encrypt, CN=YR1", "subject": "CN=www.growmax.io"}, "pass": true},
+    {"name": "8a.2 curl -sI https://www.growmax.io/ (system trust)", "expected": "HTTP 200, server Vercel", "actual": "HTTP/2 200, server: Vercel", "pass": true}
+  ],
+  "artifacts": ["scripts/migration/db/runner.mjs exec -- bash -lc 'dig +norecurse ...; openssl s_client ... | openssl x509 ...; curl -sI ...'"]
+}

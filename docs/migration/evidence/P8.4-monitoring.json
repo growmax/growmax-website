@@ -1,0 +1,164 @@
+{
+  "step": "P8.4",
+  "gate": "G8b",
+  "status": "pass",
+  "checkedAt": "2026-09-27T10:47:24Z",
+  "implementer": "migration-implementer (opus/medium)",
+  "spec": "SPEC-06-availability-monitoring.md section 3 (After hand-off); VERIFICATION 8b.4 (runbook for the owner updated); G6 6.6 (no {{...}} left)",
+  "summary": "Added .github/workflows/uptime.yml (schedule '4,19,34,49 * * * *' + workflow_dispatch, 7 checks against the fixed base https://www.growmax.io, one retry each, content markers verified live, optional alert only when secrets.ALERT_WEBHOOK_URL is set). The check script, extracted from the YAML and run from the container, passed all 7 against the live www; both negative tests exited 1 with clear FAIL lines; the alert payload was proven against a 127.0.0.1 listener only. Rendered docs/migration/CUTOVER-RUNBOOK.md post-cutover with 0 placeholders. Nothing committed; no database touched; no real webhook posted.",
+  "changes": [
+    {
+      "file": ".github/workflows/uptime.yml",
+      "what": "new",
+      "sha256": "fa175afeee72823a6b25c76db09eb5088a118f79daf2b1b2b61f36a9e72f5319"
+    },
+    {
+      "file": "docs/migration/CUTOVER-RUNBOOK.md",
+      "what": "rewritten as the rendered post-cutover runbook (TEMPLATE banner removed; status table; Step C from B-APEX; rollback with the Replit 404 caveat; content-freeze end; PR link; new 'Monitoring after the merge' section)"
+    }
+  ],
+  "decisions": {
+    "cron": "4,19,34,49 * * * * (15-minute cadence offset from :00 to avoid GitHub top-of-hour congestion)",
+    "retry": "explicit loop, exactly 2 attempts per check, 5 s apart; a transfer error, non-200 or a missing marker each trigger the one retry (curl --retry would not retry a 404 or a marker miss)",
+    "compressed": "curl --compressed added: /api/blog is 2,322,293 bytes raw and about 549,983 bytes brotli (x-vercel-cache HIT, so no function invocation); about 96 runs/day",
+    "redirects": "curl does not follow redirects, so a redirect instead of a 200 fails the check",
+    "postSlug": "first slug of /api/blog via jq, validated against ^[a-z0-9][a-z0-9-]*$ before building the URL; if /api/blog fails, blog-post fails with 'no usable slug'",
+    "alertInputs": "failed check names reach the alert step through env (steps.checks.outputs.failed -> FAILED_CHECKS); the run URL is built from GITHUB_SERVER_URL/GITHUB_REPOSITORY/GITHUB_RUN_ID; the webhook URL is used only as a curl argument inside the script, never echoed; only the HTTP status is printed",
+    "concurrency": "group uptime, cancel-in-progress false (timeout-minutes 10 < 15-minute cadence)"
+  },
+  "checks": [
+    {
+      "name": "YAML parses (python3 yaml.safe_load)",
+      "expected": "parses",
+      "actual": "parsed; name Uptime; on = schedule + workflow_dispatch (PyYAML 6.0.1; node not used: no YAML parser in the repo tooling)",
+      "pass": true
+    },
+    {
+      "name": "triggers",
+      "expected": "schedule (15-minute cadence) + workflow_dispatch only; no push/pull_request/pull_request_target",
+      "actual": "schedule ['4,19,34,49 * * * *'], workflow_dispatch; no other triggers",
+      "pass": true
+    },
+    {
+      "name": "job hardening",
+      "expected": "permissions contents: read; concurrency group; timeout-minutes 10 (above the worst-case runtime: 7 checks x (20 s + 5 s sleep + 20 s) = 315 s, plus the alert step up to 20 s = 335 s); runs-on ubuntu-latest; no actions/checkout or third-party actions",
+      "actual": "permissions {contents: read}; concurrency {group: uptime, cancel-in-progress: false}; timeout-minutes 10 (600 s > 335 s worst case; the arithmetic is in the ASCII comment directly above it); ubuntu-latest; 2 steps, both plain run, no 'uses'",
+      "pass": true
+    },
+    {
+      "name": "fixed base, no interpolation into scripts",
+      "expected": "BASE fixed; no ${{ }} inside run blocks",
+      "actual": "BASE='https://www.growmax.io'; ${{ }} appears only in env: (secrets.ALERT_WEBHOOK_URL at job level, steps.checks.outputs.failed at step level)",
+      "pass": true
+    },
+    {
+      "name": "alert step gate",
+      "expected": "if: failure() && env.ALERT_WEBHOOK_URL != ''",
+      "actual": "if: failure() && env.ALERT_WEBHOOK_URL != ''",
+      "pass": true
+    },
+    {
+      "name": "file is ASCII",
+      "expected": "0 non-ASCII bytes",
+      "actual": "0",
+      "pass": true
+    },
+    {
+      "name": "content markers verified live (2026-09-27T10:2xZ)",
+      "expected": "each marker present on the live www",
+      "actual": "/ title 'Growmax | B2B Revenue Ops for Manufacturers'; /blog title contains Growmax; /demo title 'Book a Demo | ... | Growmax'; sitemap has <urlset and <loc>https://www.growmax.io/</loc>; robots has 'Sitemap: https://www.growmax.io/sitemap.xml'; /api/blog JSON array of 172, all with slug; first slug claude-commerce-agents-b2b, post title contains Growmax and canonical https://www.growmax.io/blog/claude-commerce-agents-b2b",
+      "pass": true
+    },
+    {
+      "name": "positive run vs live www (final YAML)",
+      "expected": "7 PASS, exit 0",
+      "actual": "run1 at 10:36:09Z: home FAIL after 2 container-proxy errors (curl 28 timeout, then curl 35 reset), 6 PASS, exit 1 (environment, recorded); re-run once at 10:37:57Z: 7/7 PASS (api-blog passed on its retry after a proxy reset), exit 0. An earlier run of the pre---compressed version at 10:33:46Z was also 7/7 PASS.",
+      "pass": true
+    },
+    {
+      "name": "negative: wrong content marker",
+      "expected": "non-zero exit with clear FAIL lines",
+      "actual": "TITLE_RE changed to NoSuchMarkerXyz: FAIL home, blog, demo, blog-post ('content marker not found: ...'); sitemap/robots/api-blog PASS; 'RESULT: 4 check(s) failed: home blog demo blog-post'; exit 1; GITHUB_OUTPUT got failed=home blog demo blog-post",
+      "pass": true
+    },
+    {
+      "name": "negative: nonexistent path",
+      "expected": "non-zero exit with clear FAIL line",
+      "actual": "/demo replaced by /demo-uptime-negative-test-404: attempt 1 curl exit 22 HTTP 404, retry (attempt 2 hit a proxy reset, curl 35); 'FAIL demo ... (expected HTTP 200, got ...)'; other 6 PASS; 'RESULT: 1 check(s) failed: demo'; exit 1. The pre-final run at 10:34:30Z showed HTTP 404 on both attempts.",
+      "pass": true
+    },
+    {
+      "name": "all checks run after a failure",
+      "expected": "later checks still run",
+      "actual": "in both negative tests every later check printed its own PASS/FAIL line",
+      "pass": true
+    },
+    {
+      "name": "alert payload shape (127.0.0.1 listener only)",
+      "expected": "POST JSON {\"text\": ...} naming failed checks and the run URL; webhook URL not printed",
+      "actual": "listener received Content-Type application/json; charset=UTF-8, body keys ['text'], text 'Growmax uptime check failed: demo. Run: https://github.com/growmax/growmax-website/actions/runs/1234567890'; step log only 'Alert posted (HTTP 200)'; 0 occurrences of the listener URL in the log",
+      "pass": true
+    },
+    {
+      "name": "runbook placeholders",
+      "expected": "grep -c '{{' docs/migration/CUTOVER-RUNBOOK.md = 0",
+      "actual": "0",
+      "pass": true
+    },
+    {
+      "name": "runbook content",
+      "expected": "TEMPLATE banner removed; header with deployment, SHA hSha, A2 wording; status table; Step C from B-APEX with current and new apex values; optional second www A; rollback with Replit caveat and SPEC-07; TLS window kept; PR link; freeze end; monitoring section",
+      "actual": "all present; SHA dc5405357441870b9315a28a7cbb93a201278453 = STATE.facts.git.hSha; cert dates from P8.1-dns-tls-sandbox.json; no ACME values",
+      "pass": true
+    },
+    {
+      "name": "secret/PII scan",
+      "expected": "clean",
+      "actual": "node scripts/migration/state.mjs scan: clean",
+      "pass": true
+    }
+  ],
+  "fixRounds": [
+    {
+      "round": 2,
+      "at": "2026-09-27T10:47:24Z",
+      "requestedBy": "orchestrator (after reviewer approval of round 1)",
+      "changes": [
+        {
+          "file": ".github/workflows/uptime.yml",
+          "what": "timeout-minutes 5 -> 10, with a one-line ASCII comment above it giving the worst-case arithmetic",
+          "why": "if every URL hangs, each of the 7 checks takes up to 20 s + 5 s sleep + 20 s = 45 s (315 s total) plus the alert step up to 20 s; 5 minutes (300 s) would let GitHub cancel the run before it fails or alerts, so the monitor would stay silent in exactly that outage"
+        },
+        {
+          "file": "docs/migration/CUTOVER-RUNBOOK.md",
+          "what": "Status table Step A row: 'valid 2026-09-27T07:54:47Z to 2026-12-26T07:54:46Z' -> 'valid until 2026-12-26T07:54:46Z; Vercel renews it automatically'",
+          "why": "the certificate start time is back-dated by Let's Encrypt and reads as earlier than the DNS switch, which would confuse the owner"
+        },
+        {
+          "file": "docs/migration/CUTOVER-RUNBOOK.md",
+          "what": "'Who gets told.' paragraph: appended two sentences saying GitHub emails one account only (possibly whoever merged the PR) and to add the chat alert if more people should hear or delivery is uncertain",
+          "why": "wording gap: the owner might assume the failure email reaches them or several people"
+        },
+        {
+          "file": "docs/migration/evidence/P8.4-monitoring.json",
+          "what": "job-hardening check, decisions.concurrency and changes[0].sha256 updated for timeout-minutes 10; fixRounds added; checkedAt updated",
+          "why": "keep the evidence consistent with the files"
+        }
+      ],
+      "verification": "yaml.safe_load parses uptime.yml; uptime.yml is ASCII; diff -u against docs/migration/.scratch/p84-monitoring/approved-r1/ shows only these changes; grep -c '{{' CUTOVER-RUNBOOK.md = 0; state.mjs scan clean. Network checks not re-run (check logic unchanged)."
+    }
+  ],
+  "environmentNotes": "The container's agent proxy intermittently reset or timed out connections to www.growmax.io (curl 28/35, proxy status ws_closed_mid_exchange). This is container-side; GitHub-hosted runners do not use it. One positive run was re-run once, as allowed.",
+  "forVerifier": [
+    "python3 -c \"import yaml;yaml.safe_load(open('.github/workflows/uptime.yml'))\"",
+    "confirm no push/pull_request/pull_request_target triggers and no 'uses:' in uptime.yml",
+    "extract jobs.uptime.steps[0].run and run it with bash --noprofile --norc -eo pipefail (expect 7 PASS; re-run once on a container-proxy error)",
+    "grep -c '{{' docs/migration/CUTOVER-RUNBOOK.md (expect 0)",
+    "node scripts/migration/state.mjs scan"
+  ],
+  "artifacts": {
+    "workflow": ".github/workflows/uptime.yml",
+    "runbook": "docs/migration/CUTOVER-RUNBOOK.md",
+    "logs": "docs/migration/.scratch/p84-monitoring/ (gitignored): checks-run1.log, checks-run2.log, neg-marker.log, neg-path.log, alert.log, received.json, and the extracted scripts checks.sh / neg-marker.sh / neg-path.sh / alert.sh, listener.py"
+  }
+}

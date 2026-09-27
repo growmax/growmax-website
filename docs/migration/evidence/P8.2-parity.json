@@ -1,0 +1,292 @@
+{
+ "step": "P8.2",
+ "gate": "G8a",
+ "mode": "post",
+ "runLabel": "p8-20260927T0948Z",
+ "status": "fail",
+ "checkedAt": "2026-09-27T09:47:21Z",
+ "verifier": "migration-verifier (opus/medium)",
+ "baseA": "baseline manifest docs/migration/.scratch/p6-20260927T0803Z/manifest-a.json (live Replit via DNS, captured 2026-09-27T08:05:17Z, harness 2565667; substitute for the skipped P6.5 baseline per LOG 09:05:05Z)",
+ "baseB": "https://www.growmax.io (post-cutover, Vercel; assets carry dpl=dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx)",
+ "capturedAt": {
+  "b_container": "2026-09-27T09:42:36.525Z",
+  "b_sandbox": "2026-09-27T09:45:19.333Z",
+  "a2_replit_pinned_sandbox": "2026-09-27T09:45:08.902Z"
+ },
+ "harnessCommit": "fa90a05 (scripts/migration/parity unchanged in working tree)",
+ "failureClass": "config (3 apex post-cutover expectations: owner-side Squarespace forwarding) + env (1 B-only retry through the container proxy); no code, data or content diff",
+ "checks": [
+  {
+   "name": "URL inventory >= P1.3 count, no URL-level shrink",
+   "expected": ">= 288 (P1.3) and a superset of the 297-URL P6.2 inventory",
+   "actual": "301 URLs (sitemap 212, next-config-gsc 50, next-config-literal 8, special 9, special-api 9, not-in-sitemap 4, variant 3, negative 2, post-cutover 4); URL set = P6.2 set (297) + 4 post-cutover; 0 P1.3 URLs missing. Per-source shrink blog-api-slug 9->0 is attribution only: B's live sitemap now lists those 9 posts (sitemap 203->212); passed with --explain",
+   "pass": true
+  },
+  {
+   "name": "capture B (container, www.growmax.io)",
+   "expected": "301 URLs, 0 fetch errors, raw bodies retained",
+   "actual": "301 URLs, 0 fetch errors, raw-dir raw-b; manifest sha256 3e4f9f4e6f4cd7434ec89064ffc868f38446e7f6f007377d306a7a08f190c341; harness marker {embeddedPosts:1, stylesheetRefs:1}",
+   "pass": true
+  },
+  {
+   "name": "baseline A integrity",
+   "expected": "manifest-a sha256 1687a934... (as cited in P6.2-parity.json); every 2xx HTML entry carries stylesheetRefs",
+   "actual": "1687a934c08a85547a9449384b9ee8b414df736886b20d0e012fd880b71cbfec; 216/216 2xx HTML entries carry stylesheetRefs (manifest predates the harness marker, marker absent on A only)",
+   "pass": true
+  },
+  {
+   "name": "compare.mjs B vs baseline A: exit code",
+   "expected": "exit 0, failedUnallowed 0",
+   "actual": "exit 1: Compared 301 URLs: FAIL (failedUnallowed=4, allowlisted=4); stderr 0 bytes",
+   "pass": false
+  },
+  {
+   "name": "apex post-cutover expectations (SPEC-04 §2.8; G8a 8a.2 apex -> https://www.growmax.io)",
+   "expected": "http://growmax.io/, https://growmax.io/, https://growmax.io/demo -> 301/308 to https://www.growmax.io/...",
+   "actual": "all three 301 to http://www.growmax.io/... (Squarespace domain forwarding, apex A 198.x still on Squarespace; then Vercel 308 to https). Class: config, owner-side DNS, pre-existing hop (LOG 09:32:55Z). Not fixable in code or on Vercel; needs the owner to remove the forward and point @ at 216.150.1.1/216.150.16.1, or an explicit accept-risk",
+   "pass": false
+  },
+  {
+   "name": "http://www.growmax.io/ post-cutover expectation",
+   "expected": "308 to https://www.growmax.io/",
+   "actual": "308 to https://<self>/",
+   "pass": true
+  },
+  {
+   "name": "B-only retry",
+   "expected": "no URL needs a retry on B only",
+   "actual": "1: /_next/image?url=%2Ffactory-floor.jpg&w=3840&q=75 attempts 2 (A 1); final 200 image/jpeg 1280x924, same dims as A. Class: env. Container proxy shows intermittent SSL_ERROR_SYSCALL / connection reset to both www.growmax.io and growmax-website.vercel.app (reproduced 2/12 curl probes at ~09:44Z; proxy status lists ws_closed_mid_exchange on www.growmax.io:443). The Sandbox capture of B (no proxy) at 09:45Z had 0 retries across 301 URLs, and the URL returns 200 x-vercel-cache HIT on direct probes",
+   "pass": false
+  },
+  {
+   "name": "allowlist entries match their pins exactly",
+   "expected": "4 A3 entries, each matched once, pinned values unchanged",
+   "actual": "#0 //internalLinks, #1 /sitemap.xml/sitemapEntries, #2 <hashed-css-assets>/hashedCssSha256, #3 //visibleTextHash: each matched exactly 1 URL; allowlist sha256 d0f022b723f2196a0b18faa2b6450aa41c3c1452587ce9ac9550cddfe2b57647 (unmodified). These are the A-side build-time staleness pins (/ and /sitemap.xml, SPEC-04 §9 anticipated for P8.2) and the CSS pin; B's values are the same as the P6.2 vercel.app capture",
+   "pass": true
+  },
+  {
+   "name": "text diff written for every text-hash mismatch",
+   "expected": "unified diff for / in .scratch",
+   "actual": "docs/migration/.scratch/p8-20260927T0948Z/diff-scratch/text-diffs/_.diff (only / has a visibleTextHash mismatch; allowlisted)",
+   "pass": true
+  },
+  {
+   "name": "stylesheetRefsBothAbsent",
+   "expected": 0,
+   "actual": 0,
+   "pass": true
+  },
+  {
+   "name": "C-A3b-5 compare additions present",
+   "expected": "stylesheetRefsMissing/htmlError forbidden allowlist fields and manifest marker in harness at HEAD",
+   "actual": "B manifest carries harness.stylesheetRefs=1; compare.mjs at fa90a05 includes the htmlError both-sides diff (compare.mjs ~L224); landed per P8.2-harness-c-a3b-5-review.json",
+   "pass": true
+  },
+  {
+   "name": "/api/blog",
+   "expected": "same size, length and content as A",
+   "actual": "A 200 2322293 B 172 items; B 200 2322293 B 172 items; 0 jsonBySlug diffs; no size warning",
+   "pass": true
+  },
+  {
+   "name": "data-freshness diffs",
+   "expected": "classified only",
+   "actual": "0",
+   "pass": true
+  },
+  {
+   "name": "other diffs",
+   "expected": "only report-only platform headers/bytes plus allowlisted",
+   "actual": "report-only: cache-control 296, content-encoding 230, strict-transport-security 297, bytes 280, contentType 58 (report-only by harness rule, same as P6.2); no status, location, SEO, JSON-LD, link, image, assetRef or stylesheetRef diffs",
+   "pass": true
+  },
+  {
+   "name": "determinism: B from the Sandbox (no proxy) vs baseline A",
+   "expected": "same result minus env noise",
+   "actual": "failedUnallowed 3 (only the 3 apex expectations), allowlisted 4, retriedB 0, stylesheetRefsBothAbsent 0. B container vs B sandbox: only the same 3 apex expectation diffs",
+   "pass": true
+  },
+  {
+   "name": "A2 = Replit pinned by IP 34.111.179.208 (Sandbox), B vs A2, report-only",
+   "expected": "report-only",
+   "actual": "Replit no longer serves the site for Host www.growmax.io: 297/297 https URLs return 404 'This app isn't live yet' (8257 B Replit placeholder); only the 4 http:// entries answer 301. compare B vs A2: failedUnallowed 642 (status 294, location 61, contentType 78, jsonBySlug per-slug etc.), all caused by the placeholder. Not a B defect. Consequence for SPEC-07: a DNS-only rollback to Replit would currently serve the 404 placeholder unless the owner re-publishes/re-links the Replit deployment",
+   "pass": true
+  }
+ ],
+ "summary": {
+  "primary": {
+   "urlsA": 297,
+   "urlsB": 301,
+   "compared": 301,
+   "failedUnallowed": 4,
+   "allowlisted": 4,
+   "retriedA": 0,
+   "retriedB": 1,
+   "byCategory": {
+    "content": 3,
+    "seo": 1,
+    "redirect": 3,
+    "other": 1
+   },
+   "blogApiSize": {
+    "sizes": {
+     "a": {
+      "present": true,
+      "bytes": 2322293,
+      "jsonArrayLength": 172
+     },
+     "b": {
+      "present": true,
+      "bytes": 2322293,
+      "jsonArrayLength": 172
+     }
+    },
+    "warnings": [],
+    "thresholdBytes": 3500000
+   },
+   "stylesheetRefsBothAbsent": 0,
+   "diffsByField": {
+    "report-only/cache-control": 296,
+    "report-only/content-encoding": 230,
+    "report-only/strict-transport-security": 297,
+    "report-only/bytes": 280,
+    "content/visibleTextHash (allowlisted)": 1,
+    "content/internalLinks (allowlisted)": 1,
+    "report-only/contentType": 58,
+    "seo/sitemapEntries (allowlisted)": 1,
+    "redirect/expect-location": 3,
+    "other/retried": 1,
+    "content/hashedCssSha256 (allowlisted)": 1
+   },
+   "unallowedDiffs": [
+    {
+     "url": "http://growmax.io/",
+     "field": "expect-location",
+     "category": "redirect",
+     "a": "https://<www>/",
+     "b": "http://<www>/"
+    },
+    {
+     "url": "https://growmax.io/",
+     "field": "expect-location",
+     "category": "redirect",
+     "a": "https://<www>/",
+     "b": "http://<www>/"
+    },
+    {
+     "url": "https://growmax.io/demo",
+     "field": "expect-location",
+     "category": "redirect",
+     "a": "https://<www>/demo",
+     "b": "http://<www>/demo"
+    },
+    {
+     "url": "/_next/image?url=%2Ffactory-floor.jpg&w=3840&q=75",
+     "field": "retried",
+     "category": "other",
+     "a": 1,
+     "b": 2
+    }
+   ],
+   "allowlistMatches": [
+    {
+     "index": 0,
+     "url": "/",
+     "field": "internalLinks",
+     "approvedBy": "A3",
+     "matchedUrls": [
+      "/"
+     ]
+    },
+    {
+     "index": 1,
+     "url": "/sitemap.xml",
+     "field": "sitemapEntries",
+     "approvedBy": "A3",
+     "matchedUrls": [
+      "/sitemap.xml"
+     ]
+    },
+    {
+     "index": 2,
+     "url": "<hashed-css-assets>",
+     "field": "hashedCssSha256",
+     "approvedBy": "A3",
+     "matchedUrls": [
+      "<hashed-css-assets>"
+     ]
+    },
+    {
+     "index": 3,
+     "url": "/",
+     "field": "visibleTextHash",
+     "approvedBy": "A3",
+     "matchedUrls": [
+      "/"
+     ]
+    }
+   ]
+  },
+  "sandboxB_vs_A": {
+   "failedUnallowed": 3,
+   "allowlisted": 4,
+   "retriedB": 0,
+   "byCategory": {
+    "content": 3,
+    "seo": 1,
+    "redirect": 3
+   },
+   "stylesheetRefsBothAbsent": 0
+  },
+  "B_vs_A2_reportOnly": {
+   "urlsA": 301,
+   "urlsB": 301,
+   "failedUnallowed": 642,
+   "byCategory": {
+    "status": 294,
+    "redirect": 64,
+    "other": 94,
+    "content": 185,
+    "seo": 5
+   },
+   "unallowedByField": {
+    "status/status": 294,
+    "redirect/location": 61,
+    "other/contentType": 78,
+    "content/text": 3,
+    "seo/sitemapEntries": 1,
+    "content/json": 8,
+    "content/jsonBySlug.*": 173,
+    "seo/title": 3,
+    "seo/x-robots-tag": 1,
+    "redirect/expect-location": 3,
+    "other/presence": 16,
+    "content/hashedCssSha256": 1
+   },
+   "a2StatusCounts": {
+    "404": 297,
+    "301": 4
+   }
+  }
+ },
+ "commands": [
+  "NODE_USE_ENV_PROXY=1 node scripts/migration/parity/urls.mjs --base https://www.growmax.io --base-b https://www.growmax.io --include-post-cutover --previous docs/migration/.scratch/p6-20260927T0803Z/inventory.json --explain '<attribution shift>' --out docs/migration/.scratch/p8-20260927T0948Z/inventory.json",
+  "NODE_USE_ENV_PROXY=1 node scripts/migration/parity/capture.mjs --base https://www.growmax.io --urls .../inventory.json --out .../manifest-b.json --raw-dir .../raw-b --concurrency 4 --ua growmax-migration-verifier/1.0",
+  "node scripts/migration/parity/compare.mjs --a docs/migration/.scratch/p6-20260927T0803Z/manifest-a.json --b .../manifest-b.json --allowlist docs/migration/evidence/allowlist.json --raw-dir-a docs/migration/.scratch/p6-20260927T0803Z/raw-a --raw-dir-b .../raw-b --out .../diff.json --scratch .../diff-scratch",
+  "Sandbox growmax-migration-runner (via runner.mjs getRunner; harness tarball uploaded to /tmp/p8-parity-p8-20260927T0948Z, Node v24.21.0): capture.mjs with --resolve www.growmax.io:443:34.111.179.208 (A2) and without (B sandbox); no DB env passed",
+  "compare.mjs A2 vs B and A vs B-sandbox with the same allowlist and raw dirs"
+ ],
+ "artifacts": [
+  "docs/migration/.scratch/p8-20260927T0948Z/inventory.json",
+  "docs/migration/.scratch/p8-20260927T0948Z/manifest-b.json",
+  "docs/migration/.scratch/p8-20260927T0948Z/raw-b/",
+  "docs/migration/.scratch/p8-20260927T0948Z/diff.json (trimmed)",
+  "docs/migration/.scratch/p8-20260927T0948Z/diff-scratch/diff.json (full)",
+  "docs/migration/.scratch/p8-20260927T0948Z/diff-scratch/text-diffs/_.diff",
+  "docs/migration/.scratch/p8-20260927T0948Z/bsbx/ (Sandbox B capture + raw)",
+  "docs/migration/.scratch/p8-20260927T0948Z/diff-bsbx-scratch/diff-bsbx.json",
+  "docs/migration/.scratch/p8-20260927T0948Z/a2/ (Replit pinned capture + raw)",
+  "docs/migration/.scratch/p8-20260927T0948Z/diff-a2-scratch/diff-a2.json",
+  "docs/migration/.scratch/p8-20260927T0948Z/compare*.stdout / .stderr"
+ ]
+}

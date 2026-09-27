@@ -1,0 +1,67 @@
+{
+ "step": "P6.2",
+ "gate": "G6a",
+ "status": "pass",
+ "checkedAt": "2026-09-27T08:11:16Z",
+ "verifier": "migration-verifier (opus/medium)",
+ "mode": "pre",
+ "runLabel": "p6-20260927T0803Z",
+ "baseA": "https://www.growmax.io (live Replit, fresh capture, no bypass header sent)",
+ "baseB": "https://growmax-website.vercel.app -> dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx (READY, production, sha dc5405357441870b9315a28a7cbb93a201278453 per P6.2-a3-deploy.json). Only x-vercel-protection-bypass sent, scoped to B's host by run.mjs's route handler; x-vercel-set-bypass-cookie never sent",
+ "harness": {
+  "file": "scripts/migration/visual/run.mjs",
+  "gitHashObject": "5349fc3b5e3afbb196ceba913ae480cd387810f8",
+  "note": "unchanged since 3d36d03 (P5.3 reviewed version); no local modifications",
+  "deps": "playwright-core, pixelmatch, pngjs present in scripts/migration/node_modules; npm ci not needed"
+ },
+ "facts": {
+  "visual": "run",
+  "runs": 1,
+  "window": "2026-09-27T08:08:39Z..08:10:05Z",
+  "comparable": 20,
+  "maxRatio": 0.0038331839559775094,
+  "inBand0_5to3pct": 0,
+  "rawHarnessStatus": "fail (4 flagged: all first-party /demo?_rsc=* net::ERR_ABORTED)"
+ },
+ "checks": [
+  {
+   "name": "SPEC-04 §5.4 protected-deployment probe (curl with bypass header, before any comparison)",
+   "expected": "app's own responses: / 200 with Growmax title; configured redirects keep their status; no 401 / Vercel auth redirect",
+   "actual": "/ -> 200, server: Vercel, x-matched-path: /, title 'Growmax | B2B Revenue Ops for Manufacturers'; /arc/ai -> 308 location /minori-ai; /revenue-platform/dealer-portals -> 307 location /revenue-platform",
+   "pass": true
+  },
+  {
+   "name": "container reachability + browser preflight for both sites",
+   "expected": "run.mjs reaches both sites and captures every page/viewport",
+   "actual": "20/20 page/viewport combinations captured on both sides, all comparable (same dimensions)",
+   "pass": true
+  },
+  {
+   "name": "pixelmatch ratio per page/viewport (<=0.5% pass, 0.5-3% inspect, >3% fail)",
+   "expected": "all 20 <=0.5%, or explained",
+   "actual": "max 0.3833% (home/mobile), home/desktop 0.1796%, all others <=0.0025%; none in the 0.5-3% band, so no diff PNG required inspection",
+   "pass": true
+  },
+  {
+   "name": "new console errors / HTTP error responses (>=400) on B not on A",
+   "expected": "0",
+   "actual": "0 new console errors and 0 new error responses on all 20 combinations",
+   "pass": true
+  },
+  {
+   "name": "new failed requests on B by normalized key (SPEC-04 §7, A3/P5.3)",
+   "expected": "0, or each residual listed by key and explained with evidence",
+   "actual": "4 residual keys, all firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED: revenue-platform/mobile (JOYFzgqX9X1y8Hxb), blog-post/mobile (HNFLsMnf00gmR_yx), industry/desktop (nImZEc4qnCC2pRff), about/desktop (O2kiys8uQuB6QaFq). Explanation: Next.js <Link> RSC prefetches cancelled at page teardown. A issues the same class: a separate Playwright capture of A through the same proxy/pin (a-side-failed-firstparty.json) showed GET /demo?_rsc=* ERR_ABORTED on /revenue-platform desktop and mobile and 5 /blog/<slug>?_rsc=* aborts on /blog; which prefetch is in flight at teardown varies per load and the _rsc token is in the first-party key, so keys never match A exactly. Direct re-requests on B with RSC:1 for all 4 tokens: 200 text/x-component. Class: acceptable-diff (same residual class as P5.2-visual.json and the 06:51Z P6.2 run)",
+   "pass": true
+  }
+ ],
+ "residualKeys": [
+  "firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED (RSC prefetch teardown; A issues it too; 200 direct)"
+ ],
+ "artifacts": [
+  "docs/migration/.scratch/p6-20260927T0803Z/visual/visual-suite.json",
+  "docs/migration/.scratch/p6-20260927T0803Z/visual/run.log",
+  "docs/migration/.scratch/p6-20260927T0803Z/visual/ (a-*/b-*/diff-* PNGs)",
+  "docs/migration/.scratch/p6-20260927T0803Z/visual/a-side-failed-firstparty.json"
+ ]
+}

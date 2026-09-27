@@ -1,0 +1,21 @@
+{
+  "step": "P3.4",
+  "checkedAt": "2026-09-26T15:24:50Z",
+  "status": "done_partial",
+  "generated": {
+    "method": "vercel project protection enable growmax-website --protection-bypass --format json --scope growmax1",
+    "generatedAt": "2026-09-26T15:23:04Z",
+    "scope": "automation-bypass",
+    "isEnvVar": false,
+    "secretLength": 32,
+    "storedAt": "docs/migration/.scratch/bypass-secret",
+    "storedMode": "600",
+    "valueNeverPrinted": true,
+    "intermediateFilesRemoved": ["docs/migration/.scratch/bypass-secret.raw", "docs/migration/.scratch/bypass-secret.err", "docs/migration/.scratch/project-full.json"]
+  },
+  "accessCheck": {
+    "status": "not_yet_possible",
+    "reason": "No production deployment exists yet (facts.vercel.productionAliases is empty; see P3.1-project.json). SPEC-01 §5 access check (`GET https://<prod-alias>/` with `x-vercel-protection-bypass: <secret>` -> 200, without it -> 401/403) requires a live production alias, which only exists after the first production deploy (P5). Deferred to P3.5 / P5 read-back."
+  },
+  "headerPolicy": "Automation must send only `x-vercel-protection-bypass: <secret>` on every request; never `x-vercel-set-bypass-cookie` (per SPEC-01 §5, to avoid cookie-setting redirects breaking status/redirect comparisons). No requests were sent yet since there is no target to send them to."
+}

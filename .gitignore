@@ -5,3 +5,11 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+# Vercel / local env (migration M4)
+.vercel
+.env
+.env*.local
+
+# Migration scratch: dumps, raw crawls, secrets — never committed
+docs/migration/.scratch/
+*.dump

@@ -1,0 +1,121 @@
+{
+  "step": "P6.1",
+  "gate": "G6a",
+  "gateCheck": "6a.2",
+  "status": "pass",
+  "round": 1,
+  "checkedAt": "2026-09-27T04:05:10Z",
+  "verifier": "migration-verifier/opus-5.5-medium",
+  "subject": {
+    "head": "088116f",
+    "workingTree": "uncommitted H1-H4 diff in app/api/admin/posts/[id]/route.ts, app/api/admin/posts/route.ts, app/api/blog/route.ts, app/blog/[slug]/page.tsx, lib/db.ts, middleware.ts (sha256 of `git diff -- app lib middleware.ts` prefix 2df991b4f324cd97, unchanged from start to end of this run)"
+  },
+  "method": "Independent re-run of SPEC-02 'Local verification' items 1-7 against the H-series working tree: fresh PG16 cluster, fresh build, fresh `next start -p 3100`, own smoke/revalidation scripts, own local mock webhook. Implementer claims were not reused.",
+  "checks": [
+    { "name": "1a. npm ci", "expected": "exit 0", "actual": "exit 0", "pass": true },
+    { "name": "1b. npm run check (tsc)", "expected": "exit 0", "actual": "exit 0, no output", "pass": true },
+    {
+      "name": "2. Local PG16 with blog tables (schema+data) and other tables schema-only",
+      "expected": "cluster up on :54329, DB growmax, blog_posts/blog_redirects loaded, PII tables empty",
+      "actual": "initdb + pg_ctl start OK; pg_restore --schema-only schema.dump (1 ignored error: schema public already exists); pg_restore --data-only blog-tables.dump. Counts: blog_posts=171 (171 published), blog_redirects=95, demo_requests=0, newsletter_subscriptions=0. Deviation: data dir at /var/lib/postgresql/p61v-localpg instead of docs/migration/.scratch/localpg, because the postgres user cannot traverse /home/user/... (initdb Permission denied), same as the implementer found.",
+      "pass": true
+    },
+    {
+      "name": "3. npm run build against local PG16",
+      "expected": "build passes",
+      "actual": "exit 0. Route table: ○ /api/blog revalidate 5m; ○ /blog 1h; ● /blog/[slug] (SSG/ISR); ○ /llms.txt 1h; ○ /llms-full.txt 1h; ○ /sitemap.xml (no revalidate). prerender-manifest dynamicRoutes = ['/blog/[slug]']; initialRevalidateSeconds /api/blog=300, /blog=3600, /llms*.txt=3600, /sitemap.xml=false.",
+      "pass": true
+    },
+    { "name": "4a. Every route in lib/seo/indexableRoutes.ts -> 200", "expected": "40/40 200", "actual": "40/40 200", "pass": true },
+    { "name": "4b. 5 random published slugs -> 200", "expected": "5x 200", "actual": "winning-the-aftermarket-sales, crm-vs-sfa-sales-force-automation-guide, top-b2b-software, b2b-marketplace-industrial-mro-supplies, d2c-trends: all 200", "pass": true },
+    { "name": "4c. /blog/does-not-exist-xyz -> 404", "expected": "404", "actual": "404", "pass": true },
+    {
+      "name": "4d. next.config.ts + gsc-indexing-redirects.ts sources -> status + Location, first-match",
+      "expected": "308 for permanent, 307 for temporary, Location = first matching entry's destination",
+      "actual": "65 entries, 58 unique sources (7 later duplicates shadowed; expectation taken from the first match). 54x 308 + 4x 307, 0 mismatches in status or Location (redirect: manual).",
+      "pass": true
+    },
+    { "name": "4e. /sitemap.xml URL count", "expected": "40 static + 171 published + 1 fallback (claude-commerce-agents-b2b absent from DB) = 212", "actual": "212 <loc>, 0 containing 'undefined'", "pass": true },
+    { "name": "4f. /robots.txt, /llms.txt, /llms-full.txt", "expected": "200 each", "actual": "200, 200, 200", "pass": true },
+    { "name": "4g. /api/blog array length", "expected": "172 (171 + fallback)", "actual": "172; first element id -1 slug claude-commerce-agents-b2b", "pass": true },
+    {
+      "name": "4h. Admin auth",
+      "expected": "login local-test -> 200 + growmax-admin cookie; /api/admin/posts -> 200; wrong password -> 401",
+      "actual": "login 200 with growmax-admin cookie; /api/admin/posts with cookie 200; wrong password 401; /api/admin/posts without cookie 401",
+      "pass": true
+    },
+    {
+      "name": "5a. M3 webhook set (local mock 127.0.0.1:39999/hook)",
+      "expected": "201; mock receives exactly one POST whose text equals the original template",
+      "actual": "201; mock received exactly 1 POST with body keys ['text'] and text equal to the original template rendered with the test values; server log '[webhook] delivered 200'. Template literal in app/api/demo-requests/route.ts is byte-identical to pre-migration commit 989da69 (same sha1 of the text literal).",
+      "pass": true
+    },
+    {
+      "name": "5b. M3 webhook unset",
+      "expected": "201 + warning log",
+      "actual": "201; mock received 0 requests; server log '[webhook] GOOGLE_CHAT_WEBHOOK_URL not set; skipping notification'",
+      "pass": true
+    },
+    {
+      "name": "6a. H2 admin edit revalidates /blog/<slug>, /blog, /sitemap.xml, /llms.txt, /llms-full.txt, /api/blog",
+      "expected": "each route reflects the change on the next request",
+      "actual": "Post id 111 (d2c-trends). All 6 routes warmed to x-nextjs-cache HIT. PUT title=<marker> -> 200 (response keys unchanged, full post object). Next request: all 6 routes MISS and /blog/<slug>, /blog, /llms.txt, /llms-full.txt, /api/blog contain the marker; /sitemap.xml (no titles) lastmod for the slug changed 2026-03-06T13:14:30.336Z -> 2026-09-27T03:54:50.976Z. PUT slug rename -> 200: old slug 404, new slug 200, sitemap has new and not old, /api/blog, /llms.txt and /blog contain the new slug. Restore (slug+title) -> 200: original slug 200 with original title on all routes, renamed slug 404, marker gone from /llms-full.txt. revalidatePath works for the page, the metadata route (sitemap.xml, fully static) and the route handlers (llms*, /api/blog); no revalidateTag fallback needed. Unauth PUT 401, PUT/DELETE on missing id 404 (unchanged).",
+      "pass": true
+    },
+    {
+      "name": "6b. Middleware lookup forced to time out -> /blog/<old_path> still redirects via the page (308), never a cached 404",
+      "expected": "308 from the page, no 404 rendered or cached",
+      "actual": "Forced timeout: server restarted with DATABASE_URL host 'localhost' so node-postgres reaches PG while the Neon HTTP driver in middleware targets https://localhost/sql, where a local TCP listener on 127.0.0.1:443 accepts and never replies (3 accepts logged = middleware really hung). Synthetic bare-slug row old_path='p61v-legacy-slug' -> new_path='d2c-trends' (the format middleware.ts and H1 getRedirect(slug) look up), no post with that slug. 3 requests: 308 Location /blog/d2c-trends each, ~5.0-5.2 s (5000 ms race then fail-open), first MISS then HIT (the 308 is what gets cached, never a 404). Normal post under the same condition 200 in ~5.0 s; real missing slug 404 in ~5.0 s.",
+      "pass": true
+    },
+    {
+      "name": "6c. Killed DB (pg_ctl stop) -> already cached /blog/<slug> still 200, never 404",
+      "expected": "200 from cache",
+      "actual": "After pg_ctl stop: cached /blog/top-b2b-software, /blog/winning-the-aftermarket-sales, /blog/crm-vs-sfa-sales-force-automation-guide -> 200 HIT with real titles; /blog, /llms.txt, /sitemap.xml 200 HIT. Uncached real slug (opportunity-pipeline-management-predictable-revenue) and uncached missing slug -> 500 with Cache-Control private, no-cache, no-store (never 404, not cached; repeated 500). Still 200 HIT for /blog/top-b2b-software after 5+ min with DB down. Server process stayed alive; no uncaughtException in this run's logs.",
+      "pass": true
+    },
+    {
+      "name": "6d. /api/blog still returns 200 from cache with DB down",
+      "expected": "200 from cache",
+      "actual": "Immediately after stop: 200 HIT, 172 items. After waiting past the 300 s revalidate window with DB still down: 200 STALE (172 items, s-maxage=300) then 200 HIT (172 items, s-maxage=30 while Next retries regeneration). Never a 500 once cached.",
+      "pass": true
+    },
+    {
+      "name": "7. Stop PG and remove the local cluster",
+      "expected": "PG stopped, data dir removed, test processes stopped",
+      "actual": "pg_ctl stop OK; /var/lib/postgresql/p61v-localpg removed (docs/migration/.scratch/localpg never created); next start, mock listener and :443 hang listener killed; port 3100 closed. git status unchanged apart from this evidence file (tsconfig.tsbuildinfo was already modified before this run).",
+      "pass": true
+    }
+  ],
+  "findings": [
+    {
+      "severity": "nonBlocking",
+      "class": "data",
+      "preExisting": true,
+      "finding": "All 95 blog_redirects rows store full paths (old_path '/blog/<old>'; 86 of 95 new_path also '/blog/...'), but middleware.ts, /api/blog-redirects and H1's getRedirect(slug) look up the bare slug, so no real row ever matches. Shown locally: a real-format row '/blog/p61v-fullpath-old' -> '/blog/d2c-trends' with no such post gives 404, not a redirect. If a bare-slug lookup did match a full-path new_path, the target would be '/blog//blog/<new>'. No impact today: all 95 old paths are still live posts (checked by SQL; e.g. /blog/how-to-boost-spare-parts-sales -> 200). Check 6b therefore used a synthetic bare-slug row. This is not an H-series regression. The owner or spec should decide whether to normalise it."
+    },
+    {
+      "severity": "info",
+      "class": "acceptable-diff",
+      "finding": "Cache-Control differs between states of /api/blog: prerender HIT 's-maxage=300, stale-while-revalidate=31535700', MISS after on-demand revalidation 's-maxage=300', after failed regeneration 's-maxage=30'. Similar for other ISR routes. These are header-only differences that SPEC-04 is expected to allowlist. P6.2 should confirm."
+    },
+    {
+      "severity": "info",
+      "class": "config",
+      "finding": "With the middleware lookup hung, every /blog/* request takes about 5 s (the H3 bound, working as spec'd). /sitemap.xml builds fully static (revalidate false). It changes only through the H2 revalidatePath, which works."
+    },
+    {
+      "severity": "info",
+      "class": "code",
+      "preExisting": true,
+      "finding": "The implementer reported uncaughtException 57P01 at pg_ctl stop (lib/db.ts Pool has no 'error' listener). It did not happen in this run (fast shutdown, no idle connections terminated mid-flight), so it is neither confirmed nor ruled out."
+    }
+  ],
+  "artifacts": {
+    "schemaDump": "docs/migration/.scratch/schema.dump (P1.1)",
+    "blogTablesDump": "docs/migration/.scratch/blog-tables.dump (P1.1)",
+    "localBuildEnv": "DATABASE_URL=local PG16 :54329/growmax (127.0.0.1 for phase 1, localhost for the forced-timeout phase), SESSION_SECRET=random 48 hex chars per server start (not persisted), ADMIN_PASSWORD=local-test",
+    "mockWebhook": "local python listener 127.0.0.1:39999/hook (never the real webhook)",
+    "scripts": "ephemeral, in the session scratchpad (smoke.mjs, h1.mjs, mock.py, hang.py), not in the repo"
+  }
+}

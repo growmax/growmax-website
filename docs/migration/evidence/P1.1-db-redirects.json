@@ -1,0 +1,386 @@
+{
+  "checkedAt": "2026-09-26T11:23:23.169Z",
+  "count": 95,
+  "redirects": [
+    {
+      "old_path": "/blog/4-critical-features-to-win-digital-customer-experience-with-b2b-ecommerce",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/a-comprehensive-sales-order-booking-app-for-zoho-inventory",
+      "new_path": "/blog/sales-order-booking-app-zoho-inventory"
+    },
+    {
+      "old_path": "/blog/advantages-of-ecommerce",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/ai-powered-ordering-apps-the-future-of-b2b-sales",
+      "new_path": "/blog/ai-reshaping-b2b-ecommerce-industrial-distributors"
+    },
+    {
+      "old_path": "/blog/b2b-buying-process",
+      "new_path": "/blog/quotation-to-order-process-converting-revenue"
+    },
+    {
+      "old_path": "/blog/b2b-ecommerce-a-new-sales-channel-for-b2b-manufacturers-wholesalers-distributors",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/b2b-ecommerce-for-soare-parts-businesses",
+      "new_path": "/blog/spare-parts-ecommerce-self-service-portal"
+    },
+    {
+      "old_path": "/blog/b2b-wholesale",
+      "new_path": "/blog/implement-tiered-pricing-b2b-wholesale-distribution"
+    },
+    {
+      "old_path": "/blog/best-competitors-and-alternatives-to-handshake",
+      "new_path": "/comparisons/handshake-alternatives"
+    },
+    {
+      "old_path": "/blog/best-ecommerce-software",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/boost-efficiency-in-f-b-fmcg-wholesale-with-a-zoho-integrated-order-booking-sales-app",
+      "new_path": "/blog/sales-order-booking-app-zoho-inventory"
+    },
+    {
+      "old_path": "/blog/boost-sales-product-recommendations",
+      "new_path": "/blog/ai-powered-product-recommendations-spare-parts"
+    },
+    {
+      "old_path": "/blog/boost-your-industrial-sales-performance-with-smart-target-setting-and-automation",
+      "new_path": "/blog/automating-sales-pipeline-industrial-distributors"
+    },
+    {
+      "old_path": "/blog/bridging-the-partner-visibility-gap-streamlining-the-quotation-to-order-process-for-industrial-brands",
+      "new_path": "/blog/bridging-partner-visibility-gap-quotation-order"
+    },
+    {
+      "old_path": "/blog/calculate-finished-goods-inventory",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/digital-enabled-fmcg-wholesale-benefits-of-launching-self-ordering-apps-for-b2b-and-horeca-customers",
+      "new_path": "/blog/digital-enabled-fmcg-wholesale-self-ordering-apps"
+    },
+    {
+      "old_path": "/blog/ecommerce-personalization",
+      "new_path": "/blog/ai-powered-product-recommendations-spare-parts"
+    },
+    {
+      "old_path": "/blog/ecommerce-shipping-method",
+      "new_path": "/blog/multi-warehouse-b2b-ecommerce-platform-architecture"
+    },
+    {
+      "old_path": "/blog/ecommerce-terms-glossary",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/effective-management-of-moq-and-volume-based-pricing-is-essential-for-food-and-personal-care-wholesalers",
+      "new_path": "/blog/complete-guide-b2b-customer-specific-pricing"
+    },
+    {
+      "old_path": "/blog/empower-sales-rep-with-digital-commerce",
+      "new_path": "/blog/offline-order-taking-app-industrial-b2b-sales"
+    },
+    {
+      "old_path": "/blog/empower-your-business-with-advantage-of-b2b-ecommerce",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/enhancing-industry-collaboration-a-case-study-from-a-leading-paint-manufacturer-in-india",
+      "new_path": "/blog/chemical-distributor-increased-online-orders-case-study"
+    },
+    {
+      "old_path": "/blog/everything-you-need-to-know-about-b2b-ecommerce",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/from-data-to-decisions-how-kpis-and-opportunity-management-drive-growth-for-industrial-distributors",
+      "new_path": "/blog/opportunity-pipeline-management-predictable-revenue"
+    },
+    {
+      "old_path": "/blog/harnessing-the-power-of-ai-unlocking-insights-from-historical-data",
+      "new_path": "/blog/industrial-manufacturers-ai-sales-forecasting"
+    },
+    {
+      "old_path": "/blog/heavy-equipment-spare-parts-sales",
+      "new_path": "/blog/spare-parts-pricing-strategy-margin-retention"
+    },
+    {
+      "old_path": "/blog/how-can-you-grow-your-bike-spare-parts-business",
+      "new_path": "/blog/spare-parts-ecommerce-self-service-portal"
+    },
+    {
+      "old_path": "/blog/how-textile-machinery-spare-parts-manufacturers-can-move-online",
+      "new_path": "/blog/manufacturers-dedicated-spare-parts-ordering-system"
+    },
+    {
+      "old_path": "/blog/how-to-boost-spare-parts-sales",
+      "new_path": "/blog/spare-parts-ecommerce-self-service-portal"
+    },
+    {
+      "old_path": "/blog/how-to-migrate-from-tradgecko",
+      "new_path": "/comparisons/tradegecko-alternatives"
+    },
+    {
+      "old_path": "/blog/how-to-sell-automotive-accessories-online",
+      "new_path": "/industries/automotive-aftermarket"
+    },
+    {
+      "old_path": "/blog/how-to-sell-car-spare-parts",
+      "new_path": "/industries/automotive-aftermarket"
+    },
+    {
+      "old_path": "/blog/how-to-write-invoice-email-for-ecommerce",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/increase-b2b-sales",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/increase-construction-equipment-spare-parts-sales",
+      "new_path": "/blog/spare-parts-ecommerce-self-service-portal"
+    },
+    {
+      "old_path": "/blog/independent-partner-portals-for-industrial-channels",
+      "new_path": "/blog/partner-engagement-strategy-industrial-brands"
+    },
+    {
+      "old_path": "/blog/inventory-management-techniques",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/inventory-stockout-risk-insight-the-modern-manufacturers-guide-to-preventing-revenue-loss",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/just-in-time-inventory-jit",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/make-2x-faster-decisions-in-your-sales-cycle",
+      "new_path": "/blog/automating-sales-pipeline-industrial-distributors"
+    },
+    {
+      "old_path": "/blog/managing-spare-parts-business-for-an-industrial-oem",
+      "new_path": "/blog/manufacturers-dedicated-spare-parts-ordering-system"
+    },
+    {
+      "old_path": "/blog/maximize-automotive-aftermarket-sales-with-growmaxs-channel-partner-hub",
+      "new_path": "/industries/automotive-aftermarket"
+    },
+    {
+      "old_path": "/blog/maximizing-growth-through-partner-sales-management-a-comprehensive-guide",
+      "new_path": "/blog/partner-engagement-strategy-industrial-brands"
+    },
+    {
+      "old_path": "/blog/minimum-order-quantity",
+      "new_path": "/blog/complete-guide-b2b-customer-specific-pricing"
+    },
+    {
+      "old_path": "/blog/opportunity-pipeline-management-for-industrial-businesses-your-data-driven-path-to-predictable-revenue",
+      "new_path": "/blog/opportunity-pipeline-management-predictable-revenue"
+    },
+    {
+      "old_path": "/blog/pepperi-alternatives-and-competitors",
+      "new_path": "/arc/compare/pepperi"
+    },
+    {
+      "old_path": "/blog/perpetual-inventory",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/product-catalog-management-ecommerce",
+      "new_path": "/blog/customer-specific-product-catalogs-b2b-commerce"
+    },
+    {
+      "old_path": "/blog/progressive-web-app-pwa-guide",
+      "new_path": "/blog/future-b2b-commerce-headless-architecture-manufacturers"
+    },
+    {
+      "old_path": "/blog/quickbooks-commerce-tradegecko-alternatives",
+      "new_path": "/comparisons/tradegecko-alternatives"
+    },
+    {
+      "old_path": "/blog/receive-customer-orders-through-multiple-channels-transforming-your-b2b-sales-experience",
+      "new_path": "/blog/offline-order-taking-app-industrial-b2b-sales"
+    },
+    {
+      "old_path": "/blog/reckitt-pro-solution-india-revolutionizing-b2b-with-e-commerce",
+      "new_path": "/blog/chemical-distributor-increased-online-orders-case-study"
+    },
+    {
+      "old_path": "/blog/reduce-sales-costs-in-f-b-wholesale-with-a-zoho-integrated-self-order-booking-app",
+      "new_path": "/blog/sales-order-booking-app-zoho-inventory"
+    },
+    {
+      "old_path": "/blog/revamping-the-order-process-obo-bettermanns-digital-transformation",
+      "new_path": "/blog/obo-bettermann-digital-transformation-case-study"
+    },
+    {
+      "old_path": "/blog/sell-machine-spare-parts-online",
+      "new_path": "/blog/manufacturers-dedicated-spare-parts-ordering-system"
+    },
+    {
+      "old_path": "/blog/set-up-b2b-ecommerce-website",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/shopify-plus-alternatives",
+      "new_path": "/comparisons/tradegecko-alternatives"
+    },
+    {
+      "old_path": "/blog/shopify-vs-woocommerce-vs-magento-vs-bigcommerce",
+      "new_path": "/blog/future-b2b-commerce-headless-architecture-manufacturers"
+    },
+    {
+      "old_path": "/blog/stop-losing-deals-streamline-your-industrial-sales-with-growmax",
+      "new_path": "/blog/automating-sales-pipeline-industrial-distributors"
+    },
+    {
+      "old_path": "/blog/the-crucial-role-of-manufacturers-in-the-supply-chain-tailoring-b2b-ecommerce-to-meet-their-unique-needs",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/the-digital-partner-engagement-revolution-how-industrial-brands-can-transform-channel-sales",
+      "new_path": "/blog/digital-partner-engagement-revolution-manufacturing"
+    },
+    {
+      "old_path": "/blog/the-ultimate-guide-to-cpq-software-for-small-and-medium-scale-industrial-businesses",
+      "new_path": "/blog/cpq-software-guide-small-medium-industrial-businesses"
+    },
+    {
+      "old_path": "/blog/tips-for-managing-spare-parts-inventory",
+      "new_path": "/blog/spare-parts-pricing-strategy-margin-retention"
+    },
+    {
+      "old_path": "/blog/top-b2b-software",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/transform-your-digital-landscape-by-building-an-integration-layer-to-interact-with-new-age-applications",
+      "new_path": "/blog/integrating-third-party-apps-sap-ecc"
+    },
+    {
+      "old_path": "/blog/transforming-your-digital-landscape-integrating-third-party-applications-with-sap-ecc-through-sap-connector",
+      "new_path": "/blog/integrating-third-party-apps-sap-ecc"
+    },
+    {
+      "old_path": "/blog/uncovering-hidden-customer-needs-for-cross-selling-and-upselling-through-a-recommendations-engine",
+      "new_path": "/blog/ai-powered-product-recommendations-spare-parts"
+    },
+    {
+      "old_path": "/blog/unlocking-growth-for-industrial-distributors-how-opportunity-management-drives-sales-success",
+      "new_path": "/blog/opportunity-pipeline-management-predictable-revenue"
+    },
+    {
+      "old_path": "/blog/what-are-the-new-trends-in-b2b-sales-for-150-growth-in-revenue",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/what-is-an-online-marketplace",
+      "new_path": "/blog/b2b-marketplace-industrial-mro-supplies"
+    },
+    {
+      "old_path": "/blog/what-is-b2b-marketplace",
+      "new_path": "/blog/b2b-marketplace-industrial-mro-supplies"
+    },
+    {
+      "old_path": "/blog/what-is-backordering",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/what-is-d2c",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/what-is-deadstock",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/what-is-ecommerce-crm",
+      "new_path": "/blog/integrating-zoho-crm-b2b-ecommerce-guide"
+    },
+    {
+      "old_path": "/blog/what-is-headless-commerce",
+      "new_path": "/blog/future-b2b-commerce-headless-architecture-manufacturers"
+    },
+    {
+      "old_path": "/blog/what-is-inventory-control",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/what-is-lead-time",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/what-is-order-management",
+      "new_path": "/blog/quotation-to-order-process-converting-revenue"
+    },
+    {
+      "old_path": "/blog/what-is-order-to-cash-o2c",
+      "new_path": "/blog/quotation-to-order-process-converting-revenue"
+    },
+    {
+      "old_path": "/blog/what-is-product-experience-management",
+      "new_path": "/blog/customer-specific-product-catalogs-b2b-commerce"
+    },
+    {
+      "old_path": "/blog/what-is-purchase-order",
+      "new_path": "/blog/quotation-to-order-process-converting-revenue"
+    },
+    {
+      "old_path": "/blog/what-is-safety-stock",
+      "new_path": "/blog/ai-predictive-inventory-management-distributors"
+    },
+    {
+      "old_path": "/blog/what-is-spares-parts-management",
+      "new_path": "/solutions/spare-parts-ecommerce"
+    },
+    {
+      "old_path": "/blog/what-is-the-difference-between-b2c-b2b-ecommerce-platforms",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/wholesale-distributors-guide",
+      "new_path": "/blog/implement-tiered-pricing-b2b-wholesale-distribution"
+    },
+    {
+      "old_path": "/blog/wholesale-marketing",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/why-a-channel-partner-hub-with-performance-analytics-is-essential-for-business-growth",
+      "new_path": "/blog/partner-performance-analytics-channel-growth"
+    },
+    {
+      "old_path": "/blog/why-an-offline-order-taking-app-is-essential-for-fmcg-and-industrial-b2b-sales",
+      "new_path": "/blog/offline-order-taking-app-industrial-b2b-sales"
+    },
+    {
+      "old_path": "/blog/why-b2b-marketers-should-invest-in-b2b-ecommerce-a-hybrid-approach-for-competitive-advantage",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    },
+    {
+      "old_path": "/blog/why-product-categorization-matters-in-sales-self-ordering-apps",
+      "new_path": "/blog/customer-specific-product-catalogs-b2b-commerce"
+    },
+    {
+      "old_path": "/blog/winning-the-aftermarket-sales",
+      "new_path": "/blog/spare-parts-pricing-strategy-margin-retention"
+    },
+    {
+      "old_path": "/blog/writing-product-description-guide",
+      "new_path": "/blog/customer-specific-product-catalogs-b2b-commerce"
+    },
+    {
+      "old_path": "/blog/your-traditional-competitors-are-not-your-threats",
+      "new_path": "/blog/b2b-ecommerce-strategy-industrial-manufacturers"
+    }
+  ]
+}

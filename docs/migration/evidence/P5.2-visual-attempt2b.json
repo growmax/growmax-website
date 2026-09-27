@@ -1,0 +1,101 @@
+{
+  "step": "P5.2",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T03:18:59Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "mode": "attempt2b, visual only, reviewed harness",
+  "runLabel": "p5.2-attempt2b-20260927T0313Z",
+  "baseA": "https://www.growmax.io (fresh capture, this run)",
+  "baseB": "https://growmax-website.vercel.app (dpl_3pt7gJhkymtokAVFXwifHpCjkUoE, production alias; public under Standard Protection per STATE.json facts.vercel.protectionReality, so the bypass header is not strictly required for this alias -- sent anyway per task instructions, only as x-vercel-protection-bypass, never x-vercel-set-bypass-cookie)",
+  "harness": {
+    "file": "scripts/migration/visual/run.mjs",
+    "gitHashObject": "5349fc3b5e3afbb196ceba913ae480cd387810f8",
+    "workingTreeState": "modified, uncommitted (git status: M scripts/migration/visual/run.mjs)",
+    "changeSource": "docs/migration/evidence/P5.3-visual-fix.json (implementer, 2026-09-27T03:11:13Z): added CANONICAL_PRODUCTION_HOSTS/isFirstPartyHost/normalizeFailedRequestKey/diffNewFailedRequests so first-party requests key on method+pathname+search+failure (host-agnostic) and third-party requests key on method+scheme://host+pathname+failure (query string dropped), fixing the P5.2-attempt2 20/20 false-positive on randomized-query Google Analytics/Ads/DoubleClick beacons.",
+    "reviewStatusNote": "This fix's own evidence file says 'self-run; certification is the reviewer's' and recommends the verifier re-run the suite; no separate opus/reviewer approval file for scripts/migration/visual/run.mjs was found in docs/migration/evidence/ or docs/migration/STATE.json facts.followUps (only P5.3-harness-fix-review.json, which covers the parity/functional files, not visual/run.mjs). The task instruction described this as 'the reviewed harness'; this verifier could not independently confirm a reviewer sign-off specifically for visual/run.mjs and flags that as a process gap for the orchestrator, separate from the functional result below."
+  },
+  "protectedDeploymentProbe": {
+    "checks": [
+      {
+        "name": "GET / on A (www.growmax.io), no auth header",
+        "expected": "200, app HTML",
+        "actual": "HTTP/2 200; x-nextjs-prerender: 1; x-powered-by: Next.js; app HTML (Google Frontend/edge cache, not a Vercel auth page)",
+        "pass": true
+      },
+      {
+        "name": "GET / on B with x-vercel-protection-bypass only",
+        "expected": "200, app HTML, not a Vercel auth/SSO page",
+        "actual": "HTTP/2 200; x-matched-path: /; x-nextjs-prerender: 1; x-vercel-cache: HIT; server: Vercel; no Set-Cookie/login markers",
+        "pass": true
+      }
+    ],
+    "result": "pass -- both origins reachable and serving app content before the visual harness ran"
+  },
+  "reachability": {
+    "baseAReachable": true,
+    "baseBReachable": true,
+    "note": "curl 200 from both origins in this container; run.mjs completed its own internal preflight and full run for real (status: fail only due to the 2 flagged combinations below, not not_run)"
+  },
+  "checks": [
+    {
+      "name": "npm --prefix scripts/migration ci dependency check (playwright-core, pixelmatch, pngjs) before running the harness",
+      "expected": "packages present in scripts/migration/node_modules",
+      "actual": "ran `npm --prefix scripts/migration ci --no-audit --no-fund`: added 53 packages; all three declared in scripts/migration/package.json dependencies and present after install",
+      "pass": true
+    },
+    {
+      "name": "node scripts/migration/visual/run.mjs --base-a https://www.growmax.io --base-b https://growmax-website.vercel.app --bypass-secret-file docs/migration/.scratch/bypass-secret (Chromium at /opt/pw-browsers/chromium-1194/chrome-linux/chrome, the run.mjs default)",
+      "expected": "Playwright screenshots captured for both sites at 1440x900 and 390x844 across the 10 listed pages (20 page/viewport combinations), pixelmatch ratios computed, evidence written",
+      "actual": "Ran to completion: 20/20 page/viewport combinations captured and compared on both sides, all pixelDiff.comparable == true, no missing screenshots. Output: docs/migration/.scratch/p5.2-attempt2b/visual-suite.json; screenshots+diff PNGs in docs/migration/.scratch/p5.2-attempt2b/shots/",
+      "pass": true
+    },
+    {
+      "name": "pixelmatch ratio per page/viewport (SPEC-04 §7: <=0.5% pass, 0.5-3% needs inspection, >3% fail)",
+      "expected": "<= 0.5% on all 20 combinations, or a manually inspected/explained higher ratio",
+      "actual": "max ratio 0.3827% (home/mobile); second-highest 0.1855% (home/desktop); all other 18 combinations <= 0.0024%. All 20/20 <= 0.5% -- 0 combinations fall in the 0.5-3% band, so 0 diff PNGs required manual inspection (this verifier confirmed the band count programmatically over the full pixelDiff.ratio array, not just eyeballing the summary)",
+      "pass": true
+    },
+    {
+      "name": "new console errors on B not present on A (G5.4 literal criterion)",
+      "expected": "0 new console errors across all 20 combinations",
+      "actual": "0 new console errors on any of the 20 page/viewport combinations",
+      "pass": true
+    },
+    {
+      "name": "new HTTP error responses on B not present on A",
+      "expected": "0 new error responses across all 20 combinations",
+      "actual": "0 new error responses (newErrorResponsesOnB empty on all 20)",
+      "pass": true
+    },
+    {
+      "name": "new failed network requests on B not present on A, by the fixed normalized key (method+host/pathname+failure for third-party, method+pathname+search+failure for first-party)",
+      "expected": "0 new failed requests, or an explained/classified remainder",
+      "actual": "18/20 combinations show 0 new failed requests -- confirms the P5.3 fix eliminated the prior 20/20 false-positive on randomized-query analytics/ad beacons. 2/20 combinations still flag exactly 1 new-on-B entry each: minori-ai/desktop -> GET https://growmax-website.vercel.app/demo?_rsc=hfi0T2VoE8N68KxV (net::ERR_ABORTED); blog-index/mobile -> GET https://growmax-website.vercel.app/demo?_rsc=fvVk386B7PbQRK64 (net::ERR_ABORTED). Independently reproduced with a standalone Playwright probe (same Chromium binary, same CA pin, outside the harness) against both origins: visiting /minori-ai and /blog on A (www.growmax.io) also produces aborted first-party GET requests to /demo?_rsc=<token> and, on /blog, to /blog/<slug>?_rsc=<token> -- the identical Next.js client-side Link-prefetch-then-abort pattern, just with a different _rsc token (a per-render RSC content-negotiation cache key, not a stable build id: the standalone probe's own two blog visits produced the same token, coincidentally, which is why it wasn't caught by the P5.3 fix's search-string comparison; it is not guaranteed stable across renders). This is the same class of harness gap as the P5.2-attempt2 beacon false-positives (a per-render/per-session query value in an otherwise-symmetric first-party prefetch), now narrowed from 20/20 combinations to 2/20, and confirmed present on A too, not a Vercel-only regression.",
+      "pass": false
+    }
+  ],
+  "facts": {
+    "visual": "ran",
+    "pixelmatchMaxRatio": 0.0038272804197593147,
+    "pixelmatchPagesNeedingInspection": [],
+    "newConsoleErrorsCount": 0,
+    "newErrorResponsesCount": 0,
+    "newFailedRequestsFlaggedCombinations": 2,
+    "newFailedRequestsRemaining": [
+      { "page": "minori-ai", "viewport": "desktop", "url": "https://growmax-website.vercel.app/demo?_rsc=hfi0T2VoE8N68KxV", "failure": "net::ERR_ABORTED" },
+      { "page": "blog-index", "viewport": "mobile", "url": "https://growmax-website.vercel.app/demo?_rsc=fvVk386B7PbQRK64", "failure": "net::ERR_ABORTED" }
+    ],
+    "newFailedRequestsRootCause": "harness: the P5.3 fix keys first-party requests on method+pathname+search+failure, but Next.js's own client-side Link prefetch appends a per-render `_rsc` cache-buster to the search string, so an aborted prefetch of the same route on A and B never matches on search even though the behavior (prefetch /demo, get cancelled, net::ERR_ABORTED) is identical on both sides; independently reproduced as present on A."
+  },
+  "likelyClass": "harness",
+  "classNote": "G5.4's literal gate text (visual pass or not_run with a reason; no new console errors) is satisfied: 20/20 pixel ratios <= 0.5%, 0 new console errors, 0 new HTTP error responses. The one remaining signal is SPEC-04 §7's broader 'new failed requests' extension, which the P5.3 fix improved (20/20 -> 2/20 false positives) but did not fully close: it still compares the RSC `_rsc` query token exactly for first-party prefetch requests, and that token is not guaranteed stable per render. Confirmed non-blocking and symmetric by independent reproduction outside the harness.",
+  "recommendation": "Non-blocking for G5.4/G5. For a follow-up harness fix (lower priority than the P5.3 one): strip the `_rsc` query key specifically (like `dpl` was stripped for assetRefs) before computing the first-party key in normalizeFailedRequestKey, and add a self-test case for a prefetch abort with different `_rsc` tokens on A and B. Not required before G5, since no literal gate criterion depends on it and both remaining flags were independently confirmed present on A as well.",
+  "artifacts": [
+    "docs/migration/.scratch/p5.2-attempt2b/visual-suite.json (full harness output, 20 page/viewport results)",
+    "docs/migration/.scratch/p5.2-attempt2b/shots/ (screenshots + diff PNGs for both sites, all 20 combinations)",
+    "docs/migration/evidence/P5.3-visual-fix.json (the harness change this run verifies)",
+    "docs/migration/evidence/P5.3-visual-selftest.json (implementer's offline self-test, re-confirmed by inspection, not re-run by this verifier since it needs no network/browser)",
+    "docs/migration/evidence/P5.2-visual-attempt2.json (prior attempt: 20/20 false-positive on beacon query randomization, since narrowed)"
+  ]
+}

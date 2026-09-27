@@ -1,0 +1,77 @@
+{
+  "step": "P1.2",
+  "gate": "G1",
+  "status": "fail",
+  "checkedAt": "2026-09-26T13:48:39.510Z",
+  "verifier": "migration-reviewer (opus/high), P1 review round 4 (convergence); persisted verbatim by the orchestrator (the reviewer role is read-only)",
+  "approve": false,
+  "blocking": [
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "Regression from the r3 synced_ids fix: data loss at init. runGapVerifyInit (sync.mjs:794-813) reads the SOURCE ids after verify has passed and records all of them in _migration.synced_ids, with the watermark set to the source max. P4.2 and P6.4 run while Replit is still live and taking signups (the DNS guard requires www to point at Replit). Suppose a newsletter or demo_requests row commits on the source after verify has fingerprinted that table but before the id read at :801. That row gets watermark ≥ id and is marked synced, but it was never copied to the target. On the next delta it takes the id ≤ w / missing / in synced_ids branch (:552-556), is counted as target_deleted, and is never inserted. The same race is possible between pg_dump's snapshot and the init read, if verify happens to miss it. Before this fix, the created_at > last_run_at − 1h late-commit heuristic would have inserted such a row. Now it is permanently lost, and all the operator sees is a spurious targetDeleted id. This is SPEC-03 invariant (b): losing a lead/PII row. No self-test covers it; scenario 'full-refresh: happy path' has no concurrent source insert.",
+      "fix": "Fill synced_ids from what is actually on the TARGET after the copy (`select id from dst where id < GAP_START`), not from the source id list. Optionally take the watermark as the max of those target ids, so any source row the copy missed is either > w (step 2) or ≤ w and unsynced (a late commit). Add a self-test: copy, then insert a source row, run init-watermarks (inject the insert between verify and the id read, or call initWatermarksForTables the way init would), then run delta. Assert lateCommits=1 (or inserted=1), targetDeleted=0, and the row is present on the target."
+    },
+    {
+      "file": "scripts/migration/parity/urls.mjs",
+      "issue": "Regression from the r3 expect-block fix: /admin and /admin/login get NOINDEX_EXPECT {xRobotsTag:'noindex, follow'} (urls.mjs:229-230). SPEC-04 §2.6 puts that expectation on /blog?page=2, not on /admin. Neither site sends X-Robots-Tag on /admin: middleware.ts only matches /blog paths, nothing in app/admin or next.config.ts sets it, and SPEC-02 doesn't add it. Every real compare.mjs run therefore has failedUnallowed ≥ 2 that can't be allowlisted, so compare can never exit 0 for G5/G6a/G8a. The self-test hides this. P1.2-harness-selftest.json reports 'self-compare-zero-diffs' pass:true with failedUnallowed=2 and 2 expectationViolations, and determinism passes the same way, because selftest.mjs:406-408 filters out every expect-* diff. That contradicts §5.1 ('→ 0 diffs'). Also, compare.mjs:566-575 `continue`s after compareExpectation, so any URL with an expect block is no longer A/B compared at all. For /admin and /admin/login, status, title, robots meta, content and links are no longer compared. The obvious fix (drop the wrong header expectation) would then let a broken /admin (for example a 500 on Vercel) pass parity.",
+      "fix": "Remove NOINDEX_EXPECT from /admin and /admin/login so they go back to the normal A/B compare. If you want an §2.6 fixed expectation, put {xRobotsTag:'noindex, follow'} on /blog?page=2. Make expect additive for URLs that exist in A: run compareEntry as well and skip it only for source 'post-cutover' (or entries marked expectOnly). In selftest.mjs, fail self-compare and determinism when there are any expectation violations (or at minimum set overall to fail). Add a mutation case that flips /api/admin/session to isAdmin:true, and one that turns a post-cutover entry into 301 http://<self>/, to prove the expect path detects them."
+    }
+  ],
+  "nonBlocking": [
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "r3 #1 is verified fixed. text and jsonBySlug diffs now pin sha256 values (:215-231, :243-248), and '<diff>' is rejected in expected (:338-346). A text diff now gets a preview and a .scratch diff file (:579-600). I reproduced it: an entry pinned to one robots.txt diff no longer covers 'Allow: /' → 'Disallow: /'. Remaining gap: a url entry with only maxMatches (no expected) still suppresses any value, and the allowlist file persists from P5.2 into P8.2. A maxMatches:1 entry for /robots.txt `text` would hide a later Disallow; I reproduced this too. Consider requiring `expected` for seo/text/jsonBySlug fields, or for every entry."
+    },
+    {
+      "file": "scripts/migration/parity/urls.mjs",
+      "issue": "r3 #2 is fixed for §2.8. Post-cutover entries assert status and a scheme-preserving normalized location against B only. I reproduced that 308 https://<self>/ passes, while http://<self>/ (loop/wrong scheme) and 301 fail. The apex still on Squarespace (301 → http://<www>) would fail. Nothing enforces --include-post-cutover at P8.2, and the live self-test never builds the post-cutover set. Make the flag mandatory in the P8.2 workflow and record the post-cutover count in the evidence."
+    },
+    {
+      "file": "scripts/migration/parity/lib/fetcher.mjs",
+      "issue": "r3 #3 is verified fixed. The lookup returns the array form when options.all is set (:50-54). undici ^7.30.0 is now a direct dependency and the lockfile agrees (7.30.0). The self-test check resolve-dispatcher-pinned-fetch passed against a local server. The test only covers http; SNI/TLS through a pinned https dispatcher is not exercised."
+    },
+    {
+      "file": "scripts/migration/functional/run.mjs",
+      "issue": "r3 #4 is fixed. A preflight GET must carry x-vercel-id or server:Vercel before any test runs (:180-210), and each write response is re-checked (:113-120). The per-write check is after the fact: the write has already happened when a non-Vercel response is detected. On VercelOriginError, record the label and email so the residue can be cleaned from the source by hand before the next delta."
+    },
+    {
+      "file": "scripts/migration/db/runner.mjs",
+      "issue": "r3 #6 is verified fixed. `exec --with-dst` now runs execWithDstGuard, which does the identity check plus runPreCopyGuards with --confirm-pre-cutover, STATE and DNS (:175-178, :471-477). All 7 guard scenarios pass in P1.1-runner-guards-selftest.json. SRC_URL_RO still relies on the `options=-c default_transaction_read_only=on` startup parameter. That is a default, not enforcement (any session can SET it off or BEGIN READ WRITE), and there is still no recorded proof that the Neon proxy honours it (see r3)."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "r3 #5 is otherwise fixed. synced_ids distinguishes target deletions from late commits, and scenario 5b covers a freshly synced row deleted on the target. Minor edges remain. (1) If step 2 crashes after inserts but before setWatermark, and an editor deletes one of those rows, a re-run re-inserts it (id > w). (2) A source row that was key-conflicted is never marked synced, so if its natural-key twin on the target is later deleted, the source row gets inserted as a 'late commit'. (3) Bookkeeping over neon-https is still not atomic with the data writes."
+    },
+    {
+      "file": "scripts/migration/visual/run.mjs",
+      "issue": "resolveBlogPostPath(args['base-a'], bypassSecret) (run.mjs:275) sends the Vercel protection-bypass secret to base A (www.growmax.io / Replit). Pass undefined for A, as captureShots already does."
+    },
+    {
+      "file": "scripts/migration/parity/selftest.mjs",
+      "issue": "The self-test has no case for the expect path, text allowlist pinning, or post-cutover entries. These were checked only by my ad-hoc reproduction (compareManifests with synthetic manifests)."
+    }
+  ],
+  "actionableNonBlocking": [
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "r3 #5 is otherwise fixed. synced_ids distinguishes target deletions from late commits, and scenario 5b covers a freshly synced row deleted on the target. Minor edges remain. (1) If step 2 crashes after inserts but before setWatermark, and an editor deletes one of those rows, a re-run re-inserts it (id > w). (2) A source row that was key-conflicted is never marked synced, so if its natural-key twin on the target is later deleted, the source row gets inserted as a 'late commit'. (3) Bookkeeping over neon-https is still not atomic with the data writes."
+    },
+    {
+      "file": "scripts/migration/visual/run.mjs",
+      "issue": "resolveBlogPostPath(args['base-a'], bypassSecret) (run.mjs:275) sends the Vercel protection-bypass secret to base A (www.growmax.io / Replit). Pass undefined for A, as captureShots already does."
+    },
+    {
+      "file": "scripts/migration/parity/selftest.mjs",
+      "issue": "The self-test has no case for the expect path, text allowlist pinning, or post-cutover entries. These were checked only by my ad-hoc reproduction (compareManifests with synthetic manifests)."
+    }
+  ],
+  "checks": [
+    {
+      "name": "G1 1.3 reviewer approves harness + DB scripts (no blocking finding)",
+      "expected": "approve=true, 0 blocking",
+      "actual": "approve=false, 2 blocking (both regressions from the r3 fixes); all 6 r3 blocking findings verified fixed",
+      "pass": false
+    }
+  ],
+  "notes": "actionableNonBlocking is the orchestrator-curated subset (excludes the reviewer notes confirming r3 fixes); fix round 4 reads it."
+}

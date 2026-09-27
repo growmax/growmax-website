@@ -1,0 +1,142 @@
+{
+  "step": "P6.4",
+  "gate": "G6",
+  "attempt": 2,
+  "status": "blocked",
+  "checkedAt": "2026-09-27T09:01:09Z",
+  "verifier": "migration-db-operator (opus/high)",
+  "mode": "verified-identical: copy skipped (attempt 1 restore refused by the permission system, and a no-op)",
+  "blockedReason": "Guard (1) failed at 2026-09-27T09:00:37Z: www.growmax.io no longer resolves to the Replit IP 34.111.179.208. dns.google, cloudflare-dns and getaddrinfo all return exactly [216.150.1.1] (A record, TTL 300). Per the task and SPEC-03 §0.5/§4 the operator stopped before any database access: no row-level comparison, no init-watermarks, no gap. A DNS change on www means cutover may have started (the P7 path: facts.cutover.detectedAt should be evaluated by the orchestrator/owner); Neon may now be taking real writes and must be treated as potentially authoritative.",
+  "checks": [
+    {
+      "name": "dns.google A www.growmax.io",
+      "expected": [
+        "34.111.179.208"
+      ],
+      "actual": [
+        "216.150.1.1"
+      ],
+      "pass": false
+    },
+    {
+      "name": "cloudflare-dns A www.growmax.io",
+      "expected": [
+        "34.111.179.208"
+      ],
+      "actual": [
+        "216.150.1.1"
+      ],
+      "pass": false
+    },
+    {
+      "name": "getaddrinfo www.growmax.io",
+      "expected": [
+        "34.111.179.208"
+      ],
+      "actual": [
+        "216.150.1.1"
+      ],
+      "pass": false
+    },
+    {
+      "name": "STATE.status",
+      "expected": "IN_PROGRESS",
+      "actual": "IN_PROGRESS",
+      "pass": true
+    },
+    {
+      "name": "STATE.facts.cutover.detectedAt",
+      "expected": null,
+      "actual": null,
+      "pass": true
+    },
+    {
+      "name": "fresh row-level comparison (4 public tables)",
+      "expected": "identical",
+      "actual": "not run (guard failed)",
+      "pass": null
+    },
+    {
+      "name": "sync.mjs init-watermarks --confirm-pre-cutover --gap-start 1000000",
+      "expected": "guards, gap, verify below gap, watermark init",
+      "actual": "not run (guard failed)",
+      "pass": null
+    },
+    {
+      "name": "sync.mjs gap --gap-start 1000000 re-run is a no-op",
+      "expected": "moved=false for every sequence",
+      "actual": "not run (guard failed)",
+      "pass": null
+    }
+  ],
+  "guards": {
+    "dns": {
+      "checkedAt": "2026-09-27T09:00:37Z",
+      "expected": "34.111.179.208",
+      "dnsGoogle": [
+        "216.150.1.1"
+      ],
+      "cloudflareDns": [
+        "216.150.1.1"
+      ],
+      "getaddrinfo": [
+        "216.150.1.1"
+      ],
+      "ttl": 300,
+      "apexForContext": {
+        "growmax.io": [
+          "198.185.159.144",
+          "198.49.23.144",
+          "198.49.23.145",
+          "198.185.159.145"
+        ]
+      },
+      "pass": false
+    },
+    "state": {
+      "status": "IN_PROGRESS",
+      "cutoverDetectedAt": null,
+      "gapStart": 1000000,
+      "pass": true
+    }
+  },
+  "rowLevelComparison": null,
+  "initWatermarks": null,
+  "gapRerun": null,
+  "finalSequenceValues": null,
+  "lastKnownTargetState": {
+    "source": "attempt 1 evidence (commit e2084ee), 2026-09-27T08:52Z",
+    "fourTablesIdentical": true,
+    "sequencesLastValue": {
+      "blog_posts_id_seq": 179,
+      "blog_redirects_id_seq": 95,
+      "demo_requests_id_seq": 34,
+      "newsletter_subscriptions_id_seq": 7
+    },
+    "migrationSchemaPresent": false,
+    "note": "no gap exists yet: new target rows would get ids that can collide with source ids (demo_requests next 35, newsletter_subscriptions next 8); no watermarks, so delta refuses to run"
+  },
+  "attempt1Refusal": {
+    "quoted": "denied by the Claude Code permission system (auto-mode classifier: 'Production Deploy')",
+    "command": "runner.mjs pg_restore --confirm-pre-cutover -- --clean --if-exists ... -L filtered TOC into DST_URL_UNPOOLED",
+    "source": "docs/migration/evidence/P6.4-refresh.json at e2084ee, blockedReason"
+  },
+  "scriptHashes": {
+    "scripts/migration/db/sync.mjs": "8ccea0956dff6402af53778962bfbe13c1613022",
+    "scripts/migration/db/fingerprint.mjs": "75a4fceace752d952c412668113285736f4883d8"
+  },
+  "artifacts": [
+    "docs/migration/evidence/P6.4-refresh.json (attempt 1 at commit e2084ee)",
+    "docs/migration/.scratch/p64-pre-compare.json (attempt 1 compare, 08:52Z)"
+  ],
+  "constraints": {
+    "databaseAccessed": false,
+    "targetModified": false,
+    "sourceReadOnly": true,
+    "noSecretsPrinted": true,
+    "noPii": true,
+    "noRestoreOrDestructiveCommand": true,
+    "noStateOrLogEdits": true,
+    "noCommit": true
+  }
+}

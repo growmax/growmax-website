@@ -1,0 +1,93 @@
+{
+  "step": "P5.2",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T03:33:10Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "condition": "C-A3-3 (docs/migration/evidence/A3-advisor-P5.3.json): re-verify the P5.2 attempt-2 parity run against the A3-approved allowlist (docs/migration/evidence/allowlist.json) using the harness as committed at HEAD.",
+  "baseA": "https://www.growmax.io",
+  "baseB": "https://growmax-website.vercel.app",
+  "deploymentB": {
+    "id": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+    "commit": "d8c8b05"
+  },
+  "checks": [
+    {
+      "name": "Manifest A sha256 matches pinned value",
+      "expected": "751b7b68a85aea4434533553f0957ef3f64fcf1ad0a990d7674adee2a786ec1a",
+      "actual": "751b7b68a85aea4434533553f0957ef3f64fcf1ad0a990d7674adee2a786ec1a",
+      "pass": true
+    },
+    {
+      "name": "Manifest B sha256 matches pinned value",
+      "expected": "c6f41a1011faaa5e83065f678a8189219e950599d8ef75b7787c9f40518e7ace",
+      "actual": "c6f41a1011faaa5e83065f678a8189219e950599d8ef75b7787c9f40518e7ace",
+      "pass": true
+    },
+    {
+      "name": "Harness re-run: compare.mjs --a A.json --b B.json --allowlist allowlist.json, harness as committed at HEAD (37d64e4f7748a01ca0c89f1148c25904485b9c72)",
+      "expected": "exit 0, compared=297, failedUnallowed=0, allowlisted=4",
+      "actual": "exit 0, \"Compared 297 URLs: PASS (failedUnallowed=0, allowlisted=4)\"",
+      "pass": true
+    },
+    {
+      "name": "URL inventory (urlsA / urlsB in re-run) not smaller than P1.3 baseline",
+      "expected": ">= 288 (P1.3-baseline-summary.json / P1.3-url-inventory.json)",
+      "actual": "297 / 297",
+      "pass": true
+    },
+    {
+      "name": "Every allowlisted diff matched exactly one allowlist entry, all approvedBy A3",
+      "expected": "4 entries in allowlist.json, each matchedUrls.length == 1, each approvedBy == \"A3\"",
+      "actual": "allowlistReport[0] internalLinks / A3 matches=1; [1] sitemapEntries /sitemap.xml A3 matches=1; [2] hashedCssSha256 <hashed-css-assets> A3 matches=1; [3] visibleTextHash / A3 matches=1 (approvedAt 2026-09-27T03:30:56Z, matching the C-A3-3 condition, distinct from the earlier 3 entries approved at 2026-09-27T03:22:33Z)",
+      "pass": true
+    },
+    {
+      "name": "visibleTextHash(/) diff hashes match the pinned SPEC-04 §4 text diff already on file (not regenerated)",
+      "expected": "a=a9b60b84bc5c2125899673be8dde9445eed11679d3facb3b83119a4d8cad39b8, b=ad7e81a5498aaae2ea62ba6ff0471a1f842b0ce3c32cdfa13b5aa6cf22cd1503 (docs/migration/evidence/P5.3-text-diff.json)",
+      "actual": "diff-allowlisted.json diffs[].field==\"visibleTextHash\" at url \"/\": a=a9b60b84bc5c2125899673be8dde9445eed11679d3facb3b83119a4d8cad39b8, b=ad7e81a5498aaae2ea62ba6ff0471a1f842b0ce3c32cdfa13b5aa6cf22cd1503 -- matches; text diff itself cited from P5.3-text-diff.json, not regenerated",
+      "pass": true
+    },
+    {
+      "name": "No unallowed diffs (all report-only header diffs excluded per harness policy, no field diffs outside the 4 allowlisted)",
+      "expected": "failedUnallowed == 0",
+      "actual": "0 (200 diffs recorded total, all report-only/header or allowlisted; see diff-allowlisted.json)",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "manifestA": {
+      "path": "docs/migration/.scratch/p5.2-attempt2/A.json",
+      "sha256": "751b7b68a85aea4434533553f0957ef3f64fcf1ad0a990d7674adee2a786ec1a"
+    },
+    "manifestB": {
+      "path": "docs/migration/.scratch/p5.2-attempt2/B.json",
+      "sha256": "c6f41a1011faaa5e83065f678a8189219e950599d8ef75b7787c9f40518e7ace"
+    },
+    "allowlist": {
+      "path": "docs/migration/evidence/allowlist.json",
+      "gitHashObject": "d74906f503904895f4573db7e967c1890b8da70f",
+      "entries": 4
+    },
+    "harness": {
+      "headCommit": "37d64e4f7748a01ca0c89f1148c25904485b9c72",
+      "compareMjs": {
+        "path": "scripts/migration/parity/compare.mjs",
+        "gitHashObject": "882f48e6719b95532aadb09a264bf56d47437d78"
+      },
+      "extractMjs": {
+        "path": "scripts/migration/parity/lib/extract.mjs",
+        "gitHashObject": "e072dbebce657d1d521092a71d4d14dcca7ef18c",
+        "note": "task text named this path as lib/extract.mjs (repo root); actual committed path is scripts/migration/parity/lib/extract.mjs, imported by compare.mjs as ./lib/extract.mjs"
+      }
+    },
+    "diffAllowlisted": {
+      "path": "docs/migration/.scratch/p5.2-attempt2/diff-allowlisted.json",
+      "sizeBytes": 54775,
+      "compared": 297,
+      "failedUnallowed": 0,
+      "allowlisted": 4
+    },
+    "textDiffCitation": "docs/migration/evidence/P5.3-text-diff.json"
+  }
+}

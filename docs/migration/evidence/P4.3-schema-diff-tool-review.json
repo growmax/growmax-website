@@ -1,0 +1,143 @@
+{
+  "step": "P4.3",
+  "gate": "G4",
+  "status": "pass",
+  "checkedAt": "2026-09-26T20:38:41Z",
+  "verifier": "migration-reviewer (opus/high), review round 2 (final); persisted by the orchestrator from the reviewer hand-back (the reviewer role is read-only)",
+  "approve": true,
+  "blocking": [],
+  "reviewedHashes": {
+    "scripts/migration/db/schema-diff.mjs": "1b26f04b7cccd16da82675aa58991ff98b7f231a",
+    "scripts/migration/db/schema-diff.selftest.mjs": "a6a6f9cc255c8d25849c4fb08643890a7df7beda"
+  },
+  "hashesMatchCommittedFiles": true,
+  "summary": "Round 2 review (checked at 2026-09-26T20:38:41Z). The round-1 blocking item is fixed. main() now runs validateInventory() on both sides, checking that pgMajor is an integer, that the nine list fields are arrays, and that tables is an object whose entries have array columns and primaryKey. The diffInventories() call and the --out write are both wrapped in try/catch, and every failure writes to stderr and exits 2. I confirmed exit 2 for these inputs: --b {}, --b null, pgMajor missing on both sides, pgMajor given as the string \"18\", tables given as an array, roles missing, a null element in constraints, and an unwritable --out. I found no regressions. The self-test passes all 44 checks (exit 0), including the real-data case. On the real inventories, without the flag the tool reports exactly 1 diff (pgMajor 16 vs 18) and exits 1. With --accept-pg-major 18 it reports 0 diffs, accepted=[pgMajor 16->18], ignored.schemas.a=[\"_system\"] and normalized.notNullConstraints a=0, b=27, and exits 0. With flag 17, and on a downgrade with flag 16, it exits 1. These flag values give usage exit 2: '', 18.0, 1e1, ' 18', 0x12, and a missing value. I ran 31 mutations of copies of the real inventories under the tmp dir, and every real difference is still caught. That covers NOT NULL lost or added (a b that is consistent with itself shows up as table_columns_differ), NO INHERIT, NOT VALID, a trailing space, a double space, a lowercase keyword, a null def, an uppercase unquoted identifier, an 'n' row on the wrong table, and dropping one 'n' row while duplicating another. It also covers a dropped UNIQUE or PK, an added CHECK, a changed index method, a dropped index, an extra schema on b, a '_System' spelled with different case, b=17 with flag 18, and a=18 b=18 where a has no 'n' rows. The only things now ignored are the equivalent quoted form of an identifier and the platform schemas, which are ignored symmetrically as the spec requires. The comparisons outside the change (extensions, tables, columns, PK, other constraint types, indexes, sequences, views, functions, triggers, roles) have the same code as HEAD. The only differences there are the 'n' filter and the renamed schema set; no caller of diffArraysBy uses the ignoreSchemas default. The only importer of diffInventories is the self-test. The scripts and the evidence file contain no secrets or connection strings, the real inventories are gitignored, and git diff --check is clean.",
+  "checks": [
+    {
+      "name": "round-1 blocking: --b {} exits 2",
+      "expected": "2",
+      "actual": "2",
+      "pass": true
+    },
+    {
+      "name": "round-1 blocking: --b null exits 2",
+      "expected": "2",
+      "actual": "2 (selftest)",
+      "pass": true
+    },
+    {
+      "name": "round-1 blocking: pgMajor missing both sides exits 2",
+      "expected": "2",
+      "actual": "2 (selftest)",
+      "pass": true
+    },
+    {
+      "name": "round-1 blocking: unwritable --out exits 2",
+      "expected": "2",
+      "actual": "2 (selftest)",
+      "pass": true
+    },
+    {
+      "name": "invalid shapes (pgMajor string, tables array, roles missing, null constraint element) exit 2",
+      "expected": "2",
+      "actual": "2 each",
+      "pass": true
+    },
+    {
+      "name": "selftest",
+      "expected": "pass, exit 0",
+      "actual": "pass, 44/44 checks, exit 0",
+      "pass": true
+    },
+    {
+      "name": "real inventories without --accept-pg-major",
+      "expected": "exit 1, only pgMajor diff",
+      "actual": "exit 1, diffs=[pgMajor 16/18], ignored.schemas.a=[_system], normalized a=0 b=27",
+      "pass": true
+    },
+    {
+      "name": "real inventories with --accept-pg-major 18",
+      "expected": "exit 0, empty, accepted pgMajor",
+      "actual": "exit 0, diffCount 0, accepted=[pgMajor 16->18], all output keys present",
+      "pass": true
+    },
+    {
+      "name": "--accept-pg-major 17 / downgrade with 16",
+      "expected": "exit 1",
+      "actual": "exit 1 / exit 1",
+      "pass": true
+    },
+    {
+      "name": "bad --accept-pg-major values ('', 18.0, 1e1, ' 18', 0x12, missing)",
+      "expected": "exit 2",
+      "actual": "exit 2 each",
+      "pass": true
+    },
+    {
+      "name": "NOT NULL mutations (lost/added on either side, NO INHERIT, NOT VALID, whitespace, case, null def, wrong table, drop+duplicate)",
+      "expected": "diff each",
+      "actual": "diff each (table_columns_differ or not_null_* types)",
+      "pass": true
+    },
+    {
+      "name": "other-object mutations (drop UNIQUE/PK, add CHECK, index change/drop, extra schema, _System case variant)",
+      "expected": "diff each",
+      "actual": "diff each",
+      "pass": true
+    },
+    {
+      "name": "untouched comparisons identical to HEAD",
+      "expected": "unchanged",
+      "actual": "unchanged apart from the 'n' filter and schema set rename (the ignoreSchemas default path is unused)",
+      "pass": true
+    },
+    {
+      "name": "diffInventories importers",
+      "expected": "selftest only",
+      "actual": "selftest only",
+      "pass": true
+    },
+    {
+      "name": "secret scan of changed files and evidence",
+      "expected": "none",
+      "actual": "none",
+      "pass": true
+    }
+  ],
+  "nonBlocking": [
+    "scripts/migration/db/schema-diff.mjs:151,161: N_X and C_X use the key `${table}.${column}`, which is ambiguous when a table or column name contains a dot. A crafted pair (table 'a' with column 'b.c' vs table 'a.b' with column 'c') could make a missing 'n' row and an orphan cancel out. This is unrealistic for this schema; keying on JSON.stringify([table, column]) would remove the ambiguity.",
+    "scripts/migration/db/schema-diff.mjs:84-112: validateInventory checks container shapes but not element shapes. A malformed element still ends in exit 2 through the diffInventories try/catch, and the stderr message then contains a stack trace instead of the field name.",
+    "scripts/migration/db/schema-diff.mjs:149: not_null_constraint_nonstandard and not_null_constraint_unparsed diffs do not carry the constraint name, and _missing/_orphan carry only a key. That is fine for gating, but adding the name would make diagnosis easier.",
+    "scripts/migration/db/schema-diff.selftest.mjs:257-261: case 12 accepts either orphan or missing. It could assert specifically not_null_constraint_orphan with side 'a' and key 'widgets.bogus_col' (and missing for widgets.id and widgets.name).",
+    "scripts/migration/db/schema-diff.selftest.mjs:405-454: the real-data case silently passes as 'skipped' when the gitignored .scratch inventories are absent. That is acceptable, but a P4.3 re-run should confirm it actually ran and was not skipped.",
+    "A PG16 inventory that already carries 'n' rows matching its columns gives 0 diffs, because the 'n' rows are reconciled and then excluded from the generic comparison. This is consistent with requirement A and harmless.",
+    "_system and neon_auth are also ignored when they appear only on the target (b). That is the symmetric behavior requirement B asks for, and it is reported in ignored.schemas.b.",
+    "(r1) Existing issue, not introduced by this change, but it can fail open: the main guard at schema-diff.mjs:287 (`import.meta.url === file://${process.argv[1]}`) is false when the script is run through a symlink, or from a path that needs URL-escaping such as one with spaces. The process then exits 0 with no output. I confirmed this by running a symlink with --b {}: exit 0, nothing printed. Suggested fix: compare against pathToFileURL(realpathSync(process.argv[1])).href. Callers should also require the output JSON to exist and have empty===true, not just exit 0.",
+    "(r1) information_schema is_nullable is 'NO' for a column whose domain is NOT NULL, but PG18 creates no contype 'n' row for a domain. On PG18 such a column would show up as a false not_null_constraint_missing. That fails closed and the current schema has no domains, but it is worth a comment in the code.",
+    "(r1) Unknown CLI flags are ignored silently, for example --accept-pg-major=18 or --bogus. This is existing behavior. It fails closed, since the pgMajor diff stays, but rejecting unknown flags with exit 2 would be cleaner.",
+    "(r1) When --accept-pg-major is given twice the last value wins, and a negative value is accepted as an integer. Both are harmless, because acceptance also requires b.pgMajor === N and b > a.",
+    "(r1) The self-test's real-data mutations only check that there are at least one diff. The CLI real-data case also does not check the no-flag run (exit 1 with exactly one pgMajor diff). Asserting the specific diff types would make regressions easier to see."
+  ],
+  "round1": {
+    "checkedAt": "2026-09-26T20:33:36Z",
+    "approve": false,
+    "reviewedHashes": {
+      "scripts/migration/db/schema-diff.mjs": "e763ed8046a4a67a8a9aa8dd4d6c1c7c1d258372",
+      "scripts/migration/db/schema-diff.selftest.mjs": "6b42429ab70a9df43e20e635bac80833a3e5ff55"
+    },
+    "blocking": [
+      {
+        "file": "scripts/migration/db/schema-diff.mjs",
+        "issue": "Requirement D says the exit code must be 2 on unreadable or invalid input, with a message on stderr. main() only catches readFileSync and JSON.parse errors (lines 256-264). Valid JSON that is not an inventory ({} or null, or missing constraints, tables, etc.) throws an uncaught TypeError inside diffInventories (for example at line 155, b.extensions.filter). The process then exits 1, which is the 'diffs present' code, prints a stack trace and writes no JSON. A caller that tells 1 from 2 would look for a schema difference that doesn't exist, when the real problem is a broken inventory run. The same thing happens when --out fails (writeFileSync throws, exit 1). Related: if both inputs lack pgMajor, undefined === undefined and the major check passes silently. I confirmed this with --b {} (exit 1 plus a TypeError) and with pgMajor deleted on both sides (0 diffs).",
+        "fix": "In main(), after load(), validate each side: Number.isInteger(x.pgMajor); Array.isArray for extensions, schemas, constraints, indexes, sequences, views, functions and triggers, and for roles; tables must be a plain object whose values have an array columns and an array primaryKey. On failure write 'invalid inventory <path>: <field>' to stderr and set exitCode 2. Also wrap diffInventories() and writeFileSync(args.out) in try/catch that sets exitCode 2. Add self-test cases: --b holding {} gives exit 2, a missing pgMajor gives exit 2, and an unwritable --out gives exit 2."
+      }
+    ]
+  },
+  "history": "r1 (20:33:36Z): 1 blocking (valid JSON that is not an inventory, or a failed --out write, exited 1, the \"diffs found\" code, instead of 2) -> implementer fix r2 (validateInventory plus try/catch, 4 new self-test cases, real checkedAt) -> r2 (20:38:41Z): approve, 0 blocking",
+  "artifacts": {
+    "tool": "scripts/migration/db/schema-diff.mjs",
+    "selftest": "scripts/migration/db/schema-diff.selftest.mjs",
+    "implementerEvidence": "docs/migration/evidence/P4.3-schema-diff-tool-fix.json",
+    "workflowRun": "wf_f6d59b3b-02c"
+  }
+}

@@ -1,0 +1,1180 @@
+{
+  "generatedAt": "2026-09-26T14:17:03.416Z",
+  "base": "https://www.growmax.io",
+  "counts": {
+    "sitemap": 203,
+    "next-config-gsc": 50,
+    "next-config-literal": 8,
+    "special": 9,
+    "special-api": 9,
+    "not-in-sitemap": 4,
+    "variant": 3,
+    "negative": 2
+  },
+  "urls": [
+    {
+      "url": "/",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/4-critical-features-to-win-digital-customer-experience-with-b2b-ecommerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/a-comprehensive-sales-order-booking-app-for-zoho-inventory",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/advantages-of-ecommerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ai-chatbots-b2b-customer-service-industrial",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ai-driven-lead-scoring-industrial-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ai-powered-ordering-apps-the-future-of-b2b-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ai-powered-product-recommendations-spare-parts",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ai-predictive-inventory-management-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ai-reshaping-b2b-ecommerce-industrial-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ai-transforms-after-sales-service-manufacturing",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/automating-sales-pipeline-industrial-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-buying-process",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-customer-portal-vs-dealer-portal",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-ecommerce-a-new-sales-channel-for-b2b-manufacturers-wholesalers-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-ecommerce-for-soare-parts-businesses",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-ecommerce-sales-team-visibility-problem",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-ecommerce-strategy-industrial-manufacturers",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-ecommerce-without-replacing-erp",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-marketplace-industrial-mro-supplies",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-mobile-ordering-app-guide",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-sales-tips-strategies-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/b2b-wholesale",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/best-b2b-ecommerce-platforms-2026",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/best-b2b-ordering-apps-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/best-competitors-and-alternatives-to-handshake",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/best-dealer-portal-software-2026",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/best-ecommerce-software",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/best-sap-b2b-commerce-solutions",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/best-spare-parts-management-software",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/best-wholesale-inventory-management-software-for-distributors-in-2026",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/boost-efficiency-in-f-b-fmcg-wholesale-with-a-zoho-integrated-order-booking-sales-app",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/boost-sales-product-recommendations",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/boost-your-industrial-sales-performance-with-smart-target-setting-and-automation",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/bridging-partner-visibility-gap-quotation-order",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/bridging-the-partner-visibility-gap-streamlining-the-quotation-to-order-process-for-industrial-brands",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/calculate-finished-goods-inventory",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/channel-conflict-resolution-multi-channel-industrial",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/channel-partner-management-spreadsheets-to-digital",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/chemical-distributor-increased-online-orders-case-study",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/claude-commerce-agents-b2b",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/complete-guide-b2b-customer-specific-pricing",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/cpq-software-guide-small-medium-industrial-businesses",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/crm-vs-sfa-sales-force-automation-guide",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/customer-specific-product-catalogs-b2b-commerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/d2c-trends",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/dealer-portal-best-practices-industrial-equipment",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/digital-can-drive-5x-growth-for-b2b-companies",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/digital-enabled-fmcg-wholesale-benefits-of-launching-self-ordering-apps-for-b2b-and-horeca-customers",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/digital-partner-engagement-revolution-manufacturing",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/direct-store-delivery-dsd-guide",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ecommerce-personalization",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ecommerce-shipping-method",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ecommerce-terms-glossary",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/ecommerce-trends",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/edi-vs-b2b-ecommerce-differences",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/effective-management-of-moq-and-volume-based-pricing-is-essential-for-food-and-personal-care-wholesalers",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/electrical-distributor-order-processing-case-study",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/embrace-the-digital-shift-building-a-b2b-ecommerce-platform-for-manufacturers-and-wholesalers",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/empower-sales-rep-with-digital-commerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/empower-your-business-with-advantage-of-b2b-ecommerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/enhancing-industry-collaboration-a-case-study-from-a-leading-paint-manufacturer-in-india",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/enterprise-marketplace-opportunities-d2c",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/everything-you-need-to-know-about-b2b-ecommerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/fastener-distributor-revenue-growth-case-study",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/from-data-to-decisions-how-kpis-and-opportunity-management-drive-growth-for-industrial-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/future-b2b-commerce-headless-architecture-manufacturers",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/growmax-vs-b2b-wave",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/harnessing-the-power-of-ai-unlocking-insights-from-historical-data",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/heavy-equipment-spare-parts-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/how-can-you-grow-your-bike-spare-parts-business",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/how-textile-machinery-spare-parts-manufacturers-can-move-online",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/how-to-boost-spare-parts-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/how-to-migrate-from-tradgecko",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/how-to-sell-automotive-accessories-online",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/how-to-sell-car-spare-parts",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/how-to-write-invoice-email-for-ecommerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/implement-tiered-pricing-b2b-wholesale-distribution",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/increase-b2b-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/increase-construction-equipment-spare-parts-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/independent-partner-portals-for-industrial-channels",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/industrial-manufacturers-ai-sales-forecasting",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/integrating-zoho-crm-b2b-ecommerce-guide",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/inventory-management-techniques",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/inventory-stockout-risk-insight-the-modern-manufacturers-guide-to-preventing-revenue-loss",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/just-in-time-inventory-jit",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/make-2x-faster-decisions-in-your-sales-cycle",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/managing-spare-parts-business-for-an-industrial-oem",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/manufacturers-dedicated-spare-parts-ordering-system",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/maximize-automotive-aftermarket-sales-with-growmaxs-channel-partner-hub",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/maximizing-growth-through-partner-sales-management-a-comprehensive-guide",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/migrate-legacy-edi-modern-b2b-commerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/minimum-order-quantity",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/multi-tier-b2b-pricing-modeling",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/multi-warehouse-b2b-ecommerce-platform-architecture",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/obo-bettermann-digital-transformation-case-study",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/offline-order-taking-app-industrial-b2b-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/opportunity-pipeline-management-for-industrial-businesses-your-data-driven-path-to-predictable-revenue",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/opportunity-pipeline-management-predictable-revenue",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/own-your-data-in-your-private-cloud-embrace-technology-for-your-b2b-business",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/partner-engagement-strategy-industrial-brands",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/partner-onboarding-automation-time-to-revenue",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/partner-performance-analytics-channel-growth",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/pepperi-alternatives-and-competitors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/perpetual-inventory",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/product-catalog-management-ecommerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/progressive-web-app-pwa-guide",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/push-vs-pull-marketing-b2b-strategy",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/quickbooks-commerce-tradegecko-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/quotation-to-order-process-converting-revenue",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/receive-customer-orders-through-multiple-channels-transforming-your-b2b-sales-experience",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/reckitt-pro-solution-india-revolutionizing-b2b-with-e-commerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/reduce-sales-costs-in-f-b-wholesale-with-a-zoho-integrated-self-order-booking-app",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/revamping-the-order-process-obo-bettermanns-digital-transformation",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/roi-digital-channel-management-building-materials",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/sales-territory-management-industrial-b2b",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/sell-machine-spare-parts-online",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/set-up-b2b-ecommerce-website",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/shopify-plus-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/shopify-vs-woocommerce-vs-magento-vs-bigcommerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/siemens-partner-commerce-dealer-portal",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/signs-b2b-ecommerce-creating-revenue-silos",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/spare-parts-ecommerce-self-service-portal",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/spare-parts-identification-ai-visual-lookup",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/spare-parts-pricing-strategy-margin-retention",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/stop-losing-deals-streamline-your-industrial-sales-with-growmax",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/the-crucial-role-of-manufacturers-in-the-supply-chain-tailoring-b2b-ecommerce-to-meet-their-unique-needs",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/the-digital-partner-engagement-revolution-how-industrial-brands-can-transform-channel-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/the-ultimate-guide-to-cpq-software-for-small-and-medium-scale-industrial-businesses",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/tiered-pricing-for-b2b-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/tips-for-managing-spare-parts-inventory",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/top-b2b-software",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/top-wholesale-ordering-platforms-2026",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/trade-promotions-guide-wholesale-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/transform-your-digital-landscape-by-building-an-integration-layer-to-interact-with-new-age-applications",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/transforming-your-digital-landscape-integrating-third-party-applications-with-sap-ecc-through-sap-connector",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/uncovering-hidden-customer-needs-for-cross-selling-and-upselling-through-a-recommendations-engine",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/unlocking-growth-for-industrial-distributors-how-opportunity-management-drives-sales-success",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-are-the-new-trends-in-b2b-sales-for-150-growth-in-revenue",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-an-online-marketplace",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-b2b-marketplace",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-backordering",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-d2c",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-deadstock",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-ecommerce-crm",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-headless-commerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-inventory-control",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-lead-time",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-order-management",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-order-to-cash-o2c",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-product-experience-management",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-purchase-order",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-safety-stock",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-spares-parts-management",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/what-is-the-difference-between-b2c-b2b-ecommerce-platforms",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/wholesale-distributors-guide",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/wholesale-marketing",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/why-a-channel-partner-hub-with-performance-analytics-is-essential-for-business-growth",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/why-an-offline-order-taking-app-is-essential-for-fmcg-and-industrial-b2b-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/why-b2b-marketers-should-invest-in-b2b-ecommerce-a-hybrid-approach-for-competitive-advantage",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/why-product-categorization-matters-in-sales-self-ordering-apps",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/winning-the-aftermarket-sales",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/writing-product-description-guide",
+      "source": "sitemap"
+    },
+    {
+      "url": "/blog/your-traditional-competitors-are-not-your-threats",
+      "source": "sitemap"
+    },
+    {
+      "url": "/company/about",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/bigcommerce-b2b-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/dynamics-365-commerce-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/handshake-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/magento-b2b-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/netsuite-suitecommerce-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/oracle-commerce-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/orocommerce-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/salesforce-commerce-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/sana-commerce-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/sap-commerce-cloud-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/shopify-plus-b2b-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/tradegecko-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/woocommerce-b2b-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/comparisons/zoho-commerce-alternatives",
+      "source": "sitemap"
+    },
+    {
+      "url": "/demo",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/automotive-aftermarket",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/building-materials",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/chemical-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/electrical-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/food-beverage",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/industrial-fasteners",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/industrial-manufacturing",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/janitorial-sanitation",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/packaging-distributors",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/plumbing-hvac",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/pump-valve",
+      "source": "sitemap"
+    },
+    {
+      "url": "/industries/safety-ppe",
+      "source": "sitemap"
+    },
+    {
+      "url": "/minori-ai",
+      "source": "sitemap"
+    },
+    {
+      "url": "/minori-ai/commerce-agents",
+      "source": "sitemap"
+    },
+    {
+      "url": "/minori-ai/connect",
+      "source": "sitemap"
+    },
+    {
+      "url": "/minori-ai/how-it-works",
+      "source": "sitemap"
+    },
+    {
+      "url": "/privacy",
+      "source": "sitemap"
+    },
+    {
+      "url": "/revenue-platform",
+      "source": "sitemap"
+    },
+    {
+      "url": "/revenue-platform/compare",
+      "source": "sitemap"
+    },
+    {
+      "url": "/solutions/spare-parts-ecommerce",
+      "source": "sitemap"
+    },
+    {
+      "url": "/terms-of-service",
+      "source": "sitemap"
+    },
+    {
+      "url": "/write-for-us",
+      "source": "sitemap"
+    },
+    {
+      "url": "/about",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/ai-analytics",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/arc",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/arc/ai/connect",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/arc/compare/cin7",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/arc/compare/nowcommerce",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/arc/compare/pepperi",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/arc/compare/unleashed",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/arc/pricing",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/author/aravindan",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/author/gnanavel",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/author/james-jonathan",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/author/sudhakar",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/author/surya-sk",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/b2b-commerce-cloud",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/b2b-ecommerce-platform",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/b2b-marketplace",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/b2b2b-commerce-cloud",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/b2b2c-commerce-cloud",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/blog/b2b-ecommerce-industrial-distributors",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/blog/b2b-ecommerce-platform-for-manufacturers",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/blog/best-b2b-order-taking-apps-distributors",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/blog/digital-enabled-fmcg-wholesale-self-ordering-apps",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/blog/fmcg-wholesale-b2b-self-ordering-app",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/blog/sales-order-booking-app-zoho-inventory",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/blog/spare-parts-management-software",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/category/ai-insights",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/category/b2b-ecommerce",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/category/marketing",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/category/sales",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/commerce-cloud",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/comparisons/orocommerce-b2b-alternatives",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/contact",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/contact-us",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/customer-support",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/enterprise-ecommerce-platform",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/headless-commerce",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/integrations",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/internal-collaboration",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/msa",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/new-home",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/order-management",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/product-catalog-management",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/quote-management",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/sales-rep-app",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/sap-integration-with-growmax-cloud",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/spare-parts-ecommerce",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/storefront-management",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/wholesale-ecommerce",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/why-us",
+      "source": "next-config-gsc"
+    },
+    {
+      "url": "/arc/compare/b2b-wave",
+      "source": "next-config-literal"
+    },
+    {
+      "url": "/arc/ai",
+      "source": "next-config-literal"
+    },
+    {
+      "url": "/arc/ai/claude-commerce-agents",
+      "source": "next-config-literal"
+    },
+    {
+      "url": "/arc/ai/minori",
+      "source": "next-config-literal"
+    },
+    {
+      "url": "/revenue-platform/dealer-portals",
+      "source": "next-config-literal"
+    },
+    {
+      "url": "/revenue-platform/partner-commerce",
+      "source": "next-config-literal"
+    },
+    {
+      "url": "/revenue-platform/spares-portals",
+      "source": "next-config-literal"
+    },
+    {
+      "url": "/revenue-platform/sap-integration",
+      "source": "next-config-literal"
+    },
+    {
+      "url": "/robots.txt",
+      "source": "special"
+    },
+    {
+      "url": "/sitemap.xml",
+      "source": "special"
+    },
+    {
+      "url": "/llms.txt",
+      "source": "special"
+    },
+    {
+      "url": "/llms-full.txt",
+      "source": "special"
+    },
+    {
+      "url": "/favicon.png",
+      "source": "special"
+    },
+    {
+      "url": "/opengraph.jpg",
+      "source": "special"
+    },
+    {
+      "url": "/icon-512.png",
+      "source": "special"
+    },
+    {
+      "url": "/logo-color.png",
+      "source": "special"
+    },
+    {
+      "url": "/replay/index.json",
+      "source": "special"
+    },
+    {
+      "url": "/api/blog",
+      "source": "special-api"
+    },
+    {
+      "url": "/api/blog/claude-commerce-agents-b2b",
+      "source": "special-api"
+    },
+    {
+      "url": "/api/blog/b2b-returns-rma-management-distributors",
+      "source": "special-api"
+    },
+    {
+      "url": "/api/blog/b2b-order-management-software-distributors",
+      "source": "special-api"
+    },
+    {
+      "url": "/api/blog/__parity_missing__",
+      "source": "special-api"
+    },
+    {
+      "url": "/api/blog-redirects?slug=%2Fblog%2F4-critical-features-to-win-digital-customer-experience-with-b2b-ecommerce",
+      "source": "special-api"
+    },
+    {
+      "url": "/api/blog-redirects?slug=__nope__",
+      "source": "special-api"
+    },
+    {
+      "url": "/api/admin/session",
+      "source": "special-api",
+      "expect": {
+        "status": 200,
+        "json": {
+          "isAdmin": false
+        }
+      }
+    },
+    {
+      "url": "/api/admin/posts",
+      "source": "special-api",
+      "expect": {
+        "status": 401
+      }
+    },
+    {
+      "url": "/minori-ai/original",
+      "source": "not-in-sitemap"
+    },
+    {
+      "url": "/minori-ai-2",
+      "source": "not-in-sitemap"
+    },
+    {
+      "url": "/admin",
+      "source": "not-in-sitemap"
+    },
+    {
+      "url": "/admin/login",
+      "source": "not-in-sitemap"
+    },
+    {
+      "url": "/blog?page=2",
+      "source": "variant",
+      "expect": {
+        "xRobotsTag": "noindex, follow"
+      }
+    },
+    {
+      "url": "/demo/",
+      "source": "variant"
+    },
+    {
+      "url": "/blog/",
+      "source": "variant"
+    },
+    {
+      "url": "/__parity_404_probe__",
+      "source": "negative"
+    },
+    {
+      "url": "/blog/__parity_404_probe__",
+      "source": "negative"
+    }
+  ]
+}

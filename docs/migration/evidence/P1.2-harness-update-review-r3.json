@@ -1,0 +1,29 @@
+{
+  "step": "P1.2",
+  "gate": "G1",
+  "status": "fail",
+  "checkedAt": "2026-09-26T16:41:40Z",
+  "verifier": "migration-reviewer (opus/high), /blog-fix review round 3; summarized by the orchestrator from the reviewer hand-back",
+  "approve": false,
+  "blocking": [
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "Both sides failing /blog extraction with the same embeddedPostsError produced no diff, so the listing silently dropped out of parity",
+      "fix": "Fail (non-allowlistable) whenever either side has an error; fail new-code 2xx /blog entries that have neither fields nor an error; add self-test cases"
+    }
+  ],
+  "nonBlocking": [
+    "extractFlightSegments skipped multi-row push chunks (6/13 live) and kept the longest candidate: join all pushes, split rows, require exactly one",
+    "fetchWithTimeout did not cover the body read",
+    "the llms-full.txt last section was unbounded",
+    "P5.2 against the old P1.3 manifest would fail /blog by construction (resolved: P5.2 uses a fresh A capture)"
+  ],
+  "checks": [
+    {
+      "name": "/blog fix review r3",
+      "expected": "approve",
+      "actual": "approve=false, 1 blocking; self-test pass 16/16 (+1 deferred)",
+      "pass": false
+    }
+  ]
+}

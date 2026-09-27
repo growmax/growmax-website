@@ -1,0 +1,61 @@
+{
+  "step": "P3.5",
+  "gate": "G3",
+  "status": "pass",
+  "checkedAt": "2026-09-26T19:53:59Z",
+  "verifier": "migration-verifier (independent read-back, not the P3.1-P3.4 implementer)",
+  "checks": [
+    {
+      "name": "Project settings (REST GET /v9/projects/growmax-website)",
+      "expected": "framework=nextjs; nodeVersion=22.x; resourceConfig.functionDefaultRegions=[\"iad1\"]; resourceConfig.fluid=true; skew protection on; commandForIgnoringBuildStep byte-exact `[ \"$VERCEL_ENV\" = \"production\" ] && [ -f docs/migration/PLAN.md ] && exit 1 || exit 0`; Git link growmax/growmax-website, productionBranch main; enableProductionFeedback=false; protection-bypass-for-automation exists (count only)",
+      "actual": "framework=nextjs; nodeVersion=22.x; functionDefaultRegions=[\"iad1\"]; fluid=true; skewProtectionMaxAge=2592000 (present, i.e. skew protection on); commandForIgnoringBuildStep matches byte-exact; link.type=github, link.org=growmax, link.repo=growmax-website, productionBranch=main; enableProductionFeedback=false; protectionBypass has exactly 1 entry, scope=automation-bypass (value not read). P3.1-project.json confirms the ignore-step byte-exact readback (15:18:28Z) occurred before gitConnect (15:19:19.271Z).",
+      "pass": true
+    },
+    {
+      "name": "Env var names/types (vercel env ls production / preview)",
+      "expected": "production has DATABASE_URL, an unpooled URL (DATABASE_URL_UNPOOLED or POSTGRES_URL_NON_POOLING), and SESSION_SECRET/ADMIN_PASSWORD/GOOGLE_CHAT_WEBHOOK_URL as sensitive/secret; preview empty of these",
+      "actual": "production: DATABASE_URL (Config), DATABASE_URL_UNPOOLED (Config), POSTGRES_URL_NON_POOLING (Config), plus other Neon-managed Config vars (PGUSER, POSTGRES_URL, POSTGRES_HOST, etc.), and GOOGLE_CHAT_WEBHOOK_URL, ADMIN_PASSWORD, SESSION_SECRET all typed Secret, environment=Production. preview: \"No Environment Variables found for growmax1/growmax-website\" (empty).",
+      "pass": true
+    },
+    {
+      "name": "Env pull hostnames (vercel env pull --environment=production)",
+      "expected": "Pooled and unpooled DB URLs present; pooled host contains -pooler; both hosts in us-east-1 (aws-us-east-1 / iad1)",
+      "actual": "DATABASE_URL host=ep-snowy-hill-b832dtrk-pooler.c-14.us-east-1.aws.neon.tech; DATABASE_URL_UNPOOLED host=ep-snowy-hill-b832dtrk.c-14.us-east-1.aws.neon.tech; POSTGRES_URL_NON_POOLING host=ep-snowy-hill-b832dtrk.c-14.us-east-1.aws.neon.tech (3 Secret values, unrelated to DB URLs, were written as [SENSITIVE] placeholders by the CLI as expected). Pull succeeded, file kept under docs/migration/.scratch/ (gitignored).",
+      "pass": true
+    },
+    {
+      "name": "Store connections (REST GET /v1/storage/stores)",
+      "expected": "store_5rcRxxSXMtnl4VA2 (growmax-db-iad1): region iad1, connected to growmax-website production only; store_IsJjgV1qX1w7nvrP (sin1): no project connections",
+      "actual": "store_5rcRxxSXMtnl4VA2: name=growmax-db-iad1, status=available, metadata.region=iad1, externalResourceId=morning-fog-77978305, projectsMetadata=[{projectId=prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu (growmax-website), environments=[\"production\"]}]. store_IsJjgV1qX1w7nvrP: status=available, metadata.region=sin1, externalResourceId=rapid-recipe-07132564, projectsMetadata=[] (no project connections).",
+      "pass": true
+    },
+    {
+      "name": "Target DB read-only query (unpooled URL, @neondatabase/serverless)",
+      "expected": "Query succeeds; public_tables=0 (target empty before P4)",
+      "actual": "server_version=18.6 (6569466), server_version_num=180006, public_tables=0",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "facts": {
+      "neon": {
+        "resourceName": "growmax-db-iad1",
+        "storeId": "store_5rcRxxSXMtnl4VA2",
+        "externalResourceId": "morning-fog-77978305",
+        "region": "iad1",
+        "pgVersion": "18.6 (6569466)",
+        "pgVersionNum": "180006",
+        "pooledHost": "ep-snowy-hill-b832dtrk-pooler.c-14.us-east-1.aws.neon.tech",
+        "unpooledHost": "ep-snowy-hill-b832dtrk.c-14.us-east-1.aws.neon.tech",
+        "publicTables": 0
+      },
+      "legacySin1": {
+        "storeId": "store_IsJjgV1qX1w7nvrP",
+        "externalResourceId": "rapid-recipe-07132564",
+        "region": "sin1",
+        "projectConnections": 0
+      }
+    },
+    "notes": "Prior evidence in this file (from an earlier run, verifier 'migration-scout') recorded P3.2/P3.3 as blocked with the Neon resource and sensitive vars not yet provisioned; this file supersedes it. Between that run and this one the owner accepted the Neon resource and the three sensitive vars (per this task's context), which this read-back independently confirms live via REST/CLI/DB query rather than by trusting P3.2/P3.3/P3.4's status fields. No secret values, connection strings, or PII were printed; docs/migration/.scratch/.env.production is gitignored and was read only for hostnames via a Node script."
+  }
+}

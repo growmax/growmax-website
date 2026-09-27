@@ -1,0 +1,268 @@
+{
+  "step": "P6.3",
+  "spec": "SPEC-01-infrastructure.md §6 steps 1-4 (step 4: challenge-only; cert NOT issued)",
+  "status": "pass",
+  "checkedAt": "2026-09-27T08:47:04Z",
+  "implementer": "migration-implementer",
+  "project": {
+    "name": "growmax-website",
+    "id": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+    "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
+    "teamSlug": "growmax1"
+  },
+  "preState": {
+    "method": "mcp__Vercel__list_project_domains",
+    "domains": [
+      {
+        "name": "growmax-website.vercel.app",
+        "verified": true,
+        "redirect": null
+      }
+    ],
+    "note": "Neither www.growmax.io nor growmax.io was on the project before this step, so both adds are first-time (idempotency check: nothing to skip)."
+  },
+  "domainsAdded": [
+    {
+      "method": "mcp__Vercel__add_project_domain",
+      "request": {
+        "name": "www.growmax.io"
+      },
+      "response": {
+        "name": "www.growmax.io",
+        "apexName": "growmax.io",
+        "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+        "redirect": null,
+        "redirectStatusCode": null,
+        "gitBranch": null,
+        "customEnvironmentId": null,
+        "createdAt": 1790498684560,
+        "updatedAt": 1790498684560,
+        "verified": true
+      },
+      "verificationRecords": "none: the API response has no verification[] field (verified=true)"
+    },
+    {
+      "method": "mcp__Vercel__add_project_domain",
+      "request": {
+        "name": "growmax.io",
+        "redirect": "www.growmax.io",
+        "redirectStatusCode": 308
+      },
+      "response": {
+        "name": "growmax.io",
+        "apexName": "growmax.io",
+        "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+        "redirect": "www.growmax.io",
+        "redirectStatusCode": 308,
+        "gitBranch": null,
+        "customEnvironmentId": null,
+        "createdAt": 1790498692534,
+        "updatedAt": 1790498692534,
+        "verified": true
+      },
+      "verificationRecords": "none: the API response has no verification[] field (verified=true)"
+    }
+  ],
+  "verification": {
+    "www.growmax.io": {
+      "verified": true,
+      "verification": []
+    },
+    "growmax.io": {
+      "verified": true,
+      "verification": []
+    },
+    "readback": "REST GET /v9/projects/growmax-website/domains/{domain} returned verified=true for both, with no verification[] field. The team-level GET /v5/domains/growmax.io also reports verified=true (serviceType external, nameservers ns-cloud-a1..a4.googledomains.com, registered in team growmax1). No TXT ownership record is needed, so SPEC-05 DOMAIN_VERIFIED is already satisfied."
+  },
+  "liveDomainConfig": {
+    "method": "REST GET /v6/domains/{domain}/config?projectIdOrName=growmax-website&teamId=team_r7yanNuXwyp3P3jzhnxkDNaD (Bearer token sent via curl -K stdin, never printed)",
+    "fetchedAt": "between 2026-09-27T08:44:52Z (apex add, API createdAt) and 2026-09-27T08:45:22Z (ACME run start); exact second not captured",
+    "www.growmax.io": {
+      "misconfigured": true,
+      "serviceType": "external",
+      "configuredBy": null,
+      "currentAValues": [
+        "34.111.179.208"
+      ],
+      "cnames": [],
+      "conflicts": [],
+      "acceptedChallenges": [],
+      "recommendedIPv4": [
+        {
+          "rank": 1,
+          "value": [
+            "216.150.1.1",
+            "216.150.16.1"
+          ]
+        },
+        {
+          "rank": 2,
+          "value": [
+            "76.76.21.21"
+          ]
+        }
+      ],
+      "recommendedCNAME": [
+        {
+          "rank": 1,
+          "value": "42202799866caf6b.vercel-dns-017.com."
+        },
+        {
+          "rank": 2,
+          "value": "cname.vercel-dns.com."
+        }
+      ]
+    },
+    "growmax.io": {
+      "misconfigured": true,
+      "serviceType": "external",
+      "configuredBy": null,
+      "currentAValues": [
+        "198.49.23.145",
+        "198.185.159.144",
+        "198.49.23.144",
+        "198.185.159.145"
+      ],
+      "cnames": [],
+      "conflicts": [],
+      "acceptedChallenges": [],
+      "recommendedIPv4": [
+        {
+          "rank": 1,
+          "value": [
+            "216.150.1.1",
+            "216.150.16.1"
+          ]
+        },
+        {
+          "rank": 2,
+          "value": [
+            "76.76.21.21"
+          ]
+        }
+      ],
+      "recommendedCNAME": [
+        {
+          "rank": 1,
+          "value": "42202799866caf6b.vercel-dns-017.com."
+        },
+        {
+          "rank": 2,
+          "value": "cname.vercel-dns.com."
+        }
+      ]
+    },
+    "note": "misconfigured=true is expected before cutover because DNS still points at Replit (www) and Squarespace (apex). Per A1 C5, www also switches with an A record (rank-1 recommendedIPv4), because a CNAME can't coexist with the replit-verify TXT at www. recommendedCNAME is recorded for reference only."
+  },
+  "acmeChallenge": {
+    "command": "npx --yes vercel@latest certs issue www.growmax.io growmax.io --challenge-only --scope growmax1",
+    "cliVersion": "Vercel CLI 60.1.3 (Node.js 22.22.2)",
+    "generatedAtUtc": "2026-09-27T08:45:22Z",
+    "commandFinishedAtUtc": "2026-09-27T08:45:26Z",
+    "exitCode": 0,
+    "records": [
+      {
+        "name": "_acme-challenge.growmax.io",
+        "relativeName": "_acme-challenge",
+        "type": "TXT",
+        "value": "aQH0fJDFxeoHWwufxFet9aUYQAv10nJO8DxkbBTcmcM"
+      },
+      {
+        "name": "_acme-challenge.www.growmax.io",
+        "relativeName": "_acme-challenge.www",
+        "type": "TXT",
+        "value": "F_Yc8S1Uw8f_GhhUzXEoKG5sJYWx_d1eNeabenVcqaE"
+      }
+    ],
+    "expiry": {
+      "reportedByCliOrApi": null,
+      "note": "Neither the CLI nor the API reported an authorization or order expiry. The output only says 'A certificate issuance ... has been started' and prints the TXT records. Let's Encrypt usually expires pending authorizations about 7 days after creation (general ACME/LE behaviour, not reported here). Runbook guidance: if the owner adds the TXT records after about 2026-10-04T08:45Z, or if 'vercel certs issue' then fails on the challenge, regenerate with the same --challenge-only command and replace the TXT values."
+    },
+    "certIssued": false,
+    "certIssuedCheck": "'vercel certs ls --scope growmax1' reports 'No certificates found under growmax1', and REST GET /v4/certs?teamId=... returned [] at 2026-09-27T08:46:21Z."
+  },
+  "caa": {
+    "method": "DNS-over-HTTPS https://dns.google/resolve?name=growmax.io&type=CAA, cross-checked with cloudflare-dns.com (dig isn't installed in this container)",
+    "checkedAt": "between 2026-09-27T08:44:52Z and 2026-09-27T08:45:22Z (just before the ACME run start); exact second not captured",
+    "growmax.io": {
+      "status": "NOERROR",
+      "answers": [],
+      "authoritySOA": "ns-cloud-a1.googledomains.com. cloud-dns-hostmaster.google.com. 41 21600 3600 259200 300"
+    },
+    "www.growmax.io": {
+      "status": "NOERROR",
+      "answers": []
+    },
+    "io.": {
+      "status": "NOERROR",
+      "answers": [],
+      "note": "CAA tree-climb parent, also empty"
+    },
+    "caaRecordsPresent": false,
+    "permitsLetsencrypt": true,
+    "reason": "With no CAA records at growmax.io, www.growmax.io or io., any CA may issue (RFC 8659), so letsencrypt.org is permitted. The runbook needs no CAA step unless the owner adds CAA records before cutover, in which case one must be '0 issue \"letsencrypt.org\"'."
+  },
+  "untouched": {
+    "dns": "No DNS record was created, changed or deleted. Every DNS interaction here was a read-only public or API lookup.",
+    "certificate": "Not issued (challenge-only).",
+    "aliases": "growmax-website.vercel.app is unchanged (verified=true, redirect=null). No alias or production deployment was touched.",
+    "readbackAt": "2026-09-27T08:46:21Z",
+    "projectDomainsAfter": [
+      {
+        "name": "growmax.io",
+        "redirect": "www.growmax.io",
+        "redirectStatusCode": 308,
+        "verified": true
+      },
+      {
+        "name": "www.growmax.io",
+        "redirect": null,
+        "redirectStatusCode": null,
+        "verified": true
+      },
+      {
+        "name": "growmax-website.vercel.app",
+        "redirect": null,
+        "verified": true
+      }
+    ]
+  },
+  "facts": {
+    "dns": {
+      "target": {
+        "wwwIPv4": [
+          "216.150.1.1",
+          "216.150.16.1"
+        ],
+        "apexIPv4": [
+          "216.150.1.1",
+          "216.150.16.1"
+        ],
+        "wwwCnameReferenceOnly": "42202799866caf6b.vercel-dns-017.com.",
+        "acme": [
+          {
+            "name": "_acme-challenge.growmax.io",
+            "value": "aQH0fJDFxeoHWwufxFet9aUYQAv10nJO8DxkbBTcmcM"
+          },
+          {
+            "name": "_acme-challenge.www.growmax.io",
+            "value": "F_Yc8S1Uw8f_GhhUzXEoKG5sJYWx_d1eNeabenVcqaE"
+          }
+        ],
+        "verify": []
+      }
+    }
+  },
+  "openItems": [
+    "TTL precondition (P6.3-ttl-precheck.json): the authoritative TTL on the www and apex A records was 14400s. This step doesn't re-check it; the runbook still needs the Step 0 TTL lowering or the enforced wait.",
+    "ACME TXT values may go stale (see acmeChallenge.expiry)."
+  ],
+  "verifierChecks": [
+    "list_project_domains growmax-website: growmax.io redirects to www.growmax.io with 308, and both are verified=true",
+    "GET /v6/domains/www.growmax.io/config?projectIdOrName=growmax-website: rank-1 recommendedIPv4 matches facts.dns.target.wwwIPv4 (same check for the apex)",
+    "vercel certs ls --scope growmax1: no cert for www.growmax.io or growmax.io",
+    "DoH CAA growmax.io: still empty",
+    "Public DNS for www and the apex is unchanged (www A 34.111.179.208; apex A: the 4 Squarespace IPs)",
+    "state.mjs scan is clean (the evidence holds no secrets; ACME TXT values are public DNS challenge tokens, not credentials)"
+  ]
+}

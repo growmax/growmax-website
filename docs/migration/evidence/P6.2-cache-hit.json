@@ -1,0 +1,44 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T08:35:01Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "condition": "C-A3b-3 (A1 C10): SPEC-02 H4 /api/blog served from Vercel cache on the deployment under test",
+  "method": "Two plain GETs (curl -sS --compressed, no extra headers, no bypass header) of https://growmax-website.vercel.app/api/blog about 2 s apart; no retries.",
+  "checks": [
+    {
+      "name": "Alias to deployment",
+      "expected": "growmax-website.vercel.app -> dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx (sha dc5405357441870b9315a28a7cbb93a201278453), READY, production",
+      "actual": "Vercel MCP get_deployment(growmax-website.vercel.app) resolved id dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx, state READY, target production, githubCommitSha dc5405357441870b9315a28a7cbb93a201278453, project prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu, aliasError null; list_deployment_aliases includes growmax-website.vercel.app",
+      "pass": true
+    },
+    {
+      "name": "First response",
+      "expected": "HTTP 200",
+      "actual": "2026-09-27T08:34:37Z: HTTP/2 200, x-vercel-cache STALE, cache-control 'public, max-age=0, must-revalidate', age 1531, x-vercel-id iad1::hgx9j-1790498078026-a17ca316b752, content-encoding br, 549983 bytes on the wire, 2322293 bytes decoded, JSON array length 172",
+      "pass": true
+    },
+    {
+      "name": "Second response served from cache",
+      "expected": "HTTP 200 and x-vercel-cache HIT, or STALE consistent with s-maxage=300",
+      "actual": "2026-09-27T08:34:40Z: HTTP/2 200, x-vercel-cache HIT, cache-control 'public, max-age=0, must-revalidate', age 1, x-vercel-id iad1::ph5fb-1790498080254-4e78a1ce1d00, content-encoding br, 2322293 bytes decoded, JSON array length 172. The first fetch's STALE (age 1531 > 300) triggered background revalidation and the second fetch was a HIT on the refreshed entry (age 1). Note: the client-facing cache-control is Vercel's rewritten browser header; s-maxage is consumed by the edge and not echoed, so the 300 s window is not directly visible in response headers.",
+      "pass": true
+    },
+    {
+      "name": "Size and length",
+      "expected": "both responses match P6.2-parity.json /api/blog: 2322293 bytes decoded, 172 items",
+      "actual": "response 1: 2322293 bytes, 172 items; response 2: 2322293 bytes, 172 items; bodies byte-identical (sha256 e755c7da24f71ef6f9b1d178b05eeba61ff7ab10efa629d36f2f02c947b983eb, same etag W/\"01589be45867ad60716edd88c7a74672\"); no difference from the parity report",
+      "pass": true
+    }
+  ],
+  "artifacts": [
+    "docs/migration/.scratch/p6-20260927T0803Z/cache-proof/alias-readback.json",
+    "docs/migration/.scratch/p6-20260927T0803Z/cache-proof/h1.txt",
+    "docs/migration/.scratch/p6-20260927T0803Z/cache-proof/b1.json",
+    "docs/migration/.scratch/p6-20260927T0803Z/cache-proof/t1.txt",
+    "docs/migration/.scratch/p6-20260927T0803Z/cache-proof/h2.txt",
+    "docs/migration/.scratch/p6-20260927T0803Z/cache-proof/b2.json",
+    "docs/migration/.scratch/p6-20260927T0803Z/cache-proof/t2.txt"
+  ]
+}

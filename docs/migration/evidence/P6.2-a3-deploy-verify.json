@@ -1,0 +1,11 @@
+{"step":"P6.2","gate":"G6a","status":"pass","checkedAt":"2026-09-27T08:36:19Z","verifier":"migration-scout (opus/low)",
+"deployment":"dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+"checks":[
+{"name":"deployment state","expected":"READY / production / dc5405357441870b9315a28a7cbb93a201278453","actual":"READY / production / dc5405357441870b9315a28a7cbb93a201278453","pass":true},
+{"name":"build log errors (excl. allowlisted notices)","expected":0,"actual":0,"pass":true},
+{"name":"aliases","expected":["growmax-website.vercel.app","growmax-website-growmax1.vercel.app"],"actual":["growmax-website-git-claude-wonderful-edison-823y83-growmax1.vercel.app","growmax-website-growmax1.vercel.app","growmax-website.vercel.app"],"pass":true},
+{"name":"generated URL no header","expected":"401/403 or 302/307 to vercel.com/sso-api","actual":"302 -> vercel.com/sso-api","pass":true},
+{"name":"generated URL with bypass header","expected":"200, title contains Growmax","actual":"attempt1: 000 (curl 35 TLS SSL_ERROR_SYSCALL, transient); attempt2: 200, title 'Growmax | B2B Revenue Ops for Manufacturers'","pass":true},
+{"name":"public alias GET / no header","expected":200,"actual":"attempt1: 200 (curl exit 0)","pass":true}
+],
+"artifacts":["docs/migration/.scratch/ev-339k.json (gitignored)"]}

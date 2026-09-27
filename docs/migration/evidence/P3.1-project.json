@@ -1,0 +1,65 @@
+{
+  "step": "P3.1",
+  "checkedAt": "2026-09-26T15:19:25Z",
+  "project": {
+    "id": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+    "name": "growmax-website",
+    "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
+    "teamSlug": "growmax1",
+    "createdAt": "2026-09-26T11:02:17.037Z",
+    "priorState": "bare: created via `vercel project add` before P3.1 solely to host the Sandbox `growmax-migration-runner` (P1.1 runner). No Git link, no deployments, framework null, nodeVersion 24.x, SSO all_except_custom_domains. Reused by name per SPEC-01 §2 step 1; never a second project created for this repo."
+  },
+  "convergedSettings": {
+    "appliedVia": "mcp__Vercel__update_project",
+    "appliedAt": "2026-09-26T15:18:13.484Z",
+    "framework": "nextjs",
+    "nodeVersion": "22.x",
+    "buildCommand": null,
+    "installCommand": null,
+    "outputDirectory": null,
+    "devCommand": null,
+    "enableProductionFeedback": false,
+    "resourceConfig": {
+      "functionDefaultRegions": ["iad1"],
+      "fluid": true
+    },
+    "commandForIgnoringBuildStep": "[ \"$VERCEL_ENV\" = \"production\" ] && [ -f docs/migration/PLAN.md ] && exit 1 || exit 0"
+  },
+  "ignoreStepReadback": {
+    "method": "REST GET /v9/projects/growmax-website (Authorization: Bearer $VERCEL_TOKEN, header only, value never printed)",
+    "readbackAt": "2026-09-26T15:18:28Z",
+    "byteExactMatch": true,
+    "note": "Read back and confirmed byte-exact against the spec string BEFORE Git was connected (see ordering below). functionDefaultRegions=[\"iad1\"] and fluid=true confirmed in the same read."
+  },
+  "skewProtection": {
+    "enabledVia": "vercel project protection enable growmax-website --skew --scope growmax1",
+    "reason": "team growmax1 is on the Pro plan (verified: `vercel teams ls` shows growmax1 = pro; A2 condition satisfied 2026-09-26T12:45:12Z per LOG.md)",
+    "result": { "skewProtection": true, "skewProtectionMaxAge": 2592000 },
+    "orderedBeforeGitConnect": true
+  },
+  "gitConnect": {
+    "method": "vercel git connect --non-interactive --scope growmax1 (after `vercel link --yes --project growmax-website --scope growmax1`)",
+    "connectedAt": "2026-09-26T15:19:19.271Z",
+    "note": "mcp__Vercel__create_git_project was not used: its own description says it will not reconnect an existing unlinked project with the same name (\"This prevents new bare projects; it does not reconnect an existing unlinked project with the same name\"), so the CLI path (SPEC-01 §2 step 2b) was used instead.",
+    "result": {
+      "type": "github",
+      "org": "growmax",
+      "repo": "growmax-website",
+      "productionBranch": "main"
+    }
+  },
+  "orderingProof": {
+    "settingsAppliedAt": "2026-09-26T15:18:13.484Z",
+    "ignoreStepReadBackAt": "2026-09-26T15:18:28Z",
+    "gitConnectedAt": "2026-09-26T15:19:19.271Z",
+    "statement": "commandForIgnoringBuildStep was set and independently read back byte-exact via REST at 15:18:28Z, which is before gitConnect at 15:19:19Z. Ordering requirement (SPEC-01 A1 C3 / P3.5 checklist) satisfied."
+  },
+  "deployMode": "git",
+  "productionAliases": [],
+  "productionAliasesNote": "Empty: no production deployment has been made yet (targets: {} in the project record). Populated at P5 after the first production deploy per SPEC-01 §2 step 4.",
+  "sideEffects": {
+    ".gitignore": "CLI `vercel link` appended `.env*` (to keep the OIDC token file `.env.local` it created out of git). This is not source/package/lockfile; left uncommitted for the orchestrator per the standing 'only the orchestrator commits' rule.",
+    ".vercel/": "created locally by `vercel link` (gitignored, not committed)."
+  },
+  "sourcesTouched": "none (no source, package.json or lockfile edited; package.json/package-lock.json modifications observed in the working tree belong to the concurrent P2 workflow and were left untouched)"
+}

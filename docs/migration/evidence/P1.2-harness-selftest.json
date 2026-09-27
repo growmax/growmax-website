@@ -1,0 +1,1056 @@
+{
+  "step": "P1.2",
+  "gate": "G1",
+  "checkedAt": "2026-09-26T16:58:22Z",
+  "base": "https://www.growmax.io",
+  "git": {
+    "sha": "ae99b2d574d1c48d69ba88de93521c25e6ba91da",
+    "dirtyHarnessFiles": [
+      "M scripts/migration/functional/run.mjs",
+      " M scripts/migration/parity/capture.mjs",
+      " M scripts/migration/parity/compare.mjs",
+      " M scripts/migration/parity/lib/extract.mjs",
+      " M scripts/migration/parity/selftest.mjs",
+      " M scripts/migration/parity/tie-permutation.mjs"
+    ]
+  },
+  "harnessFileHashes": {
+    "scripts/migration/parity/capture.mjs": "eb6bf8e563f95da2884fd4ce95eafe62ca16327275e514cc97435c400a11ee0e",
+    "scripts/migration/parity/compare.mjs": "0d3c207d7898a65e6974db764f9e253db0248ec5ffb26c64c559b3667e0ab2ea",
+    "scripts/migration/parity/lib/diff.mjs": "f061d69f3d9450013ace6384b623f44ba0c7ebb623b240e6fd78dc19f673f421",
+    "scripts/migration/parity/lib/extract.mjs": "90b83d7e4be1e9436269d021c0697d5ec4d5f6c025026b6b635c9ea819f6652e",
+    "scripts/migration/parity/lib/fetcher.mjs": "a73205f41129949f08f32d38d06a702a76d7aef6ac2753d0c1492ddbb611cd3d",
+    "scripts/migration/parity/selftest.mjs": "d9b136e9079cfb5360fe07bc87aeae454760a3dfe9e5ddfde399cfc6215304fa",
+    "scripts/migration/parity/tie-permutation.mjs": "b8a502ea7cf6d90032e7de5ccef74ef60f37330d4d21bca63abf12b84f1c7c00",
+    "scripts/migration/parity/urls.mjs": "f5532df1a775a9462829db092fe1a9c2d0814cfee4feba406cb8d7357294867e",
+    "scripts/migration/functional/run.mjs": "31d54352399f0883397ee4569f439ccb547996797d6e209e655e3cd74b58d5d6",
+    "scripts/migration/visual/run.mjs": "2b7c892dc71e1bafc5d1234ff82028929ab97effe014f6cf0335a24f01fcf373",
+    "scripts/migration/perf/run.mjs": "9f633137515ebc0b28244474e55ee81655880195faa821193e283339b0a5671e"
+  },
+  "urlInventory": {
+    "count": 297,
+    "counts": {
+      "sitemap": 203,
+      "next-config-gsc": 50,
+      "next-config-literal": 8,
+      "special": 9,
+      "special-api": 9,
+      "not-in-sitemap": 4,
+      "variant": 3,
+      "blog-api-slug": 9,
+      "negative": 2
+    }
+  },
+  "manifestSummary": {
+    "manifestA": {
+      "count": 297,
+      "fetchErrors": 0
+    },
+    "manifestB": {
+      "count": 297,
+      "fetchErrors": 0
+    },
+    "compactManifestA": {
+      "bytes": 1360642
+    },
+    "compactManifestB": {
+      "bytes": 1360641
+    }
+  },
+  "checks": [
+    {
+      "name": "self-compare-zero-diffs",
+      "pass": true,
+      "detail": {
+        "compared": 297,
+        "failedUnallowed": 0,
+        "diffs": 0,
+        "expectationViolations": [],
+        "sample": []
+      }
+    },
+    {
+      "name": "inventory-expect-blocks-match-spec",
+      "pass": true,
+      "detail": {
+        "expectUrls": [
+          "/api/admin/posts",
+          "/api/admin/session",
+          "/blog?page=2"
+        ],
+        "postCutoverUrls": [
+          "http://www.growmax.io/",
+          "http://growmax.io/",
+          "https://growmax.io/",
+          "https://growmax.io/demo"
+        ],
+        "problems": []
+      }
+    },
+    {
+      "name": "extractor-sanity-home",
+      "pass": true,
+      "detail": {
+        "visibleTextLength": 9893,
+        "jsonLdCount": 1,
+        "internalLinksCount": 42,
+        "assetRefsCount": 35,
+        "problems": []
+      }
+    },
+    {
+      "name": "reachability-floor-sitemap",
+      "pass": true,
+      "detail": {
+        "total": 203,
+        "okCount": 203,
+        "ratio": 1,
+        "floor": 0.95
+      }
+    },
+    {
+      "name": "resolve-dispatcher-pinned-fetch",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "text": "pinned-ok"
+      }
+    },
+    {
+      "name": "mutation-matrix",
+      "pass": true,
+      "detail": [
+        {
+          "name": "change-a-title",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "title"
+          ],
+          "pass": true
+        },
+        {
+          "name": "drop-a-canonical",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "canonical"
+          ],
+          "pass": true
+        },
+        {
+          "name": "edit-one-json-ld-field",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "jsonLdHash"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-one-word-of-body-text",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "visibleTextHash"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-image-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "assetRefs"
+          ],
+          "pass": true
+        },
+        {
+          "name": "flip-redirect-status",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "status"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-a-location",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "location-https-to-http",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "location-www-to-apex",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "remove-a-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "presence"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-sitemap-lastmod-for-blog-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "sitemapEntries"
+          ],
+          "pass": true
+        },
+        {
+          "name": "reorder-api-blog-array",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "pass": true
+        },
+        {
+          "name": "change-one-field-of-one-api-blog-element",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "jsonBySlug.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-excerpt-edited",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-date-changed",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-missing-post",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "embeddedPosts.<order>",
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-extra-post",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "embeddedPosts.<order>",
+            "embeddedPosts.claude-commerce-agents-b2b-migration-selftest-extra"
+          ],
+          "pass": true
+        },
+        {
+          "name": "admin-session-isAdmin-true",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-json",
+            "json"
+          ],
+          "requireFields": [
+            "expect-json",
+            "json"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-session-isAdmin-true-both-sides",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "expect-json"
+          ],
+          "requireFields": [
+            "expect-json"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-posts-status-200",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-status",
+            "status"
+          ],
+          "requireFields": [
+            "expect-status",
+            "status"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "blog-page2-drop-x-robots-tag",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-x-robots-tag",
+            "x-robots-tag"
+          ],
+          "requireFields": [
+            "expect-x-robots-tag",
+            "x-robots-tag"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "blog-page2-change-title-still-ab-compared",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "title"
+          ],
+          "requireFields": [
+            "title"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-page-status-500",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "status"
+          ],
+          "requireFields": [
+            "status"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-conforming",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-301-http-self",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-location",
+            "expect-status"
+          ],
+          "requireFields": [
+            "expect-status",
+            "expect-location"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-missing-on-b",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "expect-presence"
+          ],
+          "requireFields": [
+            "expect-presence"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "text-allowlist-pinned-covers-reviewed-diff",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "allowlisted": 1,
+          "requireAllowlisted": 1,
+          "pass": true
+        },
+        {
+          "name": "text-allowlist-pinned-rejects-other-diff",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "text"
+          ],
+          "requireFields": [
+            "text"
+          ],
+          "missingFields": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "determinism-two-captures-60s-apart",
+      "pass": true,
+      "detail": {
+        "compared": 297,
+        "failedUnallowed": 0,
+        "byCategory": {},
+        "unexplainedCount": 0,
+        "unexplainedSample": [],
+        "expectationViolations": []
+      }
+    },
+    {
+      "name": "coverage-sources",
+      "pass": true,
+      "detail": {
+        "missingLandedOk": true,
+        "missingLandedErr": null,
+        "sitemapBLandedOk": true,
+        "apiBlogFailureThrew": true,
+        "bSitemapFailureThrew": true
+      }
+    },
+    {
+      "name": "tie-permutation-checker",
+      "pass": true,
+      "detail": {
+        "pureResult": {
+          "pass": true,
+          "reason": null,
+          "detail": {
+            "comparedPublished": 4,
+            "groups": 3,
+            "tieGranularity": "millisecond",
+            "topN": 2,
+            "shownSetSymmetricDifference": [],
+            "boundaryGroup": null,
+            "shownSetDiffersOnlyWithinBoundaryTieGroup": true
+          }
+        },
+        "crossResult": {
+          "pass": false,
+          "reason": "cross-group-reorder",
+          "detail": {
+            "index": 1,
+            "aSlug": "b",
+            "bSlug": "c",
+            "aCreatedAt": "2026-01-01T00:00:00.000Z",
+            "bCreatedAt": "2025-12-31T23:59:59.000Z",
+            "tieGranularity": "millisecond"
+          }
+        }
+      }
+    },
+    {
+      "name": "tie-permutation-real-data",
+      "pass": true,
+      "detail": {
+        "problems": [],
+        "cases": {
+          "/": {
+            "selfPass": true,
+            "selfReason": null,
+            "mutatedPass": false,
+            "mutatedReason": "residual-content-difference"
+          },
+          "/sitemap.xml": {
+            "selfPass": true,
+            "selfReason": null,
+            "mutatedPass": false,
+            "mutatedReason": "residual-content-difference"
+          },
+          "/llms.txt": {
+            "selfPass": true,
+            "selfReason": null,
+            "mutatedPass": false,
+            "mutatedReason": "residual-content-difference"
+          },
+          "/llms-full.txt": {
+            "selfPass": true,
+            "selfReason": null,
+            "mutatedPass": false,
+            "mutatedReason": "residual-content-difference"
+          },
+          "/blog": {
+            "selfPass": true,
+            "selfReason": null,
+            "residualSelfPass": true,
+            "residualMutatedPass": false
+          }
+        }
+      }
+    },
+    {
+      "name": "tie-swap-real-data",
+      "pass": true,
+      "detail": {
+        "swappedSlugs": [
+          "b2b-sales-tips-strategies-distributors",
+          "integrating-zoho-crm-b2b-ecommerce-guide"
+        ],
+        "legitSwap": {
+          "pass": true,
+          "reason": null
+        },
+        "swapPlusEdit": {
+          "pass": false,
+          "reason": "residual-content-difference"
+        }
+      }
+    },
+    {
+      "name": "embedded-posts-coverage-guard",
+      "pass": true,
+      "detail": {
+        "problems": [],
+        "sameErrorDetected": true,
+        "missingBothDetected": true,
+        "oldManifestNotFlagged": true
+      }
+    },
+    {
+      "name": "flight-row-batching-robustness",
+      "pass": true,
+      "detail": {
+        "realPostCount": 172,
+        "merged": {
+          "pass": true,
+          "extractedCount": 172,
+          "error": null
+        },
+        "splitAcrossChunks": {
+          "pass": true,
+          "extractedCount": 172,
+          "error": null
+        }
+      }
+    },
+    {
+      "name": "mutation-matrix-compact",
+      "pass": true,
+      "detail": [
+        {
+          "name": "change-a-title",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "title"
+          ],
+          "pass": true
+        },
+        {
+          "name": "drop-a-canonical",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "canonical"
+          ],
+          "pass": true
+        },
+        {
+          "name": "edit-one-json-ld-field",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "jsonLdHash"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-one-word-of-body-text",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "visibleTextHash"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-image-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "assetRefs"
+          ],
+          "pass": true
+        },
+        {
+          "name": "flip-redirect-status",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "status"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-a-location",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "location-https-to-http",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "location-www-to-apex",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "location"
+          ],
+          "pass": true
+        },
+        {
+          "name": "remove-a-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "presence"
+          ],
+          "pass": true
+        },
+        {
+          "name": "change-sitemap-lastmod-for-blog-url",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "sitemapEntries"
+          ],
+          "pass": true
+        },
+        {
+          "name": "reorder-api-blog-array",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "pass": true
+        },
+        {
+          "name": "change-one-field-of-one-api-blog-element",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "jsonBySlug.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-excerpt-edited",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-date-changed",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-missing-post",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "embeddedPosts.<order>",
+            "embeddedPosts.claude-commerce-agents-b2b"
+          ],
+          "pass": true
+        },
+        {
+          "name": "embedded-posts-extra-post",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "embeddedPosts.<order>",
+            "embeddedPosts.claude-commerce-agents-b2b-migration-selftest-extra"
+          ],
+          "pass": true
+        },
+        {
+          "name": "admin-session-isAdmin-true",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-json",
+            "json"
+          ],
+          "requireFields": [
+            "expect-json",
+            "json"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-session-isAdmin-true-both-sides",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "expect-json"
+          ],
+          "requireFields": [
+            "expect-json"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-posts-status-200",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-status",
+            "status"
+          ],
+          "requireFields": [
+            "expect-status",
+            "status"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "blog-page2-drop-x-robots-tag",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-x-robots-tag",
+            "x-robots-tag"
+          ],
+          "requireFields": [
+            "expect-x-robots-tag",
+            "x-robots-tag"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "blog-page2-change-title-still-ab-compared",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "title"
+          ],
+          "requireFields": [
+            "title"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "admin-page-status-500",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "status"
+          ],
+          "requireFields": [
+            "status"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-conforming",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-301-http-self",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 2,
+          "detectedFields": [
+            "expect-location",
+            "expect-status"
+          ],
+          "requireFields": [
+            "expect-status",
+            "expect-location"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "post-cutover-missing-on-b",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "expect-presence"
+          ],
+          "requireFields": [
+            "expect-presence"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "text-allowlist-pinned-covers-reviewed-diff",
+          "expectDetected": false,
+          "detected": false,
+          "failedUnallowed": 0,
+          "detectedFields": [],
+          "allowlisted": 1,
+          "requireAllowlisted": 1,
+          "pass": true
+        },
+        {
+          "name": "text-allowlist-pinned-rejects-other-diff",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 1,
+          "detectedFields": [
+            "text"
+          ],
+          "requireFields": [
+            "text"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "compact-array-length-changed",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 3,
+          "detectedFields": [
+            "jsonBySlug.<count>",
+            "jsonBySlug.<slugs>",
+            "jsonBySlug.digital-can-drive-5x-growth-for-b2b-companies"
+          ],
+          "requireFields": [
+            "jsonBySlug.<count>"
+          ],
+          "missingFields": [],
+          "pass": true
+        },
+        {
+          "name": "compact-slug-multiset-changed",
+          "expectDetected": true,
+          "detected": true,
+          "failedUnallowed": 3,
+          "detectedFields": [
+            "jsonBySlug.<slugs>",
+            "jsonBySlug.claude-commerce-agents-b2b",
+            "jsonBySlug.digital-can-drive-5x-growth-for-b2b-companies"
+          ],
+          "requireFields": [
+            "jsonBySlug.<slugs>"
+          ],
+          "missingFields": [],
+          "pass": true
+        }
+      ]
+    },
+    {
+      "name": "determinism-compact-mode",
+      "pass": true,
+      "detail": {
+        "compared": 297,
+        "failedUnallowed": 0,
+        "unexplainedCount": 0,
+        "unexplainedSample": []
+      }
+    },
+    {
+      "name": "mixed-mode-compare-both-directions",
+      "pass": true,
+      "detail": {
+        "fullACompactB": {
+          "compared": 297,
+          "failedUnallowed": 0,
+          "unexplainedCount": 0,
+          "unexplainedSample": []
+        },
+        "compactAFullB": {
+          "compared": 297,
+          "failedUnallowed": 0,
+          "unexplainedCount": 0,
+          "unexplainedSample": []
+        }
+      }
+    },
+    {
+      "name": "mixed-mode-mutation-cases",
+      "pass": true,
+      "detail": {
+        "fullAToCompactBFieldChange": {
+          "detected": true,
+          "failedUnallowed": 1
+        },
+        "compactAToFullBFieldChange": {
+          "detected": true,
+          "failedUnallowed": 1
+        },
+        "fullAToCompactBTextEdit": {
+          "detected": true,
+          "failedUnallowed": 1
+        },
+        "compactAToFullBTextEdit": {
+          "detected": true,
+          "failedUnallowed": 1
+        },
+        "embeddedPosts": {
+          "excerpt-edited": {
+            "fullAToCompactB": {
+              "detected": true,
+              "failedUnallowed": 1
+            },
+            "compactAToFullB": {
+              "detected": true,
+              "failedUnallowed": 1
+            }
+          },
+          "date-changed": {
+            "fullAToCompactB": {
+              "detected": true,
+              "failedUnallowed": 1
+            },
+            "compactAToFullB": {
+              "detected": true,
+              "failedUnallowed": 1
+            }
+          },
+          "missing-post": {
+            "fullAToCompactB": {
+              "detected": true,
+              "failedUnallowed": 2
+            },
+            "compactAToFullB": {
+              "detected": true,
+              "failedUnallowed": 2
+            }
+          },
+          "extra-post": {
+            "fullAToCompactB": {
+              "detected": true,
+              "failedUnallowed": 2
+            },
+            "compactAToFullB": {
+              "detected": true,
+              "failedUnallowed": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "real-compact-capture-path",
+      "pass": true,
+      "detail": {
+        "urlsCaptured": 3,
+        "fetchErrors": 0,
+        "problems": []
+      }
+    },
+    {
+      "name": "protected-deployment-probe",
+      "pass": null,
+      "detail": {
+        "status": "deferred",
+        "reason": "No Vercel deployment exists yet (this is P1.2, pre-P3.1/P5.2); the probe runs at P5.2."
+      }
+    }
+  ],
+  "overall": "pass"
+}

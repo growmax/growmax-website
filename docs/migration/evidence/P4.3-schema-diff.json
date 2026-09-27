@@ -1,0 +1,72 @@
+{
+  "step": "P4.3",
+  "gate": "G4",
+  "status": "pass",
+  "attempt": 2,
+  "checkedAt": "2026-09-26T20:42:15Z",
+  "verifier": "migration-verifier (sonnet-5, effort=medium)",
+  "context": "Attempt 2: re-run of G4 check 4.3 against fresh inventories, using the fixed scripts/migration/db/schema-diff.mjs (see P4.3-schema-diff-tool-fix.json). Supersedes the attempt-1 evidence at this same path (git history keeps it, status was 'fail').",
+  "checks": [
+    {
+      "name": "4.3 schema-diff empty (ignoring owner/ACL/comments)",
+      "expected": "diffs.length === 0 from schema-diff.mjs run with --accept-pg-major 18 (A1 C2), reading the tool's own accepted/ignored/normalized buckets",
+      "actual": {
+        "commands": [
+          "node --env-file=docs/migration/.scratch/.env.production --import=<os.tmpdir() preload, no values printed> scripts/migration/db/inventory.mjs --db src --env SRC_URL --transport neon-https --out docs/migration/.scratch/p43a2-inv-src.json",
+          "node --env-file=docs/migration/.scratch/.env.production --import=<same preload> scripts/migration/db/inventory.mjs --db dst --env DST_URL_UNPOOLED --transport neon-https --out docs/migration/.scratch/p43a2-inv-dst.json",
+          "node scripts/migration/db/schema-diff.mjs --a docs/migration/.scratch/p43a2-inv-src.json --b docs/migration/.scratch/p43a2-inv-dst.json --accept-pg-major 18 --out docs/migration/.scratch/p43a2-schema-diff-raw.json"
+        ],
+        "exitCode": 0,
+        "diffCount": 0,
+        "diffs": [],
+        "pgMajor": {"a": 16, "b": 18},
+        "accepted": [{"type": "pgMajor", "a": 16, "b": 18}],
+        "ignored": {"schemas": {"a": ["_system"], "b": []}},
+        "normalized": {"notNullConstraints": {"a": 0, "b": 27}}
+      },
+      "pass": true,
+      "acceptedCitation": "accepted[0] (pgMajor 16->18) is exactly A1 C2's binding condition: target PG major >= 16, provisioned as 18.6, is a documented upgrade over the source's 16, granted --accept-pg-major 18 on the CLI matching the target's actual major. Not a defect.",
+      "ignoredCitation": "ignored.schemas.a = ['_system'] is the Replit platform-bookkeeping schema, source-only, symmetrically ignored by schema-diff.mjs's PLATFORM_MANAGED_SCHEMAS set alongside neon_auth/_migration. Independently re-verified this attempt (see supportingChecks.systemSchemaIndependence) rather than trusted from the tool.",
+      "normalizedCitation": "normalized.notNullConstraints: source (PG16) carries 0 pg_constraint contype='n' rows (NOT NULL is only pg_attribute.attnotnull pre-PG17); target (PG18) carries 27, one per NOT NULL column across the 4 tables. schema-diff.mjs parsed each of the 27 target rows and confirmed each column is nullable:false on both sides before excluding it from the generic constraint comparison -- this is the version-inherent catalog representation difference identified in attempt 1, now handled by the tool rather than manually classified by the verifier."
+    }
+  ],
+  "supportingChecks": {
+    "schemaDiffSelftest": {
+      "command": "node scripts/migration/db/schema-diff.selftest.mjs",
+      "status": "pass",
+      "exitCode": 0,
+      "checkCount": 44,
+      "allPass": true
+    },
+    "systemSchemaIndependence": {
+      "purpose": "Re-derive, read-only and independently of schema-diff.mjs's own exclusion list, that _system is safe to ignore: list its relations (names/relkinds only, never row data) and confirm no public object depends on it.",
+      "method": "pg_class/pg_namespace query for relname+relkind in schema _system (SRC_URL, readOnly:true); pg_depend joined to pg_class/pg_namespace for any public-schema object depending on a _system relation; pg_constraint (contype='f') joined on confrelid for any public-schema foreign key referencing _system.",
+      "systemRelations": [
+        {"relname": "idx_replit_database_migrations_v1_build_id", "relkind": "i"},
+        {"relname": "replit_database_migrations_v1", "relkind": "r"},
+        {"relname": "replit_database_migrations_v1_id_seq", "relkind": "S"},
+        {"relname": "replit_database_migrations_v1_pkey", "relkind": "i"}
+      ],
+      "publicDependsOnSystem": [],
+      "publicForeignKeysToSystem": [],
+      "noDependency": true,
+      "checkedAt": "2026-09-26T20:41:02.410Z"
+    },
+    "appCodeGrepForSystem": {
+      "command": "grep -rn \"_system\" app/ lib/ shared/ components/ drizzle.config.ts package.json",
+      "matches": 0,
+      "expected": "no use",
+      "pass": true
+    }
+  },
+  "artifacts": {
+    "inventorySrc": "docs/migration/.scratch/p43a2-inv-src.json",
+    "inventoryDst": "docs/migration/.scratch/p43a2-inv-dst.json",
+    "schemaDiffRaw": "docs/migration/.scratch/p43a2-schema-diff-raw.json",
+    "systemSchemaCheck": "docs/migration/.scratch/p43a2-system-check.json",
+    "toolFixEvidence": "docs/migration/evidence/P4.3-schema-diff-tool-fix.json",
+    "schemaDiffScript": "scripts/migration/db/schema-diff.mjs",
+    "schemaDiffScriptHashObject": "1b26f04b7cccd16da82675aa58991ff98b7f231a"
+  },
+  "notes": "Attempt 2, superseding the attempt-1 (round 2) evidence at this path, which reported status 'fail' (29 raw diffs: 1 pgMajor, 1 schema_missing_in_b for _system, 27 constraint_missing_in_a NOT-NULL-catalog artifacts), all classified there as non-defects. Between attempt 1 and this attempt, scripts/migration/db/schema-diff.mjs was fixed per that classification's own recommendation (P4.3-schema-diff-tool-fix.json, self-run by the implementer, reviewed): _system was added to PLATFORM_MANAGED_SCHEMAS, and PG16-vs-PG18 contype='n' rows are now parsed and checked against each column's nullable flag before being excluded, rather than diffed as generic constraints. This verifier did not trust that fix's self-test alone: it re-ran fresh inventory.mjs on both sides (source read-only via SRC_URL over neon-https, target via DST_URL_UNPOOLED), re-ran schema-diff.mjs --accept-pg-major 18 on those fresh snapshots (0 diffs, exit 0), re-ran the tool's own self-test suite (44/44 pass), and independently re-derived (not merely re-read) that _system carries no dependency from public (pg_depend, pg_constraint.confrelid) and is unreferenced anywhere in the application code. Check 4.3 now passes literally: diffs.length === 0."
+}

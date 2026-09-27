@@ -1,0 +1,88 @@
+# SPEC-05: Cutover (DNS/TLS choreography and check-in loop)
+
+Steps: P6.3, P6.5, P6.6, P7.1, P8.1. The owner changes DNS; the orchestrator prepares, detects, verifies and reconciles.
+
+Terminology: "READY FOR DNS" is the **notification** sent at P6.6. The ledger status from then on is `AWAITING_DNS`.
+
+## 1. Preconditions for READY FOR DNS (gate G6)
+
+- G5 and G6a passed on the **current** production deployment (verified SHA recorded in `facts.vercel.verifiedSha`).
+- Final full refresh done, sequence gap applied, G6 data checks passed (SPEC-03 §4).
+- Domains added to the project. Recommended records and ACME challenges captured.
+- `CUTOVER-RUNBOOK.md` filled in with **live** values (no placeholders left: `grep -c '{{' == 0`).
+- Advisor A2 verdict is `GO` or `GO_WITH_CONDITIONS` (the conditions are written into the runbook as owner prerequisites, for example "upgrade to Vercel Pro first").
+- A2's TTL precondition: the `www` A record's TTL, captured authoritatively at the DNS host (`docs/migration/evidence/P6.3-ttl-precheck.json`; DoH shows only remaining TTL, not the record's own value, so it can't be used for this check), is **<= 300 s**, or the runbook enforces a wait of at least the pre-existing TTL between Step 0 and Step B.
+
+## 2. Owner's DNS steps (the runbook renders these with live values)
+
+| Step | When | Change | Traffic impact |
+|---|---|---|---|
+| 0 | ≥ 24 h before cutover (ideally at pre-flight) | Lower the TTL of the `www` record, and of the apex records if you'll change them, to **300 s** | none |
+| A | Any time after READY | Add the TXT records `_acme-challenge.www` (and `_acme-challenge` for the apex) with the values shown, plus a `_vercel` TXT **only** if the runbook lists one | none |
+| B | After the orchestrator says "certificate ready" (or right away, if you accept a possible TLS warning for a few minutes) | `www`: delete `A 34.111.179.208`, then add `A <recommendedIPv4>` (**not** a CNAME: `www.growmax.io` also holds the Replit verification TXT, and Google Cloud DNS refuses a CNAME coexisting with any other record at the same name) | cutover |
+| C (RECOMMENDED) | With B, or later | Apex: the P1.4 baseline shows `https://growmax.io` already 301-ing to `http://www.growmax.io` — that redirect-to-www is SPEC-05's own criterion for doing this step, so do it unless the owner has a specific reason not to. Replace the four Squarespace `A` records with Vercel's recommended IPv4; Vercel then answers 308 → `www`. Record `facts.dns.apexMoved` (true once done) after cutover. | apex only |
+| Never | n/a | Don't touch MX, SPF/DKIM/DMARC TXT, Google/Microsoft verification TXT, or Replit's verification TXT (needed for rollback until decommission) | n/a |
+
+DNS host: **Squarespace Domains** (`domains.squarespace.com`), with nameservers on **Google Cloud DNS** (`ns-cloud-a1..a4.googledomains.com`). The owner makes record changes in the Squarespace Domains console; Google Cloud DNS is the authoritative name service behind it.
+
+`facts.dns.apexMoved`: set once Step C is done (apex A records replaced with Vercel's recommended IPv4). P8.2's apex expectations in `scripts/migration/parity/urls.mjs` (`POST_CUTOVER_ENTRIES`) assume the apex ends at `https://www` — those fixed expectations apply only when `facts.dns.apexMoved` is true. If the owner leaves the apex on Squarespace, P8.2 instead compares the apex entries against the P6.5 baseline behavior (apex 301 → `http://www.growmax.io`) rather than the fixed post-move expectations. A2 states which mode applies.
+
+## 3. Detection state machine (evaluated at every check-in)
+
+Hourly lookups use **only** the two DNS-over-HTTPS resolvers from the container: `https://dns.google/resolve?name=…&type=…` and `https://cloudflare-dns.com/dns-query` with `accept: application/dns-json`. Authoritative-NS queries need port 53, so they run only in the Sandbox runner and only to confirm a `SWITCHED` transition.
+
+```
+DOMAIN_UNVERIFIED ──(project domains verified: vercel domains verify / get_project_domain → verified:true)──▶ WAITING_TXT
+WAITING_TXT ──(_acme-challenge TXT visible on both DoH resolvers)──▶ TXT_PRESENT
+TXT_PRESENT ──(vercel certs issue www.growmax.io growmax.io succeeds;
+               curl --resolve www.growmax.io:443:<vercel-ip> shows a valid cert, from the Sandbox)──▶ CERT_READY  [notify owner: "switch www now"]
+{WAITING_TXT, TXT_PRESENT, CERT_READY} ──(authoritative www A == recommendedIPv4)──▶ SWITCHED  [set facts.cutover.detectedAt; status POST_CUTOVER]
+SWITCHED ──(public resolvers mixed)──▶ PROPAGATING
+PROPAGATING ──(both public resolvers → Vercel on 2 consecutive check-ins)──▶ PROPAGATED
+```
+
+- The start state is `DOMAIN_UNVERIFIED` if P6.3 recorded `verified:false`, otherwise `WAITING_TXT`. Cert issuance is never attempted before the domain is verified, and never while a CAA record forbids `letsencrypt.org`. Either condition is an owner action shown in the runbook, not a failure to escalate.
+- A failed `vercel certs issue` counts as one attempt. After 3 failed attempts, add blocker `B-CERT` with the error and the fallback ("switch `www` anyway; Vercel will issue via HTTP-01"). Don't climb the escalation ladder every hour.
+- If `SWITCHED` is reached without `CERT_READY`, Vercel issues the certificate through HTTP-01. Check TLS at every check-in and switch to 15-minute check-ins until the cert is valid. If it's still invalid after 60 min, it's a SEV2 incident (notify the owner and consider rolling DNS back per SPEC-07).
+- Record every transition with `state.mjs set facts.cutover.state "\"…\""` and a `LOG.md` line.
+
+## 4. Check-in routine (P7.1 and P8)
+
+Each wake:
+
+1. Run the ORCHESTRATOR §1 resume. Don't re-read specs unless the routine needs them.
+2. Advance the DNS/TLS state machine (§3). This is the cheap part: `mig-sync-delta` with `mode: "probe"` runs a single haiku/low agent.
+3. Delta sync (`mig-sync-delta` with `mode: "full"`: `sync.mjs delta` → `verify --below-gap`), **only** on this cadence:
+   - Before cutover: every 6 h.
+   - After `SWITCHED`: hourly for the first 24 h, then every 3 h.
+   
+   If `blogChanged`, redeploy production with the same SHA and quick-check the DB-driven URLs.
+4. Health, with the scout and the bypass header before cutover:
+   - `/`, `/blog`, one post, `/sitemap.xml`, `/api/blog` → 200.
+   - Runtime errors since the last check → 0 unexplained.
+5. Once cutover is detected: on the first check-in after `SWITCHED`, run P8.1 and P8.2 (full suite against the real domain). Run the smoke subset of it daily after that.
+6. Commit **only if something changed**: rows synced, a state transition, an incident, or a gate. Otherwise don't touch the ledger at all. The pending check-in is found with `mcp__Claude_Code_Remote__list_triggers` (name `growmax-migration-checkin`), not stored in `STATE.json`, so routine wakes leave git clean.
+7. Re-arm `send_later`:
+   - 60 min normally
+   - 15 min for the first 2 h after `SWITCHED`, or while TLS is invalid
+   - every 6 h after 14 days in `AWAITING_DNS`
+   - stop, after a final notification, after 30 days in `AWAITING_DNS` (resumable)
+   - **Post-cutover hard stop:** G8b needs ≥ 72 h **and** 24 h without new source rows. If Replit still receives writes at **7 days** (stale DNS clients, bots), stop reconciling. Run the final audit, record the residual rows and the owner decision needed ("decommission Replit now; remaining rows reconciled up to T"), and pass G8b with that condition noted.
+
+## 5. Notifications (PushNotification plus a session message)
+
+| Event | Message essentials |
+|---|---|
+| READY_FOR_DNS | "Vercel is verified and ready. Open docs/migration/CUTOVER-RUNBOOK.md. Step A first (TXT records), then wait for the 'certificate ready' notice." Include any A2 conditions (e.g. upgrade to Pro). |
+| CERT_READY | "TLS certificate for www.growmax.io is live on Vercel. Do step B now: delete `www` A `34.111.179.208`, add `www` A `<recommendedIPv4>`." |
+| SWITCHED | "DNS switch detected at `<time>`. Post-cutover verification running." |
+| SEV1/SEV2 incident | What broke, current impact, and the rollback instruction (SPEC-07 R2) if it's warranted |
+| G8 passed | "72 h reconciliation complete, zero data loss, site healthy. Remaining owner tasks: …" |
+| COMPLETE | Link to FINAL-REPORT.md and the decommission checklist |
+
+## 6. After cutover: PR and deployments
+
+- Update the PR description: cutover done, evidence links, and a request that `@growmax/guardians` merge.
+- Before the merge, production deploys only through the API (by SHA).
+- After the merge, pushes to `main` deploy automatically. The ignore guard passes because `docs/migration/PLAN.md` is on `main`.
+- Tell the owner that from now on, site changes go through GitHub → Vercel. Republishing from Replit no longer changes the live site.

@@ -1,0 +1,43 @@
+{
+  "step": "P6.3",
+  "gate": "G6/A2",
+  "status": "fail",
+  "checkedAt": "2026-09-26T17:01:14Z",
+  "verifier": "migration-implementer via scripts/migration/db/runner.mjs exec (Vercel Sandbox growmax-migration-runner); dig +norecurse direct to the authoritative NS (not DoH, which shows only remaining TTL)",
+  "summary": "Early capture of authoritative TTLs for the www and apex A records, plus the _dmarc and google._domainkey TXT records for the runbook's never-touch list. Condition C7 (A1-advisor.json). www A TTL is 14400s, well above the 300s A2 requires; A2 precondition is NOT met by TTL alone and needs the enforced-wait fallback (>= 14400s between Step 0 and Step B) unless the owner lowers the TTL first.",
+  "queriedAgainst": "ns-cloud-a1.googledomains.com (authoritative; AA flag set on every answer)",
+  "checks": [
+    {
+      "name": "www.growmax.io A (authoritative TTL)",
+      "expected": "<= 300 for A2, or note the enforced-wait fallback",
+      "actual": "34.111.179.208, TTL 14400",
+      "pass": false,
+      "note": "TTL is 14400s (4h), not <= 300s. A2's TTL precondition is unmet; the runbook must either have the owner lower it at Step 0 and re-check, or use the enforced wait (>= old TTL, i.e. >= 14400s) between Step 0 and Step B."
+    },
+    {
+      "name": "growmax.io A (apex, authoritative TTL, all 4 records)",
+      "expected": "recorded for the never-touch/Step-C table",
+      "actual": "198.185.159.144, 198.49.23.144, 198.185.159.145, 198.49.23.145 — all TTL 14400",
+      "pass": true
+    },
+    {
+      "name": "_dmarc.growmax.io TXT (authoritative TTL, never-touch list)",
+      "expected": "recorded",
+      "actual": "TTL 14400; value present (DMARC policy record; not reproduced verbatim in evidence beyond what's needed to confirm presence — see file:line reference below for the exact text)",
+      "pass": true
+    },
+    {
+      "name": "google._domainkey.growmax.io TXT (authoritative TTL, never-touch list)",
+      "expected": "recorded",
+      "actual": "TTL 14400; DKIM public-key TXT present (multi-part string), not reproduced verbatim here",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "rawDigOutput": "captured in the runner.mjs exec stdout for this session (not persisted as a separate file; re-run the same dig commands from the Sandbox to reproduce)"
+  },
+  "notes": "www A record TTL (14400s) exceeds the SOA minTtl (300s) recorded in P1.4-dns-baseline.json — that field is the SOA negative-cache minimum, not this record's own TTL, so it under-recorded propagation risk (per A1 risk 'www TTL is not in the DNS baseline'). All four values captured here feed CUTOVER-RUNBOOK.md's Step 0 'current value' column and SPEC-05 §2's TTL guidance, and _dmarc/google._domainkey join the runbook's never-touch list. TXT values themselves are not secrets, but this file avoids re-printing the DKIM public key in full to keep evidence lean; the runbook only needs presence + TTL, not the payload.",
+  "orchestratorEdits": [
+    "status set to fail: the www TTL <= 300 check fails today (14400 s at the authoritative NS). This is an early pre-check, not gate evidence; P6.3 re-captures it after the owner lowers the TTL."
+  ]
+}

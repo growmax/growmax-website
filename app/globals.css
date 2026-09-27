@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@source not "../docs/migration";
+@source not "../scripts/migration";
+@source not "../.claude";
+@source not "../CLAUDE.md";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));

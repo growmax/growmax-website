@@ -1,0 +1,58 @@
+{
+  "step": "P5.2",
+  "gate": "G5.2",
+  "status": "fail",
+  "checkedAt": "2026-09-27T01:18:16Z",
+  "verifier": "migration-verifier subagent (sonnet, medium effort)",
+  "mode": "pre",
+  "runLabel": "p5-20260926T2320Z",
+  "baseA": "https://www.growmax.io",
+  "baseB": "https://growmax-website.vercel.app",
+  "networkPaths": {
+    "web": "container",
+    "db": "neon-https",
+    "dump": "sandbox-sdk",
+    "vercelApi": "cli",
+    "visual": "container",
+    "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
+  },
+  "protectedDeploymentProbe": {
+    "status": "pass",
+    "checks": [
+      {
+        "name": "GET / with x-vercel-protection-bypass only (no set-bypass-cookie header sent)",
+        "expected": "200, app HTML (not Vercel auth page/401)",
+        "actual": "200, app HTML (title 'Growmax | B2B Revenue Ops for Manufacturers' present; x-nextjs-prerender:1, x-vercel-cache:HIT)",
+        "pass": true
+      },
+      {
+        "name": "GET /about with x-vercel-protection-bypass, redirect:manual (redirect source, gsc-indexing-redirects.ts)",
+        "expected": "308 -> /company/about (configured permanent redirect)",
+        "actual": "308, location: /company/about, refresh: 0;url=/company/about",
+        "pass": true
+      }
+    ],
+    "note": "Independently re-derived (not copied from P5.2-parity.json's prior probe). Responses are the app's own content and its configured redirect, not a Vercel auth challenge, so the suite proceeds to the visual check rather than failing as harness at this gate."
+  },
+  "reachability": {
+    "baseAReachable": true,
+    "baseBReachable": true,
+    "note": "Both sites returned 200 from this container (curl), so SPEC-04 §7's 'container can't reach both sites -> not_run' path does not apply; the visual harness was required to run."
+  },
+  "checks": [
+    {
+      "name": "node scripts/migration/visual/run.mjs --base-a https://www.growmax.io --base-b https://growmax-website.vercel.app --bypass-secret-file docs/migration/.scratch/bypass-secret",
+      "expected": "Playwright screenshots captured for both sites at 1440x900/390x844 across the 10 listed pages, pixelmatch ratios computed, evidence written",
+      "actual": "Script errored before capturing any screenshots: `Error: Cannot find module 'playwright-core'` (also missing: pixelmatch, pngjs). None of these three packages appear in package.json, package-lock.json, or node_modules, even though scripts/migration/visual/run.mjs imports all three (playwright-core for chromium; pixelmatch + pngjs for pixelDiff).",
+      "pass": false
+    }
+  ],
+  "facts": {
+    "visual": "error",
+    "reason": "Visual harness could not execute: required npm packages (playwright-core, pixelmatch, pngjs) are not installed and not declared as dependencies anywhere in the repo, so scripts/migration/visual/run.mjs fails at its first `import` before it can even run the reachability/preflight checks. This is distinct from SPEC-04 §7's documented not_run path (container can't reach both sites) -- both A and B were confirmed reachable (200) from this container via curl -- so it is not reported as the benign, non-blocking not_run case."
+  },
+  "likelyClass": "harness",
+  "classNote": "Environment/tooling gap in the verification harness itself (missing dependency declarations), not a parity, functional, code, config, or data defect in the migrated site. Not user PII/secrets related.",
+  "recommendation": "Orchestrator should add playwright-core, pixelmatch, and pngjs as devDependencies (or otherwise provision them for the container), then re-run scripts/migration/visual/run.mjs for this step before treating visual as pass/fail. Per SPEC-04 §7, a failed/not-run visual check is secondary evidence and does not by itself block G5 if parity and functional pass, but it should not be silently reported as pass while unexamined.",
+  "artifacts": []
+}

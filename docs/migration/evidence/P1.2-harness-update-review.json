@@ -1,0 +1,41 @@
+{
+  "step": "P1.2",
+  "gate": "G1",
+  "status": "pass",
+  "checkedAt": "2026-09-26T16:58:34Z",
+  "verifier": "migration-reviewer (opus/high), harness-update review round 4 (final); summarized by the orchestrator from the reviewer hand-back (the reviewer role is read-only)",
+  "approve": true,
+  "blocking": [],
+  "nonBlocking": [
+    "If /blog returns the same non-2xx on both sides, compare passes without comparing the listing (existing equal-status behavior); a fixed expect {status:200} on /blog and /blog?page=2 in urls.mjs would close it",
+    "splitFlightRows stops quietly at the first unparsable row (fails closed via \"no embedded post array\"); the error should say how many rows parsed and where it stopped",
+    "tie-permutation llms-section mode: non-last sections run to the next \"### \" with a Source line, so a \"## \" header between posts moves with the preceding post (contrived); the / boundary-tie case still fails closed"
+  ],
+  "checks": [
+    {
+      "name": "r3 blocking fixed (no silent /blog drop)",
+      "expected": "every route fails loudly",
+      "actual": "same error both sides, fields missing on one or both sides, marker on one side, /blog?page=2 missing, text/plain /blog: all fail; old/old unmarked is 0 by design",
+      "pass": true
+    },
+    {
+      "name": "RSC parser robustness",
+      "expected": "exactly one 172-post array on the live body; merged and split chunks ok; a second array throws",
+      "actual": "49 rows, one array of 172; merged/split/4-way/one-push/997-char variants all 172; any second slug array throws; malformed rows before the posts throw",
+      "pass": true
+    },
+    {
+      "name": "No regressions vs r2/r3",
+      "expected": "all earlier adversarial suites hold",
+      "actual": "mixed-mode, embedded-post matrix, tie swaps, determinism: all unchanged",
+      "pass": true
+    },
+    {
+      "name": "Reviewer's own live self-test",
+      "expected": "overall pass",
+      "actual": "18 pass, protected-deployment-probe deferred; matrix 28/28, compact 30/30; sha256 d68adc77...",
+      "pass": true
+    }
+  ],
+  "history": "r1 (15:44Z) 1 blocking -> fix -> r2 (16:13Z) approve [committed 4f532b0] -> /blog coverage fix -> r3 (16:41Z) 1 blocking -> fix -> r4 (16:58Z) approve"
+}

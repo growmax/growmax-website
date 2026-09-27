@@ -1,0 +1,299 @@
+{
+  "step": "P4.3",
+  "gate": "G4",
+  "status": "pass",
+  "checkedAt": "2026-09-26T20:35:24Z",
+  "author": "migration-implementer",
+  "note": "self-run by the implementer; certification is the reviewer's",
+  "changes": "Fix for round-1 review blocking finding on requirement D: main() now validates each loaded inventory's shape (pgMajor is an integer; extensions/schemas/constraints/indexes/sequences/views/functions/triggers/roles are arrays; tables is an object whose entries each have array columns and array primaryKey) via a new validateInventory() before diffInventories() runs, and writes 'invalid inventory <path>: <field>' to stderr with exitCode 2 instead of letting a structurally-invalid-but-valid-JSON input (e.g. --b {} or --b null, or an inventory with pgMajor missing on both sides, which previously passed silently via undefined === undefined) crash inside diffInventories() with an uncaught TypeError and exit 1 (the 'diffs found' code). The diffInventories() call and the --out writeFileSync() are now also wrapped in try/catch, each setting exitCode 2 on failure instead of throwing past main() (an unwritable --out path is now exit 2, not an uncaught exception). No other requirement-A/B/C/D behavior changed: NOT NULL semantics, PLATFORM_MANAGED_SCHEMAS ignoring, --accept-pg-major acceptance rule, and the output JSON shape (pgMajor/accepted/ignored/normalized) are unchanged from attempt 1, which the round-1 review already verified against the real P4.3 inventories (0 diffs with --accept-pg-major 18, exactly 1 pgMajor diff without it). Added 4 self-test cases for the fix: --b {}, --b null, pgMajor missing on both sides, and an unwritable --out path, all now exit 2 via the CLI.",
+  "checks": [
+    {
+      "name": "PG16 vs PG16 identical -> empty diffs",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "PG16 vs PG18 (matching n rows, accepted) -> empty diffs",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "accepted contains pgMajor 16 -> 18",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "normalized.notNullConstraints.a === 0 (PG16 side)",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "normalized.notNullConstraints.b === 2 (PG18 side)",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "same fixtures without --accept-pg-major -> exactly 1 diff",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "name": "that 1 diff is type pgMajor",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "--accept-pg-major 17 with b=18 still yields a pgMajor diff",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "downgrade a=18,b=16 with --accept-pg-major 16 still yields a pgMajor diff",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "PG18 missing one n row -> not_null_constraint_missing",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "the missing diff is for side b, key widgets.name",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "n row for a nullable column -> not_null_constraint_orphan",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "the orphan diff is for side b, key widgets.note",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "NOT VALID suffix -> not_null_constraint_nonstandard",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "NO INHERIT suffix -> not_null_constraint_nonstandard",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "quoted identifier with space + embedded \"\" parses and matches -> empty diffs",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "unparsable n def -> not_null_constraint_unparsed",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "PG16 side with non-matching n rows still yields a diff",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "genuine cross-side nullability difference -> table_columns_differ",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "_system source-only -> empty diffs",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "_system reported in ignored.schemas.a",
+      "expected": [
+        "_system"
+      ],
+      "actual": [
+        "_system"
+      ],
+      "pass": true
+    },
+    {
+      "name": "ignored.schemas.b is empty (not present on b)",
+      "expected": [],
+      "actual": [],
+      "pass": true
+    },
+    {
+      "name": "unknown source-only schema -> schema_missing_in_b",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "missing unique constraint -> constraint_missing_in_b",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "missing index -> index_missing_in_b",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "missing sequence -> sequence_missing_in_b",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "missing trigger -> trigger_missing_in_b",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 0 on identical inventories",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 1 when diffs are present",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 2 on missing --b (usage error)",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 2 on non-integer --accept-pg-major",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 2 on unreadable input file",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 2 when --b is {} (structurally invalid)",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 2 when --b is null",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 2 when pgMajor is missing on both sides (was: silent 0 diffs via undefined === undefined)",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "CLI exit 2 when --out cannot be written",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "real-data: 0 diffs with --accept-pg-major 18",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "real-data: accepted = [pgMajor 16 -> 18]",
+      "expected": [
+        {
+          "type": "pgMajor",
+          "a": 16,
+          "b": 18
+        }
+      ],
+      "actual": [
+        {
+          "type": "pgMajor",
+          "a": 16,
+          "b": 18
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "real-data: ignored.schemas.a = [\"_system\"]",
+      "expected": [
+        "_system"
+      ],
+      "actual": [
+        "_system"
+      ],
+      "pass": true
+    },
+    {
+      "name": "real-data: normalized.notNullConstraints.b === 27",
+      "expected": 27,
+      "actual": 27,
+      "pass": true
+    },
+    {
+      "name": "real-data: normalized.notNullConstraints.a === 0",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "real-data mutation: drop one n row on b -> >=1 diff",
+      "expected": true,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "name": "real-data mutation: flip a column nullable on b -> >=1 diff",
+      "expected": true,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "name": "real-data mutation: append NOT VALID to one n def on b -> >=1 diff",
+      "expected": true,
+      "actual": 1,
+      "pass": true
+    }
+  ],
+  "artifacts": [
+    "scripts/migration/db/schema-diff.mjs",
+    "scripts/migration/db/schema-diff.selftest.mjs"
+  ]
+}

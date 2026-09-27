@@ -1,0 +1,111 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T07:57:54Z",
+  "verifier": "migration-reviewer (opus/high)",
+  "recordedBy": "orchestrator, transcribed verbatim from the reviewer's structured result in workflow wf_856b3d1c-435 (the reviewer role is read-only and could not write files); verdict, findings and checks are the reviewer's",
+  "subject": "parity harness hardening (git diff dc54053 -- scripts/migration/parity): stylesheetRefs exact compare, malformed Link-target guard, live self-test lookup, SUMMARY lines",
+  "approve": true,
+  "blocking": [],
+  "nonBlocking": [
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "When neither side has stylesheetRefs, the page is skipped and the run passes with only a NOTE line. The NOTE says 'both manifests predate the field', but a page also reaches this path when both current-harness entries hit htmlError, because capture.mjs:226 sets htmlError and compare.mjs never compares it. In that case every HTML field, the stylesheet included, goes unchecked and the NOTE's explanation is wrong. The htmlError gap was there before this change. Fix: add a manifest marker (harness.stylesheetRefs = 1, like harness.embeddedPosts) and fail when both sides are absent in marked manifests, or at least emit an htmlError diff."
+    },
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "A one-side-null stylesheetRefs diff is a harness-integrity signal (mixed-version manifests), but it shares its field name with real content diffs and can be allowlisted with a pinned expected {a:[...], b:null}. Fix: emit it as its own field (for example stylesheetRefsMissing) and add that to FORBIDDEN_ALLOWLIST_FIELDS, the way embeddedPostsMissing is handled."
+    },
+    {
+      "file": "scripts/migration/parity/compare.mjs",
+      "issue": "Normalization collapses every hashed CSS name to /_next/static/<build>/<hash>.css. Probe: A [aaaa1111bbbb2222.css, cccc3333dddd4444.css] vs B [aaaa1111bbbb2222.css twice] gives 0 diffs, so the page still passes. The only backstop is the site-wide hashedCssSha256 multiset, which misses a per-page swap to a CSS file used elsewhere on the site. This design limit predates the change and is unrealistic for a Next.js build. Possible hardening: compare each page's multiset of stylesheet content sha256 values, looked up in manifest.assets."
+    },
+    {
+      "file": "scripts/migration/parity/lib/extract.mjs",
+      "issue": "stylesheetRefs matches rel by token, so rel='stylesheet preload' counts. The assetRefs rel test is still an exact match, so such a stylesheet is never fetched: no 2xx check and no hashedCssSha256 entry. A 404 behind a multi-token rel would pass as long as both sides reference it. Next.js never emits that form. Fix: also feed stylesheetRefs into the captureAssets fetch set, or assert stylesheetRefs is a subset of the fetched assets."
+    },
+    {
+      "file": "scripts/migration/parity/lib/extract.mjs",
+      "issue": "The new guard (/[<\\s]/ on the raw target) now drops '< /a.css >', which the old .trim() accepted and which Chromium also trims and accepts. Probe: parseLinkHeader('< /a.css >; rel=preload, </b.css>; rel=preload') returns only /b.css, and a tab inside the brackets drops the whole value. The failure is safe in the one-sided case. If both sides send that form, the preload is never fetched on either side. Next.js does not send it. Fix: trim leading and trailing OWS first, then reject only '<' or inner whitespace."
+    },
+    {
+      "file": "scripts/migration/parity/selftest.mjs",
+      "issue": "liveLinkHeaderCheck no longer requires at least one page with header preloads, so a capture that silently stopped reading the Link header would pass this live check with no failures. Wiring is still covered offline by selftest-link-header capture-records-replit-header-shape, and the live run reports pagesWithHeaderPreloads=174/218. Optional fix: add an --expect-link-headers floor when --base is the Replit origin."
+    },
+    {
+      "file": "scripts/migration/parity/lib/extract.mjs",
+      "issue": "When a header ref is de-duplicated onto an HTML ref of a different dpl form, only the HTML form is fetched. The header form the browser actually preloads (for example /x.css without dpl on Vercel) is never checked, and a 404 preload there would only show up in the console. This is the dc54053 design, unchanged here; no visible effect."
+    },
+    {
+      "file": "scripts/migration/parity/lib/extract.mjs",
+      "issue": "Minor extraction differences from a browser: a <link rel=stylesheet> inside <template> is counted even though a browser never applies it, and 'disabled' and media='not all' are counted as applied. <noscript> content is correctly excluded. All contrived for this site."
+    },
+    {
+      "file": "docs/migration/evidence/allowlist.json",
+      "issue": "This agrees with the verifier: the hashedCssSha256 B pin (072d7bf0...) does not match B's current CSS (4377f3cf...; /_next/static/css/b05e81efd48e3db7.css). The mismatch comes from the deployed build, not this harness change. It needs a re-derivation plus advisor re-pin before the full P6.2 parity run."
+    }
+  ],
+  "checks": [
+    {
+      "name": "selftest-link-header.mjs (offline)",
+      "expected": "exit 0, all PASS",
+      "actual": "exit 0; SUMMARY selftest-link-header.mjs: 21/21 PASS, 0 FAIL, 0 DEFERRED",
+      "pass": true
+    },
+    {
+      "name": "selftest-p5.3.mjs",
+      "expected": "exit 0, all PASS",
+      "actual": "exit 0; SUMMARY selftest-p5.3.mjs: 12/12 PASS, 0 FAIL, 0 DEFERRED",
+      "pass": true
+    },
+    {
+      "name": "selftest.mjs live vs https://www.growmax.io (no bypass secret)",
+      "expected": "exit 0, 0 FAIL",
+      "actual": "exit 0; SUMMARY selftest.mjs: 20/21 PASS, 0 FAIL, 1 DEFERRED (protected-deployment-probe, no bypass by design); live-link-header-preloads: 218 HTML entries, 174 with header preloads, 0 problems",
+      "pass": true
+    },
+    {
+      "name": "stylesheetRefs exact multiset compare",
+      "expected": "same normalization as assetRefs, duplicates kept, Link header never contributes, alternate excluded",
+      "actual": "confirmed (uppercase LINK/REL/HREF, body/svg links and multi-token rel counted; noscript, comments and script strings not)",
+      "pass": true
+    },
+    {
+      "name": "mixed-version manifests",
+      "expected": "one side missing => diff with null side (fail); both missing => skipped visibly",
+      "actual": "confirmed; empty array counts as present; both-absent skip prints a NOTE (see nonBlocking[0])",
+      "pass": true
+    },
+    {
+      "name": "compact mode",
+      "expected": "field recorded in full and compact mode",
+      "actual": "set before any compact branch; self-test asserts full == compact; mutation-matrix rebuild sets it",
+      "pass": true
+    },
+    {
+      "name": "malformed Link-target guard",
+      "expected": "a malformed value adds nothing bogus",
+      "actual": "unterminated target followed by a later value, a quoted '>' inside it and nested '<' yield only the valid later ref; can only invent a diff, never hide one (whitespace-padded targets are now dropped, nonBlocking[4])",
+      "pass": true
+    },
+    {
+      "name": "missing-stylesheet masking closed",
+      "expected": "a Link-header or HTML preload can no longer stand in for a missing <link rel=stylesheet>",
+      "actual": "confirmed with the offline case and the verifier's mutation-result.json; no allowlist entries exist for stylesheetRefs",
+      "pass": true
+    },
+    {
+      "name": "scope and hygiene",
+      "expected": "only scripts/migration/parity/** plus evidence; no secrets; no bypass header sent",
+      "actual": "confirmed",
+      "pass": true
+    }
+  ],
+  "artifacts": [
+    "docs/migration/.scratch/p6.2-hardening-review-r1/selftest-link-header.log",
+    "docs/migration/.scratch/p6.2-hardening-review-r1/selftest-p5.3.log",
+    "docs/migration/.scratch/p6.2-hardening-review-r1/selftest-live.log",
+    "docs/migration/.scratch/p6.2-hardening-review-r1/selftest-live.json"
+  ]
+}

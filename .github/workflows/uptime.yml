@@ -1,0 +1,137 @@
+# Uptime checks for https://www.growmax.io (SPEC-06 section 3).
+# Runs every 15 minutes (offset from the top of the hour) and on demand.
+# GitHub runs scheduled workflows only from the default branch (main).
+# On failure the job fails and GitHub notifies the workflow's owner.
+# If the repository secret ALERT_WEBHOOK_URL exists, a short alert is posted too.
+name: Uptime
+
+on:
+  schedule:
+    - cron: '4,19,34,49 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  uptime:
+    runs-on: ubuntu-latest
+    # Worst case: 7 checks x (20 s + 5 s sleep + 20 s) = 315 s, plus alert up to 20 s; 5 min would cancel before failing.
+    timeout-minutes: 10
+    env:
+      ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+    steps:
+      - name: Check key URLs
+        id: checks
+        shell: bash
+        run: |
+          set +e
+          set -uo pipefail
+          BASE='https://www.growmax.io'
+          TMP="$(mktemp -d)"
+          FAILED=()
+          FETCH_ERR=''
+          TITLE_RE='<title>[^<]*Growmax[^<]*</title>'
+
+          # fetch NAME PATH OUTFILE: GET with --fail --max-time 20, expects HTTP 200.
+          # --compressed keeps the 2.3 MB /api/blog response to about 0.55 MB.
+          fetch() {
+            local code
+            code="$(curl --fail --silent --show-error --compressed --max-time 20 \
+              --output "$3" --write-out '%{http_code}' "${BASE}$2")"
+            local rc=$?
+            if [ "$rc" -ne 0 ] || [ "$code" != "200" ]; then
+              FETCH_ERR="curl exit $rc, HTTP ${code:-none}"
+              echo "  $1: attempt failed ($FETCH_ERR)"
+              return 1
+            fi
+            return 0
+          }
+
+          # assert KIND ARG FILE: content-marker check.
+          assert() {
+            case "$1" in
+              regex) grep -Eq -- "$2" "$3" ;;
+              fixed) grep -Fq -- "$2" "$3" ;;
+              jq)    jq -e "$2" "$3" > /dev/null 2>&1 ;;
+            esac
+          }
+
+          # check NAME PATH MARKER_KIND MARKER [MARKER_KIND MARKER ...]
+          # One retry: a failed fetch or a missing marker is tried exactly once more.
+          check() {
+            local name="$1" path="$2"; shift 2
+            local out="$TMP/$(printf '%s' "$name" | tr -c 'A-Za-z0-9' '_')"
+            local attempt ok why
+            for attempt in 1 2; do
+              ok=1; why=''
+              if fetch "$name" "$path" "$out"; then
+                local args=("$@")
+                local i=0
+                while [ "$i" -lt "${#args[@]}" ]; do
+                  if ! assert "${args[$i]}" "${args[$((i+1))]}" "$out"; then
+                    ok=0; why="content marker not found: ${args[$((i+1))]}"
+                    echo "  $name: attempt $attempt: $why"
+                    break
+                  fi
+                  i=$((i+2))
+                done
+              else
+                ok=0; why="expected HTTP 200, got $FETCH_ERR"
+              fi
+              [ "$ok" -eq 1 ] && break
+              [ "$attempt" -eq 1 ] && sleep 5
+            done
+            if [ "$ok" -eq 1 ]; then
+              echo "PASS $name ${BASE}${path}"
+            else
+              echo "FAIL $name ${BASE}${path} ($why)"
+              FAILED+=("$name")
+            fi
+          }
+
+          check home       /            regex "$TITLE_RE"
+          check blog       /blog        regex "$TITLE_RE"
+          check demo       /demo        regex "$TITLE_RE"
+          check sitemap    /sitemap.xml fixed '<urlset' fixed '<loc>https://www.growmax.io/</loc>'
+          check robots     /robots.txt  fixed 'Sitemap: https://www.growmax.io/sitemap.xml'
+          check api-blog   /api/blog    jq 'type == "array" and length > 0 and all(.[]; (.slug | type) == "string" and (.slug | length) > 0)'
+
+          # One blog post: the first slug from /api/blog, so a renamed post cannot raise a false alarm.
+          SLUG=''
+          if [ -f "$TMP/api_blog" ]; then
+            SLUG="$(jq -r 'if type == "array" and length > 0 then (.[0].slug // "") else "" end' "$TMP/api_blog" 2>/dev/null)"
+          fi
+          if printf '%s' "$SLUG" | grep -Eq '^[a-z0-9][a-z0-9-]*$'; then
+            check blog-post "/blog/${SLUG}" regex "$TITLE_RE" fixed "<link rel=\"canonical\" href=\"https://www.growmax.io/blog/${SLUG}\""
+          else
+            echo "FAIL blog-post (no usable slug from /api/blog)"
+            FAILED+=("blog-post")
+          fi
+
+          rm -rf "$TMP"
+          if [ "${#FAILED[@]}" -gt 0 ]; then
+            echo "failed=${FAILED[*]}" >> "${GITHUB_OUTPUT:-/dev/null}"
+            echo "RESULT: ${#FAILED[@]} check(s) failed: ${FAILED[*]}"
+            exit 1
+          fi
+          echo "RESULT: all checks passed"
+
+      - name: Post alert
+        if: failure() && env.ALERT_WEBHOOK_URL != ''
+        shell: bash
+        env:
+          FAILED_CHECKS: ${{ steps.checks.outputs.failed }}
+        run: |
+          set -uo pipefail
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          TEXT="Growmax uptime check failed: ${FAILED_CHECKS:-unknown}. Run: ${RUN_URL}"
+          code="$(jq -n --arg text "$TEXT" '{text: $text}' | curl --silent --max-time 20 \
+            --output /dev/null --write-out '%{http_code}' \
+            --header 'Content-Type: application/json; charset=UTF-8' \
+            --data @- "$ALERT_WEBHOOK_URL" 2>/dev/null)"
+          echo "Alert posted (HTTP ${code:-none})"

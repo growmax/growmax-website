@@ -1,0 +1,70 @@
+{
+  "step": "P0.2",
+  "gate": "G0",
+  "status": "fail",
+  "checkedAt": "2026-09-26T10:40:00.000Z",
+  "verifier": "orchestrator (gate judgement per ORCHESTRATOR §5; re-derived with direct probes)",
+  "summary": "The P0.2 synthesis (P0.2-preflight.json) reported G0 = pass; that is overruled. Checks 0.3 and 0.6 are not met and 0.2 rests on an invalid claim. The environment's egress policy denies api.vercel.com, vercel.com, *.vercel.app, *.neon.tech, www.growmax.io and dns.google, so there is no secret-safe transport to the source DB and no way to use the Vercel CLI or the Sandbox SDK. Owner action required: blocker B-NETWORK.",
+  "checks": [
+    {
+      "name": "0.1 Vercel MCP can read team growmax1",
+      "expected": "list_projects(team_r7yanNuXwyp3P3jzhnxkDNaD) -> 200",
+      "actual": "200, 0 projects (orchestrator re-ran it). list_teams shows growmax1 as the only team. There is no existing repo-linked project, so P3.1 creates growmax-website",
+      "pass": true
+    },
+    {
+      "name": "0.2 VERCEL_TOKEN valid for growmax1, or MCP-only path recorded with its limits",
+      "expected": "vercel whoami + teams ls show growmax1, or a viable MCP-only path",
+      "actual": "VERCEL_TOKEN present (len 60) but never validated: the CLI can't reach api.vercel.com. P0.2-vercel.json check 0.2b ('valid via MCP') is invalid, because MCP calls don't use VERCEL_TOKEN. An MCP-only path isn't viable here: sensitive env vars (SESSION_SECRET, ADMIN_PASSWORD) and all DB work would need secret values in MCP tool calls, which D9 / SPEC-03 §0.2 / ORCHESTRATOR §10 forbid",
+      "pass": false
+    },
+    {
+      "name": "0.3 REPLIT_DATABASE_URL present, parses, reachable via the chosen DB path, server_version recorded",
+      "expected": "read-only connection succeeds; server_version recorded",
+      "actual": "Present (len 111), parses, host kind neon (AWS us-west-2 endpoint). Not reachable: neon-https is denied by the egress policy (api.us-west-2.aws.neon.tech and the endpoint host), and raw TCP 5432 times out. server_version unknown. 0.3 can't be deferred (only 0.4 can)",
+      "pass": false
+    },
+    {
+      "name": "0.4 Source identity (published slugs + updated_at == live /api/blog)",
+      "expected": "identical, or deferred only if no transport reaches the source",
+      "actual": "Not run: neither the source nor www.growmax.io is reachable from the container. Deferral would be allowed on its own, but it's moot while 0.3 and 0.6 fail",
+      "pass": false
+    },
+    {
+      "name": "0.5 ADMIN_PASSWORD present",
+      "expected": "present (length only)",
+      "actual": "present, len 15 (SESSION_SECRET also present, len 88)",
+      "pass": true
+    },
+    {
+      "name": "0.6 Network matrix: every required capability has a working path",
+      "expected": "web, DB and Vercel API each have a working path",
+      "actual": "Vercel API: MCP only. DB: no secret-safe path (sandbox-sdk needs api.vercel.com from the container, which is denied; an MCP-driven sandbox with secrets is forbidden). Web: only an MCP-driven Sandbox, which needs a Vercel project (none exists yet). Proxy status recentRelayFailures: connect_rejected for api.vercel.com, vercel.com, growmax-website.vercel.app, console.neon.tech, dns.google and the source endpoint",
+      "pass": false
+    },
+    {
+      "name": "0.7 Tooling",
+      "expected": "Node 22, npm ci OK, pg_dump >= source major in the chosen DB runner, Playwright Chromium launches or visual marked not-runnable",
+      "actual": "Local: node v22.22.2, npm 10.9.7, npm ci dry-run OK, psql/pg_dump 16.13, postgres 16 binary, /opt/pw-browsers present, 29 GiB free. The chosen DB runner doesn't exist (see 0.6) and the source major is unknown, so the pg_dump requirement is unverified",
+      "pass": false
+    },
+    {
+      "name": "0.8 Plan facts recorded (flagged, not blocking)",
+      "expected": "Vercel plan and Neon plan recorded",
+      "actual": "Vercel growmax1 = hobby (upgrade to Pro before DNS: A2 condition). The Neon integration IS installed on growmax1 (marketplace configuration icfg_tEtDWAPJTdmHAD8eL9GtfV5H) with billing plan Free (free_v3) and no connected projects. P0.2-vercel.json 0.8c ('not installed') is wrong: it queried connectors, not integration configurations. The kickoff target is launch, but upgrading an existing installation is a plan upgrade (not approved), so it stays Free and risk R6 is flagged for A1/A2",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "overrules": "docs/migration/evidence/P0.2-preflight.json (status pass, synthesized by the verifier)",
+    "inputs": [
+      "docs/migration/evidence/P0.2-network.json",
+      "docs/migration/evidence/P0.2-secrets.json",
+      "docs/migration/evidence/P0.2-vercel.json",
+      "docs/migration/evidence/P0.2-tooling.json",
+      "docs/migration/evidence/P0.2-source.json"
+    ],
+    "blocker": "B-NETWORK"
+  },
+  "notes": "Process incident: the environment stop hook (asks any agent with a dirty tree to commit and push) made the P0.2 agents commit 6 times (48664ce..1d750e5), mark P0.2 done and pass G0 'by scout'. The pushed content was re-scanned (secret literals, credential patterns, source password substring): clean. From now on, state.mjs write commands and git commit/push are mechanically guarded (MIG_ORCH), and the role files tell agents to ignore the stop hook."
+}

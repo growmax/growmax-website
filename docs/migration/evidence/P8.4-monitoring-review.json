@@ -1,0 +1,71 @@
+{
+  "step": "P8.4",
+  "gate": "G8b",
+  "status": "pass",
+  "checkedAt": "2026-09-27T10:48:25Z",
+  "verifier": "migration-reviewer (opus/high)",
+  "recordedBy": "orchestrator, transcribed from the reviewers' structured results in workflows wf_75a8c2d7-a98 (round 1) and wf_63a82988-545 (round 2); the reviewer role is read-only, and the verdicts and findings are the reviewers'",
+  "subject": ".github/workflows/uptime.yml (SPEC-06 \u00a73) and the rendered post-cutover docs/migration/CUTOVER-RUNBOOK.md (VERIFICATION 8b.4)",
+  "rounds": [
+    {
+      "round": 1,
+      "workflow": "wf_75a8c2d7-a98",
+      "approve": true,
+      "blocking": [],
+      "reviewerWork": "read uptime.yml and the runbook against SPEC-06 \u00a73, STATE.json and the evidence; confirmed the repo is public; extracted the check script from the YAML and ran it against the live https://www.growmax.io at 10:42:21Z (7/7 PASS, exit 0); ran a negative case with a 404 path and a nonexistent post slug (fails loudly); confirmed there are no ACME values, secrets or connection strings in the runbook, and a clean state.mjs scan"
+    },
+    {
+      "round": 2,
+      "workflow": "wf_63a82988-545",
+      "approve": true,
+      "blocking": [],
+      "nonBlocking": [
+        "'Vercel renews it automatically' is standard Vercel behaviour, but no evidence file backs it: grep for 'renew' in docs/migration/evidence/P8.1-dns-tls-sandbox.json finds nothing. Only the date 2026-12-26T07:54:46Z is backed by evidence (P8.1 line 14, notAfter). This is acceptable for an owner runbook, but it is an unverified claim.",
+        "The worst-case figure of 335 s leaves out runner and bash startup and the jq parse of the roughly 2.3 MB /api/blog body. These add a few seconds at most, and 600 s still leaves about 260 s of margin.",
+        "evidence changes[1] (CUTOVER-RUNBOOK.md) still has no sha256, while changes[0] does (fa175afe..., which matches the live uptime.yml). Round 1 was the same, so this is not a regression. Adding one would make later drift detectable.",
+        "Round 2 did not re-run the network checks. That is justified because the diff shows the check script (steps[0].run) is byte-identical to the approved round-1 version."
+      ],
+      "summary": "Approved. The fixes are correct, and the only differences from the approved round-1 snapshots are the four requested changes plus the bookkeeping edits in the evidence file. There are no blocking issues.\n\nDiffs against docs/migration/.scratch/p84-monitoring/approved-r1/:\n\n1. /home/user/growmax-website/.github/workflows/uptime.yml\n   - The only change is at lines 23-24: a new comment line and timeout-minutes going from 5 to 10. Nothing else in the file changed.\n   - I recomputed the worst case from the file myself:\n     - There are 7 check() calls. home, blog, demo, sitemap, robots and api-blog are unconditional. blog-post runs only if a slug was found, so 7 is the maximum.\n     - Each check makes at most 2 attempts. Each attempt is one curl call with --max-time 20, which covers the whole transfer. A `sleep 5` runs only after attempt 1. That gives 45 s per check and 315 s for all 7.\n     - The alert step is one curl with --max-time 20, so 335 s in total.\n   - The old limit of 300 s really was too short. The new limit of 600 s is well above 335 s, and is still under the 15-minute cron cadence, so it fits with cancel-in-progress: false.\n   - The comment's arithmetic is accurate.\n   - python3 yaml.safe_load parses the file, and it contains 0 non-ASCII bytes.\n\n2. /home/user/growmax-website/docs/migration/CUTOVER-RUNBOOK.md\n   - Two lines changed. The Step A cell now reads 'valid until 2026-12-26T07:54:46Z; Vercel renews it automatically'. That date matches notAfter in evidence/P8.1-dns-tls-sandbox.json line 14.\n   - The 'Who gets told.' paragraph gains the one-account sentence and a pointer to the chat alert.\n   - grep -c '{{' returns 0. No stale '5 min' or '07:54:47' text is left anywhere else in the runbook.\n\n3. /home/user/growmax-website/docs/migration/evidence/P8.4-monitoring.json\n   - The changes are:\n     - checkedAt\n     - changes[0].sha256, which equals the live sha256 of uptime.yml\n     - decisions.concurrency and the job-hardening check, both updated for timeout-minutes 10 with the correct 315/335 s arithmetic\n     - a new fixRounds[round 2] entry describing all four changes\n   - The file is valid JSON, and all 15 checks[].pass values are booleans.\n   - No stale 'timeout-minutes 5' remains outside the fixRounds history text.\n\nstate.mjs scan: clean (3 files). git status shows only these three paths changed or untracked. I did not commit or edit anything. Checked at 2026-09-27T10:48:25Z.",
+      "trigger": "the orchestrator's own read of the approved round-1 files: timeout-minutes 5 (300 s) was below the worst-case runtime of 7 x (20 + 5 + 20) s + a 20 s alert = 335 s, so GitHub would cancel the run before it fails or alerts in a total-hang outage; plus two runbook wording fixes (drop the back-dated certificate start time; the failure email reaches one account only)"
+    }
+  ],
+  "approve": true,
+  "blocking": [],
+  "checks": [
+    {
+      "name": "8b.4 uptime workflow matches SPEC-06 \u00a73",
+      "expected": "schedule every 15 min plus workflow_dispatch; the 7 URLs; curl --fail --max-time 20 with one retry; content markers; optional alert only when secrets.ALERT_WEBHOOK_URL exists; no secrets committed",
+      "actual": "cron '4,19,34,49 * * * *' (15-minute cadence, offset from the top of the hour) plus workflow_dispatch; all 7 checks with markers; alert gated on failure() && env.ALERT_WEBHOOK_URL != ''; approved in both rounds",
+      "pass": true
+    },
+    {
+      "name": "no write permissions, no untrusted triggers or interpolation",
+      "expected": "permissions contents: read; no push, pull_request or pull_request_target; no third-party actions; nothing untrusted interpolated into run scripts",
+      "actual": "confirmed by the reviewer",
+      "pass": true
+    },
+    {
+      "name": "fails loudly within the job timeout",
+      "expected": "timeout-minutes greater than the worst-case runtime",
+      "actual": "timeout-minutes 10 (600 s) against a worst case of 335 s, recomputed independently by the round-2 reviewer",
+      "pass": true
+    },
+    {
+      "name": "live check logic",
+      "expected": "all checks pass on the live site; a negative case fails",
+      "actual": "reviewer run at 10:42:21Z: 7/7 PASS; the negative case failed as expected. The round-2 check script is byte-identical to round 1",
+      "pass": true
+    },
+    {
+      "name": "8b.4 runbook for the owner updated",
+      "expected": "no '{{' left; values match STATE and evidence; the Replit 404 rollback caveat; B-APEX steps; the uptime section (runs only after the merge, ALERT_WEBHOOK_URL, the 60-day rule)",
+      "actual": "grep -c '{{' = 0; spot-checked values match; all sections present",
+      "pass": true
+    }
+  ],
+  "artifacts": [
+    ".github/workflows/uptime.yml",
+    "docs/migration/CUTOVER-RUNBOOK.md",
+    "docs/migration/evidence/P8.4-monitoring.json"
+  ]
+}

@@ -1,0 +1,278 @@
+{
+  "step": "P8.3",
+  "gate": "G8b",
+  "status": "pass",
+  "checkedAt": "2026-09-27T09:37:54Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "notes": "Independent read-only verification of the post-cutover watermark init (evidence/P8.3-watermark-init.json). Neon via DATABASE_URL from docs/migration/.scratch/.env.production, Replit via REPLIT_DATABASE_URL, both opened with connect(...,{readOnly:true}) from scripts/migration/db/lib.mjs; only SELECTs ran (sequence next values read from last_value/is_called, no nextval). delta --dry-run is not implemented for delta, so delta was not run; an equivalent read-only would-insert comparison was done instead and found 0 would-insert rows. No target rows at or above 1000000 yet (no post-cutover form submissions at check time). This check does not cover G8b 8b.1-8b.4 (72h window, 24h quiet, final audit, monitoring). Nothing was refused by the permission system.",
+  "checks": [
+    {
+      "name": "_migration.sync_state has exactly one row per public table (no extras)",
+      "expected": {
+        "tables": [
+          "blog_posts",
+          "blog_redirects",
+          "demo_requests",
+          "newsletter_subscriptions"
+        ],
+        "rowsPerTable": 1,
+        "extra": []
+      },
+      "actual": {
+        "tables": [
+          "blog_posts",
+          "blog_redirects",
+          "demo_requests",
+          "newsletter_subscriptions"
+        ],
+        "rowsPerTable": {
+          "blog_posts": 1,
+          "blog_redirects": 1,
+          "demo_requests": 1,
+          "newsletter_subscriptions": 1
+        },
+        "extra": []
+      },
+      "pass": true
+    },
+    {
+      "name": "blog_posts: watermark == max target id below 1000000",
+      "expected": 174,
+      "actual": 174,
+      "pass": true
+    },
+    {
+      "name": "blog_redirects: watermark == max target id below 1000000",
+      "expected": 95,
+      "actual": 95,
+      "pass": true
+    },
+    {
+      "name": "demo_requests: watermark == max target id below 1000000",
+      "expected": 32,
+      "actual": 32,
+      "pass": true
+    },
+    {
+      "name": "newsletter_subscriptions: watermark == max target id below 1000000",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "name": "blog_posts: last_run_at recent (after 09:05Z gap, before check time)",
+      "expected": "between 2026-09-27T09:05:00Z and 2026-09-27T09:37:40.122Z",
+      "actual": "2026-09-27T09:35:25.813Z",
+      "pass": true
+    },
+    {
+      "name": "blog_redirects: last_run_at recent (after 09:05Z gap, before check time)",
+      "expected": "between 2026-09-27T09:05:00Z and 2026-09-27T09:37:40.122Z",
+      "actual": "2026-09-27T09:35:25.813Z",
+      "pass": true
+    },
+    {
+      "name": "demo_requests: last_run_at recent (after 09:05Z gap, before check time)",
+      "expected": "between 2026-09-27T09:05:00Z and 2026-09-27T09:37:40.122Z",
+      "actual": "2026-09-27T09:35:25.813Z",
+      "pass": true
+    },
+    {
+      "name": "newsletter_subscriptions: last_run_at recent (after 09:05Z gap, before check time)",
+      "expected": "between 2026-09-27T09:05:00Z and 2026-09-27T09:37:40.122Z",
+      "actual": "2026-09-27T09:35:25.813Z",
+      "pass": true
+    },
+    {
+      "name": "blog_posts: synced_ids count == target rows below gap, same id set",
+      "expected": {
+        "count": 171,
+        "syncedIdsNotOnTarget": 0,
+        "targetIdsNotInSyncedIds": 0
+      },
+      "actual": {
+        "count": 171,
+        "syncedIdsNotOnTarget": 0,
+        "targetIdsNotInSyncedIds": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "blog_redirects: synced_ids count == target rows below gap, same id set",
+      "expected": {
+        "count": 95,
+        "syncedIdsNotOnTarget": 0,
+        "targetIdsNotInSyncedIds": 0
+      },
+      "actual": {
+        "count": 95,
+        "syncedIdsNotOnTarget": 0,
+        "targetIdsNotInSyncedIds": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "demo_requests: synced_ids count == target rows below gap, same id set",
+      "expected": {
+        "count": 32,
+        "syncedIdsNotOnTarget": 0,
+        "targetIdsNotInSyncedIds": 0
+      },
+      "actual": {
+        "count": 32,
+        "syncedIdsNotOnTarget": 0,
+        "targetIdsNotInSyncedIds": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "newsletter_subscriptions: synced_ids count == target rows below gap, same id set",
+      "expected": {
+        "count": 0,
+        "syncedIdsNotOnTarget": 0,
+        "targetIdsNotInSyncedIds": 0
+      },
+      "actual": {
+        "count": 0,
+        "syncedIdsNotOnTarget": 0,
+        "targetIdsNotInSyncedIds": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "public.blog_posts_id_seq: next value >= 1000000",
+      "expected": ">= 1000000",
+      "actual": {
+        "lastValue": 1000000,
+        "isCalled": false,
+        "next": 1000000
+      },
+      "pass": true
+    },
+    {
+      "name": "public.blog_redirects_id_seq: next value >= 1000000",
+      "expected": ">= 1000000",
+      "actual": {
+        "lastValue": 1000000,
+        "isCalled": false,
+        "next": 1000000
+      },
+      "pass": true
+    },
+    {
+      "name": "public.demo_requests_id_seq: next value >= 1000000",
+      "expected": ">= 1000000",
+      "actual": {
+        "lastValue": 1000000,
+        "isCalled": false,
+        "next": 1000000
+      },
+      "pass": true
+    },
+    {
+      "name": "public.newsletter_subscriptions_id_seq: next value >= 1000000",
+      "expected": ">= 1000000",
+      "actual": {
+        "lastValue": 1000000,
+        "isCalled": false,
+        "next": 1000000
+      },
+      "pass": true
+    },
+    {
+      "name": "sequence set covers every public table",
+      "expected": 4,
+      "actual": 4,
+      "pass": true
+    },
+    {
+      "name": "delta --dry-run supported by sync.mjs",
+      "expected": "delta honors --dry-run (else do not run delta)",
+      "actual": "not supported: usage at sync.mjs:20 lists only `delta [--gap-start N]`; parseArgs (sync.mjs:88) accepts --dry-run globally but runDelta (sync.mjs:764-811) never reads args.dryRun and opens the target writable (sync.mjs:767); args.dryRun is only used by reverse-delta (sync.mjs:1234-1341). delta was NOT run.",
+      "pass": true,
+      "note": "Not a failure of the watermark init; replaced by the independent read-only equivalent below."
+    },
+    {
+      "name": "read-only delta equivalent: source ids > watermark and < gap (would-insert step 2)",
+      "expected": {
+        "blog_posts": [],
+        "blog_redirects": [],
+        "demo_requests": [],
+        "newsletter_subscriptions": []
+      },
+      "actual": {
+        "blog_posts": [],
+        "blog_redirects": [],
+        "demo_requests": [],
+        "newsletter_subscriptions": []
+      },
+      "pass": true
+    },
+    {
+      "name": "read-only delta equivalent: source ids <= watermark not in synced_ids (would-insert late commits)",
+      "expected": {
+        "blog_posts": [],
+        "blog_redirects": [],
+        "demo_requests": [],
+        "newsletter_subscriptions": []
+      },
+      "actual": {
+        "blog_posts": [],
+        "blog_redirects": [],
+        "demo_requests": [],
+        "newsletter_subscriptions": []
+      },
+      "pass": true
+    },
+    {
+      "name": "source vs target counts below gap",
+      "expected": {
+        "blog_posts": 171,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      },
+      "actual": {
+        "blog_posts": 171,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "watermarks match P8.0 baseline",
+      "expected": {
+        "blog_posts": 174,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      },
+      "actual": {
+        "blog_posts": 174,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "sessions read-only",
+      "expected": "both connections readOnly:true; target session transaction_read_only=on",
+      "actual": {
+        "targetTransactionReadOnly": "on",
+        "source": "connect(REPLIT_DATABASE_URL,{readOnly:true})"
+      },
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "scratchQueryScripts": [
+      "<scratchpad>/wmcheck.mjs",
+      "<scratchpad>/latecheck.mjs"
+    ],
+    "implementerEvidence": "docs/migration/evidence/P8.3-watermark-init.json",
+    "gapEvidence": "docs/migration/evidence/P8.0-cutover-gap.json",
+    "syncMjsDeltaNoDryRun": "scripts/migration/db/sync.mjs:20,88,764-811,1234"
+  }
+}

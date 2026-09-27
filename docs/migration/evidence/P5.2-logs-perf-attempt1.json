@@ -1,0 +1,77 @@
+{
+  "step": "P5.2",
+  "mode": "pre",
+  "runLabel": "p5-20260926T2320Z",
+  "checkedAt": "2026-09-27T01:20:17.500Z",
+  "protectedDeploymentProbe": {
+    "status": "pass",
+    "deploymentUrl": "https://growmax-website.vercel.app",
+    "tests": [
+      {
+        "path": "/",
+        "statusCode": 200,
+        "bypassed": true,
+        "appResponse": true,
+        "result": "pass"
+      },
+      {
+        "path": "/blog/demo-01",
+        "statusCode": 404,
+        "bypassed": true,
+        "appResponse": true,
+        "result": "pass"
+      }
+    ],
+    "summary": "Protected deployment probe passed - bypass header working, app responding"
+  },
+  "logs": {
+    "logWindow": {
+      "since": "2026-09-26T22:19:37.070Z",
+      "until": "2026-09-27T01:19:37.070Z",
+      "logRetention": "Vercel default (7 days)"
+    },
+    "runtimeErrors": {
+      "count": 1,
+      "categories": [
+        {
+          "type": "SSL Mode Warning",
+          "count": 14,
+          "routes": [
+            "/api/blog",
+            "/api/newsletter",
+            "/api/blog/[slug]",
+            "/blog/[slug]"
+          ],
+          "firstSeen": "2026-09-27T01:12:20.000Z",
+          "lastSeen": "2026-09-27T01:19:27.000Z",
+          "severity": "warning",
+          "explanation": "Pg library SSL mode warning, expected and not actionable (node-pg library compatibility notice)"
+        }
+      ]
+    },
+    "webhookDelivery": {
+      "status": "pass",
+      "message": "[webhook] delivered 200 lines found in runtime logs",
+      "occurrences": 2,
+      "timestamps": [
+        "2026-09-27T01:13:36Z",
+        "2026-09-27T01:13:12Z"
+      ]
+    },
+    "errorsSummary": {
+      "expectedErrors": 0,
+      "unexplainedErrors": 0,
+      "status": "pass"
+    }
+  },
+  "perf": {
+    "reportOnly": true,
+    "sampledUrls": 20,
+    "samplesPerUrl": 3,
+    "flaggedCount": 0,
+    "flaggedForAdvisor": false,
+    "summary": "No URLs flagged (Vercel TTFB <= 1.5x Replit median)"
+  },
+  "overall": "pass",
+  "notes": "All checks passed. Vercel deployment responding correctly with bypass header. Webhook delivery confirmed in runtime logs. Performance within acceptable range (Vercel actually faster than Replit on most URLs)."
+}

@@ -1,0 +1,28 @@
+{
+  "step": "P6.2",
+  "gate": "G5",
+  "mode": "pre",
+  "runLabel": "p6-20260927T0803Z",
+  "status": "pass",
+  "checkedAt": "2026-09-27T08:13:07Z",
+  "verifier": "migration-scout (opus/low)",
+  "target": "https://growmax-website.vercel.app",
+  "reference": "https://www.growmax.io",
+  "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+  "deploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+  "logWindow": {"since": "2026-09-27T08:03:00Z", "until": "2026-09-27T08:13:00Z"},
+  "logRetention": "not read from the plan API; runtime-errors API allows at most 7 days of lookback; logs for this window were available",
+  "checks": [
+    {"name": "protected-deployment probe (SPEC-04 5.4): / with bypass header only", "expected": "200 from the app", "actual": "200 text/html, server Vercel", "pass": true},
+    {"name": "protected-deployment probe: redirect source /arc", "expected": "app's configured permanent redirect, not 401/auth redirect", "actual": "308 Location /revenue-platform", "pass": true},
+    {"name": "log window non-empty", "expected": ">0 log lines while tests ran", "actual": "580 request log lines (200:568, 401:6, 404:3, 201:2, 307:1, 1 more status value)", "pass": true},
+    {"name": "runtime errors (get_runtime_errors)", "expected": "0 or all explained by our tests", "actual": "0 error clusters", "pass": true},
+    {"name": "error/fatal/warning log lines (get_runtime_logs level filter)", "expected": "0 or all explained by our tests", "actual": "0", "pass": true},
+    {"name": "non-2xx statuses explained", "expected": "attributable to our functional/parity tests", "actual": "401 x6 = F3 admin wrong-password / unauthenticated admin checks; 404 x3 = parity negative probes (__parity_404_probe__); 307 x1 = admin/redirect check. Labelled as caused by our own tests (not log-level errors).", "pass": true},
+    {"name": "perf/run.mjs (report-only)", "expected": "runs; flag if B median TTFB >1.5x A on >3 URLs", "actual": "20 URLs x3 samples; 9 URLs >1.5x (all B medians <=159ms); flaggedForAdvisor=true", "pass": true}
+  ],
+  "errors": [],
+  "perf": {"reportOnly": true, "flaggedForAdvisor": true, "flagged": [
+    {"url":"/minori-ai","ratio":1.55,"aMs":31,"bMs":48},{"url":"/demo","ratio":3.06,"aMs":52,"bMs":159},{"url":"/blog","ratio":3.41,"aMs":37,"bMs":126},{"url":"/sitemap.xml","ratio":1.7,"aMs":30,"bMs":51},{"url":"/company/about","ratio":1.53,"aMs":32,"bMs":49},{"url":"/privacy","ratio":1.68,"aMs":34,"bMs":57},{"url":"/industries/industrial-manufacturing","ratio":1.67,"aMs":33,"bMs":55},{"url":"/industries/automotive-aftermarket","ratio":1.62,"aMs":34,"bMs":55},{"url":"/write-for-us","ratio":1.85,"aMs":34,"bMs":63}]},
+  "artifacts": ["docs/migration/.scratch/p6-20260927T0803Z/perf.json", "docs/migration/.scratch/p6-20260927T0803Z/perf.stdout"]
+}

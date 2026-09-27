@@ -1,0 +1,10 @@
+{"step":"P8.2","gate":"G8a","status":"pass","checkedAt":"2026-09-27T09:59:06Z","verifier":"migration-scout (opus/low)","runLabel":"p8-20260927T0948Z",
+"logWindow":{"since":"2026-09-27T09:30:00Z","until":"2026-09-27T09:59:00Z","projectId":"prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu","logRetention":"not read from the plan API; the runtime-errors API allows at most 7 days of lookback; logs for this window were available"},
+"checks":[
+{"name":"log window non-empty","expected":">0 log lines while tests ran","actual":"1001 request log lines (200:983, 401:7, 404:5, 201:3, 307:2, plus 1 more status value not shown)","pass":true},
+{"name":"runtime errors (get_runtime_errors)","expected":"0 or explained","actual":"0 error clusters","pass":true},
+{"name":"error/fatal/warning log lines","expected":"0 or all explained by our tests","actual":"0","pass":true},
+{"name":"4xx paths explained","expected":"all caused by our tests","actual":"/api/admin/posts x4 and /api/admin/login x1 (F3/F10 unauthenticated and wrong-password checks); /api/admin/posts/2147483647 x2 (F10 PUT/DELETE unauthenticated); /blog/__parity_404_probe__ x2 and /api/blog/__parity_missing__ x2 (parity negative probes); /api/blog/vercel-migration-test-p8-20260927T0948Z x1 (F7 draft returns 404). All caused by our own tests.","pass":true},
+{"name":"[webhook] delivered line present","expected":"[webhook] delivered 200","actual":"09:42:46 POST /api/demo-requests 201 -> [webhook] delivered 200 (dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx)","pass":true},
+{"name":"perf/run.mjs (report-only)","expected":"report only","actual":"15 URLs x3 samples, A=https://growmax-website.replit.app, B=https://www.growmax.io; 2 URLs >1.5x TTFB: / (A 70ms, B 210ms), /demo (A 49ms, B 80ms)","pass":true}],
+"artifacts":["docs/migration/.scratch/p8-20260927T0948Z/perf.json","docs/migration/.scratch/p8-20260927T0948Z/perf.stdout"]}

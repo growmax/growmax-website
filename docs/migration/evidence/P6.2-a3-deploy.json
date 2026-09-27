@@ -1,0 +1,14 @@
+{
+  "step": "P6.2-a3-deploy",
+  "checkedAt": "2026-09-27T08:02:45Z",
+  "deploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+  "url": "growmax-website-740przc6b-growmax1.vercel.app",
+  "sha": "dc5405357441870b9315a28a7cbb93a201278453",
+  "target": "production",
+  "checks": {
+    "ready": {"pass": true, "state": "READY"},
+    "buildLogNoErrors": {"pass": true, "note": "Compiled successfully, 62/62 static pages, no error lines; only stderr is Browserslist age warning and CLI banner"},
+    "alias": {"pass": true, "productionAliases": ["growmax-website.vercel.app", "growmax-website-growmax1.vercel.app"], "aliasedDeploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx", "aliasError": null, "source": "list_deployment_aliases + get_deployment alias[]"},
+    "protection": {"pass": true, "generatedUrlNoHeader": 302, "redirectTo": "vercel.com/sso-api", "generatedUrlWithBypass": 200, "titleContainsGrowmax": true, "productionDomainNoHeader": 200, "productionDomainNote": "info: Standard Protection leaves production domain public"}
+  }
+}
