@@ -196,3 +196,5 @@
 - 2026-09-27T01:26:27.297Z [P5.3] step pending → in_progress — Triage and fix loop: harness fixes (?dpl normalization, host-alias link classification, F9 cookie, F2 send guard, /blog expect 200, placeholder fail-fast) with opus review; investigations (CSS diff, extra link, freshness proof, protection re-check and standard-shape 5.1 evidence); P5.2 attempt 2 without F2; advisor A3 for the residual freshness diffs, which also ratifies the P4.3 schema-diff amendment.
 - 2026-09-27T01:29:07.309Z set facts.runs
 - 2026-09-27T01:30:59.161Z set facts.followUps
+- 2026-09-27T01:48:09.267Z set facts.runs
+- 2026-09-27T01:48:09.321Z [P5.3] P5.3 interim: investigation done (CSS: 291 A-only / 6 B-only selectors, cause unproven; tradgecko link no longer reproduces; / and /sitemap.xml differ only by posts that A serves from a stale cache, 9 sitemap posts and 3 homepage slots, all published in A own /api/blog). P5.1 re-check 8/8 (generated URL 302 to SSO, production domain public, bypass 200). Launched a read-only CSS visitor-impact check before any allowlisting.
