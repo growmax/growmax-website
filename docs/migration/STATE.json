@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": null,
-  "updatedAt": "2026-09-27T08:39:04.808Z",
+  "currentStep": "P6.3",
+  "updatedAt": "2026-09-27T08:40:38.622Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -717,7 +717,7 @@
           },
           {
             "id": "C-A3b-4",
-            "status": "done except the PR body update: G5 note amended via gate re-issue at the same evidence; LOG entries written",
+            "status": "done: G5 note amended (gate re-issue, same evidence); LOG written; PR body updated 2026-09-27 (G5 logs line states the lenient reading and its supersession; G6a line; H1-H6 table; bypass-rotation owner action; middleware lookup known issue)",
             "text": "C-A3b-4 (G5 record): G5 STANDS; do not re-open it. Amend STATE.gates.G5.note and LOG: check 5.5 passed on an 'explained, informational' reading of the 42 pg sslmode stderr lines (endorsed by A3 P5.3 C-A3-7), which did not meet the letter of SPEC-04 §8; the class was root-caused (pg-connection-string 2.10 once-per-process notice, verify-full semantics unchanged), fixed by H6 and superseded by the strict 0-error pass on dpl_339k (P6.2-logs-perf.json, window 08:03-08:13Z, 580 lines, 0 error clusters). Correct the PR body 'Logs: 0 unexplained errors' line to say exactly that. In the same note record that P6.2-logs-perf.json's gate field reads G5 although its content is P6.2/dpl_339k (or have the scout re-emit it; never hand-edit), that it did not record the plan's log retention (SPEC-04 §9; P8.2 must), and that P6.2-fix-local-verify.json's B1/B2 self-test counts (15/13) were overstated (14/12 per the harness reviewer; passes either way)."
           },
           {
@@ -1517,10 +1517,13 @@
       ],
       "gate": "G6",
       "workflow": ".claude/workflows/mig-p6b-ready.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T08:40:38.622Z mig-p6b-ready.js part P6.3: add www.growmax.io and growmax.io (308 to www) to the project, and capture recommendedIPv4 (www and apex: A record, per A1 C5), the recommendedCNAME for reference, verification TXT records and ACME DNS-01 challenges (certs issue --challenge-only). No cert issuance and no DNS change."
+      ],
+      "startedAt": "2026-09-27T08:40:38.622Z"
     },
     {
       "id": "P6.4",
