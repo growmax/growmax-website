@@ -37,9 +37,9 @@ if (a.part === 'verify') {
 
 phase('Monitoring')
 const mon = await agent(role('implementer') +
-  `Step P8.4 per docs/migration/specs/SPEC-06-availability-monitoring.md §3: add .github/workflows/uptime.yml (schedule */15, workflow_dispatch; curl --fail --max-time 20 with one retry and content-marker assertions for https://www.growmax.io/, /blog, /demo, /sitemap.xml, /robots.txt, /api/blog and one blog post; optional alert POST only if secrets.ALERT_WEBHOOK_URL is set; no secrets committed). Validate the YAML parses (python3 -c "import yaml,sys;yaml.safe_load(open('.github/workflows/uptime.yml'))" or node). Write ${EV}/P8.4-monitoring.json.`,
+  `Step P8.4 per docs/migration/specs/SPEC-06-availability-monitoring.md §3: add .github/workflows/uptime.yml (schedule */15, workflow_dispatch; curl --fail --max-time 20 with one retry and content-marker assertions for https://www.growmax.io/, /blog, /demo, /sitemap.xml, /robots.txt, /api/blog and one blog post; optional alert POST only if secrets.ALERT_WEBHOOK_URL is set; no secrets committed). Validate the YAML parses (python3 -c "import yaml,sys;yaml.safe_load(open('.github/workflows/uptime.yml'))" or node). Write ${EV}/P8.4-monitoring.json.${a.note ? ' ' + a.note : ''}`,
   { label: 'P8.4 uptime workflow', phase: 'Monitoring', model: 'opus', effort: 'medium', schema: RESULT })
 const rev = await agent(role('reviewer') +
-  `Review .github/workflows/uptime.yml against SPEC-06 §3: correct URLs and markers, cannot leak secrets, fails loudly, no write permissions needed (set permissions: contents: read). Return approve/blocking.`,
+  `Review .github/workflows/uptime.yml against SPEC-06 §3: correct URLs and markers, cannot leak secrets, fails loudly, no write permissions needed (set permissions: contents: read). Return approve/blocking.${a.reviewNote ? ' ' + a.reviewNote : ''}`,
   { label: 'P8.4 review', phase: 'Monitoring', model: 'opus', effort: 'high', ...(a.noAgentTypes ? {} : { agentType: 'migration-reviewer' }), schema: { type: 'object', properties: { approve: { type: 'boolean' }, blocking: { type: 'array', items: { type: 'object', properties: { issue: { type: 'string' } }, required: ['issue'] } } }, required: ['approve', 'blocking'] } })
 return { status: mon?.status === 'pass' && rev?.approve && !rev.blocking.length ? 'pass' : 'fail', mon, rev }

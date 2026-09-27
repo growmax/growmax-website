@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
-  "currentStep": "P8.2",
-  "updatedAt": "2026-09-27T10:24:41.801Z",
+  "currentStep": "P8.4",
+  "updatedAt": "2026-09-27T10:30:53.930Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -1812,10 +1812,13 @@
       ],
       "gate": "G8b",
       "workflow": ".claude/workflows/mig-p8-postcutover.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T10:30:53.930Z Monitoring hand-off started early, in parallel with the P8.3 reconciliation, because it doesn't depend on the apex. wf_75a8c2d7-a98: implementer (opus/medium) adds .github/workflows/uptime.yml per SPEC-06 §3 and rewrites CUTOVER-RUNBOOK.md as the rendered post-cutover runbook (its 16 template placeholders were never rendered, because the owner cut over before P6.5; this also covers G6 6.6), then a reviewer (opus/high) checks both. The repo is public, so a 15-minute uptime schedule costs no Actions minutes. mig-p8-postcutover.js now passes a.note and a.reviewNote to the monitoring agents."
+      ],
+      "startedAt": "2026-09-27T10:30:53.929Z"
     },
     {
       "id": "P9.1",
