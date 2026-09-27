@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
   "currentStep": null,
-  "updatedAt": "2026-09-27T11:01:07.138Z",
+  "updatedAt": "2026-09-27T11:04:18.838Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -53,7 +53,15 @@
       "productionReadyAt": "2026-09-27T07:59:59Z",
       "protectionReality": "SSO all_except_custom_domains (Standard Protection) leaves the production domain growmax-website.vercel.app public (GET / without the bypass header = 200); generated deployment URLs and previews stay protected. The P3.4 expectation (401/403 on the production alias) was wrong; the check is re-specified against the generated deployment URL. The public copy carries an absolute canonical to https://www.growmax.io and robots.txt points to the www sitemap.",
       "previousProductionDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE (d8c8b05)",
-      "hDeploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx"
+      "hDeploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+      "production": {
+        "deploymentId": "dpl_2wGDi1dD7zNWeiAb4yyUPMJidet8",
+        "sha": "d22806d8f31cc6e1131bdf656ea0f07de984ea19",
+        "ref": "main",
+        "since": "2026-09-27T11:01Z",
+        "replaces": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx (dc54053, the G6a/P8.2-verified deployment; still a rollback candidate)",
+        "note": "built by Vercel from main after the PR #1 merge; app code identical to dc54053 (only .github/workflows/uptime.yml differs outside the kit)"
+      }
     },
     "neon": {
       "plan": "launch (launch_v3, installation scope; owner-authorized 2026-09-26; applied via vercel integration update; MCP read-back confirmed)",
@@ -160,7 +168,8 @@
     },
     "git": {
       "mSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
-      "hSha": "dc5405357441870b9315a28a7cbb93a201278453"
+      "hSha": "dc5405357441870b9315a28a7cbb93a201278453",
+      "mainSha": "d22806d8f31cc6e1131bdf656ea0f07de984ea19"
     },
     "cutover": {
       "state": "PROPAGATED",
