@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
   "currentStep": null,
-  "updatedAt": "2026-09-27T10:54:18.050Z",
+  "updatedAt": "2026-09-27T11:01:07.138Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -656,7 +656,7 @@
       "openedAt": "2026-09-27T03:35:19Z",
       "draft": false,
       "subscribed": true,
-      "rule": "never merge; respond to reviews; CODEOWNERS requires @growmax/guardians review"
+      "rule": "owner lifted 'never merge' on 2026-09-27T11:01:07Z: the owner asked in chat to merge PR #1 into main. Merged by the orchestrator with a merge commit (not squash), so the branch stays an ancestor of main. CODEOWNERS still names @growmax/guardians; GitHub reported mergeable_state clean."
     },
     "routing": {
       "changedAt": "2026-09-27T03:41:49Z",
