@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P5.2",
-  "updatedAt": "2026-09-27T02:49:03.446Z",
+  "updatedAt": "2026-09-27T03:09:02.476Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -271,6 +271,19 @@
             "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
           }
         }
+      },
+      "a3p53": {
+        "runId": "wf_2eb24807-6b0",
+        "scriptPath": ".claude/workflows/mig-advisor.js",
+        "startedAt": "2026-09-27T03:09:02Z",
+        "note": "A3 for P5.3: allowlist approvals (4 residual diffs), F9 acceptance, P4.3 schema-diff ratification, visual fix (info). Args in the Workflow call are long; if resuming, re-issue the same checkpoint/question/evidenceFiles from the transcript"
+      },
+      "p53visual": {
+        "runId": "wf_8e798dd7-a86",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-p53-visual-fix-wf_8e798dd7-a86.js",
+        "args": null,
+        "startedAt": "2026-09-27T03:09:02Z",
+        "note": "visual failed-request normalization: implementer sonnet/high -> opus review (<=2 rounds) -> visual re-run (sonnet/medium) writing P5.2-visual.json"
       }
     },
     "followUps": [
