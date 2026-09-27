@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": "P5.3",
-  "updatedAt": "2026-09-27T02:48:11.297Z",
+  "currentStep": "P5.2",
+  "updatedAt": "2026-09-27T02:49:03.446Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -244,6 +244,33 @@
         "args": null,
         "startedAt": "2026-09-27T01:48:09Z",
         "note": "read-only CSS visitor-impact check (sonnet/medium): the investigation said Replit runs an old Vite build, which conflicts with its Next.js cache headers and the ?dpl-only asset differences"
+      },
+      "p52a2": {
+        "runId": "wf_1a403248-109",
+        "scriptPath": ".claude/workflows/mig-verify-suite.js",
+        "startedAt": "2026-09-27T02:49:03Z",
+        "note": "resume with these exact args (key order matters for the cache)",
+        "args": {
+          "step": "P5.2",
+          "baseA": "https://www.growmax.io",
+          "baseB": "https://growmax-website.vercel.app",
+          "bypass": true,
+          "mode": "pre",
+          "runLabel": "p5-20260927T0248Z",
+          "allowDemoTest": false,
+          "carryF2From": "docs/migration/evidence/P5.2-functional-attempt1.json",
+          "deploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+          "f9Browser": true,
+          "paths": {
+            "web": "container",
+            "db": "neon-https",
+            "dump": "sandbox-sdk",
+            "vercelApi": "cli",
+            "visual": "container",
+            "decidedAt": "2026-09-26T10:57:33Z",
+            "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
+          }
+        }
       }
     },
     "followUps": [
@@ -1029,8 +1056,8 @@
       ],
       "gate": "G5",
       "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
-      "status": "failed",
-      "attempts": 1,
+      "status": "in_progress",
+      "attempts": 2,
       "evidence": [
         "docs/migration/evidence/P5.2-suite-summary-attempt1.json",
         "docs/migration/evidence/P5.2-parity-attempt1.json",
@@ -1040,9 +1067,10 @@
       ],
       "notes": [
         "2026-09-26T20:48:33.523Z Child mig-verify-suite from the P5.1 workflow: fresh A capture of https://www.growmax.io vs the production alias with the bypass header; SPEC-04 §5.4 probe first; one labeled demo request (F2); runLabel p5-20260926T2047Z. Allowlist starts empty ([]): nothing is advisor-approved for P5.2 yet.",
-        "2026-09-27T01:26:27.242Z Attempt 1 (runLabel p5-20260926T2320Z, run wf_c021f752-d59). 5.3 functional pass (F2 webhook 200, rows cleaned; F9 false fail is a harness cookie bug; F2 fired twice). 5.5 logs+perf pass (0 unexplained errors, Vercel TTFB equal or better on 20 URLs). 5.2 parity FAIL: 234 unallowed over 297 URLs. 216 are assetRefs differing only by the Vercel ?dpl= suffix and 15 are absolute www links classified by capture origin (both harness bugs). /, /sitemap.xml: A is a stale build-time snapshot (3 newer posts shown on B). 1 CSS bundle hash is unresolved; 1 blog post may have an extra link. 5.4 visual FAIL: harness deps missing at run time (installed since)."
+        "2026-09-27T01:26:27.242Z Attempt 1 (runLabel p5-20260926T2320Z, run wf_c021f752-d59). 5.3 functional pass (F2 webhook 200, rows cleaned; F9 false fail is a harness cookie bug; F2 fired twice). 5.5 logs+perf pass (0 unexplained errors, Vercel TTFB equal or better on 20 URLs). 5.2 parity FAIL: 234 unallowed over 297 URLs. 216 are assetRefs differing only by the Vercel ?dpl= suffix and 15 are absolute www links classified by capture origin (both harness bugs). /, /sitemap.xml: A is a stale build-time snapshot (3 newer posts shown on B). 1 CSS bundle hash is unresolved; 1 blog post may have an extra link. 5.4 visual FAIL: harness deps missing at run time (installed since).",
+        "2026-09-27T02:48:46.855Z Attempt 2 (after the P5.3 harness fixes at 7a621e6): mig-verify-suite.js directly on the unchanged deployment dpl_3pt7gJhkymtokAVFXwifHpCjkUoE. No F2 (carried from P5.2-functional-attempt1.json); F9 also checked in a real browser; fresh A capture of https://www.growmax.io."
       ],
-      "startedAt": "2026-09-26T20:48:33.523Z",
+      "startedAt": "2026-09-27T02:48:46.855Z",
       "lastFailureAt": "2026-09-27T01:26:27.242Z"
     },
     {
