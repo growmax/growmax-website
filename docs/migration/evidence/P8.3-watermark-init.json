@@ -1,0 +1,447 @@
+{
+  "step": "P8.3",
+  "gate": "G8b",
+  "status": "pass",
+  "checkedAt": "2026-09-27T09:36:26Z",
+  "verifier": "migration-db-operator (opus/high)",
+  "notes": "Post-cutover watermark init on Neon. Target: DATABASE_URL from the pulled production env (node --env-file=docs/migration/.scratch/.env.production, --dst-env DATABASE_URL), with NODE_USE_ENV_PROXY=1, the same mapping as P8.0. Source: REPLIT_DATABASE_URL, opened read-only (connect readOnly:true at sync.mjs:337 in verify, and at sync.mjs:1066 and 1100). The reviewed code requires --baseline (usage at sync.mjs:14-16, parseBaselineFlag at sync.mjs:973), so the instructed command without it refused before opening any connection (exit 1, run0.stderr). The run that completed (exit 0) added --baseline blog_posts=174,blog_redirects=95,demo_requests=32,newsletter_subscriptions=0, as ownerAction in evidence/P8.3-watermark-mode-implement.json specifies. loadCutoverBaseline checked those values against evidence/P8.0-cutover-gap.json and accepted them. Writes: no data-table rows; the gap was a no-op; _migration.synced_ids (source ids at or below the baseline) and _migration.sync_state (greatest() upsert) were seeded. Nothing destructive ran, and the permission system refused nothing. No reviewed hash for sync.mjs is recorded under docs/migration/evidence, so the orchestrator must confirm that blob 12488af2 is the reviewed version.",
+  "command": "NODE_USE_ENV_PROXY=1 node --env-file=docs/migration/.scratch/.env.production scripts/migration/db/sync.mjs init-watermarks-post-cutover --confirm-post-cutover --gap-start 1000000 --dst-env DATABASE_URL --baseline blog_posts=174,blog_redirects=95,demo_requests=32,newsletter_subscriptions=0 --out docs/migration/.scratch/P8.3-watermark-init/run1.json",
+  "syncMjs": {
+    "gitHashObject": "12488af2cecfd715b52e022236f83a17210c8643",
+    "sha256": "d269979a6bed2c7d7105fb3daedd9c025a5104c754160201dc694c2568edf8c3"
+  },
+  "checks": [
+    {
+      "name": "sync.mjs git hash-object recorded before run",
+      "expected": "12488af2cecfd715b52e022236f83a17210c8643",
+      "actual": "12488af2cecfd715b52e022236f83a17210c8643",
+      "pass": true
+    },
+    {
+      "name": "sync.mjs git hash-object after run (unchanged)",
+      "expected": "12488af2cecfd715b52e022236f83a17210c8643",
+      "actual": "12488af2cecfd715b52e022236f83a17210c8643",
+      "pass": true
+    },
+    {
+      "name": "instructed command without --baseline refuses before any connection",
+      "expected": {
+        "exit": 1,
+        "refusal": "requires --baseline"
+      },
+      "actual": {
+        "exit": 1,
+        "refusal": "requires --baseline"
+      },
+      "pass": true
+    },
+    {
+      "name": "guards",
+      "expected": {
+        "confirmPostCutover": true,
+        "status": "POST_CUTOVER"
+      },
+      "actual": {
+        "confirmPostCutover": true,
+        "status": "POST_CUTOVER"
+      },
+      "pass": true
+    },
+    {
+      "name": "baseline accepted against P8.0 evidence",
+      "expected": {
+        "blog_posts": 174,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      },
+      "actual": {
+        "blog_posts": 174,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "gap gapStart",
+      "expected": 1000000,
+      "actual": 1000000,
+      "pass": true
+    },
+    {
+      "name": "gap no-op public.blog_posts_id_seq",
+      "expected": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "actual": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "pass": true
+    },
+    {
+      "name": "gap no-op public.blog_redirects_id_seq",
+      "expected": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "actual": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "pass": true
+    },
+    {
+      "name": "gap no-op public.demo_requests_id_seq",
+      "expected": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "actual": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "pass": true
+    },
+    {
+      "name": "gap no-op public.newsletter_subscriptions_id_seq",
+      "expected": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "actual": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "pass": true
+    },
+    {
+      "name": "verify belowGap",
+      "expected": 1000000,
+      "actual": 1000000,
+      "pass": true
+    },
+    {
+      "name": "verify tableSetsEqual",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "verify blog_posts equal below gap",
+      "expected": {
+        "countsEqual": true,
+        "extraOnTarget": 0,
+        "mismatchCount": 0,
+        "mismatches": []
+      },
+      "actual": {
+        "countsEqual": true,
+        "extraOnTarget": 0,
+        "mismatchCount": 0,
+        "mismatches": []
+      },
+      "pass": true
+    },
+    {
+      "name": "verify blog_redirects equal below gap",
+      "expected": {
+        "countsEqual": true,
+        "extraOnTarget": 0,
+        "mismatchCount": 0,
+        "mismatches": []
+      },
+      "actual": {
+        "countsEqual": true,
+        "extraOnTarget": 0,
+        "mismatchCount": 0,
+        "mismatches": []
+      },
+      "pass": true
+    },
+    {
+      "name": "verify demo_requests equal below gap",
+      "expected": {
+        "countsEqual": true,
+        "extraOnTarget": 0,
+        "mismatchCount": 0,
+        "mismatches": []
+      },
+      "actual": {
+        "countsEqual": true,
+        "extraOnTarget": 0,
+        "mismatchCount": 0,
+        "mismatches": []
+      },
+      "pass": true
+    },
+    {
+      "name": "verify newsletter_subscriptions equal below gap",
+      "expected": {
+        "countsEqual": true,
+        "extraOnTarget": 0,
+        "mismatchCount": 0,
+        "mismatches": []
+      },
+      "actual": {
+        "countsEqual": true,
+        "extraOnTarget": 0,
+        "mismatchCount": 0,
+        "mismatches": []
+      },
+      "pass": true
+    },
+    {
+      "name": "verify pass",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "name": "seed blog_posts: no Neon deletions since baseline, no late Replit rows",
+      "expected": {
+        "deletedOnTargetSinceBaseline": [],
+        "lateSourceRowsAboveBaseline": []
+      },
+      "actual": {
+        "deletedOnTargetSinceBaseline": [],
+        "lateSourceRowsAboveBaseline": []
+      },
+      "pass": true
+    },
+    {
+      "name": "seed blog_redirects: no Neon deletions since baseline, no late Replit rows",
+      "expected": {
+        "deletedOnTargetSinceBaseline": [],
+        "lateSourceRowsAboveBaseline": []
+      },
+      "actual": {
+        "deletedOnTargetSinceBaseline": [],
+        "lateSourceRowsAboveBaseline": []
+      },
+      "pass": true
+    },
+    {
+      "name": "seed demo_requests: no Neon deletions since baseline, no late Replit rows",
+      "expected": {
+        "deletedOnTargetSinceBaseline": [],
+        "lateSourceRowsAboveBaseline": []
+      },
+      "actual": {
+        "deletedOnTargetSinceBaseline": [],
+        "lateSourceRowsAboveBaseline": []
+      },
+      "pass": true
+    },
+    {
+      "name": "seed newsletter_subscriptions: no Neon deletions since baseline, no late Replit rows",
+      "expected": {
+        "deletedOnTargetSinceBaseline": [],
+        "lateSourceRowsAboveBaseline": []
+      },
+      "actual": {
+        "deletedOnTargetSinceBaseline": [],
+        "lateSourceRowsAboveBaseline": []
+      },
+      "pass": true
+    },
+    {
+      "name": "watermark blog_posts",
+      "expected": 174,
+      "actual": 174,
+      "pass": true
+    },
+    {
+      "name": "watermark blog_redirects",
+      "expected": 95,
+      "actual": 95,
+      "pass": true
+    },
+    {
+      "name": "watermark demo_requests",
+      "expected": 32,
+      "actual": 32,
+      "pass": true
+    },
+    {
+      "name": "watermark newsletter_subscriptions",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    }
+  ],
+  "output": {
+    "checkedAt": "2026-09-27T09:35:26.005Z",
+    "guards": {
+      "confirmPostCutover": true,
+      "status": "POST_CUTOVER",
+      "cutoverDetectedAt": "2026-09-27T09:00:37Z"
+    },
+    "baseline": {
+      "baseline": {
+        "blog_posts": 174,
+        "blog_redirects": 95,
+        "demo_requests": 32,
+        "newsletter_subscriptions": 0
+      },
+      "evidence": "docs/migration/evidence/P8.0-cutover-gap.json",
+      "snapshotTakenAt": {
+        "source": "2026-09-27T09:05:10.391Z",
+        "target": "2026-09-27T09:05:09.107Z"
+      }
+    },
+    "gap": {
+      "checkedAt": "2026-09-27T09:35:21.765Z",
+      "gapStart": 1000000,
+      "sequences": [
+        {
+          "table": "blog_posts",
+          "sequence": "public.blog_posts_id_seq",
+          "previousNext": 1000000,
+          "newNext": 1000000,
+          "moved": false
+        },
+        {
+          "table": "blog_redirects",
+          "sequence": "public.blog_redirects_id_seq",
+          "previousNext": 1000000,
+          "newNext": 1000000,
+          "moved": false
+        },
+        {
+          "table": "demo_requests",
+          "sequence": "public.demo_requests_id_seq",
+          "previousNext": 1000000,
+          "newNext": 1000000,
+          "moved": false
+        },
+        {
+          "table": "newsletter_subscriptions",
+          "sequence": "public.newsletter_subscriptions_id_seq",
+          "previousNext": 1000000,
+          "newNext": 1000000,
+          "moved": false
+        }
+      ]
+    },
+    "verify": {
+      "checkedAt": "2026-09-27T09:35:23.551Z",
+      "belowGap": 1000000,
+      "excludeTargetNewer": false,
+      "tableSetsEqual": true,
+      "tables": {
+        "blog_redirects": {
+          "srcCount": 95,
+          "dstCount": 95,
+          "countsEqual": true,
+          "matched": 95,
+          "targetNewer": 0,
+          "keyReconciled": 0,
+          "extraOnTarget": 0,
+          "mismatches": [],
+          "mismatchCount": 0
+        },
+        "blog_posts": {
+          "srcCount": 171,
+          "dstCount": 171,
+          "countsEqual": true,
+          "matched": 171,
+          "targetNewer": 0,
+          "keyReconciled": 0,
+          "extraOnTarget": 0,
+          "mismatches": [],
+          "mismatchCount": 0
+        },
+        "newsletter_subscriptions": {
+          "srcCount": 0,
+          "dstCount": 0,
+          "countsEqual": true,
+          "matched": 0,
+          "targetNewer": 0,
+          "keyReconciled": 0,
+          "extraOnTarget": 0,
+          "mismatches": [],
+          "mismatchCount": 0
+        },
+        "demo_requests": {
+          "srcCount": 32,
+          "dstCount": 32,
+          "countsEqual": true,
+          "matched": 32,
+          "targetNewer": 0,
+          "keyReconciled": 0,
+          "extraOnTarget": 0,
+          "mismatches": [],
+          "mismatchCount": 0
+        }
+      },
+      "mismatchCount": 0,
+      "pass": true
+    },
+    "seed": {
+      "blog_redirects": {
+        "baselineMaxId": 95,
+        "sourceIdsAtOrBelowBaseline": 95,
+        "targetIdsBelowGap": 95,
+        "deletedOnTargetSinceBaseline": [],
+        "deletedOnTargetSinceBaselineCount": 0,
+        "lateSourceRowsAboveBaseline": [],
+        "lateSourceRowsAboveBaselineCount": 0,
+        "watermark": 95
+      },
+      "blog_posts": {
+        "baselineMaxId": 174,
+        "sourceIdsAtOrBelowBaseline": 171,
+        "targetIdsBelowGap": 171,
+        "deletedOnTargetSinceBaseline": [],
+        "deletedOnTargetSinceBaselineCount": 0,
+        "lateSourceRowsAboveBaseline": [],
+        "lateSourceRowsAboveBaselineCount": 0,
+        "watermark": 174
+      },
+      "newsletter_subscriptions": {
+        "baselineMaxId": 0,
+        "sourceIdsAtOrBelowBaseline": 0,
+        "targetIdsBelowGap": 0,
+        "deletedOnTargetSinceBaseline": [],
+        "deletedOnTargetSinceBaselineCount": 0,
+        "lateSourceRowsAboveBaseline": [],
+        "lateSourceRowsAboveBaselineCount": 0,
+        "watermark": 0
+      },
+      "demo_requests": {
+        "baselineMaxId": 32,
+        "sourceIdsAtOrBelowBaseline": 32,
+        "targetIdsBelowGap": 32,
+        "deletedOnTargetSinceBaseline": [],
+        "deletedOnTargetSinceBaselineCount": 0,
+        "lateSourceRowsAboveBaseline": [],
+        "lateSourceRowsAboveBaselineCount": 0,
+        "watermark": 32
+      }
+    },
+    "watermarks": {
+      "blog_redirects": 95,
+      "blog_posts": 174,
+      "newsletter_subscriptions": 0,
+      "demo_requests": 32
+    }
+  },
+  "artifacts": [
+    "docs/migration/.scratch/P8.3-watermark-init/sync-hash.txt",
+    "docs/migration/.scratch/P8.3-watermark-init/run0.stderr",
+    "docs/migration/.scratch/P8.3-watermark-init/run1.json",
+    "docs/migration/.scratch/P8.3-watermark-init/run1.stdout",
+    "docs/migration/.scratch/P8.3-watermark-init/run1.stderr"
+  ]
+}

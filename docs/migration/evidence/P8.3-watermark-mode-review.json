@@ -1,0 +1,55 @@
+{
+  "step": "P8.3",
+  "gate": "G8b",
+  "status": "pass",
+  "checkedAt": "2026-09-27T09:38:31Z",
+  "verifier": "migration-reviewer (opus/high)",
+  "recordedBy": "orchestrator, transcribed verbatim from the reviewer's structured result in workflow wf_be26c8eb-5e8 (the reviewer role is read-only); the verdict, findings and summary are the reviewer's",
+  "subject": "sync.mjs init-watermarks-post-cutover mode (reviewed after fix round 1)",
+  "approve": true,
+  "blocking": [],
+  "nonBlocking": [
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "A Replit row at or below the baseline that commits after the P8.0 snapshot is not protected. The seed reads Replit ids at or below B when it runs (initWatermarksFromCutoverBaseline, the baselineSourceIds line), not the ids that existed at the snapshot. Such a row is missing on Neon, so it is marked as synced and reported as deletedOnTargetSinceBaseline. Delta would then report it as targetDeleted and never insert it. With the real data, only blog_posts can hit this: it has 171 rows up to max id 174, so 3 id holes. demo_requests (32 rows, max 32) and blog_redirects (95 rows, max 95) have no holes, and newsletter_subscriptions has baseline 0. The row would stay on Replit and show up in the report, so it is recoverable. Suggested hardening: refuse when the count of Replit ids at or below the baseline is higher than the P8.0 source rowCount. Also refuse when deletedOnTargetSinceBaseline is non-empty for a table the app cannot delete from; lib/storage.ts:64 is the only delete path, and it is for blog_posts."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "runPostCutoverGuards relies only on STATE.json. --state-file and --baseline-evidence can each point at any file, so someone would have to forge two files to get past the guards before cutover. The pre-copy guard checks DNS, but this mode has no DNS check. Suggested hardening: make checkReplitDnsGuard a required failure here (www.growmax.io must not resolve to the Replit IP)."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "This is existing delta behavior the diff doesn't touch. Delta step 5 still lets the Replit copy of a blog post overwrite Neon when Replit's updated_at is newer. After cutover Neon is authoritative, so an edit made on Replit by a client with cached DNS would overwrite Neon. The P8.3 delta runs should watch the updated count."
+    },
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "issue": "loadCutoverBaseline skips the collision check when the evidence has no collisions key at all. P8.0 has the key, so the real run is not affected. Also, a refused run has already opened the target read-write and run the gap step, which does nothing here because the gap was applied at P8.0 and the step only moves sequences forward."
+    },
+    {
+      "file": "scripts/migration/db/selftest.mjs",
+      "issue": "Cosmetic: the banner comment says 'Scenarios 27-30', but the block holds scenarios 27-32."
+    }
+  ],
+  "reviewerSummary": "I approve round 2, with no blocking findings. The round 1 finding is fixed: a post deleted on Neon after cutover no longer comes back on the next delta. I read the full diff and ran the self-tests myself. I could not write the evidence file because my role is read-only, so its full content is at the end.\n\n**Self-tests.** I ran them on a throwaway local PostgreSQL 16 cluster in /var/lib/postgresql/migreview, with every real-database env var unset. I stopped the server afterwards but left the directory. selftest.mjs passed 35/35, readonly-url 5/5, runner-guards 7/7 and schema-diff 44/44. I also ran three mutations in scratch copies, and the tests caught each one:\n- Putting back seeding from Neon's current ids fails scenarios 30 and 31.\n- Removing the POST_CUTOVER status check fails scenario 28.\n- Removing the extra-row-on-Neon refusal fails scenario 32.\n\n**Command line, with no database env vars set:**\n- It refuses without --confirm-post-cutover, without --baseline, with blog_posts=175, with a table missing from --baseline, and with a different --gap-start.\n- With the correct baseline, every check passes against the real STATE.json and P8.0 evidence, then it stops at the missing DST_URL before connecting.\n- The pre-cutover init-watermarks mode still refuses because STATE.status is POST_CUTOVER.\n\n**What you asked me to check:**\n- **Guards before cutover:** the mode needs --confirm-post-cutover, STATE.status POST_CUTOVER, facts.cutover.detectedAt, and a passing P8.0 record with matching tables, baselines, gap and no collisions. Before cutover it could only get through with two forged files.\n- **Nothing destructive:** the only writes are the gap step (sequences only move forward, and it is already applied), `create ... if not exists`, inserts that skip conflicts, and a watermark update that never goes down. Every refusal happens before `_migration` is created.\n- **Existing modes unchanged:** the diff has one deleted line, the unknown-mode error message. initWatermarksForTables, runPreCopyGuards, delta, verify, gap and reverse-delta are untouched.\n- **Watermark after cutover:** it is at least the P8.0 baseline, which both sides were proven to share. The gap was applied at 09:04:48Z and the snapshot at 09:05:09Z showed nothing above the baseline, so Neon's new rows (ids of 1000000 or more) are left out.\n- **Late Replit rows:** a row above the baseline is not marked as synced, so delta inserts it, either as a new row or as a late commit (scenarios 29 and 31). The one gap is a late commit at or below the baseline, the first non-blocking item.\n- **No secrets logged:** output and errors carry only ids and counts, and errors pass through maskUrl. `state.mjs scan` reported clean.\n\n**Evidence file.** Content for docs/migration/evidence/P8.3-watermark-mode-review.json:\n\n{\"step\":\"P8.3\",\"gate\":\"G8b\",\"status\":\"pass\",\"checkedAt\":\"2026-09-27T09:33:27Z\",\"verifier\":\"migration-reviewer (opus/high)\",\"checks\":[{\"name\":\"post-cutover guards cannot be satisfied pre-cutover\",\"pass\":true,\"actual\":\"requires --confirm-post-cutover, STATE.status POST_CUTOVER, facts.cutover.detectedAt and a passing P8.0 record matching --baseline and the gap; scenarios 27/28/32 pass; mutation m2 (status check removed) is caught\"},{\"name\":\"nothing destructive reachable\",\"pass\":true,\"actual\":\"writes: gap (forward-only, already applied), create-if-not-exists, synced_ids ON CONFLICT DO NOTHING, sync_state greatest(); no delete/truncate/copy; refusals happen before _migration is created\"},{\"name\":\"existing modes and guards unchanged\",\"pass\":true,\"actual\":\"git diff: 1 deletion (the unknown-mode message); initWatermarksForTables, runPreCopyGuards, delta, verify, gap and reverse-delta untouched; init-watermarks still refuses POST_CUTOVER\"},{\"name\":\"watermark semantics post-cutover\",\"pass\":true,\"actual\":\"seed = Replit ids <= P8.0 baselineMaxId; watermark >= baseline; Neon ids >= 1000000 excluded; consistent with gap at 09:04:48Z and snapshot at 09:05:09Z with 0 ids above the baseline\"},{\"name\":\"Neon deletion not resurrected\",\"pass\":true,\"actual\":\"scenario 31: watermark 3, delta targetDeleted=2 inserted=1, ids [1,4]; second run inserts nothing; mutation m1 (seed from Neon) fails scenarios 30/31\"},{\"name\":\"late Replit row picked up\",\"pass\":true,\"actual\":\"rows above the baseline stay unsynced and delta inserts them (scenarios 29, 31); late commit at or below the baseline is non-blocking, and only blog_posts is exposed\"},{\"name\":\"fails closed on unaccounted target rows\",\"pass\":true,\"actual\":\"scenario 32 plus mutation m3\"},{\"name\":\"db self-tests run by reviewer\",\"pass\":true,\"actual\":\"selftest 35/35, readonly-url 5/5, runner-guards 7/7, schema-diff 44/44 on throwaway local PG16 with real DB env vars unset\"},{\"name\":\"CLI refusals with real STATE and P8.0\",\"pass\":true,\"actual\":\"refuses without confirm, without baseline, with blog_posts=175, with a table missing and with gap 2000000; the correct baseline stops at missing DST_URL before connecting\"},{\"name\":\"no secrets logged\",\"pass\":true,\"actual\":\"output contains ids and counts only; errors pass through maskUrl; state.mjs scan clean\"}],\"artifacts\":[\"scripts/migration/db/sync.mjs\",\"scripts/migration/db/selftest.mjs\",\"docs/migration/evidence/P8.0-cutover-gap.json\",\"docs/migration/evidence/P8.3-watermark-mode-implement.json\"]}\n\n**Unrelated working-tree changes.** The three modified files and the untracked self-test under scripts/migration/parity, and the untracked P8.1 and P8.2 evidence files, are outside this review. I left them alone.",
+  "checks": [
+    {
+      "name": "inverse guards",
+      "expected": "cannot run pre-cutover; needs --confirm-post-cutover",
+      "actual": "confirmed",
+      "pass": true
+    },
+    {
+      "name": "nothing destructive reachable; existing modes unchanged",
+      "expected": "only _migration bookkeeping writes",
+      "actual": "confirmed",
+      "pass": true
+    },
+    {
+      "name": "watermark semantics post-cutover",
+      "expected": "seeded from the proven P8.0 baseline; late Replit rows picked up by delta",
+      "actual": "confirmed, with non-blocking hardening notes",
+      "pass": true
+    }
+  ],
+  "artifacts": []
+}

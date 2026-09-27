@@ -1,0 +1,79 @@
+{
+  "step": "P8.3",
+  "part": "watermark-mode-implement",
+  "round": "fix-round-1 (blocking finding: post-cutover seed did not respect Neon deletions)",
+  "role": "migration-implementer",
+  "status": "implemented",
+  "checkedAt": "2026-09-27T09:26:41Z",
+  "context": "The owner switched www.growmax.io DNS to Vercel at about 09:00Z. STATE.status is POST_CUTOVER and Neon is authoritative. The 1000000 gap was applied at 09:05Z (evidence/P8.0-cutover-gap.json). init-watermarks refuses post-cutover by design, so a separate, non-destructive mode exists. This round changes how that mode seeds: it now uses the proven P8.0 baseline, not whatever Neon holds when the mode runs.",
+  "findingAddressed": {
+    "problem": "The first version seeded synced_ids and the watermark from the ids on Neon at run time (initWatermarksForTables). A baseline row deleted on Neon after cutover, through DELETE /api/admin/posts/[id] (app/api/admin/posts/[id]/route.ts:74 -> lib/storage.ts:63), was missing from synced_ids, so delta re-inserted it from Replit. That broke the invariant at sync.mjs:28.",
+    "fix": "The mode no longer calls initWatermarksForTables; that function and the other modes are unchanged. It now calls initWatermarksFromCutoverBaseline. That function marks every SOURCE id at or below the per-table P8.0 baselineMaxId as synced (read-only source read) and sets the watermark to greatest(existing, baselineMaxId, max delta-synced target id below the gap). A baseline row missing on Neon now shows up as targetDeleted in delta and is never re-inserted. Replit rows above the baseline stay unsynced, so delta still inserts them as late rows."
+  },
+  "changes": [
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "what": [
+        "Usage header: init-watermarks-post-cutover now requires --baseline table=maxId,... and accepts an optional --baseline-evidence <path> (default docs/migration/evidence/P8.0-cutover-gap.json).",
+        "parseArgs: new args.baseline (default null) and args.baselineEvidence.",
+        "parseBaselineFlag (sync.mjs:973): the flag is required. Each entry must be table=nonNegativeInteger, with no duplicates.",
+        "loadCutoverBaseline (sync.mjs:999) runs before any connection. It checks the flag against the P8.0 evidence: step P8.0 with status pass; the flag's tables must match the tables in snapshot.source and snapshot.target exactly; the flag's value must equal baselineMaxId on BOTH sides; idsAboveBaseline must be empty on both sides; maxId must not exceed the baseline; collisions[t] must be empty; every gap.*.gapStart must equal the gap in use; and the baseline must be below the gap. Any failure refuses the run.",
+        "checkBaselineCoversTables (sync.mjs:1060) opens read-only connections before gap. Every public table on the target and on the source must have a baseline entry, and the reverse. Otherwise the run refuses.",
+        "initWatermarksFromCutoverBaseline (sync.mjs:1099) works in two phases. Phase 1 only reads: the full id sets below the gap on the source (read-only) and on the target, plus existing synced_ids (not verify's list, which is capped at 50). It refuses before creating the _migration schema or writing any row in three cases: (a) a target id below the gap has no source row by id (extra_on_target: a Neon-native row in the pre-gap window, or a baseline row deleted on Replit); (b) a target id between the baseline and the gap that delta never synced (a pre-gap id collision); (c) verify reported extraOnTarget or unequal table sets. Phase 2 runs one atomic statement per table: synced_ids gets unnest(source ids <= baseline) and sync_state gets a greatest() upsert.",
+        "runInitWatermarksPostCutover (sync.mjs:1209) runs these steps in order: guards (confirm, STATE), resolveGapStart, loadCutoverBaseline, checkBaselineCoversTables, gap (idempotent), verify (report only), initWatermarksFromCutoverBaseline. The output keys are checkedAt, guards, baseline, gap, verify, seed and watermarks. seed.<table> reports baselineMaxId, sourceIdsAtOrBelowBaseline, targetIdsBelowGap, deletedOnTargetSinceBaseline (ids plus count), lateSourceRowsAboveBaseline (ids plus count) and the stored watermark."
+      ],
+      "unchanged": "verify, gap, delta, full-refresh, init-watermarks, reverse-delta, runPreCopyGuards, runPostCutoverGuards, runGapVerifyInit, checkReplitDnsGuard and initWatermarksForTables."
+    },
+    {
+      "file": "scripts/migration/db/selftest.mjs",
+      "what": "Added helpers makeP80Evidence, baselineFlag, PC_BASELINE and pcArgs. Scenarios 29 and 30 now pass a baseline and evidence file and assert the new seed fields. Added scenarios 31 and 32.",
+      "scenarios": [
+        "27 and 28: unchanged. They refuse without --confirm-post-cutover, or when STATE is wrong, missing or invalid, and leave the target untouched.",
+        "29: step order is gap, then verify, then seed. Output keys are [checkedAt, guards, baseline, gap, verify, seed, watermarks]. A late Replit row above the baseline gives a verify missing_on_target and seed.lateSourceRowsAboveBaseline [3], and does not block the run. A Neon signup at id 5000 is excluded. Delta inserts the late row.",
+        "30: running the mode twice is idempotent: the gap does not move, watermarks are equal, synced_ids stays at 7. After a target deletion between runs, the second run reports deletedOnTargetSinceBaseline [2] and delta reports targetDeleted=1 with lateCommits=0.",
+        "31 (NEW, the reviewer's reproducer): source blog_posts has ids 1,2,3 and the baseline is 3. Ids 2 and 3, including the highest, are deleted on the target BEFORE the first run, and a late Replit post id 4 sits above the baseline. Expected and observed: watermark 3, synced_ids [1,2,3], deletedOnTargetSinceBaseline [2,3], lateSourceRowsAboveBaseline [4]. Delta run 1 gives targetDeleted=2 (ids [2,3]), inserted=1 and lateCommits=0, leaving target ids [1,4]. Delta run 2 gives targetDeleted=2 and inserted=0, and target ids stay [1,4].",
+        "32 (NEW, fail closed): input cases that refuse with the target untouched (no _migration schema, sequence not moved): no --baseline; a --baseline that disagrees with P8.0; P8.0 idsAboveBaseline not empty; P8.0 status fail; P8.0 gapStart differs; evidence file missing; a table with no baseline. Data cases that refuse with neither _migration.sync_state nor synced_ids created: a Neon-native row below the gap (extra_on_target_below_gap); a baseline row deleted on Replit (extra_on_target_below_gap); an unsynced id collision above the baseline (unsynced_target_row_above_baseline_below_gap)."
+      ]
+    }
+  ],
+  "selfTests": {
+    "database": "Throwaway local PostgreSQL 16.13: initdb as postgres in /var/tmp/growmax-localpg-p83r, 127.0.0.1:54339, databases migtest_src and migtest_dst. It was stopped afterwards. SRC_URL, DST_URL, REPLIT_DATABASE_URL and DATABASE_URL were unset for every run. No real (Replit or Neon) database was opened.",
+    "results": {
+      "scripts/migration/db/selftest.mjs": { "exit": 0, "allPass": true, "scenarios": 35, "passed": 35, "failed": 0, "newThisRound": 2 },
+      "scripts/migration/db/readonly-url.selftest.mjs": { "exit": 0, "passed": 5, "failed": 0 },
+      "scripts/migration/db/runner-guards.selftest.mjs": { "exit": 0, "passed": 7, "failed": 0 },
+      "scripts/migration/db/schema-diff.selftest.mjs": { "exit": 0, "status": "pass", "checks": 44, "failed": 0 }
+    },
+    "mutationCheck": "In a scratchpad copy, the mode was switched back to the old target-derived seed (initWatermarksForTables). Scenario 31 then FAILED as the reviewer described: watermark 1, synced_ids [1], and delta inserted=3, leaving target ids [1,2,3,4] (ids 2 and 3 came back). Scenarios 29, 30 and 32 also failed. The real file was not changed by this check.",
+    "rawOutputs": "docs/migration/.scratch/P8.3-fix-*.selftest.json and .stderr (gitignored; synthetic test rows only)",
+    "cliRefusals": [
+      "--confirm-post-cutover with no --baseline: exit 1, 'requires --baseline table=maxId,...'.",
+      "--baseline blog_posts=175,... checked against the real P8.0 evidence: exit 1, 'blog_posts=175 but P8.0 source baselineMaxId is 174'.",
+      "The correct baseline (blog_posts=174,blog_redirects=95,demo_requests=32,newsletter_subscriptions=0) passes every guard against the real STATE.json and evidence/P8.0-cutover-gap.json. With DST_URL unset, the run then stopped at 'Missing required env var DST_URL' before any connection was opened."
+    ],
+    "secretScan": "node scripts/migration/state.mjs scan: clean (9 changed or untracked files checked)."
+  },
+  "notRun": "The mode was NOT run against Neon or Replit. That is the orchestrator's or DB operator's next step.",
+  "ownerAction": "Real run: NODE_USE_ENV_PROXY=1 node scripts/migration/db/sync.mjs init-watermarks-post-cutover --confirm-post-cutover --baseline blog_posts=174,blog_redirects=95,demo_requests=32,newsletter_subscriptions=0 --out docs/migration/.scratch/<file>.json (gapStart comes from STATE.sync.gapStart = 1000000; the evidence defaults to docs/migration/evidence/P8.0-cutover-gap.json). How to read the result: in verify, a missing_on_target id AT OR BELOW the baseline is a Neon deletion made after cutover, NOT a late Replit row. It appears in seed.<table>.deletedOnTargetSinceBaseline, and the next delta reports it as targetDeleted and does not re-insert it. Only a missing_on_target id ABOVE the baseline is a real late Replit row; it appears in seed.<table>.lateSourceRowsAboveBaseline, and delta inserts it. If the mode refuses with extra_on_target_below_gap or unsynced_target_row_above_baseline_below_gap, a Neon-native row or an id collision exists below the gap. In that case nothing was written, and an operator must investigate before any delta.",
+  "verifierChecks": [
+    "git diff scripts/migration/db/sync.mjs: initWatermarksForTables and every other mode or guard are unchanged. The post-cutover mode never calls initWatermarksForTables. runPreCopyGuards still refuses POST_CUTOVER.",
+    "Re-run the four db self-tests against a fresh throwaway PG16 with the real-DB env vars unset. Expect selftest.mjs 35/35 (including new scenarios 31 and 32), readonly-url 5/5, runner-guards 7/7 and schema-diff 44/44.",
+    "Mutation: point runInitWatermarksPostCutover back at initWatermarksForTables. Scenario 31 must fail with delta re-inserting ids 2 and 3.",
+    "The CLI refuses without --baseline, and with a --baseline that disagrees with evidence/P8.0-cutover-gap.json. Both refusals happen before any connection is opened.",
+    "Confirm that initWatermarksFromCutoverBaseline performs no write (no ensureMigrationSchema call, no insert) before every refusal check has passed."
+  ],
+  "issues": [
+    {
+      "severity": "info",
+      "description": "Remaining assumption: P8.0 proved max id, row count and no ids above the baseline on both sides at 09:05:09Z. It did not compare row hashes, so the seed trusts that the source ids at or below the baseline were the rows both sides held. Equal counts with equal max ids and a pg_dump copy support this. A source row at or below the baseline that is missing on the target is always treated as a Neon deletion."
+    },
+    {
+      "severity": "info",
+      "description": "The mode fails closed on any target id below the gap that has no source row by id. That includes a baseline row deleted on REPLIT after cutover, because Replit may still take writes from clients with cached DNS. In that case an operator must decide; the mode writes nothing."
+    },
+    {
+      "severity": "info",
+      "description": "Someone else has unrelated changes in the working tree: scripts/migration/parity/capture.mjs, compare.mjs and selftest-link-header.mjs are modified, and scripts/migration/parity/selftest-c-a3b-5.mjs is untracked, along with some P8.1/P8.2 evidence files. I did not touch them."
+    }
+  ]
+}

@@ -362,7 +362,12 @@ export async function capture({ base, urls, rawDir, bypassSecretFile, resolve, c
     // that ATTEMPTS embeddedPosts extraction for /blog-like URLs, so compare.mjs's
     // checkEmbeddedPostsCoverage() can require it there without misjudging an OLDER
     // manifest (captured before this feature existed) by a rule it couldn't have satisfied.
-    harness: { embeddedPosts: 1 },
+    // C-A3b-5 (A3 for P6.2): `stylesheetRefs: 1` likewise declares that every 2xx HTML entry
+    // this code captures records stylesheetRefs (captureOne sets it on every successful HTML
+    // extraction; a failed one sets htmlError instead). When BOTH manifests carry it,
+    // compare.mjs treats a 2xx HTML page lacking the field on both sides as a
+    // stylesheetRefsMissing diff rather than a counted stylesheetRefsBothAbsent skip.
+    harness: { embeddedPosts: 1, stylesheetRefs: 1 },
   }
 }
 

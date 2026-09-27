@@ -221,6 +221,18 @@ function compareEntry(a, b, opts) {
     diffs.push(diff)
   }
 
+  // C-A3b-5 (A3 for P6.2): capture.mjs sets htmlError when a text/html body's extraction threw,
+  // leaving every HTML-derived field (title, links, visibleTextHash, stylesheetRefs, ...) absent
+  // on that side. When BOTH sides failed, all of those compare as absent-vs-absent and the page
+  // used to drop out of parity with no diff at all. Diff whenever EITHER side has an error,
+  // regardless of equality (same rule as embeddedPostsError below), and before the both-404
+  // early return so an HTML 404 page is covered too. One side alone already diffed on the
+  // HTML-derived fields (at least visibleTextHash), but only on allowlistable fields; this
+  // field is in FORBIDDEN_ALLOWLIST_FIELDS, so it can never be allowlisted away.
+  if (a.htmlError !== undefined || b.htmlError !== undefined) {
+    diffs.push({ field: 'htmlError', category: 'harness', a: a.htmlError ?? null, b: b.htmlError ?? null })
+  }
+
   const both404 = a.status === 404 && b.status === 404
   if (both404) {
     if ((a.html?.title ?? null) !== (b.html?.title ?? null))
@@ -296,11 +308,18 @@ function compareEntry(a, b, opts) {
     //    (normalizeAssetRef: hashed-name placeholder + dpl strip); field "stylesheetRefs",
     //    category "content".
     //  - Exactly one side lacks it (a manifest from before this field existed on one side
-    //    only): a stylesheetRefs diff with that side null, so the compare fails and forces a
-    //    re-capture of the older side, never a silent pass.
-    //  - Both sides lack it (two older manifests): not compared, but counted in
-    //    opts.stats.stylesheetRefsBothAbsent, which compareManifests reports as
-    //    `stylesheetRefsBothAbsent` and main() prints as a NOTE, so the skip is visible.
+    //    only): a diff with that side null, so the compare fails and forces a re-capture of
+    //    the older side, never a silent pass. C-A3b-5: emitted under its own field
+    //    "stylesheetRefsMissing" (category "other", like embeddedPostsMissing), which is in
+    //    FORBIDDEN_ALLOWLIST_FIELDS, so a pinned {a:[...], b:null} entry can never cover it.
+    //  - Both sides lack it, and BOTH manifests carry the harness.stylesheetRefs marker (their
+    //    capture code always records the field on a 2xx HTML page, see capture.mjs): the
+    //    field went missing anyway, so this is a stylesheetRefsMissing diff (a: null, b: null),
+    //    never a silent skip (C-A3b-5).
+    //  - Both sides lack it and at least one manifest has no such marker (older manifests):
+    //    not compared, but counted in opts.stats.stylesheetRefsBothAbsent, which
+    //    compareManifests reports as `stylesheetRefsBothAbsent` and main() prints as a NOTE,
+    //    so the skip is visible.
     const hasSheetsA = Array.isArray(a.stylesheetRefs)
     const hasSheetsB = Array.isArray(b.stylesheetRefs)
     if (hasSheetsA && hasSheetsB) {
@@ -310,11 +329,13 @@ function compareEntry(a, b, opts) {
         diffs.push({ field: 'stylesheetRefs', category: 'content', a: [...sheetsA].sort(), b: [...sheetsB].sort() })
     } else if (hasSheetsA || hasSheetsB) {
       diffs.push({
-        field: 'stylesheetRefs',
-        category: 'content',
+        field: 'stylesheetRefsMissing',
+        category: 'other',
         a: hasSheetsA ? [...normalizeAssetRefList(a.stylesheetRefs)].sort() : null,
         b: hasSheetsB ? [...normalizeAssetRefList(b.stylesheetRefs)].sort() : null,
       })
+    } else if (opts?.stylesheetRefsMarked) {
+      diffs.push({ field: 'stylesheetRefsMissing', category: 'other', a: null, b: null })
     } else if (opts?.stats) {
       opts.stats.stylesheetRefsBothAbsent = (opts.stats.stylesheetRefsBothAbsent || 0) + 1
     }
@@ -509,7 +530,18 @@ const ISO_UTC_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/
 // with neither the embeddedPosts* fields nor an error — see checkEmbeddedPostsCoverage) are
 // both harness-integrity signals, never a cosmetic content difference an allowlist entry
 // should be able to hide.
-const FORBIDDEN_ALLOWLIST_FIELDS = new Set(['presence', 'status', 'embeddedPostsError', 'embeddedPostsMissing'])
+// C-A3b-5 (A3 for P6.2): 'stylesheetRefsMissing' (a 2xx HTML page with stylesheetRefs absent
+// on one side, or on both sides when both manifests carry harness.stylesheetRefs) and
+// 'htmlError' (HTML extraction failed on either side) are harness-integrity signals of the
+// same kind; no consult ever approves an entry for a one-side-null field.
+const FORBIDDEN_ALLOWLIST_FIELDS = new Set([
+  'presence',
+  'status',
+  'embeddedPostsError',
+  'embeddedPostsMissing',
+  'stylesheetRefsMissing',
+  'htmlError',
+])
 
 // The `text` and `jsonBySlug.<slug>` fields used to pin the constant string '<diff>' as
 // their observed a/b values (see compareEntry), which made `expected: {a:'<diff>', b:'<diff>'}`
@@ -832,6 +864,9 @@ export async function compareManifests(
   let failedUnallowed = 0
   let allowlisted = 0
   const stats = { stylesheetRefsBothAbsent: 0 }
+  // C-A3b-5: only when BOTH manifests declare capture code that always records stylesheetRefs
+  // on a 2xx HTML page is a both-sides-absent page a diff rather than a counted skip.
+  const stylesheetRefsMarked = manifestA?.harness?.stylesheetRefs === 1 && manifestB?.harness?.stylesheetRefs === 1
 
   for (const url of allUrls) {
     const a = byUrlA.get(url)
@@ -860,7 +895,7 @@ export async function compareManifests(
       if (expectOnly) continue
     }
 
-    const diffs = compareEntry(a, b, { dataFreshnessUrls, stats })
+    const diffs = compareEntry(a, b, { dataFreshnessUrls, stats, stylesheetRefsMarked })
     for (const d of diffs) {
       if (d.needsTextDiff) {
         // The `text` field's full text is inline (see compareEntry above) when that side is

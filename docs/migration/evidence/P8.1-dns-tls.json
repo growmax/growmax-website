@@ -1,0 +1,17 @@
+{
+  "step": "P8.1",
+  "gate": "G8a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T09:11:13Z",
+  "verifier": "migration-scout (opus/low)",
+  "checks": [
+    {"id":"8a.1-dns-google","pass":true,"observed":{"www.A":["216.150.1.1"]},"expected":"subset of 216.150.1.1/216.150.16.1"},
+    {"id":"8a.1-dns-cloudflare","pass":true,"observed":{"www.A":["216.150.1.1"]}},
+    {"id":"8a.1-authoritative-ns","pass":null,"status":"not_checked","note":"Sandbox runner not used; NS set via DoH unchanged from P1.4: ns-cloud-a1..a4.googledomains.com"},
+    {"id":"8a.2-tls-cert","pass":true,"source":"Vercel MCP list_certs","observed":{"certId":"cert_4fTeaoVAdXFYOljKvsQ7iDaZ","cns":["www.growmax.io"],"createdAt":"2026-09-27T08:53:18Z","expiresAt":"2026-12-26T07:54:46Z","autoRenew":true,"issuer":"not_checked (list_certs does not return issuer; Sandbox openssl not run)"},"note":"Container-side https fetch of www: first attempt connection reset, retry 200 (via proxy, cert not inspected)"},
+    {"id":"8a.2-http-redirect","pass":true,"observed":{"status":308,"location":"https://www.growmax.io/"}},
+    {"id":"apex-behavior","pass":true,"severity":"info","observed":{"A":["198.49.23.144","198.49.23.145","198.185.159.144","198.185.159.145"],"https":{"status":301,"location":"http://www.growmax.io","server":"Squarespace"}},"baseline":"P1.4 identical (same 4 Squarespace A records, same 301)","apexMovedToVercel":false,"note":"Owner DNS; pre-existing redirect. No apex cert on Vercel yet."},
+    {"id":"project-domains","pass":true,"source":"Vercel MCP list_project_domains","observed":{"www.growmax.io":{"verified":true},"growmax.io":{"verified":true,"redirect":"www.growmax.io","redirectStatusCode":308}},"note":"get_project_domain/misconfiguration endpoint not available in loaded tools; misconfigured flag not checked"}
+  ],
+  "artifacts": []
+}

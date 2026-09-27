@@ -1,0 +1,82 @@
+{
+  "step": "P8.2",
+  "part": "harness C-A3b-5 implement",
+  "checkedAt": "2026-09-27T09:18:37Z",
+  "implementer": "migration-implementer",
+  "baseCommit": "c8f78ed",
+  "scope": "Harness items of A3 P6.2 condition C-A3b-5 (docs/migration/evidence/A3-advisor-P6.2.json conditions[4], risks[3], planChanges[2]; SPEC-04 §9 addendum 2026-09-27), in scripts/migration/parity only. Context: POST_CUTOVER; www.growmax.io is served by Vercel since ~09:00Z.",
+  "changedFiles": [
+    "scripts/migration/parity/compare.mjs",
+    "scripts/migration/parity/capture.mjs",
+    "scripts/migration/parity/selftest-link-header.mjs",
+    "scripts/migration/parity/selftest-c-a3b-5.mjs (new)"
+  ],
+  "summary": [
+    "(1) stylesheetRefsMissing. compare.mjs:329-336: when exactly one side of a 2xx HTML page lacks stylesheetRefs, the diff is emitted under field 'stylesheetRefsMissing' (category 'other', same as embeddedPostsMissing), values unchanged (the present side's normalized sorted refs, null for the missing side). It is never also emitted as 'stylesheetRefs'. 'stylesheetRefsMissing' is in FORBIDDEN_ALLOWLIST_FIELDS (compare.mjs:537), so validateAllowlist rejects any entry for it (url, pattern or maxMatches) and compare.mjs --allowlist exits 2. An old-style entry pinned on 'stylesheetRefs' with {a:null,b:[...]} is still valid but no longer matches anything.",
+    "(2) htmlError. compare.mjs:232-234: whenever EITHER side has htmlError, compareEntry pushes {field:'htmlError', category:'harness', a: a.htmlError ?? null, b: b.htmlError ?? null}. The check runs after the fetch-error return and before the both-404 early return, so an HTML 404 page with htmlError on both sides also diffs. 'htmlError' is in FORBIDDEN_ALLOWLIST_FIELDS. Before the change (verified against a snapshot of the pre-change harness): both sides htmlError gave 0 diffs and passed=true; one side htmlError already failed, but only on allowlistable fields (title, jsonLdHash, visibleTextHash, stylesheetRefs). Now a one-side htmlError page also carries an explicit htmlError diff, so it fails even when every other field on the page is allowlisted (self-test case one-side-htmlError-diffs).",
+    "(3) harness.stylesheetRefs marker. capture.mjs:370: capture() writes harness: {embeddedPosts: 1, stylesheetRefs: 1} (full and compact mode). compare.mjs:869 computes stylesheetRefsMarked = both manifests have harness.stylesheetRefs === 1 (strict), passed to compareEntry (compare.mjs:898). When marked, a 2xx HTML page lacking stylesheetRefs on both sides is a stylesheetRefsMissing diff with a:null, b:null (compare.mjs:337-338) and is not counted in stylesheetRefsBothAbsent. With one or neither marker, unchanged: both absent increments stylesheetRefsBothAbsent and main() prints the NOTE; one absent is a stylesheetRefsMissing diff.",
+    "selftest-link-header.mjs: case stylesheet-one-side-lacks-field-fails updated to the new field name ('stylesheetRefsMissing', category 'other') and additionally asserts no plain 'stylesheetRefs' diff is emitted. No other existing case needed changes.",
+    "selftest-c-a3b-5.mjs (new, no network): 12 cases covering (1) one-side-lacks under all 5 marker combinations incl. empty array vs absent; (1) allowlist rejection via validateAllowlist, compareManifests and the CLI, and the old-style stylesheetRefs entry no longer covering it; (2) both-sides htmlError (same message, different messages, HTML 404 page, both-marked), one-side htmlError (A or B, and still failing with every other field allowlisted), htmlError allowlist rejection (url, pattern, maxMatches, compareManifests, CLI), and a capture()-driven end-to-end htmlError on both sides (raw-dir .text.txt target pre-created as a directory so the extraction try block throws); (3) capture() writes the marker in full and compact mode, both-marked both-absent is a diff on every affected page and never counted, one/no/non-1 marker both-absent still counted with no diff, CLI NOTE printed only without both markers (exit 1 with both markers, 0 otherwise), and no false positives (equal refs, both-404 without refs, text/plain). Run against a snapshot of the pre-change harness it scores 2/12 (only the two unchanged-behavior cases pass), so the cases do detect the change."
+  ],
+  "selftests": [
+    {
+      "name": "selftest-link-header.mjs",
+      "command": "node scripts/migration/parity/selftest-link-header.mjs --out docs/migration/.scratch/c-a3b-5-selftests/selftest-link-header.json",
+      "exit": 0,
+      "summary": "SUMMARY selftest-link-header.mjs: 21/21 PASS, 0 FAIL, 0 DEFERRED"
+    },
+    {
+      "name": "selftest-p5.3.mjs",
+      "command": "node scripts/migration/parity/selftest-p5.3.mjs --out docs/migration/.scratch/c-a3b-5-selftests/selftest-p5.3.json",
+      "exit": 0,
+      "summary": "SUMMARY selftest-p5.3.mjs: 12/12 PASS, 0 FAIL, 0 DEFERRED"
+    },
+    {
+      "name": "selftest-c-a3b-5.mjs",
+      "command": "node scripts/migration/parity/selftest-c-a3b-5.mjs --out docs/migration/.scratch/c-a3b-5-selftests/selftest-c-a3b-5.json",
+      "exit": 0,
+      "summary": "SUMMARY selftest-c-a3b-5.mjs: 12/12 PASS, 0 FAIL, 0 DEFERRED"
+    },
+    {
+      "name": "selftest.mjs (live)",
+      "command": "node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out docs/migration/.scratch/c-a3b-5-selftests/selftest-live.json",
+      "exit": 1,
+      "summary": "SUMMARY selftest.mjs: 19/21 PASS, 1 FAIL, 1 DEFERRED",
+      "failed": ["tie-permutation-real-data"],
+      "deferred": ["protected-deployment-probe (reason recorded by the test: no Vercel deployment at P1.2; the probe runs at P5.2)"],
+      "failureCause": "Not caused by this change (the change touches no code on that path: lib/extract.mjs and tie-permutation.mjs are unmodified). The check parses /blog's embedded post list from normalizeHtmlNoise(raw). normalizeHtmlNoise's ?dpl strip (lib/extract.mjs:20, /[?&]dpl=[^&\"'\\s]+/) also consumes the backslash of an escaped quote inside RSC flight strings (the live /blog body has 36 'dpl=<id>\\\"' occurrences), which breaks the flight-row JSON, so extractEmbeddedBlogPosts throws 'found RSC flight rows but no embedded post array'. It shows now because www.growmax.io is served by Vercel (dpl-suffixed refs) since cutover. Reproduced offline: the P6.2 attempt-3 raw-a (Replit) /blog body extracts 172 posts raw and normalized; raw-b (Vercel) and the fresh live bodies extract 172 raw but throw normalized. capture.mjs extracts from the raw body, so manifests and compare.mjs are unaffected (the live capture's embedded-posts-coverage-guard and self-compare checks pass)."
+    }
+  ],
+  "regression": {
+    "command": "node scripts/migration/parity/compare.mjs --a docs/migration/.scratch/p6-20260927T0803Z/manifest-a.json --b docs/migration/.scratch/p6-20260927T0803Z/manifest-b.json --raw-dir-a docs/migration/.scratch/p6-20260927T0803Z/raw-a --raw-dir-b docs/migration/.scratch/p6-20260927T0803Z/raw-b --allowlist docs/migration/evidence/allowlist.json --out docs/migration/.scratch/c-a3b-5-regress/diff.json --scratch docs/migration/.scratch/c-a3b-5-regress/scratch",
+    "exit": 0,
+    "compared": 297,
+    "failedUnallowed": 0,
+    "allowlisted": 4,
+    "allowlistedDiffs": ["/ visibleTextHash", "/ internalLinks", "/sitemap.xml sitemapEntries", "<hashed-css-assets> hashedCssSha256"],
+    "stylesheetRefsBothAbsent": 0,
+    "htmlErrorOrStylesheetRefsMissingDiffs": 0,
+    "beforeChange": "Same command with the pre-change compare.mjs (output docs/migration/.scratch/c-a3b-5-regress/before/): failedUnallowed 0, allowlisted 4, 1165 diffs. After: 1165 diffs, identical (url, field, allowlisted, reportOnly) set.",
+    "withBothMarkersInjected": "Same manifests with harness.stylesheetRefs = 1 added to both in memory: failedUnallowed 0, allowlisted 4, stylesheetRefsBothAbsent 0, 0 new-field diffs (all 216 2xx HTML entries on each side carry stylesheetRefs; neither side has htmlError)."
+  },
+  "fileSha256Prefix": {
+    "scripts/migration/parity/capture.mjs": "c5e6f05ebc209841",
+    "scripts/migration/parity/compare.mjs": "ef29423691d35e4f",
+    "scripts/migration/parity/selftest-link-header.mjs": "b917138b6910cf0e",
+    "scripts/migration/parity/selftest-c-a3b-5.mjs": "89d15d09bafd8664"
+  },
+  "notes": [
+    "No commit, push, STATE.json or LOG.md edit. No database was touched. state.mjs scan: clean.",
+    "scripts/migration/db/selftest.mjs, scripts/migration/db/sync.mjs and docs/migration/evidence/P8.1-dns-tls.json / P8.3-watermark-mode-implement.json show as modified or untracked in the tree. This task did not produce them (they come from other sessions); the orchestrator should not attribute them to this change.",
+    "C-A3b-5 also asks for a short opus review of these compare.mjs changes. That review has not been done yet."
+  ],
+  "verifierShouldRun": [
+    "node scripts/migration/parity/selftest-c-a3b-5.mjs --out <.scratch path>  (expect SUMMARY 12/12 PASS, 0 FAIL, 0 DEFERRED)",
+    "node scripts/migration/parity/selftest-link-header.mjs --out <.scratch path>  (expect SUMMARY 21/21 PASS, 0 FAIL, 0 DEFERRED)",
+    "node scripts/migration/parity/selftest-p5.3.mjs --out <.scratch path>  (expect SUMMARY 12/12 PASS, 0 FAIL, 0 DEFERRED; pass --out, its default writes docs/migration/evidence/P5.3-parity-selftest.json)",
+    "node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out <.scratch path>  (expect 19/21 PASS, 1 FAIL tie-permutation-real-data (pre-existing, see selftests[3].failureCause), 1 DEFERRED)",
+    "the regression compare above (expect failedUnallowed 0, allowlisted 4, stylesheetRefsBothAbsent 0)",
+    "git diff -- scripts/migration/parity  (only capture.mjs, compare.mjs, selftest-link-header.mjs changed; selftest-c-a3b-5.mjs new)",
+    "short opus review of the compare.mjs diff, as C-A3b-5 requires"
+  ]
+}

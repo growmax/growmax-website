@@ -610,11 +610,15 @@ async function testOneSideLacksFieldFails() {
   const bOld = await compareManifests(mkSheetManifest(sheets), mkSheetManifest(null, { omit: true }), {})
   // An empty array is a real value (a page with no stylesheet), not "lacking the field".
   const aOldEmpty = await compareManifests(mkSheetManifest(null, { omit: true }), mkSheetManifest([]), {})
-  const dA = fieldDiffs(aOld, 'stylesheetRefs')
-  const dB = fieldDiffs(bOld, 'stylesheetRefs')
-  const dE = fieldDiffs(aOldEmpty, 'stylesheetRefs')
+  // C-A3b-5: the one-side-null diff is its own unallowlistable field, stylesheetRefsMissing,
+  // and never also reported as stylesheetRefs.
+  const dA = fieldDiffs(aOld, 'stylesheetRefsMissing')
+  const dB = fieldDiffs(bOld, 'stylesheetRefsMissing')
+  const dE = fieldDiffs(aOldEmpty, 'stylesheetRefsMissing')
+  const noPlainField = [aOld, bOld, aOldEmpty].every((r) => fieldDiffs(r, 'stylesheetRefs').length === 0)
   const pass =
-    dA.length === 1 && dA[0].a === null && Array.isArray(dA[0].b) && dA[0].category === 'content' && aOld.passed === false &&
+    noPlainField &&
+    dA.length === 1 && dA[0].a === null && Array.isArray(dA[0].b) && dA[0].category === 'other' && aOld.passed === false &&
     dB.length === 1 && dB[0].b === null && Array.isArray(dB[0].a) && bOld.passed === false &&
     dE.length === 1 && dE[0].a === null && eq(dE[0].b, []) && aOldEmpty.passed === false
   return { pass, detail: { aLacks: dA, bLacks: dB, aLacksBEmpty: dE } }

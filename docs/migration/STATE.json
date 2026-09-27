@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
   "currentStep": "P8.1",
-  "updatedAt": "2026-09-27T09:10:41.101Z",
+  "updatedAt": "2026-09-27T09:40:19.239Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -572,7 +572,11 @@
       "Security hygiene: never attach x-vercel-protection-bypass via Playwright extraHTTPHeaders or any other all-requests mechanism; only origin-scoped (context.route by origin, or fetch to the base URL). The P5.2 probe leak led to a bypass rotation (2026-09-27)",
       "F9 real-origin path (review r2, non-blocking): the first P6.2 run is F9's first end-to-end use through the container proxy (SPKI pin, no ignoreHTTPSErrors) with the route-scoped bypass against Vercel; check its detail. Any future F9 fetch must keep redirect:\"manual\" (Playwright carries route.continue header overrides across followed redirects)",
       "Parity harness (P6.2 hardening review, non-blocking; pre-existing): a page where BOTH sides hit htmlError skips every HTML field (compare never compares htmlError). Add a manifest marker (harness.stylesheetRefs) and fail on both-absent in marked manifests, or emit an htmlError diff. Also optional: stylesheetRefsMissing as a non-allowlistable field; feed stylesheetRefs into the captureAssets fetch set; trim OWS before the Link-target guard; an --expect-link-headers floor for the Replit base.",
-      "Parity harness: per-page hashed CSS names collapse to one placeholder (pre-existing design limit); a per-page swap to another site CSS file is only caught by the site-wide hashedCssSha256 multiset. Possible hardening: compare per-page stylesheet content sha256 via manifest.assets."
+      "Parity harness: per-page hashed CSS names collapse to one placeholder (pre-existing design limit); a per-page swap to another site CSS file is only caught by the site-wide hashedCssSha256 multiset. Possible hardening: compare per-page stylesheet content sha256 via manifest.assets.",
+      "sync.mjs: delta --dry-run is NOT a dry-run. parseArgs accepts --dry-run, but runDelta ignores it and writes. Make delta refuse --dry-run (or honor it) before anyone relies on it (P8.3 verifier finding, 2026-09-27).",
+      "parity lib/extract.mjs normalizeHtmlNoise: the ?dpl= strip regex /[?&]dpl=[^&\"\\s]+/ also consumes the backslash before an escaped quote in embedded RSC data on Vercel-served pages. That breaks extractEmbeddedBlogPosts in the tie-permutation proof path (live selftest tie-permutation-real-data fails on www). Fix: exclude backslash from the value class, or extract from the raw body. capture.mjs and compare.mjs are unaffected (P8.2 harness implementer finding).",
+      "init-watermarks-post-cutover hardening (non-blocking review): refuse if the count of Replit ids <= baseline exceeds the P8.0 source rowCount (a late Replit row inside a blog_posts id hole would be marked synced); add a DNS guard requiring www NOT to resolve to Replit; flag deletedOnTargetSinceBaseline for tables without an app delete path.",
+      "compare.mjs: honour harness.stylesheetRefs per manifest (like checkEmbeddedPostsCoverage), so a both-absent page with one marked manifest fails instead of being counted; until then P8.2 must require stylesheetRefsBothAbsent 0 (the P6.2 baseline has no marker)."
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",

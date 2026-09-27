@@ -21,6 +21,7 @@ import {
   runDelta,
   runFullRefresh,
   runInitWatermarks,
+  runInitWatermarksPostCutover,
   runReverseDelta,
   ensureMigrationSchema,
   checkReplitDnsGuard,
@@ -1357,6 +1358,454 @@ async function main() {
     });
   } catch (e) {
     record("delta: the watermark advance and its sync_log row commit or roll back together", false, String(e.stack || e));
+  }
+
+  // =========================================================================
+  // Scenarios 27-30: init-watermarks-post-cutover (P8.3). After an
+  // owner-initiated DNS cutover, init-watermarks refuses by design; this mode
+  // uses the inverse guards, then gap -> verify (report only) -> init.
+  // =========================================================================
+  const postCutoverState = async (name, state) => {
+    const fs = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const p = path.join(os.tmpdir(), `selftest-state-${name}-${Date.now()}.json`);
+    if (state !== undefined) fs.writeFileSync(p, typeof state === "string" ? state : JSON.stringify(state));
+    return { path: p, cleanup: () => fs.rmSync(p, { force: true }) };
+  };
+  const POST_CUTOVER_OK = { status: "POST_CUTOVER", facts: { cutover: { detectedAt: "2026-09-27T09:00:00Z" } } };
+  // A P8.0-shaped evidence record (evidence/P8.0-cutover-gap.json): per-table
+  // baselineMaxId proven identical on both sides, no ids above it, no
+  // collisions, and the gap in use.
+  const makeP80Evidence = (baseline, { gapStart = 5000, status = "pass", mutate } = {}) => {
+    const side = () =>
+      Object.fromEntries(
+        Object.entries(baseline).map(([t, b]) => [t, { baselineMaxId: b, maxId: b === 0 ? null : b, rowCount: 0, idsAboveBaseline: [] }])
+      );
+    const ev = {
+      step: "P8.0",
+      status,
+      gap: { run1: { gapStart }, run2: { gapStart } },
+      snapshot: {
+        target: { takenAt: "2026-09-27T09:05:09Z", tables: side() },
+        source: { takenAt: "2026-09-27T09:05:10Z", tables: side() },
+      },
+      collisions: Object.fromEntries(Object.keys(baseline).map((t) => [t, []])),
+    };
+    if (mutate) mutate(ev);
+    return ev;
+  };
+  const baselineFlag = (b) =>
+    Object.entries(b)
+      .map(([t, n]) => `${t}=${n}`)
+      .join(",");
+  // The fixture below: both sides hold ids up to these at the "P8.0" snapshot.
+  const PC_BASELINE = { blog_redirects: 1, blog_posts: 2, newsletter_subscriptions: 2, demo_requests: 2 };
+  const pcArgs = (statePath, evidencePath, extra = {}) =>
+    baseArgs({
+      confirmPostCutover: true,
+      stateFile: statePath,
+      gapStart: 5000,
+      baseline: baselineFlag(PC_BASELINE),
+      baselineEvidence: evidencePath,
+      ...extra,
+    });
+  // Nothing may be written to the target by a refused run: no _migration
+  // schema created, no sequence moved.
+  const dstUntouched = async () => {
+    const reg = (await dstQuery(`select to_regclass('_migration.sync_state') as r`))[0].r;
+    const seq = (await dstQuery(`select last_value::int as v from newsletter_subscriptions_id_seq`))[0].v;
+    return { noMigrationSchema: reg === null, newsletterSeqLastValue: seq, ok: reg === null && seq < 5000 };
+  };
+  const seedPostCutoverFixture = async () => {
+    await resetDatabases({ initWatermarksAtZero: false });
+    await seedSrc([
+      { table: "blog_redirects", id: 1, oldPath: "/pc-old-1" },
+      { table: "blog_posts", id: 1, slug: "pc-1" },
+      { table: "blog_posts", id: 2, slug: "pc-2" },
+      { table: "newsletter_subscriptions", id: 1, email: "pc-1@example.com" },
+      { table: "newsletter_subscriptions", id: 2, email: "pc-2@example.com" },
+      { table: "demo_requests", id: 1, email: "pc-d1@example.com" },
+      { table: "demo_requests", id: 2, email: "pc-d2@example.com" },
+    ]);
+    await localCopy();
+    // A Replit signup that landed after the last copy, before DNS flipped:
+    // source-only, exactly what delta must pick up post-cutover.
+    await srcExec(
+      `insert into newsletter_subscriptions (id, email, created_at) overriding system value values (3, 'pc-late@example.com', now())`
+    );
+  };
+
+  // Scenario 27: refuses without --confirm-post-cutover.
+  {
+    const st = await postCutoverState("pc-noconfirm", POST_CUTOVER_OK);
+    try {
+      await seedPostCutoverFixture();
+      let refused = false;
+      let message = null;
+      try {
+        await runInitWatermarksPostCutover(baseArgs({ stateFile: st.path, gapStart: 5000 }));
+      } catch (e) {
+        message = e.message;
+        refused = /requires --confirm-post-cutover/.test(e.message);
+      }
+      const untouched = await dstUntouched();
+      record("init-watermarks-post-cutover: refuses without --confirm-post-cutover", refused && untouched.ok, { message, untouched });
+    } catch (e) {
+      record("init-watermarks-post-cutover: refuses without --confirm-post-cutover", false, String(e.stack || e));
+    } finally {
+      st.cleanup();
+    }
+  }
+
+  // Scenario 28: refuses when STATE.status is IN_PROGRESS, when
+  // cutover.detectedAt is null, and when STATE.json is missing or unreadable.
+  {
+    const cases = [
+      ["status IN_PROGRESS", { status: "IN_PROGRESS", facts: { cutover: { detectedAt: "2026-09-27T09:00:00Z" } } }, /STATE\.status is IN_PROGRESS/],
+      ["detectedAt null", { status: "POST_CUTOVER", facts: { cutover: { detectedAt: null } } }, /detectedAt is not set/],
+      ["STATE.json missing", undefined, /STATE\.json not found/],
+      ["STATE.json invalid", "{not json", /not valid JSON/],
+    ];
+    try {
+      await seedPostCutoverFixture();
+      const detail = {};
+      let allRefused = true;
+      for (const [label, state, re] of cases) {
+        const st = await postCutoverState(`pc-${label.replace(/\W+/g, "-")}`, state);
+        try {
+          let refused = false;
+          let message = null;
+          try {
+            await runInitWatermarksPostCutover(baseArgs({ confirmPostCutover: true, stateFile: st.path, gapStart: 5000 }));
+          } catch (e) {
+            message = e.message.replace(st.path, "<tmp>");
+            refused = re.test(e.message);
+          }
+          detail[label] = { refused, message };
+          if (!refused) allRefused = false;
+        } finally {
+          st.cleanup();
+        }
+      }
+      const untouched = await dstUntouched();
+      record(
+        "init-watermarks-post-cutover: refuses when STATE.status is not POST_CUTOVER, detectedAt is null, or STATE.json is unreadable",
+        allRefused && untouched.ok,
+        { ...detail, untouched }
+      );
+    } catch (e) {
+      record(
+        "init-watermarks-post-cutover: refuses when STATE.status is not POST_CUTOVER, detectedAt is null, or STATE.json is unreadable",
+        false,
+        String(e.stack || e)
+      );
+    }
+  }
+
+  // Scenario 29: post-cutover it runs gap, then verify (report only, a
+  // source-only row above the baseline does not block), then seeds from the
+  // P8.0 baseline. A new Neon signup (id >= gap) is excluded; the next delta
+  // inserts the source-only row.
+  {
+    const st = await postCutoverState("pc-run", POST_CUTOVER_OK);
+    const ev = await postCutoverState("pc-run-ev", makeP80Evidence(PC_BASELINE));
+    try {
+      await seedPostCutoverFixture();
+      const order = [];
+      const seqNext = async () => {
+        const r = (await dstQuery(`select last_value::int as v, is_called from newsletter_subscriptions_id_seq`))[0];
+        return r.is_called ? r.v + 1 : r.v;
+      };
+      const syncStateExists = async () => (await dstQuery(`select to_regclass('_migration.sync_state') as r`))[0].r !== null;
+      const hooks = {
+        afterGap: async () => {
+          order.push({ step: "gap", seqNext: await seqNext(), syncStateExists: await syncStateExists() });
+          // A signup on the live (Vercel + Neon) site after the gap.
+          await dstQuery(`insert into newsletter_subscriptions (email) values ('pc-neon@example.com')`);
+        },
+        afterVerify: async () => {
+          order.push({ step: "verify", syncStateExists: await syncStateExists() });
+        },
+      };
+      const out = await runInitWatermarksPostCutover(pcArgs(st.path, ev.path), { hooks });
+      const keysOk =
+        JSON.stringify(Object.keys(out)) === JSON.stringify(["checkedAt", "guards", "baseline", "gap", "verify", "seed", "watermarks"]);
+      const neonId = (await dstQuery(`select id::int as id from newsletter_subscriptions where email = 'pc-neon@example.com'`))[0].id;
+      const nlVerify = out.verify.tables.newsletter_subscriptions;
+      const synced = await dstQuery(
+        `select id::int as id from _migration.synced_ids where table_name = 'newsletter_subscriptions' order by id`
+      );
+      const orderOk =
+        order.length === 2 &&
+        order[0].step === "gap" &&
+        order[0].seqNext === 5000 &&
+        order[0].syncStateExists === false &&
+        order[1].step === "verify" &&
+        order[1].syncStateExists === false;
+      const runOk =
+        keysOk &&
+        out.guards.status === "POST_CUTOVER" &&
+        out.guards.cutoverDetectedAt === POST_CUTOVER_OK.facts.cutover.detectedAt &&
+        out.gap.gapStart === 5000 &&
+        out.verify.belowGap === 5000 &&
+        out.verify.pass === false &&
+        nlVerify.mismatchCount === 1 &&
+        nlVerify.mismatches[0]?.reason === "missing_on_target" &&
+        nlVerify.extraOnTarget === 0 &&
+        neonId === 5000 &&
+        out.watermarks.newsletter_subscriptions === 2 &&
+        out.watermarks.demo_requests === 2 &&
+        out.watermarks.blog_posts === 2 &&
+        out.watermarks.blog_redirects === 1 &&
+        JSON.stringify(out.baseline.baseline) === JSON.stringify(PC_BASELINE) &&
+        JSON.stringify(out.seed.newsletter_subscriptions.lateSourceRowsAboveBaseline) === "[3]" &&
+        out.seed.newsletter_subscriptions.deletedOnTargetSinceBaselineCount === 0 &&
+        JSON.stringify(synced.map((r) => r.id)) === "[1,2]";
+      const d = await runDelta(baseArgs({ gapStart: 5000 }));
+      const nl = d.tables.find((x) => x.table === "newsletter_subscriptions");
+      const lateOnTarget = (await dstQuery(`select 1 from newsletter_subscriptions where id = 3`)).length === 1;
+      const neonStillThere = (await dstQuery(`select 1 from newsletter_subscriptions where id = 5000`)).length === 1;
+      const deltaOk = nl.inserted === 1 && nl.targetDeleted === 0 && lateOnTarget && neonStillThere;
+      record("init-watermarks-post-cutover: runs gap, then verify (report only), then seeds from the P8.0 baseline", orderOk && runOk && deltaOk, {
+        order,
+        keys: Object.keys(out),
+        guards: out.guards,
+        gapMoved: out.gap.sequences.filter((s) => s.moved).length,
+        verify: { pass: out.verify.pass, mismatchCount: out.verify.mismatchCount, newsletter: nlVerify },
+        watermarks: out.watermarks,
+        seed: out.seed,
+        neonId,
+        delta: { inserted: nl.inserted, targetDeleted: nl.targetDeleted, lateOnTarget, neonStillThere },
+      });
+    } catch (e) {
+      record(
+        "init-watermarks-post-cutover: runs gap, then verify (report only), then seeds from the P8.0 baseline",
+        false,
+        String(e.stack || e)
+      );
+    } finally {
+      st.cleanup();
+      ev.cleanup();
+    }
+  }
+
+  // Scenario 30: running it twice is idempotent (gap already applied, as at
+  // P8.0, moves nothing; synced_ids unchanged) and never decreases a
+  // watermark, even after an editor deletes the max id below the gap.
+  {
+    const st = await postCutoverState("pc-twice", POST_CUTOVER_OK);
+    const ev = await postCutoverState("pc-twice-ev", makeP80Evidence(PC_BASELINE));
+    try {
+      await seedPostCutoverFixture();
+      await runGap(baseArgs({ gapStart: 5000 })); // the P8.0 gap, already applied
+      const args = pcArgs(st.path, ev.path);
+      const first = await runInitWatermarksPostCutover(args);
+      const syncedCount = async () => (await dstQuery(`select count(*)::int as n from _migration.synced_ids`))[0].n;
+      const synced1 = await syncedCount();
+      await deleteFromDst("demo_requests", 2); // editor deletion on the target, between runs
+      const second = await runInitWatermarksPostCutover(args);
+      const synced2 = await syncedCount();
+      const stateRows = (await dstQuery(`select count(*)::int as n from _migration.sync_state`))[0].n;
+      const noneDecreased = Object.keys(first.watermarks).every((t) => second.watermarks[t] >= first.watermarks[t]);
+      const equal = JSON.stringify(first.watermarks) === JSON.stringify(second.watermarks);
+      const gapIdempotent = [first, second].every((r) => r.gap.sequences.every((s) => !s.moved && s.newNext === 5000));
+      const d = await runDelta(baseArgs({ gapStart: 5000 }));
+      const dr = d.tables.find((x) => x.table === "demo_requests");
+      const notResurrected = dr.targetDeleted === 1 && dr.lateCommits === 0 && (await countRows(DST_URL, "demo_requests")) === 1;
+      const ok =
+        gapIdempotent &&
+        equal &&
+        noneDecreased &&
+        second.watermarks.demo_requests === 2 &&
+        synced1 === synced2 &&
+        stateRows === 4 &&
+        JSON.stringify(second.seed.demo_requests.deletedOnTargetSinceBaseline) === "[2]" &&
+        notResurrected;
+      record("init-watermarks-post-cutover: running twice is idempotent and never decreases a watermark", ok, {
+        gapIdempotent,
+        first: first.watermarks,
+        second: second.watermarks,
+        synced1,
+        synced2,
+        stateRows,
+        deltaAfter: { targetDeleted: dr.targetDeleted, lateCommits: dr.lateCommits },
+      });
+    } catch (e) {
+      record("init-watermarks-post-cutover: running twice is idempotent and never decreases a watermark", false, String(e.stack || e));
+    } finally {
+      st.cleanup();
+      ev.cleanup();
+    }
+  }
+
+  // Scenario 31: a Neon (target) deletion of baseline rows BEFORE the first
+  // post-cutover run -- including the highest id, which would lower a
+  // target-derived watermark -- is never resurrected by delta. Source
+  // blog_posts ids 1,2,3 (the P8.0 baseline, 3); ids 2 and 3 deleted on the
+  // target after cutover; a late Replit post (id 4, above the baseline) is the
+  // only row delta may insert.
+  {
+    const name = "init-watermarks-post-cutover: a target deletion before the first run stays deleted (targetDeleted, not re-inserted)";
+    const b31 = { blog_redirects: 0, blog_posts: 3, newsletter_subscriptions: 0, demo_requests: 0 };
+    const st = await postCutoverState("pc-del", POST_CUTOVER_OK);
+    const ev = await postCutoverState("pc-del-ev", makeP80Evidence(b31));
+    try {
+      await resetDatabases({ initWatermarksAtZero: false });
+      await seedSrc([
+        { table: "blog_posts", id: 1, slug: "d-1" },
+        { table: "blog_posts", id: 2, slug: "d-2" },
+        { table: "blog_posts", id: 3, slug: "d-3" },
+      ]);
+      await localCopy();
+      await deleteFromDst("blog_posts", 2); // owner deletes posts on the live site
+      await deleteFromDst("blog_posts", 3); // ...including the highest id
+      await seedSrc([{ table: "blog_posts", id: 4, slug: "d-4-late-replit" }]); // late Replit post above the baseline
+      const out = await runInitWatermarksPostCutover(pcArgs(st.path, ev.path, { baseline: baselineFlag(b31) }));
+      const seed = out.seed.blog_posts;
+      const synced = (
+        await dstQuery(`select id::int as id from _migration.synced_ids where table_name = 'blog_posts' order by id`)
+      ).map((r) => r.id);
+      const seedOk =
+        out.watermarks.blog_posts === 3 &&
+        JSON.stringify(seed.deletedOnTargetSinceBaseline) === "[2,3]" &&
+        JSON.stringify(seed.lateSourceRowsAboveBaseline) === "[4]" &&
+        JSON.stringify(synced) === "[1,2,3]" &&
+        out.verify.tables.blog_posts.mismatchCount === 3;
+      const idsOnTarget = async () => (await dstQuery(`select id::int as id from blog_posts order by id`)).map((r) => r.id);
+      const d1 = await runDelta(baseArgs({ gapStart: 5000 }));
+      const bp1 = d1.tables.find((x) => x.table === "blog_posts");
+      const after1 = await idsOnTarget();
+      const d2 = await runDelta(baseArgs({ gapStart: 5000 }));
+      const bp2 = d2.tables.find((x) => x.table === "blog_posts");
+      const after2 = await idsOnTarget();
+      const deltaOk =
+        bp1.targetDeleted === 2 &&
+        JSON.stringify(bp1.targetDeletedIds.map(Number)) === "[2,3]" &&
+        bp1.inserted === 1 &&
+        bp1.lateCommits === 0 &&
+        JSON.stringify(after1) === "[1,4]" &&
+        bp2.targetDeleted === 2 &&
+        bp2.inserted === 0 &&
+        bp2.lateCommits === 0 &&
+        JSON.stringify(after2) === "[1,4]";
+      record(name, seedOk && deltaOk, {
+        watermark: out.watermarks.blog_posts,
+        seed,
+        synced,
+        verifyBlogPosts: { mismatchCount: out.verify.tables.blog_posts.mismatchCount },
+        delta1: { inserted: bp1.inserted, targetDeleted: bp1.targetDeleted, lateCommits: bp1.lateCommits, idsOnTarget: after1 },
+        delta2: { inserted: bp2.inserted, targetDeleted: bp2.targetDeleted, lateCommits: bp2.lateCommits, idsOnTarget: after2 },
+      });
+    } catch (e) {
+      record(name, false, String(e.stack || e));
+    } finally {
+      st.cleanup();
+      ev.cleanup();
+    }
+  }
+
+  // Scenario 32: fails closed. Baseline input problems refuse before any
+  // connection (target untouched); a Neon-native/extra row below the gap or an
+  // unsynced id collision above the baseline refuses before anything is
+  // written to _migration.
+  {
+    const name = "init-watermarks-post-cutover: fails closed on a bad/missing baseline and on target rows below the gap it cannot account for";
+    const st = await postCutoverState("pc-fc", POST_CUTOVER_OK);
+    const temps = [];
+    const evFile = async (label, evidence) => {
+      const f = await postCutoverState(`pc-fc-${label}`, evidence);
+      temps.push(f);
+      return f.path;
+    };
+    try {
+      const withoutRedirects = Object.fromEntries(Object.entries(PC_BASELINE).filter(([t]) => t !== "blog_redirects"));
+      const inputCases = [
+        ["no --baseline", async () => pcArgs(st.path, await evFile("ok1", makeP80Evidence(PC_BASELINE)), { baseline: null }), /requires --baseline/],
+        [
+          "--baseline disagrees with P8.0",
+          async () =>
+            pcArgs(st.path, await evFile("ok2", makeP80Evidence(PC_BASELINE)), {
+              baseline: baselineFlag({ ...PC_BASELINE, demo_requests: 3 }),
+            }),
+          /baselineMaxId is 2/,
+        ],
+        [
+          "P8.0 has ids above the baseline",
+          async () =>
+            pcArgs(
+              st.path,
+              await evFile("above", makeP80Evidence(PC_BASELINE, { mutate: (e) => (e.snapshot.target.tables.blog_posts.idsAboveBaseline = [3]) }))
+            ),
+          /ids above the baseline/,
+        ],
+        ["P8.0 not passing", async () => pcArgs(st.path, await evFile("fail", makeP80Evidence(PC_BASELINE, { status: "fail" }))), /not a passing P8\.0/],
+        ["P8.0 gap differs", async () => pcArgs(st.path, await evFile("gap", makeP80Evidence(PC_BASELINE, { gapStart: 1000000 }))), /gapStart/],
+        ["evidence missing", async () => pcArgs(st.path, "/nonexistent-p80-evidence.json"), /baseline evidence not found/],
+        [
+          "a table has no baseline",
+          async () =>
+            pcArgs(st.path, await evFile("partial", makeP80Evidence(withoutRedirects)), { baseline: baselineFlag(withoutRedirects) }),
+          /tables \[/,
+        ],
+      ];
+      const detail = {};
+      let allOk = true;
+      for (const [label, mkArgs, re] of inputCases) {
+        await seedPostCutoverFixture();
+        let message = null;
+        try {
+          await runInitWatermarksPostCutover(await mkArgs());
+        } catch (e) {
+          message = e.message;
+        }
+        const untouched = await dstUntouched();
+        const ok = message != null && re.test(message) && untouched.ok;
+        detail[label] = { ok, message: message && message.replace(/\/\S+\.json/g, "<tmp>") };
+        if (!ok) allOk = false;
+      }
+      const dataCases = [
+        [
+          "Neon-native row below the gap (extra_on_target)",
+          () => dstQuery(`insert into newsletter_subscriptions (id, email) overriding system value values (10, 'pc-neon-early@example.com')`),
+          /extra_on_target_below_gap/,
+        ],
+        [
+          "baseline row deleted on Replit (extra_on_target at or below the baseline)",
+          () => srcExec(`delete from demo_requests where id = 1`),
+          /extra_on_target_below_gap/,
+        ],
+        [
+          "id collision above the baseline, never synced",
+          async () => {
+            await dstQuery(`insert into newsletter_subscriptions (id, email) overriding system value values (10, 'pc-neon-x@example.com')`);
+            await srcExec(`insert into newsletter_subscriptions (id, email) overriding system value values (10, 'pc-replit-x@example.com')`);
+          },
+          /unsynced_target_row_above_baseline_below_gap/,
+        ],
+      ];
+      for (const [label, mutate, re] of dataCases) {
+        await seedPostCutoverFixture();
+        await mutate();
+        let message = null;
+        try {
+          await runInitWatermarksPostCutover(pcArgs(st.path, await evFile(`d${Object.keys(detail).length}`, makeP80Evidence(PC_BASELINE))));
+        } catch (e) {
+          message = e.message;
+        }
+        const noState = (await dstQuery(`select to_regclass('_migration.sync_state') as r`))[0].r === null;
+        const noSynced = (await dstQuery(`select to_regclass('_migration.synced_ids') as r`))[0].r === null;
+        const ok = message != null && re.test(message) && noState && noSynced;
+        detail[label] = { ok, message, noState, noSynced };
+        if (!ok) allOk = false;
+      }
+      record(name, allOk, detail);
+    } catch (e) {
+      record(name, false, String(e.stack || e));
+    } finally {
+      st.cleanup();
+      for (const f of temps) f.cleanup();
+    }
   }
 
   // `ok` must be strictly `true` for every scenario: a skip recorded as

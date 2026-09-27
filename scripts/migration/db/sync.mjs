@@ -11,6 +11,11 @@
 //   node sync.mjs full-refresh --confirm-pre-cutover [--gap-start N]   (local/self-test only: needs a copyFn)
 //   node sync.mjs init-watermarks --confirm-pre-cutover [--gap-start N]  (real path: run the copy via
 //                                                                          runner.mjs pg_dump/pg_restore first)
+//   node sync.mjs init-watermarks-post-cutover --confirm-post-cutover
+//                 --baseline blog_posts=174,blog_redirects=95,demo_requests=32,newsletter_subscriptions=0
+//                 [--baseline-evidence docs/migration/evidence/P8.0-cutover-gap.json] [--gap-start N]
+//                                            (after an owner-initiated DNS cutover: no copy, no DNS guard;
+//                                             seeds from the proven P8.0 baseline, not from what Neon holds now)
 //   node sync.mjs gap [--gap-start N]
 //   node sync.mjs delta [--gap-start N]     (refuses if any table has no _migration.sync_state row)
 //   node sync.mjs reverse-delta [--dry-run] [--i-understand-this-writes-to-replit]
@@ -58,6 +63,9 @@ function parseArgs(argv) {
     belowGap: null,
     excludeTargetNewer: false,
     confirmPreCutover: false,
+    confirmPostCutover: false,
+    baseline: null,
+    baselineEvidence: "docs/migration/evidence/P8.0-cutover-gap.json",
     gapStart: null,
     dryRun: false,
     iUnderstand: false,
@@ -73,6 +81,9 @@ function parseArgs(argv) {
     else if (a === "--below-gap") args.belowGap = Number(argv[++i]);
     else if (a === "--exclude-target-newer") args.excludeTargetNewer = true;
     else if (a === "--confirm-pre-cutover") args.confirmPreCutover = true;
+    else if (a === "--confirm-post-cutover") args.confirmPostCutover = true;
+    else if (a === "--baseline") args.baseline = argv[++i];
+    else if (a === "--baseline-evidence") args.baselineEvidence = argv[++i];
     else if (a === "--gap-start") args.gapStart = Number(argv[++i]);
     else if (a === "--dry-run") args.dryRun = true;
     else if (a === "--i-understand-this-writes-to-replit") args.iUnderstand = true;
@@ -930,6 +941,290 @@ async function runInitWatermarks(args, { lookups, hooks } = {}) {
   return { checkedAt: new Date().toISOString(), dnsGuard, gap, verify: verifyResult, watermarks };
 }
 
+/** Guards for init-watermarks-post-cutover: the inverse of runPreCopyGuards.
+ * Requires --confirm-post-cutover, a readable STATE.json whose status is
+ * POST_CUTOVER, and facts.cutover.detectedAt set. No DNS guard (the owner has
+ * already moved DNS) and no copy follows, so nothing here is destructive. */
+function runPostCutoverGuards(args, label) {
+  if (!args.confirmPostCutover) {
+    throw new Error(`${label} requires --confirm-post-cutover`);
+  }
+  const statePath = resolveStatePath(args.stateFile);
+  let state;
+  try {
+    state = readState(args.stateFile);
+  } catch (e) {
+    throw new Error(`${label} refused: ${e.message}`);
+  }
+  if (!state) {
+    throw new Error(`${label} refused: STATE.json not found at ${statePath} (refusing to run without it)`);
+  }
+  if (state.status !== "POST_CUTOVER") {
+    throw new Error(`${label} refused: STATE.status is ${state.status}, not POST_CUTOVER`);
+  }
+  const detectedAt = state.facts?.cutover?.detectedAt;
+  if (!detectedAt) {
+    throw new Error(`${label} refused: facts.cutover.detectedAt is not set`);
+  }
+  return { confirmPostCutover: true, status: state.status, cutoverDetectedAt: detectedAt };
+}
+
+/** Parses `--baseline t1=N,t2=M,...` (non-negative integers, no duplicates). */
+function parseBaselineFlag(raw, label) {
+  if (raw == null || String(raw).trim() === "") {
+    throw new Error(
+      `${label} requires --baseline table=maxId,... (the per-table baselineMaxId proven identical on both sides by P8.0)`
+    );
+  }
+  const baseline = {};
+  for (const part of String(raw).split(",")) {
+    const m = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(\d+)\s*$/.exec(part);
+    if (!m) throw new Error(`${label} refused: malformed --baseline entry "${part}" (expected table=nonNegativeInteger)`);
+    if (m[1] in baseline) throw new Error(`${label} refused: --baseline lists ${m[1]} twice`);
+    baseline[m[1]] = Number(m[2]);
+  }
+  return baseline;
+}
+
+const sameKeySet = (a, b) => JSON.stringify(Object.keys(a).sort()) === JSON.stringify(Object.keys(b).sort());
+
+/** The post-cutover seed is based on the PROVEN P8.0 baseline (per-table
+ * baselineMaxId both sides held identically at the P8.0 snapshot), never on
+ * whatever Neon holds when the mode runs: Neon has been live (with a real
+ * delete path) since cutover, so its current ids are not a safe record of
+ * "what was synced". The operator passes the baseline explicitly
+ * (--baseline) and it must agree, table by table, with the P8.0 evidence file
+ * (--baseline-evidence). Anything missing, inconsistent or not clean refuses.
+ * Runs before any connection is opened. */
+function loadCutoverBaseline(args, gapStart, label) {
+  const baseline = parseBaselineFlag(args.baseline, label);
+  const evidencePath = resolveStatePath(args.baselineEvidence ?? "");
+  if (!args.baselineEvidence || !existsSync(evidencePath)) {
+    throw new Error(`${label} refused: baseline evidence not found at ${evidencePath}`);
+  }
+  let ev;
+  try {
+    ev = JSON.parse(readFileSync(evidencePath, "utf8"));
+  } catch (e) {
+    throw new Error(`${label} refused: baseline evidence at ${evidencePath} is not readable JSON: ${e.message}`);
+  }
+  if (ev?.step !== "P8.0" || ev?.status !== "pass") {
+    throw new Error(`${label} refused: baseline evidence is not a passing P8.0 record (step=${ev?.step}, status=${ev?.status})`);
+  }
+  const srcTables = ev?.snapshot?.source?.tables;
+  const dstTables = ev?.snapshot?.target?.tables;
+  if (!srcTables || !dstTables) throw new Error(`${label} refused: baseline evidence has no snapshot.source/target.tables`);
+  if (!sameKeySet(baseline, srcTables) || !sameKeySet(baseline, dstTables)) {
+    throw new Error(
+      `${label} refused: --baseline tables [${Object.keys(baseline).sort()}] do not match the P8.0 snapshot tables ` +
+        `[${Object.keys(srcTables).sort()}] / [${Object.keys(dstTables).sort()}]`
+    );
+  }
+  const gapStarts = Object.values(ev.gap ?? {})
+    .map((r) => r?.gapStart)
+    .filter((g) => g != null);
+  if (gapStarts.length === 0 || !gapStarts.every((g) => Number(g) === Number(gapStart))) {
+    throw new Error(`${label} refused: P8.0 gapStart [${gapStarts}] does not match the gap in use (${gapStart})`);
+  }
+  for (const [t, b] of Object.entries(baseline)) {
+    for (const [side, st] of [
+      ["source", srcTables[t]],
+      ["target", dstTables[t]],
+    ]) {
+      if (Number(st?.baselineMaxId) !== b) {
+        throw new Error(`${label} refused: --baseline ${t}=${b} but P8.0 ${side} baselineMaxId is ${st?.baselineMaxId}`);
+      }
+      if (!Array.isArray(st.idsAboveBaseline) || st.idsAboveBaseline.length !== 0) {
+        throw new Error(`${label} refused: P8.0 ${side} ${t} has ids above the baseline (not a clean baseline)`);
+      }
+      if (st.maxId != null && Number(st.maxId) > b) {
+        throw new Error(`${label} refused: P8.0 ${side} ${t} maxId ${st.maxId} exceeds baseline ${b}`);
+      }
+    }
+    if (ev.collisions && (!Array.isArray(ev.collisions[t]) || ev.collisions[t].length !== 0)) {
+      throw new Error(`${label} refused: P8.0 records id collisions for ${t}`);
+    }
+    if (!(b < Number(gapStart))) {
+      throw new Error(`${label} refused: baseline ${t}=${b} is not below the gap (${gapStart})`);
+    }
+  }
+  return {
+    baseline,
+    evidence: path.relative(REPO_ROOT, evidencePath),
+    snapshotTakenAt: { source: ev.snapshot.source.takenAt ?? null, target: ev.snapshot.target.takenAt ?? null },
+  };
+}
+
+/** Read-only pre-check, before gap writes anything: every public table on the
+ * target and the source has a baseline entry, and vice versa. */
+async function checkBaselineCoversTables(args, baseline, label) {
+  const problems = [];
+  for (const [side, envName, transport] of [
+    ["target", args.dstEnv, args.dstTransport],
+    ["source", args.srcEnv, args.srcTransport],
+  ]) {
+    const conn = await connect(envName, { readOnly: true, transport });
+    try {
+      const names = (await discoverTables(conn)).map((t) => t.name).sort();
+      const want = Object.keys(baseline).sort();
+      if (JSON.stringify(names) !== JSON.stringify(want)) problems.push(`${side} tables [${names}] vs --baseline [${want}]`);
+    } finally {
+      await conn.end();
+    }
+  }
+  if (problems.length > 0) throw new Error(`${label} refused: ${problems.join("; ")}`);
+}
+
+const cap = (ids) => ids.slice(0, 50);
+
+/** Seeds _migration.sync_state and _migration.synced_ids post-cutover from the
+ * proven P8.0 baseline (the fix for Neon deletions made after cutover):
+ *  - every SOURCE id <= baselineMaxId is marked synced (read-only source
+ *    read). P8.0 proved those rows existed identically on both sides, so if
+ *    one is missing on Neon now, an editor deleted it there: delta reports it
+ *    as targetDeleted and never re-inserts it (sync.mjs invariant, line 28).
+ *  - the watermark is set to at least baselineMaxId (greatest() with any
+ *    existing watermark and with any delta-synced target id below the gap).
+ *  - Replit rows above the baseline are the only real late rows; they stay
+ *    unsynced so delta picks them up (step 2, or as late commits).
+ * Fails closed BEFORE writing anything (no _migration schema is created) when
+ * any table has:
+ *  - a target id below the gap with no source row by id (an extra_on_target
+ *    below the gap: a Neon-native row in the pre-gap collision window, or a
+ *    baseline row deleted on Replit), or
+ *  - a target id in (baseline, gap) that delta never synced (a Neon-native row
+ *    in the pre-gap window colliding with a Replit id), or
+ *  - verify reported extra_on_target rows or unequal table sets.
+ * The classification uses complete id sets, not verify's capped mismatch list. */
+async function initWatermarksFromCutoverBaseline(args, { gapStart, baseline, verifyResult, label }) {
+  const src = await connect(args.srcEnv, { readOnly: true, transport: args.srcTransport });
+  const dst = await connect(args.dstEnv, { readOnly: false, transport: args.dstTransport });
+  try {
+    const tables = await discoverTables(dst);
+    const { rows: reg } = await dst.query(`select to_regclass('_migration.synced_ids') is not null as present`);
+    const syncedTablePresent = reg[0].present === true;
+    const refusals = [];
+    if (verifyResult && verifyResult.tableSetsEqual === false) refusals.push({ reason: "verify_table_sets_differ" });
+    const plan = [];
+    for (const t of orderTables(tables.map((x) => x.name))) {
+      if (!(t in baseline)) {
+        refusals.push({ table: t, reason: "no_baseline_for_table" });
+        continue;
+      }
+      const B = baseline[t];
+      const pk = orderColumn(tables.find((x) => x.name === t));
+      const idsOf = (rows) => rows.map((r) => Number(r.id));
+      const srcIds = idsOf((await src.query(`select "${pk}"::bigint as id from "${t}" where "${pk}" < $1 order by 1`, [gapStart])).rows);
+      const dstIds = idsOf((await dst.query(`select "${pk}"::bigint as id from "${t}" where "${pk}" < $1 order by 1`, [gapStart])).rows);
+      const syncedIds = syncedTablePresent
+        ? idsOf(
+            (
+              await dst.query(`select id from _migration.synced_ids where table_name = $1 and id < $2 order by 1`, [t, gapStart])
+            ).rows
+          )
+        : [];
+      const srcSet = new Set(srcIds);
+      const dstSet = new Set(dstIds);
+      const syncedSet = new Set(syncedIds);
+
+      const extraOnTargetBelowGap = dstIds.filter((id) => !srcSet.has(id));
+      const unsyncedTargetInPreGapWindow = dstIds.filter((id) => id > B && srcSet.has(id) && !syncedSet.has(id));
+      const verifyExtra = verifyResult?.tables?.[t]?.extraOnTarget ?? 0;
+      if (extraOnTargetBelowGap.length > 0)
+        refusals.push({ table: t, reason: "extra_on_target_below_gap", ids: cap(extraOnTargetBelowGap), count: extraOnTargetBelowGap.length });
+      if (unsyncedTargetInPreGapWindow.length > 0)
+        refusals.push({
+          table: t,
+          reason: "unsynced_target_row_above_baseline_below_gap",
+          ids: cap(unsyncedTargetInPreGapWindow),
+          count: unsyncedTargetInPreGapWindow.length,
+        });
+      if (verifyExtra > 0 && extraOnTargetBelowGap.length === 0)
+        refusals.push({ table: t, reason: "verify_reported_extra_on_target", count: verifyExtra });
+
+      const baselineSourceIds = srcIds.filter((id) => id <= B);
+      const deletedOnTargetSinceBaseline = baselineSourceIds.filter((id) => !dstSet.has(id));
+      const lateSourceRowsAboveBaseline = srcIds.filter((id) => id > B && !dstSet.has(id) && !syncedSet.has(id));
+      const maxTargetBelowGap = dstIds.length ? Math.max(...dstIds) : 0;
+      plan.push({
+        table: t,
+        baselineMaxId: B,
+        baselineSourceIds,
+        watermark: Math.max(B, maxTargetBelowGap),
+        report: {
+          baselineMaxId: B,
+          sourceIdsAtOrBelowBaseline: baselineSourceIds.length,
+          targetIdsBelowGap: dstIds.length,
+          deletedOnTargetSinceBaseline: cap(deletedOnTargetSinceBaseline),
+          deletedOnTargetSinceBaselineCount: deletedOnTargetSinceBaseline.length,
+          lateSourceRowsAboveBaseline: cap(lateSourceRowsAboveBaseline),
+          lateSourceRowsAboveBaselineCount: lateSourceRowsAboveBaseline.length,
+        },
+      });
+    }
+    if (refusals.length > 0) {
+      throw new Error(`${label} refused (nothing written to _migration): ${JSON.stringify(refusals)}`);
+    }
+
+    await ensureMigrationSchema(dst);
+    const now = new Date().toISOString();
+    const watermarks = {};
+    const perTable = {};
+    for (const p of plan) {
+      // One statement per table: synced_ids and the watermark land atomically.
+      const { rows } = await dst.query(
+        `with marked as (
+           insert into _migration.synced_ids (table_name, id)
+           select $1, u.id from unnest($2::bigint[]) as u(id)
+           on conflict do nothing
+         ), st as (
+           insert into _migration.sync_state (table_name, watermark, last_run_at)
+           values ($1, $3, $4)
+           on conflict (table_name) do update set
+             watermark = greatest(_migration.sync_state.watermark, excluded.watermark),
+             last_run_at = excluded.last_run_at
+           returning watermark
+         )
+         select watermark from st`,
+        [p.table, p.baselineSourceIds, p.watermark, now]
+      );
+      watermarks[p.table] = Number(rows[0].watermark);
+      perTable[p.table] = { ...p.report, watermark: watermarks[p.table] };
+    }
+    return { watermarks, perTable };
+  } finally {
+    await src.end();
+    await dst.end();
+  }
+}
+
+/** init-watermarks-post-cutover: initializes delta-sync bookkeeping after an
+ * owner-initiated DNS cutover, when init-watermarks' pre-copy guards
+ * (correctly) refuse. guards (confirm + STATE + P8.0 baseline, no connection)
+ * -> read-only table-coverage check -> gap (idempotent) -> verify (report
+ * only) -> initWatermarksFromCutoverBaseline (fails closed on a Neon-native
+ * row below the gap; treats a missing baseline row as a Neon deletion).
+ * @param {{hooks?: {afterGap?: () => Promise<void>, afterVerify?: () => Promise<void>}}} [deps]
+ * test-only seams (selftest.mjs checks the step order); the CLI never passes them. */
+async function runInitWatermarksPostCutover(args, { hooks } = {}) {
+  const label = "init-watermarks-post-cutover";
+  const guards = runPostCutoverGuards(args, label);
+  const gapStart = resolveGapStart(args);
+  const baseline = loadCutoverBaseline(args, gapStart, label);
+  await checkBaselineCoversTables(args, baseline.baseline, label);
+  const gap = await runGap(args);
+  if (hooks?.afterGap) await hooks.afterGap();
+  const verifyResult = await verify({ ...args, belowGap: gap.gapStart });
+  if (hooks?.afterVerify) await hooks.afterVerify();
+  const { watermarks, perTable } = await initWatermarksFromCutoverBaseline(args, {
+    gapStart: gap.gapStart,
+    baseline: baseline.baseline,
+    verifyResult,
+    label,
+  });
+  return { checkedAt: new Date().toISOString(), guards, baseline, gap, verify: verifyResult, seed: perTable, watermarks };
+}
+
 // ---------------------------------------------------------------------------
 // reverse-delta (rollback only, SPEC-07 R2)
 // ---------------------------------------------------------------------------
@@ -1074,11 +1369,16 @@ async function main() {
       case "init-watermarks":
         out = await runInitWatermarks(args);
         break;
+      case "init-watermarks-post-cutover":
+        out = await runInitWatermarksPostCutover(args);
+        break;
       case "reverse-delta":
         out = await runReverseDelta(args);
         break;
       default:
-        throw new Error(`Unknown mode: ${args.mode}. Use verify|full-refresh|init-watermarks|gap|delta|reverse-delta`);
+        throw new Error(
+          `Unknown mode: ${args.mode}. Use verify|full-refresh|init-watermarks|init-watermarks-post-cutover|gap|delta|reverse-delta`
+        );
     }
   } catch (err) {
     console.error(`[sync:${args.mode}] error:`, maskUrl(err?.message ?? String(err)));
@@ -1098,11 +1398,13 @@ export {
   runDelta,
   runFullRefresh,
   runInitWatermarks,
+  runInitWatermarksPostCutover,
   runReverseDelta,
   ensureMigrationSchema,
   initWatermarksForTables,
   checkReplitDnsGuard,
   runPreCopyGuards,
+  runPostCutoverGuards,
 };
 
 if (import.meta.url === `file://${process.argv[1]}`) {
