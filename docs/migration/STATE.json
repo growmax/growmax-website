@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
   "currentStep": null,
-  "updatedAt": "2026-09-27T11:04:18.838Z",
+  "updatedAt": "2026-09-27T11:53:42.421Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -689,6 +689,28 @@
     "severity": {
       "B-BYPASS-ROTATE": "SEV3 (security hygiene: the exposed secret only opens protected generated deployment URLs that serve the same public site; no outage and no data exposure; rotation is still owner-pending)",
       "openSEV1orSEV2": []
+    },
+    "monitoring": {
+      "uptimeWorkflow": ".github/workflows/uptime.yml on main",
+      "firstRuns": [
+        {
+          "run": 36315313783,
+          "at": "2026-09-27T11:18:36Z",
+          "conclusion": "success"
+        },
+        {
+          "run": 36315934378,
+          "at": "2026-09-27T11:30:11Z",
+          "conclusion": "success"
+        },
+        {
+          "run": 36316515597,
+          "at": "2026-09-27T11:40:51Z",
+          "conclusion": "success"
+        }
+      ],
+      "actor": "growmaxadmin (the owner account; GitHub sends scheduled-run failure emails to it)",
+      "checkedAt": "2026-09-27T11:51Z"
     }
   },
   "flags": {
@@ -699,9 +721,9 @@
   "sync": {
     "gapStart": 1000000,
     "lastFullRefreshAt": null,
-    "lastDeltaAt": "2026-09-27T10:53:32Z",
+    "lastDeltaAt": "2026-09-27T11:53:05Z",
     "lastSourceRowAt": "2026-09-25 04:04:36.274945 (source clock; newest row across the 4 tables, before the cutover)",
-    "deltaRuns": 2
+    "deltaRuns": 3
   },
   "checkins": {
     "lastCheckAt": null,
