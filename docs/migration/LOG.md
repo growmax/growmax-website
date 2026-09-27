@@ -245,3 +245,5 @@
 - 2026-09-27T06:36:45.783Z set facts.runs
 - 2026-09-27T06:36:45.906Z set facts.vercel
 - 2026-09-27T06:36:45.977Z [P6.2] step failed → in_progress — Attempt 2 (wf_c240d007-2e4): independent re-check of the READY hSha deployment (no redeploy, so no approval wait) with the corrected protection criterion, then the suite (no F2; F9 browser-decided; raw bodies kept).
+- 2026-09-27T06:38:41.017Z set facts.runs
+- 2026-09-27T06:38:41.061Z [P6.2] P6.2 attempt 2 deploy re-check (wf_c240d007-2e4) stopped: after READY/production/SHA, aliases and protection (generated URL 302 to SSO, bypass 200) all passed, one combined follow-up command (build-log regex count + public-domain retry + an agent-proxy status probe) was refused as Exfil Scouting. The orchestrator did not re-run it. The proxy probe was not needed: attempt 2b (wf_a2f4f842-81c) finishes with only a local count over the saved build log and plain GETs of the public domain, with infrastructure endpoints explicitly excluded, then runs the suite.

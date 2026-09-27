@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T06:36:45.972Z",
+  "updatedAt": "2026-09-27T06:38:41.015Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -359,6 +359,23 @@
         },
         "startedAt": "2026-09-27T06:36:45Z",
         "note": "deploy re-check (no redeploy) + child suite; resume with the same args"
+      },
+      "p62a2b": {
+        "runId": "wf_a2f4f842-81c",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-p62-attempt2b-wf_a2f4f842-81c.js",
+        "args": {
+          "runLabel": "p6-20260927T0645Z",
+          "paths": {
+            "web": "container",
+            "db": "neon-https",
+            "dump": "sandbox-sdk",
+            "vercelApi": "cli",
+            "visual": "container",
+            "decidedAt": "2026-09-26T10:57:33Z",
+            "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
+          }
+        },
+        "startedAt": "2026-09-27T06:38:40Z"
       }
     },
     "followUps": [
