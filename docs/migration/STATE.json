@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": null,
-  "updatedAt": "2026-09-27T04:49:54.764Z",
+  "updatedAt": "2026-09-27T04:50:49.375Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -309,6 +309,13 @@
         "args": null,
         "startedAt": "2026-09-27T04:12:14Z",
         "note": "A3 C-A3-4 F9 hardening before P6.2: implementer opus/high -> reviewer opus/high (<=3 rounds)"
+      },
+      "f9browser": {
+        "runId": "wf_3d9abcef-fbd",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-f9-browser-and-bypass-rotation-wf_3d9abcef-fbd.js",
+        "args": null,
+        "startedAt": "2026-09-27T04:50:49Z",
+        "note": "bypass rotation (implementer opus/medium + scout check) in parallel with F9 decided by real Chromium (implementer opus/high -> reviewer opus/high, <=2 rounds)"
       }
     },
     "followUps": [
