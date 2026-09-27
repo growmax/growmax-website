@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.4",
-  "updatedAt": "2026-09-27T08:58:09.247Z",
+  "updatedAt": "2026-09-27T08:59:44.089Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -481,6 +481,17 @@
         },
         "startedAt": "2026-09-27T08:51:00Z",
         "note": "args also carry dbPath and paths (see the transcript); for a resume, re-issue byte-identical args"
+      },
+      "p64a2": {
+        "runId": "wf_44d4bc02-0f2",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-p64-attempt2-wf_917d4517-5ae.js",
+        "args": {
+          "sha": "e2084eeb4b74ff56d6a510e426cacbd169631875",
+          "hSha": "dc5405357441870b9315a28a7cbb93a201278453",
+          "runLabel": "p6-20260927T0905Z",
+          "gapStart": 1000000
+        },
+        "startedAt": "2026-09-27T09:07:00Z"
       }
     },
     "followUps": [
