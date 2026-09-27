@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T08:33:22.747Z",
+  "updatedAt": "2026-09-27T08:34:32.384Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -424,6 +424,12 @@
         "scriptPath": ".claude/workflows/mig-advisor.js",
         "startedAt": "2026-09-27T08:20:00Z",
         "note": "A3 for P6.2 (2nd of 4): CSS re-pin to e50a48e4; ratify H5/H6 + SPEC-04 §3 harness addenda + hardening; G5 logs correction; perf. Args are long; if resuming, re-issue the same checkpoint/question/evidenceFiles from the transcript"
+      },
+      "p62a3cond": {
+        "runId": "wf_84b0b974-053",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-p62-a3-conditions-wf_84b0b974-053.js",
+        "startedAt": "2026-09-27T08:36:00Z",
+        "note": "C-A3b-2 parity regen on the attempt-3 manifests with the re-pinned allowlist; C-A3b-3 /api/blog two-fetch cache proof (no bypass header); G6a suite summary re-synthesis"
       }
     },
     "followUps": [
