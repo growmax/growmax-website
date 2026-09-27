@@ -276,3 +276,4 @@
 - 2026-09-27T08:40:38.518Z set advisor.A3
 - 2026-09-27T08:40:38.573Z [P6.2] PR #1 body updated: H1-H6 table, deployment dpl_339kQmG3 (dc54053), the G6a results, the G5 logs correction worded as A3 C-A3b-4 asks, the bypass-rotation owner action, and the middleware lookup as a known issue. A3 C-A3b-4 done.
 - 2026-09-27T08:40:38.623Z [P6.3] step pending → in_progress — mig-p6b-ready.js part P6.3: add www.growmax.io and growmax.io (308 to www) to the project, and capture recommendedIPv4 (www and apex: A record, per A1 C5), the recommendedCNAME for reference, verification TXT records and ACME DNS-01 challenges (certs issue --challenge-only). No cert issuance and no DNS change.
+- 2026-09-27T08:41:24.776Z set facts.runs.p63
