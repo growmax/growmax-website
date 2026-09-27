@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": null,
-  "updatedAt": "2026-09-27T08:49:40.798Z",
+  "currentStep": "P6.4",
+  "updatedAt": "2026-09-27T08:50:13.118Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -1576,10 +1576,13 @@
       ],
       "gate": "G6",
       "workflow": ".claude/workflows/mig-p6b-ready.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T08:50:13.118Z mig-p6b-ready.js part P6.4. Guards run first: www still resolves to Replit 34.111.179.208, and the kit-only diff hSha..sha is checked inside the workflow. Then the data-loss pre-check (target-only demo_requests/newsletter_subscriptions ids), sync.mjs full-refresh --confirm-pre-cutover (the Replit source is read-only), and the sequence gap at GAP_START=1000000. An independent verification follows (counts, md5, schema-diff --accept-pg-major 18 with empty===true, reviewed hash recorded, sequences == GAP_START). Then a redeploy of the branch HEAD (owner approval of create_deployment) and a quick parity check of the DB-driven URLs, where the CSS pin must hold. No functional writes."
+      ],
+      "startedAt": "2026-09-27T08:50:13.118Z"
     },
     {
       "id": "P6.5",
