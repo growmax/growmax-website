@@ -1,0 +1,338 @@
+{
+  "step": "P8.0",
+  "gate": "G8a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T09:05:35Z",
+  "verifier": "migration-db-operator (opus/high)",
+  "notes": "Target = Neon (DATABASE_URL from vercel env pull); source = Replit (REPLIT_DATABASE_URL) opened read-only (SET default_transaction_read_only = on inside a READ ONLY RepeatableRead transaction). Snapshot columns: id, created_at, max(id), count(*) only. No rows exist above the 08:52Z baseline on either side at snapshot time; sequences had advanced past max(id) (consumed values without surviving rows), which gap has now lifted to 1000000.",
+  "checks": [
+    {
+      "name": "gap run1 public.blog_posts_id_seq",
+      "expected": {
+        "previousNext": 180,
+        "newNext": 1000000,
+        "moved": true
+      },
+      "actual": {
+        "previousNext": 180,
+        "newNext": 1000000,
+        "moved": true
+      },
+      "pass": true
+    },
+    {
+      "name": "gap run1 public.blog_redirects_id_seq",
+      "expected": {
+        "previousNext": 96,
+        "newNext": 1000000,
+        "moved": true
+      },
+      "actual": {
+        "previousNext": 96,
+        "newNext": 1000000,
+        "moved": true
+      },
+      "pass": true
+    },
+    {
+      "name": "gap run1 public.demo_requests_id_seq",
+      "expected": {
+        "previousNext": 35,
+        "newNext": 1000000,
+        "moved": true
+      },
+      "actual": {
+        "previousNext": 35,
+        "newNext": 1000000,
+        "moved": true
+      },
+      "pass": true
+    },
+    {
+      "name": "gap run1 public.newsletter_subscriptions_id_seq",
+      "expected": {
+        "previousNext": 8,
+        "newNext": 1000000,
+        "moved": true
+      },
+      "actual": {
+        "previousNext": 8,
+        "newNext": 1000000,
+        "moved": true
+      },
+      "pass": true
+    },
+    {
+      "name": "gap run2 idempotent public.blog_posts_id_seq",
+      "expected": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "actual": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "pass": true
+    },
+    {
+      "name": "gap run2 idempotent public.blog_redirects_id_seq",
+      "expected": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "actual": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "pass": true
+    },
+    {
+      "name": "gap run2 idempotent public.demo_requests_id_seq",
+      "expected": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "actual": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "pass": true
+    },
+    {
+      "name": "gap run2 idempotent public.newsletter_subscriptions_id_seq",
+      "expected": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "actual": {
+        "previousNext": 1000000,
+        "newNext": 1000000,
+        "moved": false
+      },
+      "pass": true
+    },
+    {
+      "name": "snapshot sessions read-only (SHOW transaction_read_only)",
+      "expected": {
+        "target": "on",
+        "source": "on"
+      },
+      "actual": {
+        "target": "on",
+        "source": "on"
+      },
+      "pass": true
+    },
+    {
+      "name": "blog_posts max id source vs target",
+      "expected": "equal",
+      "actual": {
+        "source": 174,
+        "target": 174
+      },
+      "pass": true
+    },
+    {
+      "name": "blog_posts id collisions above 08:52Z baseline (id > 174)",
+      "expected": [],
+      "actual": [],
+      "pass": true
+    },
+    {
+      "name": "blog_redirects max id source vs target",
+      "expected": "equal",
+      "actual": {
+        "source": 95,
+        "target": 95
+      },
+      "pass": true
+    },
+    {
+      "name": "blog_redirects id collisions above 08:52Z baseline (id > 95)",
+      "expected": [],
+      "actual": [],
+      "pass": true
+    },
+    {
+      "name": "demo_requests max id source vs target",
+      "expected": "equal",
+      "actual": {
+        "source": 32,
+        "target": 32
+      },
+      "pass": true
+    },
+    {
+      "name": "demo_requests id collisions above 08:52Z baseline (id > 32)",
+      "expected": [],
+      "actual": [],
+      "pass": true
+    },
+    {
+      "name": "newsletter_subscriptions max id source vs target",
+      "expected": "equal",
+      "actual": {
+        "source": null,
+        "target": null
+      },
+      "pass": true
+    },
+    {
+      "name": "newsletter_subscriptions id collisions above 08:52Z baseline (id > 0)",
+      "expected": [],
+      "actual": [],
+      "pass": true
+    }
+  ],
+  "gap": {
+    "run1": {
+      "checkedAt": "2026-09-27T09:04:48.896Z",
+      "gapStart": 1000000,
+      "sequences": [
+        {
+          "table": "blog_posts",
+          "sequence": "public.blog_posts_id_seq",
+          "previousNext": 180,
+          "newNext": 1000000,
+          "moved": true
+        },
+        {
+          "table": "blog_redirects",
+          "sequence": "public.blog_redirects_id_seq",
+          "previousNext": 96,
+          "newNext": 1000000,
+          "moved": true
+        },
+        {
+          "table": "demo_requests",
+          "sequence": "public.demo_requests_id_seq",
+          "previousNext": 35,
+          "newNext": 1000000,
+          "moved": true
+        },
+        {
+          "table": "newsletter_subscriptions",
+          "sequence": "public.newsletter_subscriptions_id_seq",
+          "previousNext": 8,
+          "newNext": 1000000,
+          "moved": true
+        }
+      ]
+    },
+    "run2": {
+      "checkedAt": "2026-09-27T09:05:19.103Z",
+      "gapStart": 1000000,
+      "sequences": [
+        {
+          "table": "blog_posts",
+          "sequence": "public.blog_posts_id_seq",
+          "previousNext": 1000000,
+          "newNext": 1000000,
+          "moved": false
+        },
+        {
+          "table": "blog_redirects",
+          "sequence": "public.blog_redirects_id_seq",
+          "previousNext": 1000000,
+          "newNext": 1000000,
+          "moved": false
+        },
+        {
+          "table": "demo_requests",
+          "sequence": "public.demo_requests_id_seq",
+          "previousNext": 1000000,
+          "newNext": 1000000,
+          "moved": false
+        },
+        {
+          "table": "newsletter_subscriptions",
+          "sequence": "public.newsletter_subscriptions_id_seq",
+          "previousNext": 1000000,
+          "newNext": 1000000,
+          "moved": false
+        }
+      ]
+    }
+  },
+  "snapshot": {
+    "target": {
+      "takenAt": "2026-09-27T09:05:09.107Z",
+      "transactionReadOnly": "on",
+      "tables": {
+        "blog_posts": {
+          "baselineMaxId": 174,
+          "maxId": 174,
+          "rowCount": 171,
+          "idsAboveBaseline": []
+        },
+        "blog_redirects": {
+          "baselineMaxId": 95,
+          "maxId": 95,
+          "rowCount": 95,
+          "idsAboveBaseline": []
+        },
+        "demo_requests": {
+          "baselineMaxId": 32,
+          "maxId": 32,
+          "rowCount": 32,
+          "idsAboveBaseline": []
+        },
+        "newsletter_subscriptions": {
+          "baselineMaxId": 0,
+          "maxId": null,
+          "rowCount": 0,
+          "idsAboveBaseline": []
+        }
+      }
+    },
+    "source": {
+      "takenAt": "2026-09-27T09:05:10.391Z",
+      "transactionReadOnly": "on",
+      "tables": {
+        "blog_posts": {
+          "baselineMaxId": 174,
+          "maxId": 174,
+          "rowCount": 171,
+          "idsAboveBaseline": []
+        },
+        "blog_redirects": {
+          "baselineMaxId": 95,
+          "maxId": 95,
+          "rowCount": 95,
+          "idsAboveBaseline": []
+        },
+        "demo_requests": {
+          "baselineMaxId": 32,
+          "maxId": 32,
+          "rowCount": 32,
+          "idsAboveBaseline": []
+        },
+        "newsletter_subscriptions": {
+          "baselineMaxId": 0,
+          "maxId": null,
+          "rowCount": 0,
+          "idsAboveBaseline": []
+        }
+      }
+    }
+  },
+  "collisions": {
+    "blog_posts": [],
+    "blog_redirects": [],
+    "demo_requests": [],
+    "newsletter_subscriptions": []
+  },
+  "artifacts": [
+    "docs/migration/.scratch/cutover-gap/gap-run1.json",
+    "docs/migration/.scratch/cutover-gap/gap-run2.json",
+    "docs/migration/.scratch/cutover-gap/snapshot-raw.json",
+    "docs/migration/.scratch/cutover-gap/snapshot.mjs"
+  ]
+}
