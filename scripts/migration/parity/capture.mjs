@@ -24,6 +24,7 @@ import {
   canonicalStringify,
   safeFileName,
   decodeImageDimensions,
+  CANONICAL_PRODUCTION_HOSTS,
 } from './lib/extract.mjs'
 
 const COMPACT_TEXT_PREVIEW_CHARS = 300
@@ -82,7 +83,11 @@ export function buildCompactEmbeddedPostsFields(posts) {
   return { embeddedPostsSlugOrder: posts.map((p) => p.slug), embeddedPostsBySlugHash }
 }
 
-const KNOWN_HOSTS = ['www.growmax.io', 'growmax.io', '*.vercel.app']
+// Shares CANONICAL_PRODUCTION_HOSTS with extract.mjs's isSameSite (see there); the
+// `*.vercel.app` wildcard is added ONLY here, for normalizing a redirect Location header
+// during migration — a different concern from same-site classification of a link in a page
+// body, where an arbitrary Vercel deployment host is never treated as "the site itself".
+const KNOWN_HOSTS = [...CANONICAL_PRODUCTION_HOSTS, '*.vercel.app']
 
 function parseArgs(argv) {
   const out = { resolve: [] }

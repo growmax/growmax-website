@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P5.3",
-  "updatedAt": "2026-09-27T01:48:09.266Z",
+  "updatedAt": "2026-09-27T02:48:11.297Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -270,7 +270,9 @@
       "Advisor ratification at the next advisor consult (the P5.3 allowlist A3 if one happens, otherwise A2): the P4.3 schema-diff tool amendment. NOT NULL is compared by meaning across PG 16/18; Replit's _system schema is ignored as platform-managed (4 bookkeeping relations, no public dependants, no app references); PG 16 -> 18 is accepted only through --accept-pg-major 18 (A1 C2). Evidence: P4.3-schema-diff-tool-fix.json, P4.3-schema-diff-tool-review.json, P4.3-schema-diff.json. It also governs G6 6.4. If the advisor rejects it, set G4 back to pending",
       "P6.4 data-loss guard (new, P5.1 finding): the production domain growmax-website.vercel.app is public, so a real demo request or newsletter signup sent there before cutover lands only in Neon, and the P6.4 full refresh (whose guard checks only status and DNS) would erase it. Before the refresh, compare ids in demo_requests and newsletter_subscriptions: any target-only row (test rows must already be 0) stops the refresh; export it to .scratch and report it (no PII in evidence) [DONE in the P6.4 prompt of mig-p6b-ready.js and SPEC-03 §4, 2026-09-27]",
       "Harness env hygiene (P5.2 finding): vercel env pull writes sensitive vars (ADMIN_PASSWORD, SESSION_SECRET, GOOGLE_CHAT_WEBHOOK_URL) as the literal \"[SENSITIVE]\", so node --env-file=.scratch/.env.production clobbers the real container values; use a DB-only env file or an in-process mapping, and make run.mjs fail fast on the placeholder",
-      "Harness deps: scripts/migration/node_modules can be missing after a container restart (the P5.2 visual run failed on playwright-core at 01:18Z; a later agent reinstalled at 01:19Z). Every suite run first does npm --prefix scripts/migration ci when a declared dependency is missing"
+      "Harness deps: scripts/migration/node_modules can be missing after a container restart (the P5.2 visual run failed on playwright-core at 01:18Z; a later agent reinstalled at 01:19Z). Every suite run first does npm --prefix scripts/migration ci when a declared dependency is missing",
+      "Before P6.2 (F2 may run again there): F9 hardening from review r3 of P5.3 (P5.3-harness-fix-review.json): an entry without = in its name-value pair never matches; Expires only in IMF-fixdate (or the RFC 6265 cookie-date algorithm); for the follow-up GET put growmax-admin=<value from the logout entry> in the jar instead of dropping it (so a re-sent sealed value fails even if an expiry is misread); refuse a Partitioned clear for an unpartitioned login cookie; self-test cases; opus review",
+      "Parity harness notes (P5.3 reviews, non-blocking): HASHED_ASSET_PREFIX_RE collapses the first segment under /_next/static/ (chunks vs chunkz would compare equal); link comparison is path+search only (http downgrade, #fragment, www vs apex compare equal); B links to its own vercel.app host count as same-site. Before cutover, grep the Vercel HTML for absolute vercel.app hrefs (a leaked site URL)"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",

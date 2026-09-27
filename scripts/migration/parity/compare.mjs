@@ -5,7 +5,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { createTwoFilesPatch, firstNLines } from './lib/diff.mjs'
-import { sha256Text, normalizeText, safeFileName } from './lib/extract.mjs'
+import { sha256Text, normalizeText, safeFileName, CANONICAL_PRODUCTION_HOSTS } from './lib/extract.mjs'
 import { EMBEDDED_POST_LIST_URL_RE } from './capture.mjs'
 
 // A1 C10: /api/blog is ~50% of Vercel's 4.5MB function body cap at 171 posts (~2.27MB); a
@@ -86,13 +86,69 @@ const HEX_RUN_RE = /[0-9a-f]{8,}/gi
  * Scoped to /_next/static/ refs only — an ordinary (non-hashed) asset ref, a `/_next/image`
  * query string, or any other same-site path is returned unchanged.
  */
+/**
+ * Strip only the `dpl` query parameter (Vercel's skew-protection deployment id, appended to
+ * every script/css/preload URL it serves) from an assetRef, at COMPARE time only — capture.mjs
+ * still fetches the ref's real, un-stripped URL (dpl is required for the request to actually
+ * resolve on Vercel), and extract.mjs still keeps assetRefs raw for that reason (see there).
+ * Every other query parameter, and their relative order, is left exactly as captured: only the
+ * literal key `dpl` is removed (via URLSearchParams, so a value is never guessed/assumed), and
+ * a trailing empty `?` is dropped rather than left dangling. A different asset path, a changed
+ * non-dpl parameter, or an added/removed asset are untouched by this and still diff normally.
+ */
+function stripDplQueryParam(ref) {
+  const qIndex = ref.indexOf('?')
+  if (qIndex === -1) return ref
+  const pathPart = ref.slice(0, qIndex)
+  const params = new URLSearchParams(ref.slice(qIndex + 1))
+  if (!params.has('dpl')) return ref
+  params.delete('dpl')
+  const rest = params.toString()
+  return rest ? `${pathPart}?${rest}` : pathPart
+}
+
 function normalizeAssetRef(ref) {
-  if (!HASHED_ASSET_PREFIX_RE.test(ref)) return ref
-  return ref.replace(HASHED_ASSET_PREFIX_RE, '/_next/static/<build>/').replace(HEX_RUN_RE, '<hash>')
+  const deployed = stripDplQueryParam(ref)
+  if (!HASHED_ASSET_PREFIX_RE.test(deployed)) return deployed
+  return deployed.replace(HASHED_ASSET_PREFIX_RE, '/_next/static/<build>/').replace(HEX_RUN_RE, '<hash>')
 }
 
 function normalizeAssetRefList(refs) {
   return (refs || []).map(normalizeAssetRef)
+}
+
+/**
+ * Reclassify one side's internal/external links the way a fixed isSameSite (extract.mjs)
+ * would have, entirely from what's already in the manifest — no raw HTML re-extraction (and
+ * so no rawDir dependency) needed. `externalLinks` entries are full absolute URLs (their host
+ * is recoverable directly); `internalLinks` entries are already path+search only. A
+ * byte-identical absolute href to one of CANONICAL_PRODUCTION_HOSTS (www.growmax.io /
+ * growmax.io) that landed in `externalLinks` — because the page was captured from a
+ * non-canonical host (e.g. growmax-website.vercel.app), or because this manifest predates
+ * this fix — moves into `internalLinks` as path+search, matching how the identical href is
+ * already classified on a side captured from a canonical host. This is what lets comparing
+ * two manifests captured from DIFFERENT origins (or an older manifest against a newer one)
+ * treat a byte-identical link the same way regardless of which origin captured which side,
+ * without needing to re-capture. A third-party host is left in `externalLinks` untouched; a
+ * genuinely different internal path is unaffected (still diffs).
+ */
+function reclassifyLinks(internalLinks, externalLinks) {
+  const internal = new Set(internalLinks || [])
+  const external = []
+  for (const href of externalLinks || []) {
+    let u = null
+    try {
+      u = new URL(href)
+    } catch {
+      // not a parseable absolute URL; leave it in externalLinks as-is
+    }
+    if (u && CANONICAL_PRODUCTION_HOSTS.includes(u.host.toLowerCase())) {
+      internal.add(u.pathname + (u.search || ''))
+    } else {
+      external.push(href)
+    }
+  }
+  return { internalLinks: [...internal].sort(), externalLinks: external.sort() }
 }
 
 function multisetOf(list) {
@@ -176,6 +232,11 @@ function compareEntry(a, b, opts) {
   if (is2xxHtml) {
     const fa = a.html || {}
     const fb = b.html || {}
+    // Reclassified once up front (see reclassifyLinks) and used by BOTH the externalLinks and
+    // internalLinks comparisons below, since a link that moves out of externalLinks lands in
+    // internalLinks.
+    const reclassA = reclassifyLinks(a.internalLinks, fa.externalLinks)
+    const reclassB = reclassifyLinks(b.internalLinks, fb.externalLinks)
     for (const f of ['title', 'description', 'robots', 'canonical', 'lang']) {
       if ((fa[f] ?? null) !== (fb[f] ?? null))
         diffs.push({ field: f, category: fieldCategory(f), a: fa[f] ?? null, b: fb[f] ?? null })
@@ -199,8 +260,8 @@ function compareEntry(a, b, opts) {
       diffs.push({ field: 'nextLink', category: 'seo', a: fa.nextLink ?? null, b: fb.nextLink ?? null })
     if (!isEqualJson(fa.imgAlts || [], fb.imgAlts || []))
       diffs.push({ field: 'imgAlts', category: 'content', a: fa.imgAlts, b: fb.imgAlts })
-    if (!isEqualJson(fa.externalLinks || [], fb.externalLinks || []))
-      diffs.push({ field: 'externalLinks', category: 'content', a: fa.externalLinks, b: fb.externalLinks })
+    if (!isEqualJson(reclassA.externalLinks, reclassB.externalLinks))
+      diffs.push({ field: 'externalLinks', category: 'content', a: reclassA.externalLinks, b: reclassB.externalLinks })
     if (a.jsonLdHash !== b.jsonLdHash)
       diffs.push({ field: 'jsonLdHash', category: 'seo', a: a.jsonLdHash, b: b.jsonLdHash })
     if (a.visibleTextHash !== b.visibleTextHash) {
@@ -212,8 +273,8 @@ function compareEntry(a, b, opts) {
         needsTextDiff: true,
       })
     }
-    if (!isEqualJson(a.internalLinks || [], b.internalLinks || []))
-      diffs.push({ field: 'internalLinks', category: 'content', a: a.internalLinks, b: b.internalLinks })
+    if (!isEqualJson(reclassA.internalLinks, reclassB.internalLinks))
+      diffs.push({ field: 'internalLinks', category: 'content', a: reclassA.internalLinks, b: reclassB.internalLinks })
     if (!isEqualJson(a.images || [], b.images || []))
       diffs.push({ field: 'images', category: 'content', a: a.images, b: b.images })
     // assetRefs include build-hashed /_next/static/<hash>/... names, which legitimately

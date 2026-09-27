@@ -143,10 +143,14 @@ const EMBEDDED_POSTS_MUTATIONS = [
 // SPEC-04 §2.4/§2.6/§2.8: the only URLs that carry a fixed `expect` block. Checked against
 // the built inventory (check 'inventory-expect-blocks-match-spec') so an expectation put on
 // the wrong URL (r4: X-Robots-Tag on /admin instead of /blog?page=2) fails the self-test.
+// `/blog` and `/blog?page=2` also carry status:200 (review r4 follow-up, P5.3): without it, a
+// non-2xx B response that happens to equal A's status silently skips the whole embedded-post-
+// list comparison instead of surfacing that B's listing page is down.
 const SPEC_EXPECT_URLS = {
   '/api/admin/session': { status: 200, json: { isAdmin: false } },
   '/api/admin/posts': { status: 401 },
-  '/blog?page=2': { xRobotsTag: 'noindex, follow' },
+  '/blog': { status: 200 },
+  '/blog?page=2': { xRobotsTag: 'noindex, follow', status: 200 },
 }
 const SPEC_POST_CUTOVER_URLS = ['http://www.growmax.io/', 'http://growmax.io/', 'https://growmax.io/', 'https://growmax.io/demo']
 

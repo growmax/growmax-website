@@ -309,6 +309,24 @@ export async function buildInventory(opts) {
     for (const { url, expect } of POST_CUTOVER_ENTRIES) record('post-cutover', url, expect)
   }
 
+  // Harness (review r4 follow-up): give /blog and /blog?page=2 a fixed, always-required
+  // expect{status:200} on B, additive to their ordinary A/B compare (neither is source
+  // 'post-cutover' nor expectOnly). Without it, compareEntry's `is2xxHtml` gate (keyed off
+  // A's status) silently skips the WHOLE embedded-post-list comparison whenever B's listing
+  // page comes back non-2xx — including the case where A happens to fail the same way (e.g.
+  // a shared, unrelated flake at capture time), which used to report a clean pass instead of
+  // the real problem: B's listing page must always be up, regardless of what A does.
+  //
+  // Merged onto the existing list entry rather than a fresh record() call: /blog is already
+  // recorded (with no expect) by the sitemap source (step 1, above) — push()'s dedupe is
+  // first-write-wins, so calling record() again here would silently no-op for it. /blog?page=2
+  // already carries its own expect (step 6, above); this merges status:200 into that block
+  // rather than overwriting it.
+  for (const url of ['/blog', '/blog?page=2']) {
+    const entry = list.find((e) => e.url === url)
+    if (entry) entry.expect = { ...(entry.expect || {}), status: 200 }
+  }
+
   return { list, counts }
 }
 

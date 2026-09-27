@@ -334,10 +334,29 @@ function decodeWebpDimensions(buf) {
   return null
 }
 
+/**
+ * Canonical production hosts (post-cutover growmax.io + www), shared with capture.mjs's
+ * KNOWN_HOSTS rather than duplicated there. capture.mjs's KNOWN_HOSTS additionally treats
+ * `*.vercel.app` as known, for normalizing a redirect Location header during migration — a
+ * different concern from same-site classification of a link IN A PAGE BODY (below), where an
+ * arbitrary Vercel deployment host is never "the site itself".
+ */
+export const CANONICAL_PRODUCTION_HOSTS = ['www.growmax.io', 'growmax.io']
+
+/**
+ * Same-site = the page's own host, or one of the canonical production hosts. Without the
+ * latter, a byte-identical absolute href to https://www.growmax.io/... is "internal" when the
+ * page itself was captured from www.growmax.io (A) but "external" when captured from
+ * growmax-website.vercel.app (B) — a pure artifact of which origin captured the page, not a
+ * real content difference (see compare.mjs's internalLinks/externalLinks fields, and
+ * capture.mjs's KNOWN_HOSTS). Deliberately does NOT include `*.vercel.app`: an arbitrary
+ * Vercel preview/deployment host referenced in a page body stays external.
+ */
 function isSameSite(u, pageUrl) {
   try {
     const page = new URL(pageUrl)
-    return u.host === page.host
+    const host = u.host.toLowerCase()
+    return host === page.host.toLowerCase() || CANONICAL_PRODUCTION_HOSTS.includes(host)
   } catch {
     return true
   }
