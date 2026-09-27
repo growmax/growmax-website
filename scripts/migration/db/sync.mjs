@@ -19,6 +19,7 @@
 //   node sync.mjs gap [--gap-start N]
 //   node sync.mjs delta [--gap-start N]     (refuses if any table has no _migration.sync_state row)
 //   node sync.mjs reverse-delta [--dry-run] [--i-understand-this-writes-to-replit]
+//                 (--dry-run is reverse-delta only; every other mode refuses it)
 //
 // All modes take --src-env (default SRC_URL), --dst-env (default DST_URL),
 // --src-transport / --dst-transport (default neon-https), --out <file>.
@@ -90,6 +91,16 @@ function parseArgs(argv) {
     else if (a === "--state-file") args.stateFile = argv[++i];
   }
   return args;
+}
+
+/** Only reverse-delta implements --dry-run. parseArgs accepts the flag for
+ * every mode, so any other mode must refuse it outright (before any guard,
+ * DNS lookup or connection) rather than silently ignore it and perform a
+ * real write -- e.g. `delta --dry-run` would otherwise insert into the target. */
+function refuseDryRun(args, mode) {
+  if (args?.dryRun) {
+    throw new Error(`${mode} has no dry-run; --dry-run is only supported by reverse-delta`);
+  }
 }
 
 function resolveStatePath(stateFile) {
@@ -233,6 +244,7 @@ async function advanceWatermarkAndLog(dst, { table, watermark, lastRunAt, insert
  * @param {{gapStart: number}} opts
  * @returns {Promise<Record<string, number>>} the watermark now stored per table */
 async function initWatermarksForTables(args, { gapStart }) {
+  refuseDryRun(args, "initWatermarksForTables");
   if (gapStart == null || !Number.isFinite(Number(gapStart))) {
     throw new Error("initWatermarksForTables: gapStart is required");
   }
@@ -334,6 +346,7 @@ async function naturalKeyIndex(conn, tableName, nkCols) {
 }
 
 async function verify(args) {
+  refuseDryRun(args, "verify");
   const src = await connect(args.srcEnv, { readOnly: true, transport: args.srcTransport });
   // Always read-only: verify only ever reads both sides, regardless of
   // --exclude-target-newer (that flag changes comparison logic below, not
@@ -441,6 +454,7 @@ async function verify(args) {
 // ---------------------------------------------------------------------------
 
 async function runGap(args) {
+  refuseDryRun(args, "gap");
   const GAP_START = resolveGapStart(args);
   const dst = await connect(args.dstEnv, { readOnly: false, transport: args.dstTransport });
   try {
@@ -757,6 +771,7 @@ async function runDeltaForTable(src, dst, srcTable, GAP_START, watermarkInfo, ho
 /** @param {{hooks?: {beforeAdvanceWatermark?: (table: string) => Promise<void>}}} [deps] test-only fault
  * injection (selftest.mjs simulates a crash before step 6); the CLI never passes it. */
 async function runDelta(args, { hooks } = {}) {
+  refuseDryRun(args, "delta");
   const GAP_START = resolveGapStart(args);
   const src = await connect(args.srcEnv, { readOnly: true, transport: args.srcTransport });
   const dst = await connect(args.dstEnv, { readOnly: false, transport: args.dstTransport });
@@ -919,6 +934,7 @@ async function runGapVerifyInit(args, { hooks } = {}) {
  * mode. `full-refresh` with a copyFn stays for local/self-test use with a
  * throwaway PG16 where a direct pg_dump/pg_restore copy is possible. */
 async function runFullRefresh(args, { copyFn, lookups, hooks } = {}) {
+  refuseDryRun(args, "full-refresh");
   const { dnsGuard } = await runPreCopyGuards(args, "full-refresh", { lookups });
   if (!copyFn) {
     throw new Error(
@@ -936,6 +952,7 @@ async function runFullRefresh(args, { copyFn, lookups, hooks } = {}) {
  * pg_dump/pg_restore in the Sandbox). This is the real production path for
  * P4.2/P6.4: this container can't run pg_dump/pg_restore itself. */
 async function runInitWatermarks(args, { lookups, hooks } = {}) {
+  refuseDryRun(args, "init-watermarks");
   const { dnsGuard } = await runPreCopyGuards(args, "init-watermarks", { lookups });
   const { gap, verify: verifyResult, watermarks } = await runGapVerifyInit(args, { hooks });
   return { checkedAt: new Date().toISOString(), dnsGuard, gap, verify: verifyResult, watermarks };
@@ -1208,6 +1225,7 @@ async function initWatermarksFromCutoverBaseline(args, { gapStart, baseline, ver
  * test-only seams (selftest.mjs checks the step order); the CLI never passes them. */
 async function runInitWatermarksPostCutover(args, { hooks } = {}) {
   const label = "init-watermarks-post-cutover";
+  refuseDryRun(args, label);
   const guards = runPostCutoverGuards(args, label);
   const gapStart = resolveGapStart(args);
   const baseline = loadCutoverBaseline(args, gapStart, label);
@@ -1353,6 +1371,9 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   let out;
   try {
+    // Refuse --dry-run for every mode but reverse-delta before dispatching
+    // (the mode functions also check, for programmatic callers).
+    if (args.mode !== "reverse-delta") refuseDryRun(args, args.mode ?? "(no mode)");
     switch (args.mode) {
       case "verify":
         out = await verify(args);

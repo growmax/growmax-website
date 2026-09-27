@@ -1808,6 +1808,148 @@ async function main() {
     }
   }
 
+  // =========================================================================
+  // Scenario 33: --dry-run is refused by every mode except reverse-delta,
+  // BEFORE any guard, DNS lookup or connection (P8.3 finding: parseArgs
+  // accepted the flag globally, and `delta --dry-run` silently wrote). The
+  // env names below are deliberately unset: if a mode reached connect(), it
+  // would fail with lib.mjs's "Missing required env var" instead of the
+  // dry-run refusal, so matching the refusal proves no connection was opened.
+  // Then, against the throwaway PG16, delta --dry-run with REAL env names must
+  // leave the target (rows, watermarks, sync_log) exactly as it was, and the
+  // CLI must refuse too (exit 1, nothing on stdout).
+  // =========================================================================
+  {
+    const name = "--dry-run: delta/gap/verify/full-refresh/init-watermarks/init-watermarks-post-cutover refuse before any connection";
+    const DRY_RE = /has no dry-run; --dry-run is only supported by reverse-delta/;
+    const unsetEnv = { srcEnv: "MIGTEST_DRYRUN_UNSET_SRC", dstEnv: "MIGTEST_DRYRUN_UNSET_DST" };
+    delete process.env.MIGTEST_DRYRUN_UNSET_SRC;
+    delete process.env.MIGTEST_DRYRUN_UNSET_DST;
+    const detail = {};
+    let allOk = true;
+    try {
+      const cases = [
+        ["delta", () => runDelta(baseArgs({ ...unsetEnv, dryRun: true }))],
+        ["gap", () => runGap(baseArgs({ ...unsetEnv, dryRun: true }))],
+        ["verify", () => verify(baseArgs({ ...unsetEnv, dryRun: true }))],
+        [
+          "full-refresh",
+          () =>
+            runFullRefresh(baseArgs({ ...unsetEnv, dryRun: true, confirmPreCutover: true }), {
+              copyFn: async () => {
+                throw new Error("copyFn must not run under --dry-run");
+              },
+              lookups: FAKE_DNS_ALL_REPLIT,
+            }),
+        ],
+        [
+          "init-watermarks",
+          () => runInitWatermarks(baseArgs({ ...unsetEnv, dryRun: true, confirmPreCutover: true }), { lookups: FAKE_DNS_ALL_REPLIT }),
+        ],
+        [
+          "init-watermarks-post-cutover",
+          () =>
+            runInitWatermarksPostCutover(
+              baseArgs({ ...unsetEnv, dryRun: true, confirmPostCutover: true, baseline: "blog_posts=1" })
+            ),
+        ],
+      ];
+      for (const [mode, fn] of cases) {
+        let message = null;
+        try {
+          await fn();
+        } catch (e) {
+          message = e.message;
+        }
+        const ok = message != null && DRY_RE.test(message) && message.startsWith(`${mode} has no dry-run`);
+        detail[mode] = { ok, message };
+        if (!ok) allOk = false;
+      }
+
+      // Real local PG: delta --dry-run with a pending source row must not write.
+      await resetDatabases();
+      await seedSrc([
+        { table: "blog_posts", id: 1, slug: "dry-run-pending" },
+        { table: "demo_requests", id: 1, email: "dry-run@example.com" },
+      ]);
+      const snapshot = async () => ({
+        posts: await countRows(DST_URL, "blog_posts"),
+        demos: await countRows(DST_URL, "demo_requests"),
+        state: JSON.stringify(await dstQuery(`select table_name, watermark::text from _migration.sync_state order by table_name`)),
+        log: (await dstQuery(`select count(*)::int as n from _migration.sync_log`))[0].n,
+      });
+      const before = await snapshot();
+      let deltaMsg = null;
+      try {
+        await runDelta(baseArgs({ dryRun: true }));
+      } catch (e) {
+        deltaMsg = e.message;
+      }
+      const after = await snapshot();
+      const targetUntouched = JSON.stringify(before) === JSON.stringify(after) && after.posts === 0 && after.demos === 0;
+      const deltaLocal = { ok: deltaMsg != null && DRY_RE.test(deltaMsg) && targetUntouched, deltaMsg, before, after };
+      detail["delta-local-pg"] = deltaLocal;
+      if (!deltaLocal.ok) allOk = false;
+
+      // CLI: the same refusal from main(), exit 1, empty stdout, for each mode.
+      const { spawnSync } = await import("node:child_process");
+      const syncPath = new URL("./sync.mjs", import.meta.url).pathname;
+      const cliEnv = { ...process.env };
+      delete cliEnv.MIGTEST_DRYRUN_UNSET_SRC;
+      delete cliEnv.MIGTEST_DRYRUN_UNSET_DST;
+      for (const mode of ["delta", "gap", "verify", "full-refresh", "init-watermarks", "init-watermarks-post-cutover"]) {
+        const r = spawnSync(
+          process.execPath,
+          [syncPath, mode, "--dry-run", "--src-env", unsetEnv.srcEnv, "--dst-env", unsetEnv.dstEnv, "--state-file", "/nonexistent-state-for-selftest.json"],
+          { env: cliEnv, encoding: "utf8", timeout: 30000 }
+        );
+        const ok = r.status === 1 && r.stdout === "" && r.stderr.includes(`${mode} has no dry-run; --dry-run is only supported by reverse-delta`);
+        detail[`cli:${mode}`] = { ok, status: r.status, stdoutBytes: r.stdout.length, stderr: maskUrl(r.stderr.trim()) };
+        if (!ok) allOk = false;
+      }
+      record(name, allOk, detail);
+    } catch (e) {
+      record(name, false, String(e.stack || e));
+    }
+  }
+
+  // =========================================================================
+  // Scenario 34: reverse-delta --dry-run is unchanged by the refusal above:
+  // it still plans (rows above the gap counted) without writing the source,
+  // with no ALLOW_SOURCE_WRITES / --i-understand needed.
+  // =========================================================================
+  {
+    const name = "--dry-run: reverse-delta --dry-run still plans without writing (unchanged)";
+    const fs = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const tmpState = path.join(os.tmpdir(), `selftest-state-dryrun-${Date.now()}.json`);
+    try {
+      fs.writeFileSync(tmpState, JSON.stringify({ status: "IN_PROGRESS", facts: { cutover: { detectedAt: new Date().toISOString() } } }));
+      delete process.env.ALLOW_SOURCE_WRITES;
+      await resetDatabases();
+      await seedSrc([{ table: "blog_posts", id: 1, slug: "keep-on-source" }]);
+      await runDelta(baseArgs({ gapStart: 1000 }));
+      await seedDstDirect(
+        "blog_posts",
+        ["id", "slug", "title", "category", "date", "author", "excerpt", "published", "created_at", "updated_at"],
+        [1000, "post-cutover-dry", "New", "Eng", "2026-01-01", "Editor", "excerpt", true, new Date(), new Date()]
+      );
+      const srcBefore = await countRows(SRC_URL, "blog_posts");
+      const dry = await runReverseDelta(baseArgs({ gapStart: 1000, dryRun: true, stateFile: tmpState }));
+      const srcAfter = await countRows(SRC_URL, "blog_posts");
+      const bp = dry.plan.find((p) => p.table === "blog_posts");
+      const ok = dry.dryRun === true && bp.rowsAboveGap === 1 && bp.moved === 0 && srcBefore === 1 && srcAfter === 1;
+      record(name, ok, { dryRun: dry.dryRun, blogPostsPlan: bp, srcBefore, srcAfter });
+    } catch (e) {
+      record(name, false, String(e.stack || e));
+    } finally {
+      try {
+        fs.unlinkSync(tmpState);
+      } catch {}
+    }
+  }
+
   // `ok` must be strictly `true` for every scenario: a skip recorded as
   // `null` (see `record` above) fails the run just like an explicit `false`,
   // so a scenario that can't be exercised is never mistaken for one that

@@ -1,0 +1,100 @@
+{
+  "step": "P8.3",
+  "part": "tool-footguns-implement",
+  "role": "migration-implementer",
+  "status": "implemented",
+  "checkedAt": "2026-09-27T10:17:21Z",
+  "context": "Two migration-kit defects found by the P8.3 verifier (LOG 09:40:19Z, findings a and b; evidence/P8.3-watermark-verify.json 'delta --dry-run supported by sync.mjs'). Only scripts/migration was changed. No database other than a throwaway local PG16 (127.0.0.1:55432, trust auth, in a temp dir that was deleted afterwards) was connected to. Nothing was committed or pushed. STATE.json and LOG.md were not touched. The permission system refused nothing.",
+  "changes": [
+    {
+      "file": "scripts/migration/db/sync.mjs",
+      "what": "New refuseDryRun(args, mode) helper (sync.mjs:96-104). It throws '<mode> has no dry-run; --dry-run is only supported by reverse-delta' when args.dryRun is set. It is the first statement of verify (:349), runGap (:457), runDelta (:774), runFullRefresh (:937), runInitWatermarks (:955), runInitWatermarksPostCutover (:1228) and initWatermarksForTables (:247), so it runs before any guard, DNS lookup, STATE read or connect(). main() also refuses for every mode except reverse-delta before it dispatches (:1376). The usage comment notes that --dry-run is reverse-delta only (:22). runReverseDelta and parseArgs are unchanged.",
+      "why": "parseArgs accepts --dry-run for every mode, but only reverse-delta reads it. 'delta --dry-run' used to run a real delta. The mutation run below shows this: 1 blog_posts row and 1 demo_requests row were inserted and 4 sync_log rows were written."
+    },
+    {
+      "file": "scripts/migration/db/selftest.mjs",
+      "what": "Scenario 33 (selftest.mjs:1812) calls delta, gap, verify, full-refresh (with a copyFn that throws if it is ever called, and fake DNS), init-watermarks and init-watermarks-post-cutover with dryRun and deliberately UNSET env names. Each call must fail with the dry-run refusal and not with lib.mjs's 'Missing required env var', which proves no connect() was reached. Then, on local PG, delta --dry-run with real env names and a pending source row must leave target rows, sync_state and sync_log byte-identical. Last, the CLI 'node sync.mjs <mode> --dry-run' must exit 1 with an empty stdout and the refusal on stderr, for all 6 modes. Scenario 34 (:1917) checks that reverse-delta --dry-run still plans (rowsAboveGap 1, moved 0, dryRun true) and leaves the source untouched, with no write guards set. Existing scenario 12 (reverse-delta dry-run, guards, real write) is unchanged and still passes.",
+      "why": "Task: add db self-test cases for delta, gap and init --dry-run refusing before any connection, and for reverse-delta --dry-run being unchanged."
+    },
+    {
+      "file": "scripts/migration/parity/lib/extract.mjs",
+      "what": "normalizeHtmlNoise's dpl strip changed from /[?&]dpl=[^&\"'\\s]+/g to /[?&]dpl=[^&\"'\\s\\\\]+/g (extract.mjs:23), with a comment (:19-22). Nothing else changed.",
+      "why": "In RSC flight data a Vercel ref ends in an escaped quote ('...js?dpl=dpl_x\\\"'). The old class also consumed the backslash, which un-escaped the quote. That closed the self.__next_f.push JS string literal early, so extractEmbeddedBlogPosts threw 'found RSC flight rows but no embedded post array' and tie-permutation-real-data failed on the Vercel-served /blog. For every input where no backslash directly follows a dpl value, the output is byte-identical to before. When a backslash does follow, the new output keeps that backslash and everything after it, where the old regex removed them."
+    },
+    {
+      "file": "scripts/migration/parity/selftest-dpl-strip.mjs (new)",
+      "what": "An offline self-test with 4 cases. (1) escaped-quote-rsc-payload-with-dpl-parses: a Vercel-shaped /blog body with an I[...] import row, whose chunk refs end in '?dpl=...\\\"', in the same push literal as the post list. After normalizeHtmlNoise it must give exactly the raw body's posts, with no dpl= left and the escapes kept, and the inlined old regex must break it. (2) blog-tie-permutation-self-compare-on-normalized-vercel-payload: checkPageTiePermutation(kind blog-embedded-json) must pass on the new normalization and fail on the old. (3) plain-html-attribute-dpl-values-stripped-identically: 9 attribute shapes (double and single quotes, unquoted, &-joined, leading ?dpl then &, srcset, build-id path, nonce, near-miss 'adpl' / empty dpl=). Each must equal a fixed expected string and the old regex's output. (4) randomized-backslash-free-inputs-unchanged-vs-old-regex: 20000 deterministic LCG strings over a dpl/quote/whitespace alphabet with no backslash must be identical to the old output. The file ends with a SUMMARY line like the other parity self-tests.",
+      "why": "Task: add a self-test for an escaped-quote RSC payload with ?dpl= that now parses, and one for plain HTML attribute dpl values still being stripped identically."
+    }
+  ],
+  "selfTests": {
+    "dbSelftestLocalPg": {
+      "command": "MIGTEST_SRC_URL/MIGTEST_DST_URL=<throwaway local PG16 migtest_src/migtest_dst> node scripts/migration/db/selftest.mjs --out ... (REPLIT_DATABASE_URL, SRC_URL, DST_URL, DATABASE_URL unset)",
+      "result": "allPass true, 37/37 scenarios PASS (35 existing + new 33 and 34)",
+      "output": "docs/migration/.scratch/p83-footguns/p83-db-selftest.json (+ .log)"
+    },
+    "dbSelftestMutationOldSync": {
+      "what": "The same new selftest.mjs, run against HEAD's sync.mjs in a copy of the db dir",
+      "result": "Scenario 33 FAILS. delta, gap and verify reached connect() ('Missing required env var'). full-refresh, init-watermarks and init-watermarks-post-cutover ran their STATE guards. delta-local-pg wrote to the target: posts 0->1, demos 0->1, sync_log 0->4. The CLI gave unrelated errors. Scenario 34 and all other scenarios pass. So the new cases catch the defect.",
+      "output": "docs/migration/.scratch/p83-footguns/db-selftest-mutation-old-sync.json"
+    },
+    "dbOfflineGuards": "readonly-url.selftest.mjs 5/5 PASS, runner-guards.selftest.mjs 7/7 PASS (unchanged files, run as a regression check)",
+    "paritySummaryLines": [
+      "SUMMARY selftest-c-a3b-5.mjs: 12/12 PASS, 0 FAIL, 0 DEFERRED",
+      "SUMMARY selftest-link-header.mjs: 21/21 PASS, 0 FAIL, 0 DEFERRED",
+      "SUMMARY selftest-p5.3.mjs: 12/12 PASS, 0 FAIL, 0 DEFERRED",
+      "SUMMARY selftest-dpl-strip.mjs: 4/4 PASS, 0 FAIL, 0 DEFERRED",
+      "SUMMARY selftest.mjs: 17/21 PASS, 3 FAIL, 1 DEFERRED   (live run 1, --base https://www.growmax.io)",
+      "SUMMARY selftest.mjs: 20/21 PASS, 0 FAIL, 1 DEFERRED   (live run 2, --base https://www.growmax.io)"
+    ],
+    "dplSelftestMutationOldExtract": "selftest-dpl-strip.mjs run against a copy of the pre-fix parity dir gives 2/4 PASS. Cases 1 and 2 fail ('no parseable Next.js RSC flight rows'); cases 3 and 4 pass, as they should for unchanged behaviour.",
+    "liveSelftest": {
+      "base": "https://www.growmax.io",
+      "outputs": [
+        "docs/migration/.scratch/p83-footguns/selftest-live.json (+ .stdout/.stderr)",
+        "docs/migration/.scratch/p83-footguns/selftest-live-run2.json (+ .stdout/.stderr)"
+      ],
+      "tiePermutationRealData": "PASS in both runs. The /blog order+residual self-compare passes, residual A-vs-(A+edit) fails as intended, and '/', /sitemap.xml, /llms.txt and /llms-full.txt all pass self and fail when mutated. Before the fix (docs/migration/.scratch/c-a3b-5-selftests/selftest-live.stdout, 09:17Z) it was the only FAIL: 19/21 PASS, 1 FAIL, 1 DEFERRED.",
+      "run1Failures": "determinism-two-captures-60s-apart, determinism-compact-mode and mixed-mode-compare-both-directions all failed on one and the same diff: /_next/image?url=%2Ffactory-floor.jpg&w=3840&q=75, field 'retried', attempts a=1 b=3. This is the known container-proxy flake (env class, the same URL as the P8.2 B-only retry in evidence/P8.2-parity.json). It is a fetch retry count and does not touch normalizeHtmlNoise. Run 2, right after, passed all three.",
+      "deferred": "protected-deployment-probe (pre-existing hardcoded deferral, same as every earlier run)"
+    }
+  },
+  "regressionProof": {
+    "compareRerun": {
+      "command": "node scripts/migration/parity/compare.mjs --a docs/migration/.scratch/p6-20260927T0803Z/manifest-a.json --b docs/migration/.scratch/p8-20260927T0948Z/manifest-b.json --allowlist docs/migration/evidence/allowlist.json --raw-dir-a docs/migration/.scratch/p6-20260927T0803Z/raw-a --raw-dir-b docs/migration/.scratch/p8-20260927T0948Z/raw-b --out docs/migration/.scratch/p83-footguns/diff.json --scratch docs/migration/.scratch/p83-footguns/diff-scratch",
+      "inputs": {
+        "manifestA_sha256": "1687a934c08a85547a9449384b9ee8b414df736886b20d0e012fd880b71cbfec",
+        "manifestB_sha256": "3e4f9f4e6f4cd7434ec89064ffc868f38446e7f6f007377d306a7a08f190c341",
+        "allowlist_sha256": "d0f022b723f2196a0b18faa2b6450aa41c3c1452587ce9ac9550cddfe2b57647"
+      },
+      "result": "exit 1, stdout byte-identical to P8.2's compare.stdout: 'Compared 301 URLs: FAIL (failedUnallowed=4, allowlisted=4)' and '/api/blog size: A=2322293 bytes (172 items), B=2322293 bytes (172 items), threshold=3500000 bytes'. stderr is 0 bytes. diff.json is identical to P8.2's diff.json except for one key: diffs[4].diffFile (the '/' visibleTextHash text-diff path), which names the new --scratch directory. The text-diff files are byte-identical (diff -r shows only that path line). The 4 unallowed failures are the ones P8.2-parity.json already explains: 3 apex post-cutover expectations (owner-side Squarespace forwarding, config) and 1 B-only retry (env). The fix removes no diff and adds none.",
+      "whyUnchanged": "compare.mjs never calls normalizeHtmlNoise. It imports only sha256Text, normalizeText, safeFileName and CANONICAL_PRODUCTION_HOSTS from extract.mjs and compares already-extracted manifests. The fix can only change a manifest through capture.mjs -> extractHtml, which the re-extraction below covers."
+    },
+    "reExtraction": {
+      "what": "Every 2xx text/html raw body in both P8.2 inputs (216 in p6 raw-a / Replit and 216 in p8 raw-b / Vercel) was run through extractHtml with the pre-fix and post-fix extract.mjs, and the full JSON outputs were compared. /blog and /blog?page=2 were also run through extractEmbeddedBlogPosts on the raw and on the normalized body.",
+      "result": "extractHtml output was identical for all 432 bodies (extractDiffers: [] on both sides), so a fresh capture of the same bodies would give identical manifests and an identical compare. The normalized HTML string differs on all 216 Vercel bodies and on 0 Replit bodies. Every difference sits inside RSC script data, which extractHtml's fields ignore. On Vercel /blog and /blog?page=2, extractEmbeddedBlogPosts on the normalized body threw before the fix and now returns 172 posts, deep-equal to the raw-body result. On Replit it was 172 before and after.",
+      "differenceExplained": "For raw-b of p8 and raw-b of p6 (219 of 301 and 219 of 297 files differ), every differing file is fully explained. The new output is longer than the old by exactly the number of '<dpl value>\\' occurrences, and running the old semantics (the new class plus an optional trailing '\\...' run) on the raw body reproduces the old output byte for byte. Unexplained: 0. p6 raw-a (Replit, no dpl) has 0 differing files.",
+      "output": "docs/migration/.scratch/p83-footguns/p83-reextract.json"
+    }
+  },
+  "notes": [
+    "main() runs the --dry-run refusal before the mode switch, so an unknown mode given together with --dry-run reports '<mode> has no dry-run' instead of 'Unknown mode'. It refuses and exits 1 either way.",
+    "The refusal also sits inside initWatermarksForTables, as defense in depth for programmatic callers. Its only callers (runGapVerifyInit via full-refresh and init-watermarks) have already refused dryRun by that point.",
+    "The throwaway PG16 ran under /tmp, not the scratchpad, because the scratchpad's parent directory is mode 700 (root) and the postgres user cannot reach it. It was stopped and deleted afterwards.",
+    "node scripts/migration/state.mjs scan: clean (4 changed/untracked files checked). No secrets, connection strings or PII in the changed files or in this evidence. The self-test data uses only synthetic example.com addresses."
+  ],
+  "notRun": [
+    "No sync.mjs mode was run against Replit or Neon. All DB runs used the throwaway local PG16 or were offline.",
+    "No new capture.mjs capture: the regression proof re-extracts the existing P8.2 raw bodies instead."
+  ],
+  "verifierChecks": [
+    "git diff scripts/migration: only db/sync.mjs, db/selftest.mjs, parity/lib/extract.mjs and the new parity/selftest-dpl-strip.mjs have changed.",
+    "Local PG16 only: node scripts/migration/db/selftest.mjs must give 37/37, including '--dry-run: delta/gap/verify/full-refresh/init-watermarks/init-watermarks-post-cutover refuse before any connection' and '--dry-run: reverse-delta --dry-run still plans without writing (unchanged)'.",
+    "Offline: node scripts/migration/db/sync.mjs delta --dry-run --src-env UNSET_X --dst-env UNSET_Y --gap-start 1 must exit 1 with 'delta has no dry-run; --dry-run is only supported by reverse-delta' and must not print 'Missing required env var'.",
+    "Offline: node scripts/migration/parity/selftest-dpl-strip.mjs must give 4/4, and selftest-c-a3b-5 12/12, selftest-link-header 21/21 and selftest-p5.3 12/12 must be unchanged.",
+    "Live: node scripts/migration/parity/selftest.mjs --base https://www.growmax.io --out docs/migration/.scratch/<dir>/selftest-live.json must PASS tie-permutation-real-data. If a determinism check fails on a 'retried' diff only, re-run it.",
+    "Re-run the compare.mjs command in regressionProof.compareRerun. Expect stdout identical to docs/migration/.scratch/p8-20260927T0948Z/compare.stdout."
+  ],
+  "ownerAction": null,
+  "issues": []
+}

@@ -16,8 +16,11 @@ export function normalizeHtmlNoise(html) {
   return html
     // /_next/static/<buildId>/... -> /_next/static/<build>/...
     .replace(/\/_next\/static\/[^/"'\s]+\//g, '/_next/static/<build>/')
-    // ?dpl=... query params (Vercel deployment id)
-    .replace(/[?&]dpl=[^&"'\s]+/g, '')
+    // ?dpl=... query params (Vercel deployment id). The value class also stops at a
+    // backslash: inside embedded RSC/JSON string data the ref ends in an escaped quote
+    // (`...?dpl=dpl_abc\"`), and consuming that backslash would unescape the quote and
+    // break the flight-row JSON (extractEmbeddedBlogPosts, the tie-permutation proof).
+    .replace(/[?&]dpl=[^&"'\s\\]+/g, '')
     // nonce="..." attributes
     .replace(/\snonce=["'][^"']*["']/g, '')
 }
