@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T07:39:57.327Z",
+  "updatedAt": "2026-09-27T07:41:26.578Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -384,6 +384,24 @@
           "runLabel": "20260927T0709Z"
         },
         "startedAt": "2026-09-27T07:10:00Z"
+      },
+      "p62a3deploy": {
+        "runId": "wf_4e7c1ae3-69f",
+        "scriptPath": ".claude/workflows/mig-p5-deploy-verify.js",
+        "args": {
+          "step": "P6.2-a3",
+          "sha": "dc5405357441870b9315a28a7cbb93a201278453",
+          "runLabel": "p6-20260927T0745Z",
+          "deployMode": "git",
+          "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+          "skipSuite": true
+        },
+        "startedAt": "2026-09-27T07:46:00Z"
+      },
+      "p62a3hard": {
+        "runId": "wf_856b3d1c-435",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-p62-harness-hardening-wf_856b3d1c-435.js",
+        "startedAt": "2026-09-27T07:46:00Z"
       }
     },
     "followUps": [
