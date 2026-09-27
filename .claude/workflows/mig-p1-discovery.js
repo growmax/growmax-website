@@ -3,9 +3,9 @@ export const meta = {
   description: 'P1.1-P1.5 discovery: source DB inventory/fingerprints, parity harness build + mutation self-test + adversarial review, live baseline, DNS baseline, code audit',
   whenToUse: 'Growmax Vercel migration steps P1.1-P1.5 (A1 advisor runs separately via mig-advisor)',
   phases: [
-    { title: 'Discover', detail: 'DB inventory (sonnet/high), harness (sonnet/high), DNS (haiku/low), audit (sonnet/medium)' },
+    { title: 'Discover', detail: 'DB inventory (opus/high), harness (opus/high), DNS (opus/low), audit (opus/medium)' },
     { title: 'Review', detail: 'reviewer opus/high over harness + DB scripts, up to 2 fix rounds' },
-    { title: 'Baseline', detail: 'capture live site with the reviewed harness (haiku/low) + verify (sonnet/medium)' },
+    { title: 'Baseline', detail: 'capture live site with the reviewed harness (opus/low) + verify (opus/medium)' },
   ],
 }
 
@@ -42,19 +42,19 @@ phase('Discover')
 const tasks = {
   'P1.1': () => agent(role('db-operator') + runnerNote +
     `Step P1.1 per docs/migration/specs/SPEC-03-data-migration.md §0, §1, §3, §5 (read them). Implement scripts/migration/db/{lib,inventory,fingerprint,schema-diff,sync,runner}.mjs exactly per §1/§5 (Node 22 ESM; transports neon-https / container-tcp / sandbox-sdk; persisted watermarks in _migration.sync_state; natural-key reconciliation; late-commit window; never resurrect target deletions; every §0 invariant and guard). Then, READ-ONLY against $REPLIT_DATABASE_URL: run inventory + fingerprint, write ${EV}/P1.1-source-inventory.json and ${EV}/P1.1-source-fingerprint.json (counts/md5 only), produce the no-PII fixtures docs/migration/.scratch/schema.dump and docs/migration/.scratch/blog-tables.dump in the container, and export the public DB redirect list (old_path,new_path) to ${EV}/P1.1-db-redirects.json. Compute GAP_START = max(1000000, 10*max id) and return it in facts.gapStart, plus facts.source {pgMajor, hostKind, tables, maxIds, extensions, extraTables}. Self-test every sync.mjs mode and guard against a throwaway local PG16 with two databases as source/target (SPEC-02 local PG recipe), including deletion, late-commit and natural-key-conflict scenarios; write ${EV}/P1.1-sync-selftest.json. Never self-test against the real source or Neon.`,
-    { label: 'P1.1 db inventory', phase: 'Discover', model: 'sonnet', effort: 'high', schema: RESULT }),
+    { label: 'P1.1 db inventory', phase: 'Discover', model: 'opus', effort: 'high', schema: RESULT }),
   'P1.2': async () => {
     const built = await agent(role('implementer') + runnerNote +
       `Step P1.2: build the parity harness exactly per docs/migration/specs/SPEC-04-verification.md §1–§5 (read it fully): scripts/migration/package.json (+ lockfile via npm install inside scripts/migration), parity/{urls,capture,compare,selftest}.mjs, functional/run.mjs, visual/run.mjs, perf/run.mjs. Use NODE_USE_ENV_PROXY=1 for fetch in the container. Run selftest.mjs against the live site (or via the sandbox if web=="sandbox") and write ${EV}/P1.2-harness-selftest.json. Every mutation in §5.2 must be detected; determinism check must pass.`,
-      { label: 'P1.2 build harness', phase: 'Discover', model: 'sonnet', effort: 'high', schema: RESULT })
+      { label: 'P1.2 build harness', phase: 'Discover', model: 'opus', effort: 'high', schema: RESULT })
     return built
   },
   'P1.4': () => agent(role('scout') + runnerNote +
     `Step P1.4 DNS/TLS baseline. Using DNS-over-HTTPS (curl 'https://dns.google/resolve?name=NAME&type=TYPE') or dig in the sandbox, record for growmax.io and www.growmax.io: NS, SOA, A, AAAA, CNAME, MX, TXT, CAA; identify the DNS provider from NS. Also record apex/www HTTP behavior: curl -sI for http://growmax.io/, https://growmax.io/, http://www.growmax.io/, https://www.growmax.io/ (status, location, server), and the current TLS cert issuer/subject/SANs/expiry for www.growmax.io and growmax.io (openssl s_client -servername ... or curl -v). Write ${EV}/P1.4-dns-baseline.json and return facts.dns {provider, ns, wwwRecords, apexRecords, apexBehavior}.`,
-    { label: 'P1.4 dns baseline', phase: 'Discover', model: 'haiku', effort: 'low', schema: RESULT }),
+    { label: 'P1.4 dns baseline', phase: 'Discover', model: 'opus', effort: 'low', schema: RESULT }),
   'P1.5': () => agent(role('verifier') +
     `Step P1.5 code compatibility audit (read-only). Read docs/migration/specs/SPEC-02-code-changes.md, then audit the app (app/, lib/, components/, middleware.ts, next.config.ts, package.json) for anything that behaves differently on Vercel (serverless/Fluid, Edge middleware, build-time env/DB needs, fire-and-forget promises, filesystem writes, long-running timers, in-memory state, hardcoded hosts/ports, secrets in code). Confirm or refute each M/H item and list anything missing with file:line. Write ${EV}/P1.5-code-audit.json.`,
-    { label: 'P1.5 code audit', phase: 'Discover', model: 'sonnet', effort: 'medium', schema: RESULT }),
+    { label: 'P1.5 code audit', phase: 'Discover', model: 'opus', effort: 'medium', schema: RESULT }),
 }
 const discovered = {}
 await parallel(Object.keys(tasks).filter(k => only.includes(k)).map(k => async () => { discovered[k] = await tasks[k]() }))
@@ -86,7 +86,7 @@ for (let round = 1; needReview && round <= maxRounds; round++) {
   const deep = round >= 4
     ? ` This is escalation rung 4 (deep fix): apply each finding's fix precisely, add a self-test case that would have caught each regression, and change nothing outside the findings' scope.`
     : ''
-  const fixModel = round >= 4 ? 'opus' : 'sonnet'
+  const fixModel = 'opus'
   const dbFix = review.blocking.filter(b => (b.file || '').includes('scripts/migration/db'))
   const hFix = review.blocking.filter(b => !(b.file || '').includes('scripts/migration/db'))
   await parallel([
@@ -105,10 +105,10 @@ const ready = reviewOk && discovered['P1.2']?.status === 'pass' && (discovered['
 if (only.includes('P1.3') && ready) {
   const cap = await agent(role('scout') + runnerNote +
     `Step P1.3: capture the live-site baseline with the reviewed harness. Run parity/urls.mjs (sitemap from https://www.growmax.io, config redirects, DB redirects from ${EV}/P1.1-db-redirects.json, special/negative routes per SPEC-04 §2) → ${EV}/P1.3-url-inventory.json; then parity/capture.mjs --base https://www.growmax.io → manifest ${EV}/P1.3-baseline-manifest.json (compact, no raw bodies; raw bodies to docs/migration/.scratch/raw-baseline). Report URL counts per source and any URL whose retries were exhausted.`,
-    { label: 'P1.3 capture', phase: 'Baseline', model: 'haiku', effort: 'low', schema: RESULT })
+    { label: 'P1.3 capture', phase: 'Baseline', model: 'opus', effort: 'low', schema: RESULT })
   baseline = await agent(role('verifier') +
     `Verify the P1.3 baseline against docs/migration/VERIFICATION.md check 1.4: ≥250 URLs (or explained shortfall), 0 exhausted retries, every sitemap URL present, every config redirect source present, every DB redirect present. Capture result: ${JSON.stringify(cap)}. Write ${EV}/P1.3-baseline-summary.json.`,
-    { label: 'P1.3 verify', phase: 'Baseline', model: 'sonnet', effort: 'medium', schema: RESULT })
+    { label: 'P1.3 verify', phase: 'Baseline', model: 'opus', effort: 'medium', schema: RESULT })
 } else if (only.includes('P1.3')) {
   log('P1.3 skipped: harness or DB inventory did not pass')
 }

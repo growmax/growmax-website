@@ -71,9 +71,11 @@ The cost rule is: **every `agent()` call passes `model` and `effort` explicitly.
 | **Advisor** (`.claude/agents/migration-advisor.md`) | `fable` | `max` | A1 (after P1), A2 (go/no-go before DNS), A3 (escalation after the ladder), A4 (sign-off) | Routine checks |
 | DB operator (`migration-db-operator.md`) | `opus` | `high` | Full copy, final refresh, sequence gap, diagnosing data mismatches | Routine delta runs |
 | Reviewer (`migration-reviewer.md`) | `opus` | `high` | Adversarial review of code diffs, the parity harness, DB scripts | Implementing |
-| Implementer (`migration-implementer.md`) | `sonnet` | `high` | Code changes, scripts, Vercel/Neon configuration | Certifying its own work |
-| Verifier (`migration-verifier.md`) | `sonnet` | `medium` | Running suites, fingerprint compare, synthesis, delta sync runs | Changing code |
-| Scout (`migration-scout.md`) | `haiku` | `low` | Probes, polling, DNS lookups, log reads, running a known command and returning its output | Judgement calls |
+| Implementer (`migration-implementer.md`) | `opus` | `high` | Code changes, scripts, Vercel/Neon configuration | Certifying its own work |
+| Verifier (`migration-verifier.md`) | `opus` | `medium` | Running suites, fingerprint compare, synthesis, delta sync runs | Changing code |
+| Scout (`migration-scout.md`) | `opus` | `low` | Probes, polling, DNS lookups, log reads, running a known command and returning its output | Judgement calls |
+
+**Owner directive 2026-09-27:** the implementer, verifier and scout roles run on Opus 5.5 at their existing effort levels (high / medium / low) instead of Sonnet and Haiku, because rework loops (repeated review rounds, wrong conclusions, evidence-shape slips) cost more time than the cheaper models saved. The advisor stays Fable 5.1 max, and the DB operator and reviewer stay opus/high. The model names in PLAN §7 are superseded by this table. Every `agent()` call still sets `model` and `effort` explicitly, and nothing runs at max except the advisor.
 
 **A3 caps:** at most 1 advisor A3 consult per step and 4 in total. After that, the step goes straight to BLOCKED (blocker protocol).
 

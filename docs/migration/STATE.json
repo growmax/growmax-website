@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.1",
-  "updatedAt": "2026-09-27T03:36:23.860Z",
+  "updatedAt": "2026-09-27T03:41:49.123Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -385,6 +385,20 @@
       "draft": false,
       "subscribed": true,
       "rule": "never merge; respond to reviews; CODEOWNERS requires @growmax/guardians review"
+    },
+    "routing": {
+      "changedAt": "2026-09-27T03:41:49Z",
+      "by": "owner (in session)",
+      "roles": {
+        "advisor": "fable/max",
+        "dbOperator": "opus/high",
+        "reviewer": "opus/high",
+        "implementer": "opus/high (was sonnet/high)",
+        "verifier": "opus/medium (was sonnet/medium)",
+        "scout": "opus/low (was haiku/low)"
+      },
+      "reason": "rework loops cost more time than the cheaper models saved",
+      "scope": "all 11 saved workflows (40 agent() calls), the 3 role files, ORCHESTRATOR §4"
     }
   },
   "flags": {
