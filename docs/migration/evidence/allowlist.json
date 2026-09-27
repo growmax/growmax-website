@@ -2535,5 +2535,16 @@
         "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
       ]
     }
+  },
+  {
+    "url": "/",
+    "field": "visibleTextHash",
+    "reason": "Cause class: A-side build-time staleness (evidence/P5.3-investigation.json check (c)). A (Replit) serves / from a build-time cache (s-maxage=31536000, x-nextjs-cache HIT) that predates the 3 newest posts; B shows ai-helps-distributors-sell-more, b2b-order-management-software-distributors, b2b-returns-rma-management-distributors where A shows 3 older posts. All are published in A own live /api/blog; DB rows identical (G4). Unified text diff (C-A3-2, evidence/P5.3-text-diff.json, harness code at 7a621e6): both visibleTextHash values re-derived and equal to the pins; the normalized text shares a 7611-char prefix and a 1075-char suffix, and the differing span is exactly the 3 A-only post cards (b2b-customer-portal-vs-dealer-portal, b2b-ecommerce-without-replacing-erp, tiered-pricing-for-b2b-distributors) replaced by the 3 B-only post cards (ai-helps-distributors-sell-more, b2b-order-management-software-distributors, b2b-returns-rma-management-distributors); every title, excerpt, date and label matches A own live /api/blog; nothing else differs. Advisor A3 for P5.3 (evidence/A3-advisor-P5.3.json, C-A3-1, C-A3-2).",
+    "approvedBy": "A3",
+    "approvedAt": "2026-09-27T03:30:56Z",
+    "expected": {
+      "a": "a9b60b84bc5c2125899673be8dde9445eed11679d3facb3b83119a4d8cad39b8",
+      "b": "ad7e81a5498aaae2ea62ba6ff0471a1f842b0ce3c32cdfa13b5aa6cf22cd1503"
+    }
   }
 ]
