@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": null,
-  "updatedAt": "2026-09-27T04:11:36.240Z",
+  "updatedAt": "2026-09-27T04:12:14.629Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -302,6 +302,13 @@
         "args": {
           "note": "(long; see transcript)"
         }
+      },
+      "f9hard": {
+        "runId": "wf_24d71701-a95",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-f9-hardening-wf_24d71701-a95.js",
+        "args": null,
+        "startedAt": "2026-09-27T04:12:14Z",
+        "note": "A3 C-A3-4 F9 hardening before P6.2: implementer opus/high -> reviewer opus/high (<=3 rounds)"
       }
     },
     "followUps": [

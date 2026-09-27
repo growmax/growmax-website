@@ -228,3 +228,4 @@
 - 2026-09-27T04:11:36.196Z set facts.followUps
 - 2026-09-27T04:11:36.242Z [P6.1] step in_progress → done — One round on Opus (wf_13cf6830-263): the Opus implementer reviewed the first-pass Sonnet H1-H4 working tree and fixed 3 real defects (H1 not caching without generateStaticParams on Next 15.5; H2 pre-lookup failure breaking mutations and skipping shared paths; H3 timer not cleared). Local verification 19/19 incl. H-only item 6 (cached post and /api/blog survive a DB stop; admin edit and slug rename revalidate all six routes; middleware timeout yields a cached 308, never a 404). Opus review round 1 approved, 0 blocking. Committed as hSha 2f4b4d5.
 - 2026-09-27T04:11:36.287Z [P6.1] G6a 6a.1 and 6a.2 checked by the orchestrator against P6.1-review.json and P6.1-local-verify.json: pass. 6a.3 waits for P6.2 (deploy hSha 2f4b4d5, suite without F2). Before P6.2: the A3 C-A3-4 F9 hardening.
+- 2026-09-27T04:12:14.631Z set facts.runs
