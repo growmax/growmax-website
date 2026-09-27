@@ -1,0 +1,272 @@
+{
+  "step": "P8.2",
+  "gate": "G8a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T09:45:10Z",
+  "verifier": "migration-verifier (opus-5-5/medium)",
+  "base": "https://www.growmax.io",
+  "mode": "post",
+  "runLabel": "p8-20260927T0948Z",
+  "servingDeploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+  "runWindow": {
+    "start": "2026-09-27T09:42:45Z",
+    "end": "2026-09-27T09:42:51Z"
+  },
+  "runMjsStatus": "incomplete",
+  "runMjsPending": [
+    "F2-demo-request"
+  ],
+  "failed": [],
+  "checks": [
+    {
+      "name": "run.mjs F1 newsletter signup",
+      "expected": "201; row in Neon; deleted",
+      "actual": {
+        "status": 201,
+        "rowExists": true,
+        "cleaned": true
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F2 demo request (sent exactly once; demoTestsSent before = 2, cap 3)",
+      "expected": "201; row in Neon; row deleted; runtime log \"[webhook] delivered 200\" within 90 s",
+      "actual": {
+        "status": 201,
+        "rowExists": true,
+        "runMjsVerdict": "pending (webhook check external)",
+        "runtimeLog": {
+          "tool": "mcp__Vercel__get_runtime_logs",
+          "query": "[webhook]",
+          "since": "2026-09-27T09:42:40Z",
+          "line": "09:42:46 POST /api/demo-requests 201 -> \"[webhook] delivered 200\"",
+          "deploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+          "delayFromSendS": 0
+        },
+        "marker": {
+          "status": "sent",
+          "countBefore": 2,
+          "sentAt": "2026-09-27T09:42:46.727Z"
+        },
+        "rowRemainingInNeon": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F3 admin wrong password",
+      "expected": "401",
+      "actual": {
+        "status": 401
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F4 admin correct password",
+      "expected": "200; growmax-admin HttpOnly, Secure, SameSite=Lax, Max-Age=86400",
+      "actual": {
+        "status": 200,
+        "setCookie": "<present>",
+        "cookieOk": true,
+        "loginRejectionReasons": []
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F5 admin session",
+      "expected": "{\"isAdmin\":true}",
+      "actual": {
+        "status": 200,
+        "body": {
+          "isAdmin": true
+        }
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F6 admin posts count",
+      "expected": "200; length = count(blog_posts)",
+      "actual": {
+        "status": 200,
+        "returned": 171,
+        "dbCount": 171
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F7 create draft not public",
+      "expected": "201; public GET 404",
+      "actual": {
+        "createStatus": 201,
+        "publicGetStatus": 404
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F8 update then delete draft",
+      "expected": "200/200; no residue",
+      "actual": {
+        "putStatus": 200,
+        "deleteStatus": 200,
+        "residue": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F9 logout (Chromium-decided in harness)",
+      "expected": "session isAdmin false; no growmax-admin left; logout clears the exact cookie",
+      "actual": {
+        "decidedBy": "chromium",
+        "failures": [],
+        "sessionAfterLogin": {
+          "status": 200,
+          "isAdmin": true
+        },
+        "logout": {
+          "status": 200,
+          "type": "basic",
+          "vercel": true
+        },
+        "sessionAfterLogout": {
+          "status": 200,
+          "isAdmin": false
+        },
+        "jarAfterLogoutLeftovers": 0,
+        "parser": {
+          "pathMatches": true,
+          "domainMatches": true,
+          "clearsValue": true,
+          "logoutSetCookie": [
+            {
+              "name": "growmax-admin",
+              "path": "/",
+              "maxAge": 0,
+              "expires": null,
+              "valueEmpty": true
+            }
+          ]
+        }
+      },
+      "pass": true
+    },
+    {
+      "name": "F9 independent browser corroboration (verifier Chromium script, UI login via /admin/login)",
+      "expected": "login via UI; page fetch /api/admin/session isAdmin true; logout; isAdmin false; no non-empty growmax-admin in context.cookies(); bypass header only on target origin, no extraHTTPHeaders",
+      "actual": {
+        "chromium": "141.0.7390.37",
+        "loginPageStatus": 200,
+        "loginApiStatus": 200,
+        "sessionAfterLogin": {
+          "isAdmin": true
+        },
+        "jarAfterLogin": [
+          {
+            "name": "growmax-admin",
+            "domain": "www.growmax.io",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "sameSite": "Lax"
+          }
+        ],
+        "logoutMethod": "page-fetch",
+        "logoutStatus": 200,
+        "logoutSetCookie": [
+          {
+            "name": "growmax-admin",
+            "path": "/",
+            "maxAge": "0",
+            "expires": null,
+            "domain": null,
+            "valueEmpty": true,
+            "httpOnly": true,
+            "secure": true,
+            "sameSite": "lax"
+          }
+        ],
+        "sessionAfterLogout": {
+          "isAdmin": false
+        },
+        "jarAfterLogout": {
+          "totalCookies": 10,
+          "adminCookies": 0,
+          "nonEmptyAdmin": 0
+        },
+        "bypass": {
+          "routedHosts": [
+            "www.growmax.io"
+          ],
+          "offOriginHostCount": 15,
+          "headerAttachedOffOrigin": 0,
+          "extraHTTPHeadersUsed": false
+        }
+      },
+      "pass": true
+    },
+    {
+      "name": "F9 combined verdict",
+      "expected": "run.mjs F9 pass AND browser check pass",
+      "actual": {
+        "runMjs": true,
+        "browser": true
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F10 unauthenticated admin API",
+      "expected": "GET/POST/PUT/DELETE all 401",
+      "actual": {
+        "statuses": [
+          401,
+          401,
+          401,
+          401
+        ]
+      },
+      "pass": true
+    },
+    {
+      "name": "run.mjs F11 blog-redirects lookup",
+      "expected": "{\"newSlug\":\"<new>\"}",
+      "actual": {
+        "status": 200,
+        "body": {
+          "newSlug": "/blog/spare-parts-ecommerce-self-service-portal"
+        },
+        "expectedNewSlug": "/blog/spare-parts-ecommerce-self-service-portal"
+      },
+      "pass": true
+    },
+    {
+      "name": "Cleanup: no rows labeled vercel-migration-test-p8-20260927T0948Z in Neon",
+      "expected": "0 in newsletter_subscriptions, demo_requests, blog_posts",
+      "actual": {
+        "newsletter": 0,
+        "demo": 0,
+        "blogPosts": 0,
+        "blogPostsAnyMigrationTest": 0,
+        "newsletterAnyMigrationTest": 0,
+        "blogPostsTotal": 171,
+        "demoAnyMigrationTest": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "No secrets/PII in outputs",
+      "expected": "ADMIN_PASSWORD, bypass secret, connection strings and emails absent from evidence and scratch outputs",
+      "actual": "grep: 0 matches in all output files",
+      "pass": true
+    }
+  ],
+  "notes": [
+    "run.mjs reports status \"incomplete\" by design: F2 stays pending until the verifier attaches the runtime-log webhook evidence, which is attached above (delivered 200 in the same second as the 201). F2 was sent exactly once (marker .scratch/demo-tests/p8-20260927T0948Z.sent, countBefore 2); this makes the 3rd demo test of the migration, so the cap of 3 is now reached and no further F2 may run.",
+    "First attempt of the independent browser script failed before logout: the page fetch of /api/admin/session after login returned a non-JSON body starting \"upstream r\" (consistent with an agent-proxy upstream error, not an app response; headers were not captured on that attempt). The script was changed only to capture status/server/x-vercel-id and retry non-JSON bodies up to 3x, then rerun from a fresh browser; on the rerun every session fetch returned JSON on the first try from server Vercel with x-vercel-id. Class: env (container proxy), transient. The abandoned first context was closed and held only a stateless cookie, so nothing is left server-side.",
+    "The UI Logout control (data-testid=button-logout) again produced no POST within 15 s in headless Chromium (same as P6.2), so logout used a page fetch POST /api/admin/logout with credentials, which the suite allows. Diagnostic only; class: harness/env."
+  ],
+  "artifacts": [
+    "docs/migration/.scratch/p8-20260927T0948Z/functional/run.json",
+    "docs/migration/.scratch/p8-20260927T0948Z/functional/run.stdout",
+    "docs/migration/.scratch/p8-20260927T0948Z/functional/f9-browser.json",
+    "docs/migration/.scratch/p8-20260927T0948Z/functional/cleanup.json",
+    "docs/migration/.scratch/demo-tests/p8-20260927T0948Z.sent"
+  ]
+}

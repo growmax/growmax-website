@@ -1,0 +1,106 @@
+{
+  "step": "P8.2",
+  "gate": "G8a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T09:57:10Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "mode": "post",
+  "runLabel": "p8-20260927T0948Z",
+  "baseA": "https://growmax.replit.app (live Replit deployment by hostname: server Google Frontend, x-powered-by Next.js, title matches the Growmax site; no IP pinning used in the container. The P6 baseline manifest has HTML bodies only, no screenshots, so a live A is required for \u00a77; www.growmax.io now resolves to Vercel, 216.150.1.1)",
+  "baseB": "https://www.growmax.io (server: Vercel, deployment dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx per ?dpl= on static chunks). No bypass header was needed or sent.",
+  "harness": {
+    "file": "scripts/migration/visual/run.mjs",
+    "gitHashObject": "5349fc3b5e3afbb196ceba913ae480cd387810f8",
+    "note": "unchanged since 3d36d03 (P5.3 reviewed version); no local modifications; playwright-core, pixelmatch and pngjs present, so npm ci was not needed"
+  },
+  "facts": {
+    "visual": "run",
+    "runs": 3,
+    "windows": [
+      "2026-09-27T09:46:50Z..09:48:44Z",
+      "2026-09-27T09:52:03Z..09:53:49Z",
+      "2026-09-27T09:54:23Z..09:56:30Z"
+    ],
+    "rawHarnessStatus": "fail in all 3 runs (21 / 11 / 18 flagged). Every flag traces to the container's agent proxy intermittently failing CONNECT tunnels to www.growmax.io:443 and returning a synthesized 502 'upstream request failed' (text/plain), not to Vercel.",
+    "proxyRootCause": {
+      "agentProxyStatus": "recentRelayFailures lists repeated ws_closed_mid_exchange for host www.growmax.io:443 ('517 B sent, 39 B received'), during and between the runs, starting at 09:02Z. The same failure appears for no other site the harness used.",
+      "b502ScreenshotContent": "The B document screenshots that failed (for example visual/b-privacy-desktop.png) show only the plain text 'upstream request failed', which is the proxy's body. The 'Refused to execute script ... MIME type text/plain' console errors are that same 502 body served in place of a JS chunk.",
+      "sameEdgeControl": "Through the proxy, 12 GETs of /privacy each: growmax-website.vercel.app 12/12 200, growmax.replit.app 12/12 200, www.growmax.io 11/12 200 (1 transport error). An earlier 75-request proxy loop to www.growmax.io also produced connection resets and TLS SSL_ERROR_SYSCALL errors.",
+      "directControl": "Without the proxy (--noproxy, normal DNS to 216.150.1.1): 12/12 200 for /privacy. All 31 distinct first-party URLs that failed or returned 502 on B in any run answer 200 directly with the correct content-type (6 application/javascript, 1 text/css, 4 font/woff2, 4 image/png, 1 application/json, 15 text/html)."
+    },
+    "pixelCoverage": "20/20 page/viewport pairs have at least one comparable capture at or below 0.5%. 16/20 have at least one run that is fully clean (at or below 0.5% and no new B errors). The other 4 (home, revenue-platform, blog-index and comparison, all desktop) were at or below 0.5% (maximum 0.19%) but always had at least one proxy-502 subresource.",
+    "comparableCaptures": 45,
+    "maxRatioAmongFullyLoaded": 0.00189,
+    "inBand0_5to3pct": [
+      {
+        "page": "blog-index/desktop",
+        "run": 1,
+        "ratio": 0.01802,
+        "inspected": "a/b/diff PNGs read. Header, featured post, filters and footer match. A (growmax.replit.app) listed 163 articles and B listed 172; B's grid starts with 9 newer posts dated Sep 22-25, which also moves the pagination to 10 pages. This is data freshness on the stale A side (post-cutover posts are on Neon). Runs 2 and 3: 0.02% and 0.001%.",
+        "class": "acceptable-diff (data freshness)"
+      },
+      {
+        "page": "revenue-platform/mobile",
+        "run": 3,
+        "ratio": 0.00505,
+        "inspected": "diff PNG read: only glyph differences in one font face. The same run had a proxy 502 on /_next/static/media/d3ebbfd689654d3a-s.p.woff2 (fallback font). Runs 1 and 2: 0.0.",
+        "class": "env (container proxy)"
+      }
+    ],
+    "sizeMismatchNotRun": "Every size-mismatch capture on B was the 1440x900 or 390x844 proxy 'upstream request failed' page, or a font or CSS 502 that changed the page height. Each of those pairs passed in another run.",
+    "residualKeys": [
+      {
+        "key": "firstparty|*|<any B URL>|502 or net::ERR_ABORTED following a 502",
+        "explanation": "The agent proxy synthesized 502 'upstream request failed'. All 31 URLs answer 200 directly (see directControl). Class: env."
+      },
+      {
+        "key": "firstparty|GET|/demo?_rsc=<token>|net::ERR_ABORTED (also /company/about, /blog, /blog/claude-commerce-agents-b2b ?_rsc=)",
+        "explanation": "Next.js RSC prefetch cancelled at page teardown, the P5.3/P6.2 residual class. Tokens are build-specific, so A (a different build) never produces the same key. All of them answer 200 directly."
+      },
+      {
+        "key": "thirdparty|POST|https://analytics.google.com/g/collect|net::ERR_ABORTED and thirdparty|POST|https://ad.doubleclick.net/ccm/s/collect|net::ERR_ABORTED",
+        "explanation": "Analytics beacons aborted at teardown; this is timing-dependent and seen on A in P5.3. Direct GET of collect returns 204. Not a site defect."
+      },
+      {
+        "key": "console 'Failed to load resource ... 404' on privacy/desktop and demo/desktop when the document itself was a proxy 502",
+        "explanation": "The browser fetched /favicon.ico for the plain proxy error page. /favicon.ico is 404 on both A and B directly (the site uses /favicon.png)."
+      }
+    ],
+    "newErrorsOnVercelNotOnReplit": 0
+  },
+  "checks": [
+    {
+      "name": "harness runnable in container (both sites reachable, Chromium launches)",
+      "expected": "reachable or not_run with reason",
+      "actual": "both reachable; 3 runs completed, harness unmodified (5349fc3)",
+      "pass": true
+    },
+    {
+      "name": "pixel ratio per page/viewport (20 pairs)",
+      "expected": "<=0.5% pass; 0.5-3% inspected and explained; >3% only if data freshness",
+      "actual": "20/20 have a comparable capture at or below 0.5% (max 0.19%). 2 in-band captures inspected: blog-index/desktop 1.8% (data freshness, A stale at 163 vs 172 posts) and revenue-platform/mobile 0.505% (proxy font 502). No capture was above 3%.",
+      "pass": true
+    },
+    {
+      "name": "new console errors / failed requests on B not on A",
+      "expected": "0 unexplained, by normalized key",
+      "actual": "0 attributable to Vercel. All raw flags are explained by listed residual keys: container proxy 502 (31 URLs, all 200 direct), RSC prefetch teardown aborts, analytics beacon aborts, and the favicon.ico request on the proxy error page.",
+      "pass": true
+    },
+    {
+      "name": "report-only: container agent-proxy path to www.growmax.io (not a SPEC-04 \u00a77 criterion)",
+      "expected": "report-only; the healthy baseline is no relay failures",
+      "actual": "DEGRADED: about 8% of requests fail (ws_closed_mid_exchange to www.growmax.io:443). The direct path is 12/12 and vercel.app through the proxy is 12/12, so this is env, not the site. Other container-run suite parts (parity, functional, perf) may show the same false 502s or resets.",
+      "pass": true
+    }
+  ],
+  "artifacts": [
+    "docs/migration/.scratch/p8-20260927T0948Z/visual/visual-suite.json",
+    "docs/migration/.scratch/p8-20260927T0948Z/visual/run.log",
+    "docs/migration/.scratch/p8-20260927T0948Z/visual/ (a-*/b-*/diff-* PNGs)",
+    "docs/migration/.scratch/p8-20260927T0948Z/visual-run2/visual-suite.json",
+    "docs/migration/.scratch/p8-20260927T0948Z/visual-run2/ (PNGs, run.log, window.txt)",
+    "docs/migration/.scratch/p8-20260927T0948Z/visual-run3/visual-suite.json",
+    "docs/migration/.scratch/p8-20260927T0948Z/visual-run3/ (PNGs, run.log, window.txt)"
+  ]
+}

@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
   "currentStep": "P8.2",
-  "updatedAt": "2026-09-27T09:41:26.972Z",
+  "updatedAt": "2026-09-27T10:02:54.190Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -42,15 +42,15 @@
       "projectName": "growmax-website",
       "projectState": "bare: created before P3.1 via vercel project add, only so the P1.1 runner can create a Sandbox. No Git link, no deployments, framework null, node 24.x, SSO all_except_custom_domains. P3.1 reuses it by name, converges settings, sets the ignored-build-step guard, and only then connects Git",
       "deployMode": "git",
-      "productionDeploymentId": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7",
-      "productionSha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba",
+      "productionDeploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx",
+      "productionSha": "dc5405357441870b9315a28a7cbb93a201278453",
       "productionAliases": [
         "growmax-website.vercel.app",
         "growmax-website-growmax1.vercel.app",
         "growmax-website-git-claude-wonderful-edison-823y83-growmax1.vercel.app"
       ],
       "deploymentUrl": "growmax-website-k1wyvo4f8-growmax1.vercel.app",
-      "productionReadyAt": "2026-09-27T06:29:53Z",
+      "productionReadyAt": "2026-09-27T07:59:59Z",
       "protectionReality": "SSO all_except_custom_domains (Standard Protection) leaves the production domain growmax-website.vercel.app public (GET / without the bypass header = 200); generated deployment URLs and previews stay protected. The P3.4 expectation (401/403 on the production alias) was wrong; the check is re-specified against the generated deployment URL. The public copy carries an absolute canonical to https://www.growmax.io and robots.txt points to the www sitemap.",
       "previousProductionDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE (d8c8b05)",
       "hDeploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx"
@@ -201,7 +201,12 @@
         "xVercelCache": "HIT",
         "note": "seen through the container proxy, which validates the upstream certificate; P8.1 verifies the cert independently"
       },
-      "certPath": "to be confirmed in P8.1 (the ACME DNS-01 TXT records were not added; Vercel issues via HTTP-01 once DNS points to it)"
+      "certPath": "to be confirmed in P8.1 (the ACME DNS-01 TXT records were not added; Vercel issues via HTTP-01 once DNS points to it)",
+      "propagation": {
+        "consecutiveBothResolversVercel": 1,
+        "lastCheckAt": "2026-09-27T09:49:08Z",
+        "apexOnVercel": false
+      }
     },
     "runner": {
       "sandboxName": "growmax-migration-runner",
@@ -661,10 +666,19 @@
       },
       "reason": "rework loops cost more time than the cheaper models saved",
       "scope": "all 11 saved workflows (40 agent() calls), the 3 role files, ORCHESTRATOR §4"
+    },
+    "rollbackReadiness": {
+      "checkedAt": "2026-09-27T09:55:00Z",
+      "finding": "Replit pinned by IP (34.111.179.208) with Host www.growmax.io returns 404 This app isnt live yet on all 297 https URLs (P8.2 A2 capture from the Sandbox). The Replit deployment no longer serves the custom domain, so a DNS-only SPEC-07 rollback would bring up a 404 site. Before any rollback the owner must re-publish or re-link the Replit deployment. The Replit database is still reachable read-only; delta1 read it fine.",
+      "consequence": "Stale-DNS visitors would reach the Replit placeholder, not the old site. No new late writes can land on Replit through www, so G8b quiet-period rows are expected to stay at 0."
+    },
+    "severity": {
+      "B-BYPASS-ROTATE": "SEV3 (security hygiene: the exposed secret only opens protected generated deployment URLs that serve the same public site; no outage and no data exposure; rotation is still owner-pending)",
+      "openSEV1orSEV2": []
     }
   },
   "flags": {
-    "demoTestsSent": 2,
+    "demoTestsSent": 3,
     "prOpened": true,
     "prUrl": "https://github.com/growmax/growmax-website/pull/1"
   },
@@ -897,6 +911,14 @@
       "action": "Rotate the Vercel \"Protection Bypass for Automation\" secret (the current one was exposed to third-party hosts by two of my test probes; see LOG.md INCIDENT). The permission system refused to let an agent do it ([Secret-Store Writes]). In the Vercel dashboard: team growmax1 -> project growmax-website -> Settings -> Deployment Protection -> Protection Bypass for Automation: click Generate (or Add) to create a new secret, then Revoke the old one (created 2026-09-26 for the migration). Do not paste the secret anywhere: the migration reads the new value from the project itself the next time a check needs it. This does not block the current work (the exposed secret only opens protected deployment URLs that serve the public site), but it must be done before the DNS go/no-go (A2).",
       "since": "2026-09-27T05:44:49.937Z",
       "note": "Refused command (never re-run by the orchestrator): node <scratchpad>/rotate.mjs <scratchpad>/rotate-result.json (generate via PATCH /v1/projects/{id}/protection-bypass, atomic write to .scratch/bypass-secret, revoke old, read back). No API call was made. Pipeline continues; A2 precondition.",
+      "resolvedAt": null
+    },
+    {
+      "id": "B-APEX",
+      "step": "P8.2",
+      "action": "Move the apex growmax.io off the old Squarespace forward, which now sends https://growmax.io to http://www.growmax.io (an insecure hop that fails G8a 8a.2). In the Squarespace domains dashboard: growmax.io -> Website -> Domain Forwarding -> click the red trash can next to the forward -> re-authenticate -> Continue. Then, in DNS settings, add two A records for @: 216.150.1.1 and 216.150.16.1. Do NOT touch the MX records (Google Workspace email) or the TXT (SPF) record. Vercel already redirects growmax.io 308 to https://www.growmax.io and will issue the apex certificate itself. Some visitors typing growmax.io may see errors for up to about 4 h (old TTL 14400 s); www is unaffected. Tell the orchestrator when done; it re-runs P8.1 and P8.2 for the apex.",
+      "since": "2026-09-27T10:02:54.087Z",
+      "note": "Owner already tried at about 09:20Z and could not delete it from the DNS panel; guidance given (the forward is removed on the Website tab). Alternative: the advisor explicitly accepts the pre-existing insecure hop at A4.",
       "resolvedAt": null
     }
   ],
@@ -1732,13 +1754,18 @@
       ],
       "gate": "G8a",
       "workflow": ".claude/workflows/mig-p8-postcutover.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [
-        "2026-09-27T09:10:41.101Z Post-cutover prep (wf_be26c8eb-5e8) runs three branches in parallel. (1) P8.1 DNS/TLS on the real domain. (2) A3 C-A3b-5 harness hardening, required before P8.2: stylesheetRefsMissing and htmlError become non-allowlistable, plus the manifest marker. (3) A reviewed init-watermarks-post-cutover mode, run and verified, so the P8.3 deltas can run. P8.2 baseline: the P6.2 attempt-3 live-Replit capture (08:04Z, harness 2565667), plus Replit pinned by IP. mig-p8-postcutover.js and mig-verify-suite.js now accept baselineManifest and baselineRawDir."
+      "evidence": [
+        "docs/migration/evidence/P8.1-dns-tls.json",
+        "docs/migration/evidence/P8.1-dns-tls-sandbox.json"
       ],
-      "startedAt": "2026-09-27T09:10:41.100Z"
+      "notes": [
+        "2026-09-27T09:10:41.101Z Post-cutover prep (wf_be26c8eb-5e8) runs three branches in parallel. (1) P8.1 DNS/TLS on the real domain. (2) A3 C-A3b-5 harness hardening, required before P8.2: stylesheetRefsMissing and htmlError become non-allowlistable, plus the manifest marker. (3) A reviewed init-watermarks-post-cutover mode, run and verified, so the P8.3 deltas can run. P8.2 baseline: the P6.2 attempt-3 live-Replit capture (08:04Z, harness 2565667), plus Replit pinned by IP. mig-p8-postcutover.js and mig-verify-suite.js now accept baselineManifest and baselineRawDir.",
+        "2026-09-27T10:02:54.135Z www verified. DoH (both resolvers) and all 4 authoritative NS (ns-cloud-a1..a4) answer 216.150.1.1. TLS: Let's Encrypt YR1, CN and SAN www.growmax.io, valid 2026-09-27 to 2026-12-26, auto-renewing; system-trust curl gives HTTP/2 200 from Vercel. http://www returns 308 to https. The apex is unchanged on the Squarespace forward (301 to http://www), tracked as owner blocker B-APEX, so G8a 8a.2 stays open for the apex."
+      ],
+      "startedAt": "2026-09-27T09:10:41.100Z",
+      "completedAt": "2026-09-27T10:02:54.135Z"
     },
     {
       "id": "P8.2",
@@ -1749,13 +1776,17 @@
       ],
       "gate": "G8a",
       "workflow": ".claude/workflows/mig-p8-postcutover.js",
-      "status": "in_progress",
+      "status": "failed",
       "attempts": 1,
-      "evidence": [],
-      "notes": [
-        "2026-09-27T09:41:26.972Z Full suite on https://www.growmax.io (wf_3775e118-4f2): the baseline is the P6.2 attempt-3 live-Replit capture (manifest-a and raw-a, 08:04Z, harness 2565667), plus Replit pinned by IP (report-only). F2 runs once: the 3rd and last demo test, which the owner was told about. The first P8.3 delta check-in and the P8.1 Sandbox NS/TLS completion run in parallel."
+      "evidence": [
+        "docs/migration/evidence/P8.2-suite-summary.json"
       ],
-      "startedAt": "2026-09-27T09:41:26.972Z"
+      "notes": [
+        "2026-09-27T09:41:26.972Z Full suite on https://www.growmax.io (wf_3775e118-4f2): the baseline is the P6.2 attempt-3 live-Replit capture (manifest-a and raw-a, 08:04Z, harness 2565667), plus Replit pinned by IP (report-only). F2 runs once: the 3rd and last demo test, which the owner was told about. The first P8.3 delta check-in and the P8.1 Sandbox NS/TLS completion run in parallel.",
+        "2026-09-27T10:02:54.190Z Attempt 1 (wf_3775e118-4f2, runLabel p8-20260927T0948Z): functional PASS, including F2, the 3rd and last demo test (201; webhook delivered 200 at 09:42:46; row deleted) and F9 browser-corroborated; visual PASS; logs PASS (1001 lines, 0 errors); perf report-only (2 flagged). Parity: failedUnallowed 4 on the container capture and 3 on the proxy-free Sandbox capture. All 3 real diffs are the apex post-cutover expectations: http and https growmax.io and growmax.io/demo return 301 to http://www via the Squarespace forward, an owner-DNS config issue (B-APEX). The 4th was a container-proxy retry (env), absent in the Sandbox capture. Everything else is identical: /api/blog 2,322,293 B and 172 items, 0 data-freshness diffs, all 4 A3 pins matched once, stylesheetRefsBothAbsent 0. Replit pinned by IP now serves a 404 placeholder (facts.rollbackReadiness). Next: after the owner fixes the apex, re-capture the post-cutover apex URLs and re-synthesize."
+      ],
+      "startedAt": "2026-09-27T09:41:26.972Z",
+      "lastFailureAt": "2026-09-27T10:02:54.190Z"
     },
     {
       "id": "P8.3",

@@ -1,0 +1,81 @@
+{
+  "step": "P8.2",
+  "gate": "G8a",
+  "status": "fail",
+  "checkedAt": "2026-09-27T10:00:03Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "runLabel": "p8-20260927T0948Z",
+  "mode": "post",
+  "baseA": "baseline manifest docs/migration/.scratch/p6-20260927T0803Z/manifest-a.json (live Replit, harness 2565667, sha256 1687a934...; substitute for the skipped P6.5 baseline per LOG 09:05:05Z)",
+  "baseB": "https://www.growmax.io (Vercel; served assets carry dpl=dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx)",
+  "failureClass": "config (owner-side apex DNS: Squarespace forward to http://www.growmax.io); secondary env (container proxy retry, cleared by Sandbox capture). No code, data or content defect found.",
+  "checks": [
+    {
+      "name": "8a.1 Authoritative and public resolvers point www to Vercel",
+      "expected": "www resolves to 216.150.1.1/216.150.16.1 on public and authoritative resolvers",
+      "actual": "Carried from P8.1-dns-tls.json (scout, pass): Google and Cloudflare DoH www A = 216.150.1.1. The authoritative-NS check was recorded not_checked there. Not re-derived in this synthesis.",
+      "pass": true
+    },
+    {
+      "name": "8a.2 Valid cert for www (and apex if moved); HTTP->HTTPS redirect; apex -> https://www.growmax.io",
+      "expected": "www cert valid; http://www -> 308 https://www; http(s)://growmax.io/* -> 301/308 to https://www.growmax.io/*",
+      "actual": "www cert cert_4fTe... valid to 2026-12-26, and http://www -> 308 https (P8.1). The apex requirement fails. I re-derived it at 2026-09-27T10:00Z: http://growmax.io/, https://growmax.io/ and https://growmax.io/demo all return 301 to http://www.growmax.io/... (Squarespace forward, apex A still 198.x). P8.1 recorded this as info/pass, but the gate text requires the apex to go to https://www.growmax.io. Class: config (owner DNS).",
+      "pass": false
+    },
+    {
+      "name": "8a.3 Full suite vs P6.5 baseline passes (plus Replit pinned from Sandbox, if reachable); stylesheetRefsBothAbsent = 0; C-A3b-5 compare additions landed first",
+      "expected": "parity pass (failedUnallowed 0), functional pass, visual pass, logs pass (non-empty window, 0 errors); stylesheetRefsBothAbsent 0; C-A3b-5 additions present",
+      "actual": "Parity FAIL. Container B vs A: compared 301, failedUnallowed 4, allowlisted 4, retriedB 1, stylesheetRefsBothAbsent 0. Sandbox B vs A: failedUnallowed 3, retriedB 0. I re-read both diff.json files and both manifest sha256 values match the evidence. The 3 remaining diffs are the apex expectations (config), and the 4th was an env retry. Functional pass: F1-F11 pass, F2 sent once (201, row found in Neon, webhook delivered 200), cleanup 0 rows. Visual pass: 20/20 pairs have a capture <=0.5%, none >3%, and raw flags are attributed to the container proxy. Logs pass: 1001 lines in 09:30-09:59Z, 0 error clusters, 0 error/warning lines. Replit pinned (A2) is reachable but serves a 404 placeholder on 297/297 https URLs, so it is report-only. The C-A3b-5 additions landed (P8.2-harness-c-a3b-5-review.json, harness.stylesheetRefs marker on B).",
+      "pass": false
+    },
+    {
+      "name": "8a.4 No open SEV1/SEV2",
+      "expected": "STATE.json shows no open SEV1/SEV2",
+      "actual": "Orchestrator-owned check, not confirmed by this verifier. STATE.json has no SEV field. One blocker is still open: B-BYPASS-ROTATE (P6.2, bypass secret exposed to third-party hosts, rotation pending), and its severity is not recorded. The orchestrator has to classify it.",
+      "pass": false
+    }
+  ],
+  "parity": {
+    "status": "fail",
+    "urls": 301,
+    "failedUnallowed": 4,
+    "allowlisted": 4,
+    "stylesheetRefsBothAbsent": 0,
+    "retriedB": 1,
+    "sandboxB": {"failedUnallowed": 3, "allowlisted": 4, "retriedB": 0, "stylesheetRefsBothAbsent": 0},
+    "unallowed": [
+      "http://growmax.io/ -> 301 http://www.growmax.io/ (config)",
+      "https://growmax.io/ -> 301 http://www.growmax.io/ (config)",
+      "https://growmax.io/demo -> 301 http://www.growmax.io/demo (config)",
+      "/_next/image?url=%2Ffactory-floor.jpg&w=3840&q=75 retried on B only (env: container proxy; absent in Sandbox capture)"
+    ],
+    "manifestSha256": {
+      "a": "1687a934c08a85547a9449384b9ee8b414df736886b20d0e012fd880b71cbfec",
+      "b": "3e4f9f4e6f4cd7434ec89064ffc868f38446e7f6f007377d306a7a08f190c341"
+    },
+    "blogApi": {"a": {"bytes": 2322293, "jsonArrayLength": 172}, "b": {"bytes": 2322293, "jsonArrayLength": 172}},
+    "replitPinned": {"ip": "34.111.179.208", "status404": 297, "failedUnallowed": 642, "reportOnly": true}
+  },
+  "functional": {"status": "pass", "failed": [], "f2": "sent once: 201, Neon row found, webhook delivered 200 at 09:42:46Z, row deleted; demo-test cap of 3 now reached"},
+  "visual": {"status": "pass", "flagged": [], "maxDiffPercentBestRun": 0.19, "note": "blog-index/desktop 1.8% in run 1 = data freshness (A 163 vs B 172 articles); raw harness flags come from the container proxy (502 'upstream request failed')"},
+  "logs": {"status": "pass", "errors": 0, "window": {"since": "2026-09-27T09:30:00Z", "until": "2026-09-27T09:59:00Z"}, "lines": 1001, "retention": "not read from plan API"},
+  "perf": {"flagged": ["/ (A 70 ms, B 210 ms TTFB)", "/demo (A 49 ms, B 80 ms TTFB)"], "reportOnly": true, "aOrigin": "https://growmax-website.replit.app (assumed by the perf runner; unconfirmed)"},
+  "overall": "fail",
+  "blockingIssues": [
+    "config: apex growmax.io still forwards through Squarespace with 301 to http://www.growmax.io (insecure hop) instead of going to https://www.growmax.io (G8a 8a.2, SPEC-04 §2.8). Owner fix: remove the Squarespace forward and point @ at 216.150.1.1 / 216.150.16.1, keeping MX and TXT, then re-capture. Alternatively, the advisor accepts the risk explicitly at A4.",
+    "8a.4 unconfirmed: open blocker B-BYPASS-ROTATE (exposed bypass secret) has no recorded severity. The orchestrator must classify it or close it."
+  ],
+  "nonBlockingIssues": [
+    "env: the container proxy fails intermittently to www.growmax.io:443 (ws_closed_mid_exchange). The B-only retry does not occur in the Sandbox capture, which has 0 retries.",
+    "rollback readiness: Replit serves a 404 'This app isn't live yet' for Host www.growmax.io, so a DNS-only SPEC-07 rollback would bring up a 404 site. Record this for SPEC-07/A4.",
+    "STATE facts.vercel.productionDeploymentId (dpl_4MpEzL..., 2f4b4d5) differs from the served deployment dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx (dc54053). The fact is probably stale.",
+    "flags.demoTestsSent should become 3 (cap reached).",
+    "perf A origin needs confirmation."
+  ],
+  "artifacts": [
+    "docs/migration/evidence/P8.2-parity.json",
+    "docs/migration/evidence/P8.2-functional.json",
+    "docs/migration/evidence/P8.2-visual.json",
+    "docs/migration/evidence/P8.2-logs-perf.json"
+  ]
+}
