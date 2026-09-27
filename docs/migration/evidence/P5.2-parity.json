@@ -1,0 +1,130 @@
+{
+  "step": "P5.2",
+  "gate": "G5",
+  "status": "fail",
+  "checkedAt": "2026-09-27T02:54:03Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "mode": "pre",
+  "runLabel": "p5-20260927T0248Z",
+  "baseA": "https://www.growmax.io (fresh capture, this run)",
+  "baseB": "https://growmax-website.vercel.app (dpl_3pt7gJhkymtokAVFXwifHpCjkUoE, production alias, public under Standard Protection; bypass header sent anyway per instructions)",
+  "networkPaths": {
+    "web": "container",
+    "db": "neon-https",
+    "dump": "sandbox-sdk",
+    "vercelApi": "cli",
+    "visual": "container",
+    "decidedAt": "2026-09-26T10:57:33Z",
+    "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
+  },
+  "protectedDeploymentProbe": {
+    "spec": "SPEC-04 \u00a75 step 4 (protected-deployment probe, first run in P5.2 before any comparison)",
+    "checks": [
+      {
+        "name": "GET / with x-vercel-protection-bypass -> app response, not Vercel auth",
+        "expected": "200, app HTML (x-nextjs-prerender / x-vercel-cache present, no SSO/login markers)",
+        "actual": "200; x-nextjs-prerender: 1; x-vercel-cache: HIT; content-length 194862; no Set-Cookie/auth redirect",
+        "pass": true
+      },
+      {
+        "name": "One configured redirect source (/arc) with bypass -> app's own redirect, not auth redirect",
+        "expected": "308 to the app-configured destination",
+        "actual": "308 to /revenue-platform (matches gsc-indexing-redirects.js line 8, which is spread before the later '/arc'->'/' rule in next.config.ts and wins by array order)",
+        "pass": true
+      }
+    ],
+    "result": "pass \u2014 responses are from the app itself; safe to proceed to parity comparison as harness (not blocked)"
+  },
+  "urlInventory": {
+    "command": "parity/urls.mjs --base https://www.growmax.io --base-b https://growmax-website.vercel.app --bypass-secret-file docs/migration/.scratch/bypass-secret",
+    "count": 297,
+    "byCategory": {
+      "sitemap": 203,
+      "next-config-gsc": 50,
+      "next-config-literal": 8,
+      "special": 9,
+      "special-api": 9,
+      "not-in-sitemap": 4,
+      "variant": 3,
+      "negative": 2,
+      "blog-api-slug": 9
+    },
+    "p1_3InventoryCount": 288,
+    "shrinkCheck": {
+      "name": "inventory count >= P1.3 baseline (288)",
+      "expected": ">= 288",
+      "actual": 297,
+      "pass": true
+    }
+  },
+  "capture": {
+    "aCapturedAt": "2026-09-27T02:52Z (approx)",
+    "bCapturedAt": "2026-09-27T02:51Z (approx)",
+    "note": "A and B captured sequentially, ~1 minute apart, both against the same 297-URL inventory; 0 fetch errors on either side",
+    "bypassHeaderUsedForB": "x-vercel-protection-bypass only; x-vercel-set-bypass-cookie never sent"
+  },
+  "checks": [
+    {
+      "name": "parity failedUnallowed == 0 (SPEC-04/VERIFICATION.md gate 5.2)",
+      "expected": 0,
+      "actual": 4,
+      "pass": false
+    },
+    {
+      "name": "allowlist entries all advisor-approved",
+      "expected": "every entry has approvedBy in {A1,A2,A3}",
+      "actual": "allowlist.json is empty ([]); 0 entries used (allowlisted=0)",
+      "pass": true
+    },
+    {
+      "name": "100% of inventory compared",
+      "expected": 297,
+      "actual": 297,
+      "pass": true
+    },
+    {
+      "name": "blog API size threshold",
+      "expected": "under 3500000 bytes",
+      "actual": "A=2322293 bytes, B=2322293 bytes",
+      "pass": true
+    }
+  ],
+  "byCategory": {
+    "content": 3,
+    "seo": 1
+  },
+  "classification": [
+    {
+      "url": "/",
+      "fields": [
+        "visibleTextHash",
+        "internalLinks"
+      ],
+      "class": "data-freshness",
+      "detail": "B's homepage shows 3 more-recently-published posts than A's homepage (ai-helps-distributors-sell-more, b2b-order-management-software-distributors, b2b-returns-rma-management-distributors) in place of 3 older ones. Independently confirmed all 4 differing slugs (incl. tiered-pricing-for-b2b-distributors) are present in A's own live GET https://www.growmax.io/api/blog (172 posts) right now \u2014 this is A's static/ISR homepage cache serving stale content, not a DB or code divergence. Consistent with the P5.3 finding logged 2026-09-27T01:48:09Z and STATE.facts.finalReportNotes."
+    },
+    {
+      "url": "/sitemap.xml",
+      "fields": [
+        "sitemapEntries"
+      ],
+      "class": "data-freshness",
+      "detail": "Same root cause as / \u2014 A's sitemap.xml is a stale build-time snapshot (per LOG P2.2 2026-09-26T15:16:42Z, newest lastmod ~2026-09-22T01:56Z) missing posts published after that. This gap is exactly why SPEC-04 \u00a72 was amended (A1 C9) to source blog URLs additionally from /api/blog; the inventory (297 URLs, blog-api-slug: 9) already reflects that fix, so the sitemap-only diff here is a known, already-mitigated freshness gap, not a coverage loss."
+    },
+    {
+      "url": "<hashed-css-assets>",
+      "fields": [
+        "hashedCssSha256"
+      ],
+      "class": "harness/environment (build artifact) \u2014 already investigated, no visible effect, ratification pending",
+      "detail": "1 of 2 Next.js CSS bundles has a different content hash (5cca0cd4... on A vs 072d7bf0... on B; the other bundle's content hash, b22fd05..., is byte-identical across both differently-named files). Independently reproduced by direct fetch: A serves /_next/static/css/e0e0fae895f3fff8.css, B serves /_next/static/css/5ae60ac95c5812a0.css, while /_next/static/css/67ec1cc0bd707d2d.css is common to both. This matches the P5.3 CSS investigation (docs/migration/evidence/P5.3-css-analysis.json, cross-checked by the orchestrator at 2026-09-27T02:03:23Z): of 241 class tokens present in A's CSS but not B's, none is used by any of the 277 HTML pages on either side, and all 123 class tokens used by the app's actual UI components (button/input/textarea/select/checkbox/label/toast/toaster) are present on both sides. Attributed to Tailwind v4 content-scanning differences between the Replit workspace (untracked files) and the Vercel build environment, not to shipped code. No visible effect found; not independently re-litigated further here beyond confirming the file-level facts above."
+    }
+  ],
+  "sampleDiffs_note": "Full compare.mjs output (297 URLs, 200-entry compact copy) at artifacts.compareDiff; the 4 failedUnallowed entries are the ones listed under classification above (report-only categories, e.g. content-encoding gzip vs br, HSTS preload, bytes, are expected Vercel-vs-Replit platform differences and are not counted toward failedUnallowed).",
+  "artifacts": [
+    "docs/migration/evidence/P5.2-parity.json",
+    "docs/migration/evidence/allowlist.json (unchanged, still [])",
+    "docs/migration/evidence/P5.3-css-analysis.json (prior investigation this classification relies on)"
+  ],
+  "verdict": "FAIL as parity (not harness): 4/297 URLs have unallowed diffs, all classified (3 data-freshness on A's stale cache/sitemap, 1 harness/build-environment CSS hash with no demonstrated visitor-facing effect). None is a code, config, or Neon-data defect. Re-sync of A's stale build cache is out of scope for this verifier (orchestrator's job per instructions); the CSS finding needs advisor ratification into allowlist.json, per the queued A3 consult (STATE.facts.followUps), before gate 5.2 can read failedUnallowed==0 through an advisor-approved allowlist rather than a raw pass."
+}

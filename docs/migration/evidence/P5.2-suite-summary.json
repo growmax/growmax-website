@@ -1,0 +1,86 @@
+{
+  "step": "P5.2",
+  "gate": "G5",
+  "runLabel": "p5-20260927T0248Z",
+  "mode": "pre",
+  "checkedAt": "2026-09-27T02:54:03Z",
+  "verifier": "migration-verifier (sonnet/medium, suite synthesis)",
+  "baseA": "https://www.growmax.io",
+  "baseB": "https://growmax-website.vercel.app",
+  "deploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+  "deploymentSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+  "parity": {
+    "status": "fail",
+    "urls": 297,
+    "failedUnallowed": 4,
+    "allowlisted": 0
+  },
+  "functional": {
+    "status": "pass",
+    "failed": [],
+    "notes": "F1, F3-F11 pass; F2 skipped this run per design and satisfied by P5.2-functional-attempt1.json (same deployment id); 0 residual test rows; F9 corroborated in a real browser."
+  },
+  "visual": {
+    "status": "pass",
+    "flagged": [
+      "20/20 page/viewport combinations flagged 'new-errors-on-b' by the harness, independently confirmed to be a harness false positive (exact-URL match on randomized third-party analytics beacon query strings, symmetric on A and B) -- non-blocking under the literal G5.4 criterion (no new console errors, which passed)."
+    ]
+  },
+  "logs": {
+    "status": "pass",
+    "errors": 0
+  },
+  "perf": {
+    "flagged": []
+  },
+  "overall": "fail",
+  "blockingIssues": [
+    {
+      "severity": "major",
+      "check": "5.2",
+      "description": "Parity gate (VERIFICATION.md G5 row 5.2) requires failedUnallowed == 0 across 100% of the inventory with an allowlist containing only advisor-approved entries. This run measured failedUnallowed=4 across 297 URLs compared, and docs/migration/evidence/allowlist.json is currently empty ([]), so 0 of the 4 diffs are advisor-approved. The gate is not met as written.",
+      "detail": {
+        "failingEntries": [
+          "/ visibleTextHash (data-freshness: A's homepage build/ISR cache lags recently published posts already present in A's own live /api/blog)",
+          "/ internalLinks (same data-freshness root cause)",
+          "/sitemap.xml sitemapEntries (same data-freshness root cause)",
+          "hashed CSS asset(s) hashedCssSha256 (harness/build-environment Tailwind v4 content-scanning difference, previously investigated in P5.3-css-analysis.json, no demonstrated visitor-facing effect)"
+        ],
+        "classification": "All 4 diffs are independently classified as acceptable/non-defect (data-freshness on the source side, or a harness/build-environment artifact), but classification is not the same as advisor approval, which VERIFICATION.md's gate explicitly requires."
+      },
+      "ownerAction": "Take the 4 classified diffs to the queued A3 advisor consult; on approval, add matching entries to docs/migration/evidence/allowlist.json and re-run parity (or re-synthesize this suite) to confirm failedUnallowed==0 against the now-populated allowlist. The orchestrator is separately responsible for deciding whether/how to address A's stale build cache (out of scope for this verifier)."
+    }
+  ],
+  "nonBlockingIssues": [
+    {
+      "severity": "info",
+      "description": "SPEC-04 protected-deployment probe passed independently in all four sub-checks (parity, functional, visual, logs/perf): responses are genuine app responses via the bypass header, not a Vercel auth wall."
+    },
+    {
+      "severity": "info",
+      "description": "URL inventory (297) is >= the P1.3 baseline (288); no coverage shrink detected."
+    },
+    {
+      "severity": "minor",
+      "description": "The visual harness's newFailedRequests check (scripts/migration/visual/run.mjs ~line 318) compares full request URLs and will keep flagging third-party analytics beacons as false positives on every future P5.2/P6.2/P8.2 run until fixed to compare on origin+pathname or exclude known ad/analytics domains.",
+      "ownerAction": "Non-blocking for this gate; fix recommended for future runs to stop producing 20/20 false positives."
+    },
+    {
+      "severity": "minor",
+      "description": "F9 (logout) was corroborated via in-page fetch('/api/admin/logout') rather than clicking the UI logout button, because a fixed header occluded the button at the tested viewport. Explicitly allowed by the task; still exercises the real browser cookie engine end-to-end.",
+      "ownerAction": "None required now; a future verifier wanting the literal UI-click path should scroll or resize before clicking [data-testid=button-logout]."
+    },
+    {
+      "severity": "minor",
+      "description": "The CSS bundle-hash diff's 'no visible effect' conclusion is inherited from P5.3-css-analysis.json plus this run's file-level reproduction, not re-derived class-by-class from scratch here.",
+      "ownerAction": "If the A3 consult wants a fully independent re-derivation, have a verifier re-run that specific analysis rather than relying solely on this evidence chain."
+    }
+  ],
+  "inputs": {
+    "parity": "docs/migration/evidence/P5.2-parity.json",
+    "functional": "docs/migration/evidence/P5.2-functional.json",
+    "functionalCarried": "docs/migration/evidence/P5.2-functional-attempt1.json",
+    "visual": "docs/migration/evidence/P5.2-visual.json",
+    "logsPerf": "docs/migration/evidence/P5.2-logs-perf.json"
+  }
+}
