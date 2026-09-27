@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T06:36:04.530Z",
+  "updatedAt": "2026-09-27T06:36:45.972Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -42,16 +42,17 @@
       "projectName": "growmax-website",
       "projectState": "bare: created before P3.1 via vercel project add, only so the P1.1 runner can create a Sandbox. No Git link, no deployments, framework null, node 24.x, SSO all_except_custom_domains. P3.1 reuses it by name, converges settings, sets the ignored-build-step guard, and only then connects Git",
       "deployMode": "git",
-      "productionDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
-      "productionSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+      "productionDeploymentId": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7",
+      "productionSha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba",
       "productionAliases": [
         "growmax-website.vercel.app",
         "growmax-website-growmax1.vercel.app",
         "growmax-website-git-claude-wonderful-edison-823y83-growmax1.vercel.app"
       ],
-      "deploymentUrl": "growmax-website-5g5aazux8-growmax1.vercel.app",
-      "productionReadyAt": "2026-09-27T01:09:32Z",
-      "protectionReality": "SSO all_except_custom_domains (Standard Protection) leaves the production domain growmax-website.vercel.app public (GET / without the bypass header = 200); generated deployment URLs and previews stay protected. The P3.4 expectation (401/403 on the production alias) was wrong; the check is re-specified against the generated deployment URL. The public copy carries an absolute canonical to https://www.growmax.io and robots.txt points to the www sitemap."
+      "deploymentUrl": "growmax-website-k1wyvo4f8-growmax1.vercel.app",
+      "productionReadyAt": "2026-09-27T06:29:53Z",
+      "protectionReality": "SSO all_except_custom_domains (Standard Protection) leaves the production domain growmax-website.vercel.app public (GET / without the bypass header = 200); generated deployment URLs and previews stay protected. The P3.4 expectation (401/403 on the production alias) was wrong; the check is re-specified against the generated deployment URL. The public copy carries an absolute canonical to https://www.growmax.io and robots.txt points to the www sitemap.",
+      "previousProductionDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE (d8c8b05)"
     },
     "neon": {
       "plan": "launch (launch_v3, installation scope; owner-authorized 2026-09-26; applied via vercel integration update; MCP read-back confirmed)",
@@ -340,6 +341,24 @@
             "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
           }
         }
+      },
+      "p62a2": {
+        "runId": "wf_c240d007-2e4",
+        "scriptPath": "/root/.claude/projects/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/workflows/scripts/mig-p62-attempt2-wf_c240d007-2e4.js",
+        "args": {
+          "runLabel": "p6-20260927T0645Z",
+          "paths": {
+            "web": "container",
+            "db": "neon-https",
+            "dump": "sandbox-sdk",
+            "vercelApi": "cli",
+            "visual": "container",
+            "decidedAt": "2026-09-26T10:57:33Z",
+            "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
+          }
+        },
+        "startedAt": "2026-09-27T06:36:45Z",
+        "note": "deploy re-check (no redeploy) + child suite; resume with the same args"
       }
     },
     "followUps": [
@@ -1324,16 +1343,17 @@
       ],
       "gate": "G6a",
       "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
-      "status": "failed",
-      "attempts": 1,
+      "status": "in_progress",
+      "attempts": 2,
       "evidence": [
         "docs/migration/evidence/P6.2-deploy.json"
       ],
       "notes": [
         "2026-09-27T05:45:08.445Z mig-p5-deploy-verify.js: by-SHA production deploy of hSha 2f4b4d5 (git source), alias + protection checks, then the suite (no F2; F9 browser-decided; raw bodies kept; A3 pins expected to hold). Model routing: opus at role efforts.",
-        "2026-09-27T06:36:04.530Z Attempt 1 (wf_de6a2d09-272): deployment dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7 (2f4b4d5) READY at 06:29:53Z after the owner approved create_deployment; build has warnings only; both production aliases point to it. The workflow failed only on a STALE protection criterion (orchestrator error: re-specified at P5.3 but not updated in mig-p5-deploy-verify.js) that expected 401/403 on the public production domain; triage (opus) re-probed: production domain 200 by design, generated URL and second alias 302 to vercel.com/sso-api, as SPEC-01 §2 requires. The suite did not run. Fix: criterion corrected; independent re-check of the existing deployment plus the suite, no redeploy."
+        "2026-09-27T06:36:04.530Z Attempt 1 (wf_de6a2d09-272): deployment dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7 (2f4b4d5) READY at 06:29:53Z after the owner approved create_deployment; build has warnings only; both production aliases point to it. The workflow failed only on a STALE protection criterion (orchestrator error: re-specified at P5.3 but not updated in mig-p5-deploy-verify.js) that expected 401/403 on the public production domain; triage (opus) re-probed: production domain 200 by design, generated URL and second alias 302 to vercel.com/sso-api, as SPEC-01 §2 requires. The suite did not run. Fix: criterion corrected; independent re-check of the existing deployment plus the suite, no redeploy.",
+        "2026-09-27T06:36:45.972Z Attempt 2 (wf_c240d007-2e4): independent re-check of the READY hSha deployment (no redeploy, so no approval wait) with the corrected protection criterion, then the suite (no F2; F9 browser-decided; raw bodies kept)."
       ],
-      "startedAt": "2026-09-27T05:45:08.445Z",
+      "startedAt": "2026-09-27T06:36:45.972Z",
       "lastFailureAt": "2026-09-27T06:36:04.530Z"
     },
     {
