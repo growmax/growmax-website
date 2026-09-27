@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.1",
-  "updatedAt": "2026-09-27T03:41:49.123Z",
+  "updatedAt": "2026-09-27T03:42:09.629Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -293,11 +293,14 @@
         "note": "C-A3-2 text diff of / (P5.3-text-diff.json) and C-A3-5 visual re-run (P5.2-visual.json), two verifiers sonnet/medium"
       },
       "p61": {
-        "runId": "wf_e5c85e37-07f",
+        "runId": "wf_13cf6830-263",
         "scriptPath": ".claude/workflows/mig-p6a-harden.js",
-        "args": {},
-        "startedAt": "2026-09-27T03:36:23Z",
-        "note": "resume with args {}"
+        "previousRunId": "wf_e5c85e37-07f (stopped after the Sonnet implement step; routing switched to Opus)",
+        "startedAt": "2026-09-27T03:42:09Z",
+        "note": "resume with the exact args (the note string) from the Workflow call in the transcript",
+        "args": {
+          "note": "(long; see transcript)"
+        }
       }
     },
     "followUps": [

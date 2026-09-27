@@ -223,3 +223,4 @@
 - 2026-09-27T03:36:23.861Z set facts.runs
 - 2026-09-27T03:41:49.125Z set facts.routing
 - 2026-09-27T03:41:49.177Z [P6.1] Owner directive (in session, 2026-09-27): run the Sonnet/Haiku roles on Opus 5.5 at their existing efforts because rework is costing time. Orchestrator agreed on the session evidence (P1 harness 5 review rounds; P5.3 harness 3 rounds without approval; P4.3 2 rounds; a wrong Vite-build conclusion; a double F2 send that used a scarce demo test; scouts writing non-standard evidence). Switched 40 agent() calls in 11 workflows plus the implementer/verifier/scout role files and ORCHESTRATOR §4 (implementer opus/high, verifier opus/medium, scout opus/low; advisor stays fable/max). P6.1 was stopped after its Sonnet implement step (the Sonnet verify r1 had just started) and relaunches on Opus; the Opus implementer reviews and completes the first-pass H1-H4 working tree instead of starting over.
+- 2026-09-27T03:42:09.630Z set facts.runs
