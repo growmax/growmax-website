@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": null,
-  "updatedAt": "2026-09-27T03:34:08.532Z",
+  "updatedAt": "2026-09-27T03:35:19.732Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -368,12 +368,22 @@
           "b": 27
         }
       }
+    },
+    "pr": {
+      "number": 1,
+      "url": "https://github.com/growmax/growmax-website/pull/1",
+      "head": "claude/wonderful-edison-823y83",
+      "base": "main",
+      "openedAt": "2026-09-27T03:35:19Z",
+      "draft": false,
+      "subscribed": true,
+      "rule": "never merge; respond to reviews; CODEOWNERS requires @growmax/guardians review"
     }
   },
   "flags": {
     "demoTestsSent": 2,
-    "prOpened": false,
-    "prUrl": null
+    "prOpened": true,
+    "prUrl": "https://github.com/growmax/growmax-website/pull/1"
   },
   "sync": {
     "gapStart": 1000000,
@@ -1196,10 +1206,15 @@
       ],
       "gate": null,
       "workflow": null,
-      "status": "pending",
-      "attempts": 0,
+      "status": "done",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T03:34:25.958Z Open the one PR claude/wonderful-edison-823y83 -> main (ready for review, never merge). origin/main has no commits beyond this branch (checked 03:3xZ), so no merge was needed.",
+        "2026-09-27T03:35:19.732Z Opened https://github.com/growmax/growmax-website/pull/1 (ready for review, not draft; never merge). Body: owner actions (GOOGLE_CHAT_WEBHOOK_URL in Replit Secrets, rotate the webhook, DNS A record per the runbook), M1-M4, G0-G5 evidence summary, pre-existing issues. Subscribed to PR activity."
+      ],
+      "startedAt": "2026-09-27T03:34:25.958Z",
+      "completedAt": "2026-09-27T03:35:19.732Z"
     },
     {
       "id": "P6.1",
