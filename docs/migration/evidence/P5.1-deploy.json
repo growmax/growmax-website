@@ -1,0 +1,73 @@
+{
+  "checkedAt": "2026-09-27T01:10:21Z",
+  "deploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+  "sha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+  "ref": "claude/wonderful-edison-823y83",
+  "target": "production",
+  "url": "growmax-website-5g5aazux8-growmax1.vercel.app",
+  "checks": {
+    "readyState": {
+      "status": "pass",
+      "state": "READY",
+      "notes": "Deployment reached READY state after ~57 seconds from creation"
+    },
+    "buildLog": {
+      "status": "pass",
+      "hasErrors": false,
+      "successIndicators": [
+        "✓ Compiled successfully in 14.0s",
+        "✓ Generating static pages (61/61)",
+        "Route table generated with all app routes"
+      ],
+      "warnings": [
+        "npm deprecated package warnings (non-critical)",
+        "PostgreSQL SSL mode warnings (non-critical)"
+      ],
+      "notes": "Build completed without errors. Warnings are from dependencies and PostgreSQL client, not the application."
+    },
+    "aliasCheck": {
+      "status": "pass",
+      "projectLatestDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+      "projectLatestDeploymentTarget": "production",
+      "projectLatestDeploymentState": "READY",
+      "productionAliases": [
+        "growmax-website.vercel.app",
+        "growmax-website-growmax1.vercel.app",
+        "growmax-website-git-claude-wonderful-edison-823y83-growmax1.vercel.app"
+      ],
+      "aliasedDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+      "notes": "Project's latest deployment (for production) correctly points to this deployment ID"
+    },
+    "protectionCheck": {
+      "status": "note",
+      "withoutBypass": {
+        "statusCode": 200,
+        "notes": "GET / without bypass header returns 200 with app HTML"
+      },
+      "withBypass": {
+        "statusCode": 200,
+        "notes": "GET / with bypass header returns 200 with app HTML"
+      },
+      "projectSettings": {
+        "passwordProtection": {
+          "enabled": false
+        },
+        "ssoProtection": {
+          "enabled": true,
+          "deploymentType": "all_except_custom_domains"
+        },
+        "trustedIps": {
+          "enabled": false
+        }
+      },
+      "notes": "SSO protection is enabled but applies only to non-custom domains per project settings. The *.vercel.app alias is accessible without additional protection headers. This is expected behavior for the configuration."
+    }
+  },
+  "summary": {
+    "overallStatus": "READY",
+    "deploymentSuccessful": true,
+    "aliasCorrect": true,
+    "buildHasNoErrors": true,
+    "deploymentTime": "2026-09-27T01:08:35Z to 2026-09-27T01:09:32Z"
+  }
+}

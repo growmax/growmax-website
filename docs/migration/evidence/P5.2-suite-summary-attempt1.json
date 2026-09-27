@@ -1,0 +1,103 @@
+{
+  "step": "P5.2",
+  "gate": "G5",
+  "status": "fail",
+  "checkedAt": "2026-09-27T01:20:37Z",
+  "verifier": "migration-verifier/sonnet",
+  "baseA": "https://www.growmax.io",
+  "baseB": "https://growmax-website.vercel.app",
+  "parity": {
+    "status": "fail",
+    "urls": 297,
+    "failedUnallowed": 234
+  },
+  "functional": {
+    "status": "pass",
+    "failed": []
+  },
+  "visual": {
+    "status": "fail",
+    "flagged": [
+      "visual harness could not run: missing npm deps playwright-core, pixelmatch, pngjs in scripts/migration/ (no screenshots captured, no pixel diffs computed); both sites were reachable so the SPEC-04 §7 not_run allowance (unreachable site) does not apply"
+    ]
+  },
+  "logs": {
+    "status": "pass",
+    "errors": 0
+  },
+  "perf": {
+    "flagged": []
+  },
+  "overall": "fail",
+  "checks": [
+    {
+      "name": "G5.2 parity failedUnallowed == 0 (VERIFICATION.md line 64)",
+      "expected": 0,
+      "actual": 234,
+      "pass": false
+    },
+    {
+      "name": "G5.3 functional F1, F3-F11 pass; F2 passes with webhook delivered 2xx; test rows deleted (VERIFICATION.md line 65)",
+      "expected": "all pass, rows cleaned",
+      "actual": "all pass (F9 script-reported fail independently attributed to a harness bug, not an app defect); 0 residual rows; F2 sent twice instead of once due to an independent-verifier process error (both cleaned up, both webhooks delivered 200)",
+      "pass": true
+    },
+    {
+      "name": "G5.4 visual pass or not_run with a reason; no new console errors (VERIFICATION.md line 66)",
+      "expected": "pass, or not_run only when the container cannot reach both sites",
+      "actual": "fail: container reached both sites, but the visual harness itself cannot execute (missing playwright-core/pixelmatch/pngjs deps) -- this is a fail, not a valid not_run",
+      "pass": false
+    },
+    {
+      "name": "G5.5 runtime logs read after functional tests, window contains test traffic, 0 unexplained errors; perf attached (VERIFICATION.md line 67)",
+      "expected": "0 unexplained errors, perf report present",
+      "actual": "0 unexplained errors (only expected SSL-mode warnings); 20 URLs x 3 samples perf sampled, Vercel TTFB equal-or-better on all URLs, 0 flagged",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "parity": "docs/migration/evidence/P5.2-parity.json",
+    "functional": "docs/migration/evidence/P5.2-functional.json",
+    "visual": "docs/migration/evidence/P5.2-visual.json",
+    "logsPerf": "docs/migration/evidence/P5.2-logs-perf.json"
+  },
+  "blockingIssues": [
+    {
+      "severity": "blocker",
+      "source": "parity",
+      "description": "G5.2 fails as-run: failedUnallowed=234 (gate requires 0). Root cause is dominated by two harness bugs, not real site differences: (1) 216/234 on assetRefs -- compare.mjs diffs assetRefs exact-match while extract.mjs deliberately leaves them unnormalized, so Vercel's `?dpl=<deploymentId>` suffix on every script/css/preload href makes almost every page fail; (2) 15/234 on internalLinks/externalLinks -- isSameSite classification is evaluated against capture origin instead of the documented host-alias list, so identical hrefs bucket differently between A and B captures.",
+      "ownerAction": "Fix scripts/migration/parity/compare.mjs (strip ?dpl= from assetRefs before compare; apply the SPEC-04 host-alias list when classifying internal vs external links), add selftest mutations for both, then re-run P5.2 parity before re-evaluating G5.2."
+    },
+    {
+      "severity": "blocker",
+      "source": "visual",
+      "description": "G5.4 fails as-run: scripts/migration/visual/run.mjs cannot execute because playwright-core, pixelmatch and pngjs are not installed/declared under scripts/migration/, even though both A and B were reachable from this container (so the SPEC-04 §7 not_run allowance does not apply).",
+      "ownerAction": "Add the three packages as devDependencies of scripts/migration/package.json (matching the /opt/pw-browsers Chromium build), npm --prefix scripts/migration ci, then re-run the visual suite for P5.2."
+    },
+    {
+      "severity": "minor",
+      "source": "parity",
+      "description": "1 of 2 compared CSS bundle hashes differs (A=5cca0cd4... vs B=072d7bf0...) and was not resolved to genuine content diff vs. benign build-chunk-splitting variance.",
+      "ownerAction": "Follow-up (non-blocking for G5.2 re-run): fetch both CSS bundles and diff content directly."
+    },
+    {
+      "severity": "minor",
+      "source": "parity",
+      "description": "Homepage and /sitemap.xml differ only in which 3 recent blog posts render/list, consistent with A's long-lived CDN cache (s-maxage=31536000) not having revalidated since those posts published; not a data-loss issue on B.",
+      "ownerAction": "Orchestrator: re-capture baseline A after cache/ISR revalidation before re-judging this diff."
+    },
+    {
+      "severity": "info",
+      "source": "functional",
+      "description": "F9 script-reported fail is a harness bug in scripts/migration/functional/run.mjs (stale pre-logout cookie is replayed on the follow-up session check because it is never re-captured/cleared after logout); the app's logout behavior itself is correct.",
+      "ownerAction": "Fix run.mjs to capture/clear the cookie after POST /api/admin/logout before the follow-up GET, then re-run to confirm F9 passes for real."
+    },
+    {
+      "severity": "info",
+      "source": "functional",
+      "description": "This verification pass sent 2 real F2 demo-request test sends instead of 1 (both delivered + cleaned up, 0 residue), because the independent verifier re-ran the suite with --allow-demo-test still set while diagnosing an unrelated self-inflicted F4-F8 env issue. docs/migration/STATE.json flags.demoTestsSent currently reads 1 and undercounts the true total.",
+      "ownerAction": "Orchestrator must update STATE.json flags.demoTestsSent from 1 to 2 and budget only 1 further F2 send for the rest of the migration (cap is 3 total)."
+    }
+  ],
+  "notes": "Overall verdict is fail because G5.2 (parity) and G5.4 (visual) both fail their exact gate criteria in VERIFICATION.md as this suite currently stands, even though the underlying application appears correct: every parity/visual failure traced to this pass is classified 'harness' (a bug or gap in the verification tooling itself), not a code/config/data defect in the migrated site, and functional (G5.3) and logs+perf (G5.5) both genuinely pass. G5 cannot be marked passed on this evidence. Recommended path: fix the two cited harness bugs (compare.mjs assetRefs/host-alias handling; missing visual deps), add regression coverage (selftest mutations) so they can't silently regress, then re-run the full P5.2 suite. This verifier made no code, STATE.json, or LOG.md changes and created no commits, per role restrictions."
+}

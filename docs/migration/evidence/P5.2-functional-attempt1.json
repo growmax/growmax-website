@@ -1,0 +1,89 @@
+{
+  "step": "P5.2",
+  "gate": "G5",
+  "kind": "functional",
+  "checkedAt": "2026-09-27T01:17:11Z",
+  "verifier": "migration-verifier (sonnet/medium)",
+  "base": "https://growmax-website.vercel.app",
+  "deploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+  "deploymentSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+  "runLabel": "p5-20260926T2320Z",
+  "harnessProbe": {
+    "name": "SPEC-04 §5.4 protected-deployment probe",
+    "pass": true,
+    "detail": {
+      "root": { "status": 200, "hasNextjsPrerenderHeader": true, "hasVercelCacheHeader": true, "bytes": 194862 },
+      "redirectSource": { "path": "/about", "status": 308, "location": "/company/about", "expected": "/company/about" },
+      "headerSent": "x-vercel-protection-bypass only (no x-vercel-set-bypass-cookie)"
+    }
+  },
+  "checks": [
+    { "name": "F1-newsletter-signup", "pass": true, "class": null, "detail": { "status": 201, "rowExists": true, "cleaned": true } },
+    {
+      "name": "F2-demo-request",
+      "pass": true,
+      "class": null,
+      "detail": {
+        "status": 201,
+        "rowExists": true,
+        "webhookCheck": "mcp__Vercel__get_runtime_logs query \"[webhook]\" on dpl_3pt7gJhkymtokAVFXwifHpCjkUoE shows \"[webhook] delivered 200\" for POST /api/demo-requests within 90s of the send",
+        "cleanup": "row deleted by the script immediately after the check; 0 residue confirmed independently (see cleanupVerified below)"
+      }
+    },
+    { "name": "F3-admin-wrong-password", "pass": true, "class": null, "detail": { "status": 401 } },
+    { "name": "F4-admin-correct-password", "pass": true, "class": null, "detail": { "status": 200, "setCookie": "<present>", "cookieOk": true, "cookieAttrs": "growmax-admin present, HttpOnly, Secure, SameSite=Lax, Max-Age=86400" } },
+    { "name": "F5-admin-session-true", "pass": true, "class": null, "detail": { "status": 200, "body": { "isAdmin": true } } },
+    { "name": "F6-admin-posts-count", "pass": true, "class": null, "detail": { "status": 200, "returned": 171, "dbCount": 171 } },
+    { "name": "F7-create-draft-not-public", "pass": true, "class": null, "detail": { "createStatus": 201, "publicGetStatus": 404 } },
+    { "name": "F8-update-then-delete-draft", "pass": true, "class": null, "detail": { "putStatus": 200, "deleteStatus": 200, "residue": 0 } },
+    {
+      "name": "F9-logout",
+      "pass": true,
+      "class": "harness",
+      "detail": {
+        "scriptResult": "fail as run by scripts/migration/functional/run.mjs (logoutStatus 200, but the subsequent GET /api/admin/session with the harness's cached cookie value still returned isAdmin:true)",
+        "rootCause": "Harness bug, not an app defect: Assertions.request() records the session cookie once at login (captureSetCookie after F4) but the F9 test never re-captures/clears it after POST /api/admin/logout, so it keeps sending the pre-logout cookie value on the follow-up GET. iron-session is stateless (encrypted cookie, no server-side revocation list), so re-presenting the old, still-cryptographically-valid cookie after logout necessarily still decrypts to isAdmin:true.",
+        "independentVerification": {
+          "logoutResponseSetCookie": "growmax-admin=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=lax (correctly clears the cookie)",
+          "sessionWithStaleCookieAfterLogout": { "isAdmin": true, "note": "reproduces the harness's false failure" },
+          "sessionWithNoCookieAfterLogout": { "isAdmin": false, "note": "what any real browser does after honoring the Set-Cookie above; matches expected F9 behavior" }
+        },
+        "recommendedFix": "scripts/migration/functional/run.mjs F9: call A.captureSetCookie(logoutRes) (or explicitly clear this.cookie) before the follow-up /api/admin/session GET. Not applied here per this role's restriction against fixing code."
+      }
+    },
+    { "name": "F10-unauthenticated-401", "pass": true, "class": null, "detail": { "statuses": [401, 401, 401, 401] } },
+    { "name": "F11-blog-redirects-lookup", "pass": true, "class": null, "detail": { "status": 200, "body": { "newSlug": "/blog/spare-parts-ecommerce-self-service-portal" }, "expectedNewSlug": "/blog/spare-parts-ecommerce-self-service-portal" } }
+  ],
+  "failed": [],
+  "pending": [],
+  "status": "pass",
+  "cleanupVerified": {
+    "checkedAt": "2026-09-27T01:15:00Z",
+    "label": "vercel-migration-test-p5-20260926T2320Z",
+    "demo_requests residue": 0,
+    "newsletter_subscriptions residue": 0,
+    "blog_posts residue": 0
+  },
+  "runHistory": [
+    {
+      "note": "Run 1 (--allow-demo-test): F1,F3,F9,F10,F11 pass; F2 pass (API+DB) with webhook confirmation pending; F4-F8 failed with 401/isAdmin:false.",
+      "causeOfF4F8Failure": "Verifier procedural error: `source docs/migration/.scratch/.env.production` was run before the suite to obtain DST_URL, and this also set ADMIN_PASSWORD to that file's value. Sensitive-type Vercel env vars are redacted on `vercel env pull`, so that file's ADMIN_PASSWORD line is the literal string \"[SENSITIVE]\", not the real secret — the suite was testing the wrong password, not a real app/deploy defect. Confirmed by re-running with the container session's own (correct) ADMIN_PASSWORD value: F4-F8 all pass."
+    },
+    {
+      "note": "Run 2 (--allow-demo-test again, verifier error): re-ran the full suite to retest F4-F8 without noticing F2 (a real, capped, at-most-3-per-migration side effect) would fire again.",
+      "deviation": "V-P5.2-F2-DOUBLE-SEND (see below) — F2 sent twice total across runs 1 and 2, not exactly once as SPEC-04 §6 / this task requires."
+    },
+    {
+      "note": "Run 3 (--allow-demo-test omitted): F1,F3-F8,F10,F11 pass with the correct ADMIN_PASSWORD; F2 correctly skipped (no third send); F9 fails, root-caused to the harness cookie-tracking bug above."
+    }
+  ],
+  "deviation": {
+    "id": "V-P5.2-F2-DOUBLE-SEND",
+    "severity": "major",
+    "class": "harness",
+    "summary": "F2 (demo request) was sent twice during this verification, not exactly once as required.",
+    "detail": "Vercel runtime logs confirm two separate '[webhook] delivered 200' lines for POST /api/demo-requests on dpl_3pt7gJhkymtokAVFXwifHpCjkUoE at 2026-09-27T01:13:12Z and 2026-09-27T01:13:36Z. Both rows were deleted by the script's own cleanup immediately after each run; independently confirmed 0 residual demo_requests/newsletter_subscriptions/blog_posts rows for this runLabel. Net effect: 2 real demo-request sends (2 webhook deliveries, 2 Google Chat messages) consumed against the migration's lifetime cap of 3. STATE.json flags.demoTestsSent currently reads 1 for this attempt; it undercounts the real total by 1.",
+    "ownerAction": "None required from the owner — both were harmless automated test messages, immediately cleaned up. The orchestrator should correct flags.demoTestsSent from 1 to 2 (not done by this verifier: it may not write STATE.json) and treat only 1 further F2 send as available before the migration's cap of 3 is reached."
+  },
+  "overallAssessment": "All 11 functional checks (F1-F11) reflect correct application behavior on the production Vercel deployment (dpl_3pt7gJhkymtokAVFXwifHpCjkUoE / d8c8b05). F9's script-reported failure is a proven harness bug (missing cookie re-capture after logout), not an app defect; independently verified the app's logout correctly clears the session cookie and a compliant client sees isAdmin:false afterward. The one real process issue is the F2 double-send (verifier error, cost-neutral: cleaned up, but consumes an extra unit of the 3-per-migration demo-request budget)."
+}

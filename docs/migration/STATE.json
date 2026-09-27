@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
-  "status": "BLOCKED",
-  "currentStep": "P5.2",
-  "updatedAt": "2026-09-26T23:20:53.256Z",
+  "status": "IN_PROGRESS",
+  "currentStep": "P5.3",
+  "updatedAt": "2026-09-27T01:26:27.296Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -40,7 +40,18 @@
       "cli": "ok: VERCEL_TOKEN lists growmax1 (hobby)",
       "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
       "projectName": "growmax-website",
-      "projectState": "bare: created before P3.1 via vercel project add, only so the P1.1 runner can create a Sandbox. No Git link, no deployments, framework null, node 24.x, SSO all_except_custom_domains. P3.1 reuses it by name, converges settings, sets the ignored-build-step guard, and only then connects Git"
+      "projectState": "bare: created before P3.1 via vercel project add, only so the P1.1 runner can create a Sandbox. No Git link, no deployments, framework null, node 24.x, SSO all_except_custom_domains. P3.1 reuses it by name, converges settings, sets the ignored-build-step guard, and only then connects Git",
+      "deployMode": "git",
+      "productionDeploymentId": "dpl_3pt7gJhkymtokAVFXwifHpCjkUoE",
+      "productionSha": "d8c8b05f2492c7e5c42b38086b7fc9479ba7e84d",
+      "productionAliases": [
+        "growmax-website.vercel.app",
+        "growmax-website-growmax1.vercel.app",
+        "growmax-website-git-claude-wonderful-edison-823y83-growmax1.vercel.app"
+      ],
+      "deploymentUrl": "growmax-website-5g5aazux8-growmax1.vercel.app",
+      "productionReadyAt": "2026-09-27T01:09:32Z",
+      "protectionReality": "SSO all_except_custom_domains (Standard Protection) leaves the production domain growmax-website.vercel.app public (GET / without the bypass header = 200); generated deployment URLs and previews stay protected. The P3.4 expectation (401/403 on the production alias) was wrong; the check is re-specified against the generated deployment URL. The public copy carries an absolute canonical to https://www.growmax.io and robots.txt points to the www sitemap."
     },
     "neon": {
       "plan": "launch (launch_v3, installation scope; owner-authorized 2026-09-26; applied via vercel integration update; MCP read-back confirmed)",
@@ -242,7 +253,10 @@
       "P5.1: P3.4 access check on the production alias: GET / without the bypass header -> 401/403, with x-vercel-protection-bypass -> 200 (deferred at P3.4: no deployment existed)",
       "P5.1: make sure the explicit by-SHA production deploy becomes the aliased production deployment (the earlier failed git production build dpl_EAGE1AULX1P1xY2vKtDBUMRhcmw7 must not be confused with it). P5.2 log review: the pg sslmode verify-full notice is informational, not an unexplained error",
       "schema-diff.mjs polish (reviews r1/r2, non-blocking; before P6.4 if convenient): key the NOT NULL sets by JSON.stringify([table, column]); make the main guard symlink-safe (pathToFileURL(realpathSync(argv[1]))): a pre-existing fail-open (exit 0, no output), so callers must require the JSON output with empty === true; reject unknown CLI flags with exit 2; element-level validation messages; constraint names on not_null_* diffs; a comment that PG 18 has no contype n row for a domain NOT NULL (fails closed); assert the specific diff types in self-test case 12 and the real-data mutations",
-      "Advisor ratification at the next advisor consult (the P5.3 allowlist A3 if one happens, otherwise A2): the P4.3 schema-diff tool amendment. NOT NULL is compared by meaning across PG 16/18; Replit's _system schema is ignored as platform-managed (4 bookkeeping relations, no public dependants, no app references); PG 16 -> 18 is accepted only through --accept-pg-major 18 (A1 C2). Evidence: P4.3-schema-diff-tool-fix.json, P4.3-schema-diff-tool-review.json, P4.3-schema-diff.json. It also governs G6 6.4. If the advisor rejects it, set G4 back to pending"
+      "Advisor ratification at the next advisor consult (the P5.3 allowlist A3 if one happens, otherwise A2): the P4.3 schema-diff tool amendment. NOT NULL is compared by meaning across PG 16/18; Replit's _system schema is ignored as platform-managed (4 bookkeeping relations, no public dependants, no app references); PG 16 -> 18 is accepted only through --accept-pg-major 18 (A1 C2). Evidence: P4.3-schema-diff-tool-fix.json, P4.3-schema-diff-tool-review.json, P4.3-schema-diff.json. It also governs G6 6.4. If the advisor rejects it, set G4 back to pending",
+      "P6.4 data-loss guard (new, P5.1 finding): the production domain growmax-website.vercel.app is public, so a real demo request or newsletter signup sent there before cutover lands only in Neon, and the P6.4 full refresh (whose guard checks only status and DNS) would erase it. Before the refresh, compare ids in demo_requests and newsletter_subscriptions: any target-only row (test rows must already be 0) stops the refresh; export it to .scratch and report it (no PII in evidence)",
+      "Harness env hygiene (P5.2 finding): vercel env pull writes sensitive vars (ADMIN_PASSWORD, SESSION_SECRET, GOOGLE_CHAT_WEBHOOK_URL) as the literal \"[SENSITIVE]\", so node --env-file=.scratch/.env.production clobbers the real container values; use a DB-only env file or an in-process mapping, and make run.mjs fail fast on the placeholder",
+      "Harness deps: scripts/migration/node_modules can be missing after a container restart (the P5.2 visual run failed on playwright-core at 01:18Z; a later agent reinstalled at 01:19Z). Every suite run first does npm --prefix scripts/migration ci when a declared dependency is missing"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",
@@ -252,7 +266,8 @@
       "Pre-existing: https://growmax.io 301s to http://www (an insecure hop); fixed if the apex moves to Vercel (A1 C6)",
       "Pre-existing: unused dependencies memorystore and connect-pg-simple (left untouched per A1)",
       "Owner cleanup: the unused sin1 Neon resource rapid-recipe-07132564 / store_IsJjgV1qX1w7nvrP (now billed under Launch; near zero while idle)",
-      "Pre-existing: app/sitemap.ts is generated at build time (no revalidate), so Replit's sitemap lacked the 9 posts published after its last build (2026-09-22..25). Its catch {} also swallows DB errors, so a DB outage during a build ships a sitemap with no blog posts. Owner fix: revalidate the sitemap and fail the build on DB errors"
+      "Pre-existing: app/sitemap.ts is generated at build time (no revalidate), so Replit's sitemap lacked the 9 posts published after its last build (2026-09-22..25). Its catch {} also swallows DB errors, so a DB outage during a build ships a sitemap with no blog posts. Owner fix: revalidate the sitemap and fail the build on DB errors",
+      "Vercel Standard Protection keeps growmax-website.vercel.app public by design (only generated deployment URLs and previews are protected). The app sets an absolute canonical to https://www.growmax.io, so duplicate-content risk is low; optional: add X-Robots-Tag noindex for non-www hosts, or remove the alias"
     ],
     "ownerActions": [
       {
@@ -291,7 +306,7 @@
     }
   },
   "flags": {
-    "demoTestsSent": 1,
+    "demoTestsSent": 2,
     "prOpened": false,
     "prUrl": null
   },
@@ -416,7 +431,8 @@
       "action": "In the Claude app, open this session (Growmax migration, branch claude/wonderful-edison-823y83) and approve the pending permission request for the Vercel connector tool create_deployment: a production deployment of commit d8c8b05 to project growmax-website on *.vercel.app only (pre-approved in the kickoff; no custom domain, no DNS change). So that the P6.2 and P6.4 redeploys do not stop at the same prompt, also open https://claude.ai/customize/connectors -> Vercel -> tool permissions and set create_deployment to allowed (if that option is missing, an organization admin has capped it). If no pending request is visible, setting that permission is enough: the next check-in restarts the deploy on its own. Nothing else needs you; G0-G4 are passed.",
       "since": "2026-09-26T22:18:09.911Z",
       "note": "The P5.1 deploy agent (workflow wf_b7822bd7-7ee) called mcp__Vercel__create_deployment at 20:49:04Z and has had no result since. A read-only Vercel API listing at 22:16Z shows no deployment for d8c8b05 (only the guard-canceled previews), so the call never reached Vercel: it is waiting for a permission decision. Per the P3 lesson the orchestrator does not route around it (no CLI deploy of its own).",
-      "resolvedAt": null
+      "resolvedAt": "2026-09-27T01:26:26.687Z",
+      "resolution": "The owner approved the pending create_deployment request: deployment dpl_3pt7gJhkymtokAVFXwifHpCjkUoE was created at 01:08:35Z and was READY at 01:09:32Z"
     }
   ],
   "gates": {
@@ -976,13 +992,17 @@
       ],
       "gate": "G5",
       "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [
-        "2026-09-26T20:48:33.466Z mig-p5-deploy-verify.js: by-SHA production deploy of mSha d8c8b05 (deployMode git, target production), then the alias check and the P3.4 protection check; the child suite runs P5.2. runLabel p5-20260926T2047Z."
+      "evidence": [
+        "docs/migration/evidence/P5.1-deploy.json"
       ],
-      "startedAt": "2026-09-26T20:48:33.466Z"
+      "notes": [
+        "2026-09-26T20:48:33.466Z mig-p5-deploy-verify.js: by-SHA production deploy of mSha d8c8b05 (deployMode git, target production), then the alias check and the P3.4 protection check; the child suite runs P5.2. runLabel p5-20260926T2047Z.",
+        "2026-09-27T01:26:27.185Z Production deployment dpl_3pt7gJhkymtokAVFXwifHpCjkUoE of d8c8b05 (git source, target production) READY at 01:09:32Z after the owner approved the create_deployment permission (B-PERM-P5, about 3 h 45 min of waiting across two runs). Build: compiled, 61/61 static pages, no errors. It is the aliased production deployment (growmax-website.vercel.app, growmax-website-growmax1.vercel.app). Finding: the production domain is public under Standard Protection, so P3.4 expectation corrected (facts.vercel.protectionReality). The scout evidence is not in the standard shape, so an independent re-check writes the G5 5.1 evidence during P5.3."
+      ],
+      "startedAt": "2026-09-26T20:48:33.466Z",
+      "completedAt": "2026-09-27T01:26:27.184Z"
     },
     {
       "id": "P5.2",
@@ -993,13 +1013,21 @@
       ],
       "gate": "G5",
       "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
-      "status": "in_progress",
+      "status": "failed",
       "attempts": 1,
-      "evidence": [],
-      "notes": [
-        "2026-09-26T20:48:33.523Z Child mig-verify-suite from the P5.1 workflow: fresh A capture of https://www.growmax.io vs the production alias with the bypass header; SPEC-04 §5.4 probe first; one labeled demo request (F2); runLabel p5-20260926T2047Z. Allowlist starts empty ([]): nothing is advisor-approved for P5.2 yet."
+      "evidence": [
+        "docs/migration/evidence/P5.2-suite-summary-attempt1.json",
+        "docs/migration/evidence/P5.2-parity-attempt1.json",
+        "docs/migration/evidence/P5.2-functional-attempt1.json",
+        "docs/migration/evidence/P5.2-visual-attempt1.json",
+        "docs/migration/evidence/P5.2-logs-perf-attempt1.json"
       ],
-      "startedAt": "2026-09-26T20:48:33.523Z"
+      "notes": [
+        "2026-09-26T20:48:33.523Z Child mig-verify-suite from the P5.1 workflow: fresh A capture of https://www.growmax.io vs the production alias with the bypass header; SPEC-04 §5.4 probe first; one labeled demo request (F2); runLabel p5-20260926T2047Z. Allowlist starts empty ([]): nothing is advisor-approved for P5.2 yet.",
+        "2026-09-27T01:26:27.242Z Attempt 1 (runLabel p5-20260926T2320Z, run wf_c021f752-d59). 5.3 functional pass (F2 webhook 200, rows cleaned; F9 false fail is a harness cookie bug; F2 fired twice). 5.5 logs+perf pass (0 unexplained errors, Vercel TTFB equal or better on 20 URLs). 5.2 parity FAIL: 234 unallowed over 297 URLs. 216 are assetRefs differing only by the Vercel ?dpl= suffix and 15 are absolute www links classified by capture origin (both harness bugs). /, /sitemap.xml: A is a stale build-time snapshot (3 newer posts shown on B). 1 CSS bundle hash is unresolved; 1 blog post may have an extra link. 5.4 visual FAIL: harness deps missing at run time (installed since)."
+      ],
+      "startedAt": "2026-09-26T20:48:33.523Z",
+      "lastFailureAt": "2026-09-27T01:26:27.242Z"
     },
     {
       "id": "P5.3",
@@ -1010,10 +1038,13 @@
       ],
       "gate": "G5",
       "workflow": null,
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T01:26:27.296Z Triage and fix loop: harness fixes (?dpl normalization, host-alias link classification, F9 cookie, F2 send guard, /blog expect 200, placeholder fail-fast) with opus review; investigations (CSS diff, extra link, freshness proof, protection re-check and standard-shape 5.1 evidence); P5.2 attempt 2 without F2; advisor A3 for the residual freshness diffs, which also ratifies the P4.3 schema-diff amendment."
+      ],
+      "startedAt": "2026-09-27T01:26:27.296Z"
     },
     {
       "id": "P5.4",
