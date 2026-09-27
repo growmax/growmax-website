@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T06:38:41.015Z",
+  "updatedAt": "2026-09-27T07:06:21.924Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -1360,18 +1360,20 @@
       ],
       "gate": "G6a",
       "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
-      "status": "in_progress",
+      "status": "failed",
       "attempts": 2,
       "evidence": [
-        "docs/migration/evidence/P6.2-deploy.json"
+        "docs/migration/evidence/P6.2-deploy.json",
+        "docs/migration/evidence/P6.2-suite-summary.json"
       ],
       "notes": [
         "2026-09-27T05:45:08.445Z mig-p5-deploy-verify.js: by-SHA production deploy of hSha 2f4b4d5 (git source), alias + protection checks, then the suite (no F2; F9 browser-decided; raw bodies kept; A3 pins expected to hold). Model routing: opus at role efforts.",
         "2026-09-27T06:36:04.530Z Attempt 1 (wf_de6a2d09-272): deployment dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7 (2f4b4d5) READY at 06:29:53Z after the owner approved create_deployment; build has warnings only; both production aliases point to it. The workflow failed only on a STALE protection criterion (orchestrator error: re-specified at P5.3 but not updated in mig-p5-deploy-verify.js) that expected 401/403 on the public production domain; triage (opus) re-probed: production domain 200 by design, generated URL and second alias 302 to vercel.com/sso-api, as SPEC-01 §2 requires. The suite did not run. Fix: criterion corrected; independent re-check of the existing deployment plus the suite, no redeploy.",
-        "2026-09-27T06:36:45.972Z Attempt 2 (wf_c240d007-2e4): independent re-check of the READY hSha deployment (no redeploy, so no approval wait) with the corrected protection criterion, then the suite (no F2; F9 browser-decided; raw bodies kept)."
+        "2026-09-27T06:36:45.972Z Attempt 2 (wf_c240d007-2e4): independent re-check of the READY hSha deployment (no redeploy, so no approval wait) with the corrected protection criterion, then the suite (no F2; F9 browser-decided; raw bodies kept).",
+        "2026-09-27T07:06:21.924Z Attempt 2b (wf_a2f4f842-81c): deploy re-check PASS (P6.2-deploy-verify.json: READY 2f4b4d5, aliases, generated URL 302 to SSO, bypass 200). Suite FAIL: functional pass (no F2), visual pass. Parity: 173 unallowed diffs. 172 are assetRefs on /blog/<slug>: B inlines 5 font <link rel=preload> tags (ISR prerender, H1), while A (dynamic) sends the same 5 fonts plus its 2 CSS files as an HTTP Link: rel=preload header, which capture.mjs does not record. Orchestrator curl confirmed this, and the browser receives the same hints either way. Class: harness (representation gap). 1 is the hashedCssSha256 A3 pin: B's CSS gained 28 to 33 unused tokens that exist only in committed migration evidence (git grep: !bg-transparent, col-12, bg-indigo-950 and aspect-[4/3] are only in P5.3-css-analysis/investigation.json). Tailwind v4 automatic source detection scans docs/migration, so the migration kit alters production CSS. Class: build-env, root-caused. Logs: 14 stderr lines, all the pg-connection-string sslmode deprecation warning (emitted once per process; installed source shows prefer/require/verify-ca already behave exactly as verify-full). Class: config. P5.2 passed the same 42 warnings on a lenient reading of SPEC-04 §8 (orchestrator accepted it at G5; correction logged). Perf (report-only): 7 of 20 flagged because A's side got ~30 ms faster from this container between runs. B's CDN serves HITs, and B's absolute TTFB is unchanged versus P5.2 on static pages. Next: ladder rung 3 (fix): H5 Tailwind @source not for migration-kit paths, H6 sslmode=verify-full normalization in lib/db.ts, harness records Link-header preloads as assetRefs, then redeploy, suite, and A3 for the CSS re-pin plus ratification."
       ],
       "startedAt": "2026-09-27T06:36:45.972Z",
-      "lastFailureAt": "2026-09-27T06:36:04.530Z"
+      "lastFailureAt": "2026-09-27T07:06:21.915Z"
     },
     {
       "id": "P6.3",

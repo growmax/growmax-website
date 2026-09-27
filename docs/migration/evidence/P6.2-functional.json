@@ -1,0 +1,128 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T06:45:57Z",
+  "verifier": "migration-verifier (opus-5-5/medium)",
+  "base": "https://growmax-website.vercel.app",
+  "deploymentId": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7",
+  "deploymentSha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba",
+  "mode": "pre",
+  "runLabel": "p6-20260927T0645Z",
+  "f2": "not run (P6.2: full suite again, no F2)",
+  "runMjsStatus": "pass",
+  "failed": [],
+  "pending": [],
+  "checks": [
+    {
+      "name": "SPEC-04 \u00a75.4 protected-deployment probe",
+      "expected": "GET / -> 200 app HTML (not a Vercel auth page); a redirect source returns its configured status/Location; only x-vercel-protection-bypass sent",
+      "actual": "GET / -> 200, server Vercel, 194862 bytes, <title>Growmax | B2B Revenue Ops for Manufacturers</title>, 0 auth-wall markers; GET /about -> 308 Location /company/about. Only x-vercel-protection-bypass sent (never x-vercel-set-bypass-cookie).",
+      "pass": true
+    },
+    {
+      "name": "Deployment identity",
+      "expected": "growmax-website.vercel.app aliased to the P6.2 deployment (P6.2-deploy.json)",
+      "actual": "vercel inspect: dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7, target production, Ready (sha 2f4b4d5 per P6.2-deploy.json)",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F1 newsletter signup",
+      "expected": "201; row in Neon; deleted; gone",
+      "actual": "{\"status\": 201, \"rowExists\": true, \"cleaned\": true}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F2 demo request",
+      "expected": "NOT run at P6.2 (no --allow-demo-test)",
+      "actual": "{\"skipped\": true, \"reason\": \"--allow-demo-test not set\"}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F3 admin wrong password",
+      "expected": "401",
+      "actual": "{\"status\": 401}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F4 admin correct password",
+      "expected": "200; growmax-admin HttpOnly, Secure, SameSite=Lax, Max-Age=86400",
+      "actual": "{\"status\": 200, \"setCookie\": \"<present>\", \"cookieOk\": true, \"loginRejectionReasons\": []}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F5 admin session",
+      "expected": "{isAdmin:true}",
+      "actual": "{\"status\": 200, \"body\": {\"isAdmin\": true}}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F6 admin posts count",
+      "expected": "200; length == SELECT count(*) FROM blog_posts",
+      "actual": "{\"status\": 200, \"returned\": 171, \"dbCount\": 171}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F7 create draft not public",
+      "expected": "201; public GET 404",
+      "actual": "{\"createStatus\": 201, \"publicGetStatus\": 404}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F8 update then delete draft",
+      "expected": "200/200; no residue",
+      "actual": "{\"putStatus\": 200, \"deleteStatus\": 200, \"residue\": 0}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F9 logout (Chromium-decided in harness)",
+      "expected": "session isAdmin false after logout; no growmax-admin cookie left in context",
+      "actual": "decidedBy chromium, Chromium 141.0.7390.37; sessionAfterLogin isAdmin True; logout 200; sessionAfterLogout isAdmin False; leftovers 0; failures []",
+      "pass": true
+    },
+    {
+      "name": "F9 independent real-browser corroboration (verifier's own script, playwright-core + /opt/pw-browsers/chromium)",
+      "expected": "login via /admin/login UI -> page fetch /api/admin/session isAdmin true; logout -> isAdmin false; context.cookies() has no growmax-admin with non-empty value; bypass header only on the target origin",
+      "actual": "Chromium 141.0.7390.37; /admin/login 200, POST /api/admin/login 200; jar after login: growmax-admin Path=/ host-only valueLength 265 Secure HttpOnly Lax; session isAdmin True; logout via page-fetch (UI button click issued no POST within 15s, see issues) -> 200; logout Set-Cookie: name=growmax-admin valueEmpty=True Path=/ Max-Age=0 Expires=None Domain=None HttpOnly=True Secure=True SameSite=lax; session after logout isAdmin False; jar after logout: 10 cookies total, growmax-admin count 0, non-empty 0; bypass header routed only to ['growmax-website.vercel.app'], attached to 0 of 15 third-party hosts; no extraHTTPHeaders",
+      "pass": true
+    },
+    {
+      "name": "F9 overall",
+      "expected": "run.mjs F9 pass AND browser corroboration pass",
+      "actual": "run.mjs True, browser True",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F10 unauthenticated admin API",
+      "expected": "GET/POST/PUT/DELETE all 401",
+      "actual": "{\"statuses\": [401, 401, 401, 401]}",
+      "pass": true
+    },
+    {
+      "name": "run.mjs F11 blog-redirects lookup",
+      "expected": "{newSlug:<new>}",
+      "actual": "{\"status\": 200, \"body\": {\"newSlug\": \"/blog/spare-parts-ecommerce-self-service-portal\"}, \"expectedNewSlug\": \"/blog/spare-parts-ecommerce-self-service-portal\"}",
+      "pass": true
+    },
+    {
+      "name": "Cleanup: no rows labeled vercel-migration-test-p6-20260927T0645Z in Neon",
+      "expected": "0 in newsletter_subscriptions, demo_requests, blog_posts",
+      "actual": "newsletter_subscriptions 0, demo_requests 0, blog_posts 0 (label match); any vercel-migration-test% rows: blog_posts 0, newsletter 0; blog_posts total 171 (== F6 dbCount). Direct read via @neondatabase/serverless on DATABASE_URL_UNPOOLED mapped in-process.",
+      "pass": true
+    },
+    {
+      "name": "Info: /api/blog cache (A1 C10, report-only here; not requested for this run)",
+      "expected": "second request x-vercel-cache HIT",
+      "actual": "1st REVALIDATED, 2nd HIT",
+      "pass": true
+    }
+  ],
+  "artifacts": {
+    "functionalRunRaw": "docs/migration/.scratch/p6.2-functional/p62-functional-run.json (gitignored)",
+    "f9BrowserRaw": "docs/migration/.scratch/p6.2-functional/f9-browser.json (gitignored)",
+    "command": "node scripts/migration/functional/run.mjs --base https://growmax-website.vercel.app --mode pre --run-label p6-20260927T0645Z --bypass-secret-file docs/migration/.scratch/bypass-secret --target-database-url-env DST_URL (DST_URL = DATABASE_URL_UNPOOLED mapped in-process from .scratch/.env.production; ADMIN_PASSWORD from container env)",
+    "notes": [
+      "growmax-website.vercel.app answered 200 without the bypass header too (see P6.2-deploy.json protectionCheck); does not affect this functional run."
+    ]
+  }
+}

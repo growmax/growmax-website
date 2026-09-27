@@ -1,0 +1,110 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "fail",
+  "runLabel": "p6-20260927T0645Z",
+  "mode": "pre",
+  "checkedAt": "2026-09-27T06:54:40Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "baseA": "https://www.growmax.io",
+  "baseB": "https://growmax-website.vercel.app",
+  "deploymentId": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7",
+  "deploymentSha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba",
+  "checks": [
+    {
+      "name": "6a.1 Diff limited to SPEC-02 H1-H4; reviewer approves",
+      "expected": "P6.1-review.json status pass, all checks pass",
+      "actual": "P6.1-review.json status pass, 4/4 checks pass (carried from P6.1; not re-derived in this suite)",
+      "pass": true
+    },
+    {
+      "name": "6a.2 Local verification incl. H-only checks (cached post survives a DB stop; admin edit revalidates)",
+      "expected": "P6.1-local-verify.json status pass incl. H-only checks",
+      "actual": "P6.1-local-verify.json status pass, 19/19 checks; 6a admin edit revalidates, 6c killed DB -> cached /blog/<slug> still 200, 6d /api/blog 200 from cache with DB down (carried from P6.1)",
+      "pass": true
+    },
+    {
+      "name": "6a.3 Deployment READY for facts.git.hSha; full suite passes again (no F2)",
+      "expected": "READY deployment at hSha 2f4b4d5fedf3...; parity failedUnallowed==0 with advisor-approved allowlist; functional F1,F3-F11 pass; visual pass or not_run; logs 0 unexplained errors in a non-empty window",
+      "actual": "Deployment dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7 READY at sha 2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba (== facts.git.hSha) and aliased to growmax-website.vercel.app. Functional pass (F2 skipped as intended). Visual pass (residuals listed and explained). Parity FAIL: failedUnallowed=173 of 297 (172 assetRefs on /blog/<slug>, 1 hashedCssSha256 pin), re-counted from full/diff.json. Logs FAIL: 14 error-level lines (pg sslmode deprecation warning), not caused by a deliberate test",
+      "pass": false
+    }
+  ],
+  "parity": {
+    "status": "fail",
+    "urls": 297,
+    "failedUnallowed": 173,
+    "allowlisted": 3,
+    "unallowedByField": {"assetRefs": 172, "hashedCssSha256": 1},
+    "dataFreshnessDiffs": 0
+  },
+  "functional": {
+    "status": "pass",
+    "failed": [],
+    "notes": "F1, F3-F11 pass; F2 skipped (no F2 per G6a 6a.3); F9 corroborated in real Chromium; 0 residual test rows in Neon."
+  },
+  "visual": {
+    "status": "pass",
+    "flagged": [
+      "Raw harness status fail in both runs only because of listed-and-explained residuals: one transient 502 per run at the container egress proxy (Vercel logs show 0 5xx; class env), /demo?_rsc= prefetch ERR_ABORTED that A also issues (acceptable-diff), one aborted GA beacon. Run 2: 20/20 comparable, max 0.36%."
+    ]
+  },
+  "logs": {
+    "status": "fail",
+    "errors": 14,
+    "since": "2026-09-27T06:39:00Z",
+    "until": "2026-09-27T06:53:00Z",
+    "windowLines": 14,
+    "logRetention": "not read from plan API this run (earlier evidence inconsistent: 3 vs 7 days)"
+  },
+  "perf": {
+    "flagged": [
+      {"url": "/revenue-platform", "ratio": 1.68},
+      {"url": "/minori-ai", "ratio": 2.75},
+      {"url": "/demo", "ratio": 2.94},
+      {"url": "/blog", "ratio": 2.3},
+      {"url": "/sitemap.xml", "ratio": 2.06},
+      {"url": "/company/about", "ratio": 1.77},
+      {"url": "/privacy", "ratio": 1.62}
+    ],
+    "flaggedForAdvisor": true,
+    "note": "Report-only. 7 > 3 URLs above 1.5x TTFB; absolute Vercel medians ~55-156 ms."
+  },
+  "overall": "fail",
+  "blockingIssues": [
+    {
+      "severity": "blocker",
+      "check": "6a.3 (parity)",
+      "class": "code (intended SPEC-02 H1 consequence)",
+      "description": "assetRefs diff on all 172 /blog/<slug> URLs: B adds 5 root font preload links (/_next/static/media/{26d4368bf94c0ec4,37786be940ec402b,98e207f02528a563,d3ebbfd689654d3a,db96af6b531dc71f}-s.p.woff2) because H1 made posts ISR; A has nothing B lacks, A's static / carries the same preloads, font bytes identical. Not visible to users or search engines.",
+      "ownerAction": "Advisor-approved allowlist entry: pattern /blog/<slug>, field assetRefs, only these 5 B-only preloads, nothing A-only; then re-run compare.mjs on the retained manifests in .scratch/p6.2-p6-20260927T0645Z/."
+    },
+    {
+      "severity": "blocker",
+      "check": "6a.3 (parity)",
+      "class": "acceptable-diff (build environment)",
+      "description": "hashedCssSha256 allowlist entry (index 2, A3 pin) no longer matches: B main CSS moved 072d7bf0... -> 4377f3cf5b68a4bbf15f47105ed6b736531f3943571a923f0d17ead8f78197ab (strict superset, +33 tokens all present in A's CSS, none used on captured pages).",
+      "ownerAction": "Advisor re-pin of entry 2 with expected.b = [4377f3cf5b68a4bbf15f47105ed6b736531f3943571a923f0d17ead8f78197ab, b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b]; bundles saved in .scratch/p6.2-p6-20260927T0645Z/css/."
+    },
+    {
+      "severity": "major",
+      "check": "6a.3 (logs)",
+      "class": "config",
+      "description": "14 error-level runtime log lines in the 06:39-06:53Z window, all the pg-connection-string 'SECURITY WARNING: sslmode prefer/require/verify-ca treated as alias for verify-full' deprecation warning on /api/blog, /api/blog/[slug], /api/admin/posts, /blog, /blog/[slug]. Not caused by a deliberate test, so SPEC-04 section 8 logs check fails. P5.2 logs had 0 errors; the warning also appears in the P6.2 build log.",
+      "ownerAction": "Set sslmode=verify-full explicitly in DATABASE_URL (or pg config) and redeploy, or have the advisor accept it as a known benign warning; then re-read logs over a window with test traffic."
+    }
+  ],
+  "nonBlockingIssues": [
+    {"severity": "minor", "description": "Perf flagged 7/20 URLs >1.5x Replit TTFB (report-only); advisor review required per SPEC-04 section 8."},
+    {"severity": "minor", "description": "compare.mjs full copy is overwritten when --scratch equals the --out directory; worked around with --scratch <dir>/full.", "ownerAction": "Harness usability fix (separate dir or distinct file name)."},
+    {"severity": "minor", "description": "Admin Logout button click did not issue POST /api/admin/logout within 15s in the browser check (logout exercised via in-page fetch instead); login form submits as GET if used before hydration. Unconfirmed code/UI or harness timing.", "ownerAction": "Optional manual check of /admin logout in a browser."},
+    {"severity": "info", "description": "growmax-website.vercel.app returns 200 without the bypass header (projectSsoProtection all_except_custom_domains); consistent with the corrected P6.2 criterion. All four sub-suites passed the SPEC-04 section 5.4 protected-deployment probe."},
+    {"severity": "info", "description": "Visual harness first-party failed-request key includes the random _rsc token, so A-matching prefetch aborts always need manual explanation.", "ownerAction": "Optional reviewed harness change."}
+  ],
+  "artifacts": [
+    "docs/migration/evidence/P6.2-parity.json",
+    "docs/migration/evidence/P6.2-functional.json",
+    "docs/migration/evidence/P6.2-visual.json",
+    "docs/migration/evidence/P6.2-logs-perf.json"
+  ]
+}

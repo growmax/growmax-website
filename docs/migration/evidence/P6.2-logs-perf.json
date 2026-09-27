@@ -1,0 +1,113 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "fail",
+  "checkedAt": "2026-09-27T06:53:11Z",
+  "verifier": "migration-scout (opus-5-5/low)",
+  "mode": "pre",
+  "runLabel": "p6-20260927T0645Z",
+  "base": "https://growmax-website.vercel.app",
+  "reference": "https://www.growmax.io",
+  "deploymentId": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7",
+  "logs": {
+    "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+    "since": "2026-09-27T06:39:00Z",
+    "until": "2026-09-27T06:53:00Z",
+    "logRetention": "not read from the plan API in this run; the runtime-errors API allows at most 7 days of lookback",
+    "errors": 14,
+    "errorGroups": [
+      {
+        "message": "(node:4) Warning: SECURITY WARNING: pg sslmode 'prefer'/'require'/'verify-ca' treated as alias for 'verify-full' (pg-connection-string deprecation)",
+        "level": "error (stderr)",
+        "count": 14,
+        "routes": [
+          "/api/blog",
+          "/api/blog/[slug]",
+          "/api/admin/posts",
+          "/blog",
+          "/blog/[slug]"
+        ],
+        "triggeredByOurTests": true,
+        "causedByDeliberateTest": false,
+        "note": "emitted on the first DB connection per cold instance for suite traffic (for example /api/blog/__parity_miss__, which parity sent). It is a config deprecation warning written to stderr, not a failure a test provoked on purpose. Same warning appears in the P6.2 build log. Fixed by an explicit sslmode=verify-full in DATABASE_URL."
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "SPEC-04 §5.4 protected-deployment probe",
+      "expected": "GET / 200 app HTML with only x-vercel-protection-bypass; redirect source keeps its status",
+      "actual": "GET / 200, 194862 bytes, title 'Growmax | B2B Revenue Ops for Manufacturers'; /about 308 -> /company/about",
+      "pass": true
+    },
+    {
+      "name": "Runtime log window non-empty",
+      "expected": ">0 log lines in the since/until window",
+      "actual": "14 lines (group_by level: error=14)",
+      "pass": true
+    },
+    {
+      "name": "Runtime errors zero or all explained by deliberate tests",
+      "expected": "0 errors, or each one caused by a deliberate test",
+      "actual": "14 error-level lines, all the pg sslmode deprecation warning, not caused by any deliberate test",
+      "pass": false
+    },
+    {
+      "name": "perf/run.mjs (report-only)",
+      "expected": "report; flag if B median TTFB >1.5x A on >3 URLs",
+      "actual": "20 URLs, 7 flagged: /revenue-platform 1.68x, /minori-ai 2.75x, /demo 2.94x, /blog 2.3x, /sitemap.xml 2.06x, /company/about 1.77x, /privacy 1.62x",
+      "pass": true,
+      "reportOnly": true
+    }
+  ],
+  "perf": {
+    "flagged": [
+      {
+        "url": "/revenue-platform",
+        "ratio": 1.68,
+        "aMs": 40,
+        "bMs": 67
+      },
+      {
+        "url": "/minori-ai",
+        "ratio": 2.75,
+        "aMs": 36,
+        "bMs": 99
+      },
+      {
+        "url": "/demo",
+        "ratio": 2.94,
+        "aMs": 53,
+        "bMs": 156
+      },
+      {
+        "url": "/blog",
+        "ratio": 2.3,
+        "aMs": 40,
+        "bMs": 92
+      },
+      {
+        "url": "/sitemap.xml",
+        "ratio": 2.06,
+        "aMs": 35,
+        "bMs": 72
+      },
+      {
+        "url": "/company/about",
+        "ratio": 1.77,
+        "aMs": 35,
+        "bMs": 62
+      },
+      {
+        "url": "/privacy",
+        "ratio": 1.62,
+        "aMs": 34,
+        "bMs": 55
+      }
+    ],
+    "flaggedForAdvisor": true
+  },
+  "artifacts": [
+    "docs/migration/.scratch/p6-20260927T0645Z/perf.json"
+  ]
+}

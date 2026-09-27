@@ -1,0 +1,384 @@
+{
+ "step": "P6.2",
+ "gate": "G6a",
+ "mode": "pre",
+ "runLabel": "p6-20260927T0645Z",
+ "status": "fail",
+ "checkedAt": "2026-09-27T06:44:05Z",
+ "verifier": "migration-verifier (claude-opus-5-5/medium)",
+ "baseA": "https://www.growmax.io",
+ "baseB": "https://growmax-website.vercel.app",
+ "deploymentB": {
+  "id": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7",
+  "sha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba"
+ },
+ "failureClass": [
+  "code (H1 ISR font preloads; acceptable, needs advisor allowlist)",
+  "acceptable-diff (CSS pin needs advisor re-pin)"
+ ],
+ "checks": [
+  {
+   "name": "SPEC-04 \u00a75.4 protected-deployment probe (bypass header only)",
+   "expected": "app's own responses: / 200 with app title; /about 308 -> /company/about (gsc-indexing-redirects.ts:6); no 401 / Vercel auth redirect / set-cookie",
+   "actual": "/ 200 title='Growmax | B2B Revenue Ops for Manufacturers' x-matched-path=/; /about 308 location=/company/about; no set-cookie. (Without the header the production alias also returns 200, consistent with the corrected P6.2 criterion: production domain public by design.)",
+   "pass": true
+  },
+  {
+   "name": "URL inventory not smaller than P1.3 (and P5.2)",
+   "expected": ">= 288 (P1.3), no URL of P1.3 or P5.2 inventory missing",
+   "actual": "297 URLs {'sitemap': 203, 'next-config-gsc': 50, 'next-config-literal': 8, 'special': 9, 'special-api': 9, 'not-in-sitemap': 4, 'variant': 3, 'blog-api-slug': 9, 'negative': 2}; 0 P1.3 URLs missing, 0 P5.2 URLs missing; sitemap-b added 0 new (all B <loc> already present); --previous P5.2 shrink check passed",
+   "pass": true
+  },
+  {
+   "name": "Captures of B and A within minutes, 0 fetch errors",
+   "expected": "both captures complete, same inventory, close in time",
+   "actual": "B 2026-09-27T06:40:42Z-06:40:58Z, A 06:40:58Z-06:41:15Z; 297/297 each; 0 fetch errors; retriedA=0 retriedB=0; raw bodies retained in raw-a/raw-b",
+   "pass": true
+  },
+  {
+   "name": "compare.mjs with allowlist.json and --raw-dir-a/--raw-dir-b",
+   "expected": "exit 0, failedUnallowed == 0",
+   "actual": "exit 1, compared=297, failedUnallowed=173, allowlisted=3, byCategory(unallowed)=content:173",
+   "pass": false
+  },
+  {
+   "name": "Unallowed diff class 1: assetRefs on every /blog/<slug> post (172 URLs)",
+   "expected": "no asset-ref differences",
+   "actual": "B-only: 5 <link rel=preload as=font> woff2 refs (normalized to one '/_next/static/<build>/<hash>-s.p.woff2'); A-only: none. Cause: SPEC-02 H1 (export const revalidate = 3600) made posts ISR on B (cache-control 'public, max-age=0, must-revalidate'; P5.2 B and A both 'private, no-cache, no-store') and Next emits the root font preloads on prerendered pages. The same 5 preloads already appear on A's own static '/' page; all 5 font files return 200 on both sides with identical sha256. Title/meta/canonical/JSON-LD/visible text/links/images of all 172 posts are identical. Class: code (intended H1 consequence), not user- or SEO-visible; needs an advisor-approved allowlist entry (pattern /blog/<slug>, field assetRefs, B-only font preloads) to pass.",
+   "pass": false
+  },
+  {
+   "name": "Unallowed diff class 2: hashedCssSha256 pin (<hashed-css-assets>) no longer matches",
+   "expected": "B CSS sha256 = A3 pin 072d7bf0... (allowlist.json entry 2)",
+   "actual": "A unchanged (5cca0cd4..., b22fd05c...). B main bundle changed 072d7bf0... (5ae60ac95c5812a0.css, 132014 B, old dpl_3pt7gJhkymtokAVFXwifHpCjkUoE, reconfirmed live) -> 4377f3cf5b68a4bbf15f47105ed6b736531f3943571a923f0d17ead8f78197ab (b05e81efd48e3db7.css, 134712 B, dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7); second bundle b22fd05c... unchanged. New B CSS is a strict superset of old B: +33 class tokens, 0 removed; all 33 exist in A's CSS; none is used in any of the 438 HTML bodies captured (A or B); B-new classes missing from A = 0. Class: acceptable-diff (same build-environment Tailwind source-detection cause as the A3 entry; B moved toward A), but the pin is value-bound so it needs an advisor re-pin to b=[4377f3cf..., b22fd05c...].",
+   "pass": false
+  },
+  {
+   "name": "Existing A3 allowlist entries still match with the same pinned values",
+   "expected": "entries 0 (internalLinks /), 1 (sitemapEntries /sitemap.xml), 3 (visibleTextHash /) each match once",
+   "actual": "each matched exactly 1 URL; entry 2 (hashedCssSha256) matched 0 (see class 2). Unified text diff for / written (full/text-diffs/_.diff).",
+   "pass": true
+  },
+  {
+   "name": "No data-freshness diffs",
+   "expected": "none, or classified",
+   "actual": "0 data-freshness diffs; /api/blog identical per slug: A=B=2322293 bytes, 172 items (below 3.5MB warning)",
+   "pass": true
+  },
+  {
+   "name": "Report-only header diffs",
+   "expected": "report-only",
+   "actual": "cache-control, content-encoding (gzip vs br), strict-transport-security (+preload), bytes: report-only, not counted",
+   "pass": true
+  }
+ ],
+ "diffSummary": {
+  "urlsA": 297,
+  "urlsB": 297,
+  "compared": 297,
+  "passed": false,
+  "failedUnallowed": 173,
+  "allowlisted": 3,
+  "retriedA": 0,
+  "retriedB": 0,
+  "byCategory": {
+   "content": 175,
+   "seo": 1
+  },
+  "blogApiSize": {
+   "sizes": {
+    "a": {
+     "present": true,
+     "bytes": 2322293,
+     "jsonArrayLength": 172
+    },
+    "b": {
+     "present": true,
+     "bytes": 2322293,
+     "jsonArrayLength": 172
+    }
+   },
+   "warnings": [],
+   "thresholdBytes": 3500000
+  }
+ },
+ "unallowed": {
+  "assetRefs": {
+   "count": 172,
+   "bOnly": [
+    "/_next/static/<build>/<hash>-s.p.woff2"
+   ],
+   "aOnly": [],
+   "bOnlyRaw": [
+    "/_next/static/media/26d4368bf94c0ec4-s.p.woff2",
+    "/_next/static/media/37786be940ec402b-s.p.woff2",
+    "/_next/static/media/98e207f02528a563-s.p.woff2",
+    "/_next/static/media/d3ebbfd689654d3a-s.p.woff2",
+    "/_next/static/media/db96af6b531dc71f-s.p.woff2"
+   ],
+   "urls": [
+    "/blog/4-critical-features-to-win-digital-customer-experience-with-b2b-ecommerce",
+    "/blog/a-comprehensive-sales-order-booking-app-for-zoho-inventory",
+    "/blog/advantages-of-ecommerce",
+    "/blog/ai-chatbots-b2b-customer-service-industrial",
+    "/blog/ai-driven-lead-scoring-industrial-sales",
+    "/blog/ai-powered-ordering-apps-the-future-of-b2b-sales",
+    "/blog/ai-powered-product-recommendations-spare-parts",
+    "/blog/ai-predictive-inventory-management-distributors",
+    "/blog/ai-reshaping-b2b-ecommerce-industrial-distributors",
+    "/blog/ai-transforms-after-sales-service-manufacturing",
+    "/blog/automating-sales-pipeline-industrial-distributors",
+    "/blog/b2b-buying-process",
+    "/blog/b2b-customer-portal-vs-dealer-portal",
+    "/blog/b2b-ecommerce-a-new-sales-channel-for-b2b-manufacturers-wholesalers-distributors",
+    "/blog/b2b-ecommerce-for-soare-parts-businesses",
+    "/blog/b2b-ecommerce-sales-team-visibility-problem",
+    "/blog/b2b-ecommerce-strategy-industrial-manufacturers",
+    "/blog/b2b-ecommerce-without-replacing-erp",
+    "/blog/b2b-marketplace-industrial-mro-supplies",
+    "/blog/b2b-mobile-ordering-app-guide",
+    "/blog/b2b-sales-tips-strategies-distributors",
+    "/blog/b2b-wholesale",
+    "/blog/best-b2b-ecommerce-platforms-2026",
+    "/blog/best-b2b-ordering-apps-distributors",
+    "/blog/best-competitors-and-alternatives-to-handshake",
+    "/blog/best-dealer-portal-software-2026",
+    "/blog/best-ecommerce-software",
+    "/blog/best-sap-b2b-commerce-solutions",
+    "/blog/best-spare-parts-management-software",
+    "/blog/best-wholesale-inventory-management-software-for-distributors-in-2026",
+    "/blog/boost-efficiency-in-f-b-fmcg-wholesale-with-a-zoho-integrated-order-booking-sales-app",
+    "/blog/boost-sales-product-recommendations",
+    "/blog/boost-your-industrial-sales-performance-with-smart-target-setting-and-automation",
+    "/blog/bridging-partner-visibility-gap-quotation-order",
+    "/blog/bridging-the-partner-visibility-gap-streamlining-the-quotation-to-order-process-for-industrial-brands",
+    "/blog/calculate-finished-goods-inventory",
+    "/blog/channel-conflict-resolution-multi-channel-industrial",
+    "/blog/channel-partner-management-spreadsheets-to-digital",
+    "/blog/chemical-distributor-increased-online-orders-case-study",
+    "/blog/claude-commerce-agents-b2b",
+    "/blog/complete-guide-b2b-customer-specific-pricing",
+    "/blog/cpq-software-guide-small-medium-industrial-businesses",
+    "/blog/crm-vs-sfa-sales-force-automation-guide",
+    "/blog/customer-specific-product-catalogs-b2b-commerce",
+    "/blog/d2c-trends",
+    "/blog/dealer-portal-best-practices-industrial-equipment",
+    "/blog/digital-can-drive-5x-growth-for-b2b-companies",
+    "/blog/digital-enabled-fmcg-wholesale-benefits-of-launching-self-ordering-apps-for-b2b-and-horeca-customers",
+    "/blog/digital-partner-engagement-revolution-manufacturing",
+    "/blog/direct-store-delivery-dsd-guide",
+    "/blog/ecommerce-personalization",
+    "/blog/ecommerce-shipping-method",
+    "/blog/ecommerce-terms-glossary",
+    "/blog/ecommerce-trends",
+    "/blog/edi-vs-b2b-ecommerce-differences",
+    "/blog/effective-management-of-moq-and-volume-based-pricing-is-essential-for-food-and-personal-care-wholesalers",
+    "/blog/electrical-distributor-order-processing-case-study",
+    "/blog/embrace-the-digital-shift-building-a-b2b-ecommerce-platform-for-manufacturers-and-wholesalers",
+    "/blog/empower-sales-rep-with-digital-commerce",
+    "/blog/empower-your-business-with-advantage-of-b2b-ecommerce",
+    "/blog/enhancing-industry-collaboration-a-case-study-from-a-leading-paint-manufacturer-in-india",
+    "/blog/enterprise-marketplace-opportunities-d2c",
+    "/blog/everything-you-need-to-know-about-b2b-ecommerce",
+    "/blog/fastener-distributor-revenue-growth-case-study",
+    "/blog/from-data-to-decisions-how-kpis-and-opportunity-management-drive-growth-for-industrial-distributors",
+    "/blog/future-b2b-commerce-headless-architecture-manufacturers",
+    "/blog/growmax-vs-b2b-wave",
+    "/blog/harnessing-the-power-of-ai-unlocking-insights-from-historical-data",
+    "/blog/heavy-equipment-spare-parts-sales",
+    "/blog/how-can-you-grow-your-bike-spare-parts-business",
+    "/blog/how-textile-machinery-spare-parts-manufacturers-can-move-online",
+    "/blog/how-to-boost-spare-parts-sales",
+    "/blog/how-to-migrate-from-tradgecko",
+    "/blog/how-to-sell-automotive-accessories-online",
+    "/blog/how-to-sell-car-spare-parts",
+    "/blog/how-to-write-invoice-email-for-ecommerce",
+    "/blog/implement-tiered-pricing-b2b-wholesale-distribution",
+    "/blog/increase-b2b-sales",
+    "/blog/increase-construction-equipment-spare-parts-sales",
+    "/blog/independent-partner-portals-for-industrial-channels",
+    "/blog/industrial-manufacturers-ai-sales-forecasting",
+    "/blog/integrating-zoho-crm-b2b-ecommerce-guide",
+    "/blog/inventory-management-techniques",
+    "/blog/inventory-stockout-risk-insight-the-modern-manufacturers-guide-to-preventing-revenue-loss",
+    "/blog/just-in-time-inventory-jit",
+    "/blog/make-2x-faster-decisions-in-your-sales-cycle",
+    "/blog/managing-spare-parts-business-for-an-industrial-oem",
+    "/blog/manufacturers-dedicated-spare-parts-ordering-system",
+    "/blog/maximize-automotive-aftermarket-sales-with-growmaxs-channel-partner-hub",
+    "/blog/maximizing-growth-through-partner-sales-management-a-comprehensive-guide",
+    "/blog/migrate-legacy-edi-modern-b2b-commerce",
+    "/blog/minimum-order-quantity",
+    "/blog/multi-tier-b2b-pricing-modeling",
+    "/blog/multi-warehouse-b2b-ecommerce-platform-architecture",
+    "/blog/obo-bettermann-digital-transformation-case-study",
+    "/blog/offline-order-taking-app-industrial-b2b-sales",
+    "/blog/opportunity-pipeline-management-for-industrial-businesses-your-data-driven-path-to-predictable-revenue",
+    "/blog/opportunity-pipeline-management-predictable-revenue",
+    "/blog/own-your-data-in-your-private-cloud-embrace-technology-for-your-b2b-business",
+    "/blog/partner-engagement-strategy-industrial-brands",
+    "/blog/partner-onboarding-automation-time-to-revenue",
+    "/blog/partner-performance-analytics-channel-growth",
+    "/blog/pepperi-alternatives-and-competitors",
+    "/blog/perpetual-inventory",
+    "/blog/product-catalog-management-ecommerce",
+    "/blog/progressive-web-app-pwa-guide",
+    "/blog/push-vs-pull-marketing-b2b-strategy",
+    "/blog/quickbooks-commerce-tradegecko-alternatives",
+    "/blog/quotation-to-order-process-converting-revenue",
+    "/blog/receive-customer-orders-through-multiple-channels-transforming-your-b2b-sales-experience",
+    "/blog/reckitt-pro-solution-india-revolutionizing-b2b-with-e-commerce",
+    "/blog/reduce-sales-costs-in-f-b-wholesale-with-a-zoho-integrated-self-order-booking-app",
+    "/blog/revamping-the-order-process-obo-bettermanns-digital-transformation",
+    "/blog/roi-digital-channel-management-building-materials",
+    "/blog/sales-territory-management-industrial-b2b",
+    "/blog/sell-machine-spare-parts-online",
+    "/blog/set-up-b2b-ecommerce-website",
+    "/blog/shopify-plus-alternatives",
+    "/blog/shopify-vs-woocommerce-vs-magento-vs-bigcommerce",
+    "/blog/siemens-partner-commerce-dealer-portal",
+    "/blog/signs-b2b-ecommerce-creating-revenue-silos",
+    "/blog/spare-parts-ecommerce-self-service-portal",
+    "/blog/spare-parts-identification-ai-visual-lookup",
+    "/blog/spare-parts-pricing-strategy-margin-retention",
+    "/blog/stop-losing-deals-streamline-your-industrial-sales-with-growmax",
+    "/blog/the-crucial-role-of-manufacturers-in-the-supply-chain-tailoring-b2b-ecommerce-to-meet-their-unique-needs",
+    "/blog/the-digital-partner-engagement-revolution-how-industrial-brands-can-transform-channel-sales",
+    "/blog/the-ultimate-guide-to-cpq-software-for-small-and-medium-scale-industrial-businesses",
+    "/blog/tiered-pricing-for-b2b-distributors",
+    "/blog/tips-for-managing-spare-parts-inventory",
+    "/blog/top-b2b-software",
+    "/blog/top-wholesale-ordering-platforms-2026",
+    "/blog/trade-promotions-guide-wholesale-distributors",
+    "/blog/transform-your-digital-landscape-by-building-an-integration-layer-to-interact-with-new-age-applications",
+    "/blog/transforming-your-digital-landscape-integrating-third-party-applications-with-sap-ecc-through-sap-connector",
+    "/blog/uncovering-hidden-customer-needs-for-cross-selling-and-upselling-through-a-recommendations-engine",
+    "/blog/unlocking-growth-for-industrial-distributors-how-opportunity-management-drives-sales-success",
+    "/blog/what-are-the-new-trends-in-b2b-sales-for-150-growth-in-revenue",
+    "/blog/what-is-an-online-marketplace",
+    "/blog/what-is-b2b-marketplace",
+    "/blog/what-is-backordering",
+    "/blog/what-is-d2c",
+    "/blog/what-is-deadstock",
+    "/blog/what-is-ecommerce-crm",
+    "/blog/what-is-headless-commerce",
+    "/blog/what-is-inventory-control",
+    "/blog/what-is-lead-time",
+    "/blog/what-is-order-management",
+    "/blog/what-is-order-to-cash-o2c",
+    "/blog/what-is-product-experience-management",
+    "/blog/what-is-purchase-order",
+    "/blog/what-is-safety-stock",
+    "/blog/what-is-spares-parts-management",
+    "/blog/what-is-the-difference-between-b2c-b2b-ecommerce-platforms",
+    "/blog/wholesale-distributors-guide",
+    "/blog/wholesale-marketing",
+    "/blog/why-a-channel-partner-hub-with-performance-analytics-is-essential-for-business-growth",
+    "/blog/why-an-offline-order-taking-app-is-essential-for-fmcg-and-industrial-b2b-sales",
+    "/blog/why-b2b-marketers-should-invest-in-b2b-ecommerce-a-hybrid-approach-for-competitive-advantage",
+    "/blog/why-product-categorization-matters-in-sales-self-ordering-apps",
+    "/blog/winning-the-aftermarket-sales",
+    "/blog/writing-product-description-guide",
+    "/blog/your-traditional-competitors-are-not-your-threats",
+    "/blog/b2b-returns-rma-management-distributors",
+    "/blog/b2b-order-management-software-distributors",
+    "/blog/ai-helps-distributors-sell-more",
+    "/blog/purchase-order-replenishment-multi-branch-distributors",
+    "/blog/edi-vs-b2b-portal-distributors",
+    "/blog/moq-credit-limits-customer-catalogs-b2b",
+    "/blog/offline-mobile-ordering-for-field-sales",
+    "/blog/multi-warehouse-inventory-visibility-for-distributors",
+    "/blog/quote-to-order-for-wholesale"
+   ]
+  },
+  "hashedCssSha256": [
+   {
+    "url": "<hashed-css-assets>",
+    "field": "hashedCssSha256",
+    "category": "content",
+    "a": [
+     "5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0",
+     "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
+    ],
+    "b": [
+     "4377f3cf5b68a4bbf15f47105ed6b736531f3943571a923f0d17ead8f78197ab",
+     "b22fd05cba520b494da056d2efded2420f1a84f9f0cf6ec0669d5c99e4c67d3b"
+    ]
+   }
+  ]
+ },
+ "allowlistReport": [
+  {
+   "index": 0,
+   "field": "internalLinks",
+   "url": "/",
+   "approvedBy": "A3",
+   "approvedAt": "2026-09-27T03:22:33Z",
+   "matchedUrls": [
+    "/"
+   ]
+  },
+  {
+   "index": 1,
+   "field": "sitemapEntries",
+   "url": "/sitemap.xml",
+   "approvedBy": "A3",
+   "approvedAt": "2026-09-27T03:22:33Z",
+   "matchedUrls": [
+    "/sitemap.xml"
+   ]
+  },
+  {
+   "index": 2,
+   "field": "hashedCssSha256",
+   "url": "<hashed-css-assets>",
+   "approvedBy": "A3",
+   "approvedAt": "2026-09-27T03:22:33Z",
+   "matchedUrls": []
+  },
+  {
+   "index": 3,
+   "field": "visibleTextHash",
+   "url": "/",
+   "approvedBy": "A3",
+   "approvedAt": "2026-09-27T03:30:56Z",
+   "matchedUrls": [
+    "/"
+   ]
+  }
+ ],
+ "artifacts": {
+  "inventory": {
+   "path": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/urls.json",
+   "sha256": "e5ab63fb4f788085501ad6a5eeaaf190b9f6fbecbb8019c87e66dfb1f8f49c05"
+  },
+  "manifestA": {
+   "path": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/A.json",
+   "sha256": "ec3ce6becfe03f96e23e1ecf57e0ba4115362227a026c612854ac62ed499df6c"
+  },
+  "manifestB": {
+   "path": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/B.json",
+   "sha256": "16f5465a3e6ee883bcf3cc8b65aad5c1967ece44c5cdea77794b3d95c155344e"
+  },
+  "rawDirA": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/raw-a",
+  "rawDirB": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/raw-b",
+  "diffCommitted200": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/diff.json",
+  "diffFull": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/full/diff.json",
+  "textDiffs": [
+   "docs/migration/.scratch/p6.2-p6-20260927T0645Z/full/text-diffs/_.diff"
+  ],
+  "probe": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/probe.json",
+  "cssBundles": "docs/migration/.scratch/p6.2-p6-20260927T0645Z/css/",
+  "allowlist": {
+   "path": "docs/migration/evidence/allowlist.json",
+   "gitHashObject": "d74906f503904895f4573db7e967c1890b8da70f"
+  },
+  "harness": {
+   "headCommit": "7adfeda1f76f40b40b751cfaa0c80cb0567ce42e",
+   "compareMjs": "882f48e6719b95532aadb09a264bf56d47437d78",
+   "captureMjs": "7f4211b1de4d9d46f4c34d5e842616d4c18f4875",
+   "urlsMjs": "25c0f7a117f415e0a4e3b61c70d642395da2f6a1"
+  }
+ },
+ "notes": "Full compare output shares a basename with --out, so --scratch was set to a subdirectory (full/) to keep the untrimmed copy; the first run with --scratch equal to the out dir overwrote the full copy with the trimmed one (harness usability note, not a correctness defect)."
+}
