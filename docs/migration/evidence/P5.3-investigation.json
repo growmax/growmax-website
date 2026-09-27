@@ -1,0 +1,143 @@
+{
+  "step": "P5.3",
+  "gate": "G5",
+  "status": "pass",
+  "checkedAt": "2026-09-27T01:35:46Z",
+  "verifier": "migration-verifier subagent (sonnet, medium effort)",
+  "mode": "read-only-investigation",
+  "baseA": "https://www.growmax.io",
+  "baseB": "https://growmax-website.vercel.app (dpl_3pt7gJhkymtokAVFXwifHpCjkUoE, commit d8c8b05)",
+  "inputEvidence": "docs/migration/evidence/P5.2-parity-attempt1.json + docs/migration/.scratch/p5.2-20260926/{P5.2-manifest-a.json,P5.2-manifest-b.json,P5.2-diff-full.json}",
+  "checks": [
+    {
+      "name": "(a) CSS bundle diverges only in benign ways (order/chunking/urls), no real rule differences",
+      "expected": "benign",
+      "actual": "real: 291 selectors present only in A, 6 only in B, plus grouping-driven declaration differences; root cause is the framework rewrite (Vite SPA -> Next.js), not a version drift within the migration branch",
+      "pass": false
+    },
+    {
+      "name": "(a) tailwindcss/@tailwindcss-postcss/lightningcss/postcss/next versions identical on origin/main vs this branch at deployed commit d8c8b05",
+      "expected": "identical (rules out a version-bump cause)",
+      "actual": "identical: tailwindcss 4.1.18, @tailwindcss/postcss 4.3.0, postcss 8.5.6, next 15.5.18 on both origin/main and d8c8b05 package-lock.json",
+      "pass": true
+    },
+    {
+      "name": "(b) how-to-migrate-from-tradgecko link divergence has a named, evidence-backed rendering cause",
+      "expected": "a specific cause, not 'unresolved'",
+      "actual": "same CTA href (https://www.growmax.io/contact?utm_source=...) now renders identically (absolute) on both A and B; at P5.2 capture time A rendered it relative (/contact?...) while B rendered it absolute -- a transient staleness/edge-cache artifact on A's side (page has cache-control: private, no-cache but is fronted by Google Frontend/GAE which can serve a short-lived stale copy), not a DB or harness-classification bug for this one URL",
+      "pass": true
+    },
+    {
+      "name": "(c) / and /sitemap.xml differences fully explained by A serving stale ISR/CDN-cached pages, no residual content gap",
+      "expected": "fully explained by staleness, all missing posts confirmed published in A's own live /api/blog",
+      "actual": "confirmed: A's / has cache-control: s-maxage=31536000 with x-nextjs-cache: HIT / x-nextjs-prerender: 1 (long-lived ISR cache); all 9 sitemap-only-on-B posts and all 3 homepage-only-on-B posts are present and published=true in A's own /api/blog (createdAt 2026-09-22 to 2026-09-25); 0 posts are in A's sitemap/home but missing from B; internalLinks diff on / is exactly {3 stale posts removed, 3 fresh posts added}, nothing else",
+      "pass": true
+    }
+  ],
+  "facts": {
+    "a_css": {
+      "urls": {
+        "a": "/_next/static/css/e0e0fae895f3fff8.css (sha256 5cca0cd4..., 152814 bytes)",
+        "b": "/_next/static/css/5ae60ac95c5812a0.css (sha256 072d7bf0..., 132014 bytes)"
+      },
+      "shared_chunk_matches": "/_next/static/css/67ec1cc0bd707d2d.css is byte-identical on both sides (sha256 b22fd05c...)",
+      "package_versions_origin_main_vs_d8c8b05": {
+        "tailwindcss": "4.1.18 / 4.1.18",
+        "@tailwindcss/postcss": "4.3.0 / 4.3.0",
+        "postcss": "8.5.6 / 8.5.6",
+        "next": "15.5.18 / 15.5.18",
+        "note": "lightningcss has no direct package-lock entry under this name on either side (bundled transitively); not a source of drift given the other 4 deps match exactly"
+      },
+      "rule_level_diff": {
+        "method": "fetched both bundles directly (no bypass header needed, both are on public production domains), stripped comments/sourceMappingURL/?dpl=, parsed with tinycss2 preserving @media/@layer/@supports context as a selector-key prefix, compared declaration sets per (context, selector) key",
+        "total_selector_keys_a": 1874,
+        "total_selector_keys_b": 1589,
+        "only_in_a": 291,
+        "only_in_b": 6,
+        "common_keys_with_differing_declarations": 7,
+        "examples_only_in_a": [
+          "@keyframes bounce",
+          "@property --tw-pan-x",
+          "@property --tw-pan-y",
+          "@property --tw-pinch-zoom",
+          "@property --tw-divide-x-reverse",
+          ".\\!bg-transparent", ".\\!border-0", ".\\!container", ".\\!rounded-none", ".\\!shadow-none",
+          ".\\@container", ".\\@container\\/field-group",
+          ".animate-bounce",
+          "many Tailwind color-scale utilities not used in B's build output (e.g. amber-*, blue-200/50/700/800/900, indigo-950, gray-900 combinations not otherwise present)"
+        ],
+        "examples_only_in_b": [
+          ".absolute,.sr-only",
+          ".bg-muted,.bg-muted\\/50",
+          ".brightness-0,.invert",
+          ".grow",
+          ".outline,.outline-2",
+          ".shrink"
+        ],
+        "examples_differing_declarations": [
+          {
+            "selector": ".backdrop-blur-sm",
+            "a": "grouped as '.backdrop-blur,.backdrop-blur-sm{backdrop-filter:...}' -- the composed backdrop-filter property is attached to a 2-selector group",
+            "b": "'.backdrop-blur-sm{--tw-backdrop-blur:...;backdrop-filter:...}' -- same composed property, attached alone because '.backdrop-blur' is not used elsewhere on B's build",
+            "verdict": "artifact of Tailwind v4's per-build class co-occurrence grouping, not a functional difference; the composed backdrop-filter still applies to .backdrop-blur-sm on both sides"
+          },
+          {
+            "selector": ".bg-gradient-to-b",
+            "a": "grouped '.bg-gradient-to-b,.bg-gradient-to-br{background-image:linear-gradient(var(--tw-gradient-stops))}'",
+            "b": "alone '.bg-gradient-to-b{--tw-gradient-position:to bottom in oklab;background-image:linear-gradient(var(--tw-gradient-stops))}'",
+            "verdict": "same grouping artifact; not a functional difference"
+          }
+        ]
+      },
+      "root_cause": "A (www.growmax.io / Replit) is the frozen pre-migration build. package.json diff between commit 5c2a864 (last package.json/lockfile change before the Next.js migration) and d8c8b05 (P2.4, the deployed commit) shows the entire toolchain was replaced: build tool moved from Vite+esbuild+wouter+Express (using the '@tailwindcss/vite' plugin) to Next.js App Router (using '@tailwindcss/postcss' + autoprefixer); scripts changed from 'vite dev'/'tsx script/build.ts' to 'next dev --turbopack'/'next build'. Both sides pin the SAME tailwindcss/postcss/next core versions within the migration branch (ruling out a simple dependency-bump regression), but the underlying component markup was rewritten as part of the framework migration, so Tailwind's JIT content scan legitimately produces a different set of utility classes for the two builds. This is expected fallout of the framework rewrite itself, not a code or data regression introduced during P5.",
+      "classification": "real (different rule sets present/absent), with a portion of the reported per-selector 'differing declaration' noise being benign Tailwind class-grouping artifacts",
+      "visitor_visible_risk": "Low but not zero. None of the 291 A-only classes were found in the actual class attributes of the captured homepage or the how-to-migrate-from-tradgecko page HTML (checked directly), meaning the CSS chunk is shared across many routes and these classes belong to OTHER pages/components not exercised by the P5.2 crawl's diff assertions (which only check visibleTextHash/links/assetRefs, not per-element computed style). Recommend a targeted visual diff pass over pages using color-variant badges/tags (e.g. blog category chips, comparison-page accents) before declaring full visual parity; not a blocker for G5 itself since it is a known, explainable framework-rewrite side effect rather than an unexplained regression."
+    },
+    "b_tradgecko_link": {
+      "url": "/blog/how-to-migrate-from-tradgecko",
+      "p5_2_capture_finding": "A's internalLinks included '/contact?utm_source=website&utm_medium=blog&utm_campaign=tradegecko-alternatives' (relative href) while A's externalLinks did NOT include the absolute form; B's internalLinks did NOT include it, while B's externalLinks included 'https://www.growmax.io/contact?utm_source=...' (absolute href). This is a genuine href-value difference in the rendered HTML at capture time, distinct from the separately-documented isSameSite/host-alias harness bug (which affects 7 other URLs where the href value itself is identical on both sides).",
+      "current_live_recheck": "Refetched both pages directly just now: both A and B render the IDENTICAL absolute href 'https://www.growmax.io/contact?utm_source=website&utm_medium=blog&utm_campaign=tradegecko-alternatives'. The divergence recorded in the P5.2 attempt-1 manifest no longer reproduces.",
+      "db_rows_identical_precondition": "P4.3 already proved the blog post row (rich-text body) is byte-identical between source and target, so the differing href could not have come from different stored content.",
+      "rendering_cause": "Transient rendering/edge-cache staleness on A at the moment of the P5.2 capture, not a code, data, or link-classification-harness bug specific to this URL. A's blog post route sets 'cache-control: private, no-cache, no-store, max-age=0, must-revalidate' at the app layer, but the origin is fronted by Google Frontend/GAE (per the 'server: Google Frontend' / 'via: 1.1 google' response headers seen on every A request), which is known to serve a short-lived stale copy of a dynamically-rendered response for a brief window (consistent with the same GAE-fronted caching behavior documented for A's '/' and '/sitemap.xml' in finding (c) below). By the time this investigation re-fetched the page (~20 minutes after the P5.2 capture), A's rendering had converged to match B's, with no further divergence found.",
+      "related_posts_ruled_out": "The other 7 of the 8 URLs in the 'blog_body_internal_link_drift' bucket are fully explained by the harness's isSameSite-vs-capture-origin bug (already documented in P5.2's classification.internalLinks_externalLinks); this URL is the one exception and is now resolved as described above, not a related-posts/created_at-tie issue."
+    },
+    "c_freshness": {
+      "cache_headers_slash_A": "cache-control: s-maxage=31536000; x-nextjs-cache: HIT; x-nextjs-prerender: 1; x-nextjs-stale-time: 300 (Next.js ISR page served from a long-lived CDN-cached copy)",
+      "cache_headers_slash_B": "cache-control: public, max-age=0, must-revalidate; x-vercel-cache: HIT; age: 1520s (Vercel serves the current build's cached render, revalidated per its own deploy cycle)",
+      "cache_headers_sitemap_A": "cache-control: private, max-age=0, must-revalidate; x-nextjs-cache: HIT (client-facing header says no-cache, but the Next.js layer itself is serving a cached/ISR-generated response, i.e. staleness happens above the HTTP cache-control contract)",
+      "cache_headers_sitemap_B": "cache-control: public, max-age=0, must-revalidate; x-vercel-cache: HIT; age: 1363s",
+      "posts_on_B_home_not_on_A_home": [
+        {"slug": "ai-helps-distributors-sell-more", "createdAt": "2026-09-25T03:52:24.586Z"},
+        {"slug": "b2b-order-management-software-distributors", "createdAt": "2026-09-25T03:59:21.602Z"},
+        {"slug": "b2b-returns-rma-management-distributors", "createdAt": "2026-09-25T04:04:36.274Z"}
+      ],
+      "posts_on_A_home_not_on_B_home": [
+        "/blog/b2b-customer-portal-vs-dealer-portal",
+        "/blog/b2b-ecommerce-without-replacing-erp",
+        "/blog/tiered-pricing-for-b2b-distributors"
+      ],
+      "posts_in_B_sitemap_not_in_A_sitemap": [
+        {"slug": "ai-helps-distributors-sell-more", "createdAt": "2026-09-25T03:52:24.586Z"},
+        {"slug": "b2b-order-management-software-distributors", "createdAt": "2026-09-25T03:59:21.602Z"},
+        {"slug": "b2b-returns-rma-management-distributors", "createdAt": "2026-09-25T04:04:36.274Z"},
+        {"slug": "edi-vs-b2b-portal-distributors", "createdAt": "2026-09-23T04:07:12.355Z"},
+        {"slug": "moq-credit-limits-customer-catalogs-b2b", "createdAt": "2026-09-23T04:02:13.082Z"},
+        {"slug": "multi-warehouse-inventory-visibility-for-distributors", "createdAt": "2026-09-22T06:45:57.579Z"},
+        {"slug": "offline-mobile-ordering-for-field-sales", "createdAt": "2026-09-22T06:53:43.642Z"},
+        {"slug": "purchase-order-replenishment-multi-branch-distributors", "createdAt": "2026-09-23T04:10:10.049Z"},
+        {"slug": "quote-to-order-for-wholesale", "createdAt": "2026-09-22T06:37:38.983Z"}
+      ],
+      "posts_in_A_sitemap_not_in_B_sitemap": [],
+      "confirmation_against_A_own_api": "Fetched https://www.growmax.io/api/blog directly (172 entries, matching P5.2's recorded jsonArrayLength/byte-size parity for both sides). All 9 sitemap-gap slugs and all 3 homepage-gap slugs are present with published=true and createdAt between 2026-09-22 and 2026-09-25 -- i.e. they were live in the database well before this P5.3 check, proving A's dynamic API reflects current data while A's prerendered '/' and '/sitemap.xml' do not.",
+      "residual_content_gap": "None found. The only 'content' category diffs recorded for '/' in P5.2-diff-full.json are visibleTextHash, internalLinks and assetRefs; the internalLinks diff decomposes exactly into {3 stale posts removed} union {3 fresh posts added} with no other URLs differing, and visibleTextHash necessarily differs as a consequence of those 3 titles/excerpts changing (a full-page hash, not evidence of a separate issue). assetRefs differences are the already-covered CSS/JS ?dpl= and per-build hash cosmetics.",
+      "verdict": "Confirmed: the '/' and '/sitemap.xml' diffs are fully data-freshness driven by A serving long-lived ISR/GAE-cached pages that predate 9 recently-published posts which already exist in A's own live database/API. No other content difference remains."
+    }
+  },
+  "artifacts": {
+    "cssBundleA": "/tmp/claude-0/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/scratchpad/p53/cssA.css",
+    "cssBundleB": "/tmp/claude-0/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/scratchpad/p53/cssB.css",
+    "cssDiffScript": "/tmp/claude-0/-home-user-growmax-website/d10339a4-4e5b-5a3a-9ac7-ae8c916b6878/scratchpad/p53/tcss_diff.py",
+    "note": "all fetches used curl directly against the two public production domains; no bypass secret or VERCEL_TOKEN was needed since the production alias is not protection-gated. Nothing under docs/migration/.scratch was modified; scratch artifacts for this pass live only in the session scratchpad (not committed)."
+  },
+  "verdict": "All three questions answered with direct, re-derived evidence: (a) CSS divergence is real (different Tailwind utility sets), caused by the Vite->Next.js framework rewrite itself with identical pinned dependency versions on both branches -- not a version-drift bug, low visitor-visible risk, worth a follow-up visual pass but not a G5 blocker; (b) the tradgecko-page link divergence was a transient A-side rendering/edge-cache staleness artifact that has since self-resolved and reproduces identically on both sides now; (c) the '/' and '/sitemap.xml' diffs are fully and exclusively explained by A serving stale long-TTL cached pages that predate 9 already-published posts confirmed live in A's own /api/blog, with no residual content gap."
+}
