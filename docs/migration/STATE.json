@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T05:45:25.931Z",
+  "updatedAt": "2026-09-27T06:36:04.530Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -1324,13 +1324,17 @@
       ],
       "gate": "G6a",
       "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
-      "status": "in_progress",
+      "status": "failed",
       "attempts": 1,
-      "evidence": [],
-      "notes": [
-        "2026-09-27T05:45:08.445Z mig-p5-deploy-verify.js: by-SHA production deploy of hSha 2f4b4d5 (git source), alias + protection checks, then the suite (no F2; F9 browser-decided; raw bodies kept; A3 pins expected to hold). Model routing: opus at role efforts."
+      "evidence": [
+        "docs/migration/evidence/P6.2-deploy.json"
       ],
-      "startedAt": "2026-09-27T05:45:08.445Z"
+      "notes": [
+        "2026-09-27T05:45:08.445Z mig-p5-deploy-verify.js: by-SHA production deploy of hSha 2f4b4d5 (git source), alias + protection checks, then the suite (no F2; F9 browser-decided; raw bodies kept; A3 pins expected to hold). Model routing: opus at role efforts.",
+        "2026-09-27T06:36:04.530Z Attempt 1 (wf_de6a2d09-272): deployment dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7 (2f4b4d5) READY at 06:29:53Z after the owner approved create_deployment; build has warnings only; both production aliases point to it. The workflow failed only on a STALE protection criterion (orchestrator error: re-specified at P5.3 but not updated in mig-p5-deploy-verify.js) that expected 401/403 on the public production domain; triage (opus) re-probed: production domain 200 by design, generated URL and second alias 302 to vercel.com/sso-api, as SPEC-01 §2 requires. The suite did not run. Fix: criterion corrected; independent re-check of the existing deployment plus the suite, no redeploy."
+      ],
+      "startedAt": "2026-09-27T05:45:08.445Z",
+      "lastFailureAt": "2026-09-27T06:36:04.530Z"
     },
     {
       "id": "P6.3",

@@ -1,0 +1,15 @@
+{
+  "step": "P6.2-deploy",
+  "checkedAt": "2026-09-27T06:33:47Z",
+  "deploymentId": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7",
+  "url": "growmax-website-k1wyvo4f8-growmax1.vercel.app",
+  "sha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba",
+  "target": "production",
+  "checks": {
+    "ready": {"pass": true, "state": "READY"},
+    "buildLogNoErrors": {"pass": true, "note": "no error-level events; only warnings (browserslist stale, pg sslmode deprecation); build log response truncated by 49 middle items (route table)"},
+    "aliasCheck": {"pass": true, "aliasedDeploymentId": "dpl_4MpEzLd5YuAT7C2xxHx3TCGL89s7", "productionAliases": ["growmax-website.vercel.app", "growmax-website-growmax1.vercel.app"], "aliasCreated": "2026-09-27T01:08:32Z"},
+    "protectionCheck": {"pass": false, "alias": "growmax-website.vercel.app", "noBypassStatus": 200, "withBypassStatus": 200, "withBypassTitleHasGrowmax": true, "secondaryAlias": {"alias": "growmax-website-growmax1.vercel.app", "noBypassStatus": 302, "withBypassStatus": 200}, "projectSsoProtection": "all_except_custom_domains", "note": "production alias growmax-website.vercel.app is publicly reachable without bypass"}
+  },
+  "overall": "fail"
+}
