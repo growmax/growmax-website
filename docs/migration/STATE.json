@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.2",
-  "updatedAt": "2026-09-27T08:03:47.969Z",
+  "updatedAt": "2026-09-27T08:17:17.149Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -418,6 +418,12 @@
           "deploymentId": "dpl_339kQmG3CM2dPKGjfNiDLZDpdkKx"
         },
         "startedAt": "2026-09-27T08:04:00Z"
+      },
+      "a3p62": {
+        "runId": "wf_49cba31f-63c",
+        "scriptPath": ".claude/workflows/mig-advisor.js",
+        "startedAt": "2026-09-27T08:20:00Z",
+        "note": "A3 for P6.2 (2nd of 4): CSS re-pin to e50a48e4; ratify H5/H6 + SPEC-04 §3 harness addenda + hardening; G5 logs correction; perf. Args are long; if resuming, re-issue the same checkpoint/question/evidenceFiles from the transcript"
       }
     },
     "followUps": [
