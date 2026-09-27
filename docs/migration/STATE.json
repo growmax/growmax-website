@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
-  "currentStep": null,
-  "updatedAt": "2026-09-27T05:44:49.938Z",
+  "currentStep": "P6.2",
+  "updatedAt": "2026-09-27T05:45:25.931Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -316,6 +316,30 @@
         "args": null,
         "startedAt": "2026-09-27T04:50:49Z",
         "note": "bypass rotation (implementer opus/medium + scout check) in parallel with F9 decided by real Chromium (implementer opus/high -> reviewer opus/high, <=2 rounds)"
+      },
+      "p62": {
+        "runId": "wf_de6a2d09-272",
+        "scriptPath": ".claude/workflows/mig-p5-deploy-verify.js",
+        "startedAt": "2026-09-27T05:45:25Z",
+        "note": "resume with these exact args (key order matters)",
+        "args": {
+          "step": "P6.2",
+          "sha": "2f4b4d5fedf35d6f61cd609c0d3e43533df4bbba",
+          "runLabel": "p6-20260927T0545Z",
+          "deployMode": "git",
+          "projectId": "prj_nSpDPuYWavGmtXm4nmcwiVWWgVXu",
+          "baseA": "https://www.growmax.io",
+          "allowDemoTest": false,
+          "paths": {
+            "web": "container",
+            "db": "neon-https",
+            "dump": "sandbox-sdk",
+            "vercelApi": "cli",
+            "visual": "container",
+            "decidedAt": "2026-09-26T10:57:33Z",
+            "note": "raw TCP 5432 blocked: pg_dump/pg_restore only in the Vercel Sandbox via runner.mjs (SDK)"
+          }
+        }
       }
     },
     "followUps": [
@@ -1300,10 +1324,13 @@
       ],
       "gate": "G6a",
       "workflow": ".claude/workflows/mig-p5-deploy-verify.js",
-      "status": "pending",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T05:45:08.445Z mig-p5-deploy-verify.js: by-SHA production deploy of hSha 2f4b4d5 (git source), alias + protection checks, then the suite (no F2; F9 browser-decided; raw bodies kept; A3 pins expected to hold). Model routing: opus at role efforts."
+      ],
+      "startedAt": "2026-09-27T05:45:08.445Z"
     },
     {
       "id": "P6.3",
