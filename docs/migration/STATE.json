@@ -3,8 +3,8 @@
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
-  "currentStep": "P8.4",
-  "updatedAt": "2026-09-27T10:30:53.930Z",
+  "currentStep": null,
+  "updatedAt": "2026-09-27T10:49:24.259Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -1812,13 +1812,18 @@
       ],
       "gate": "G8b",
       "workflow": ".claude/workflows/mig-p8-postcutover.js",
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "evidence": [],
-      "notes": [
-        "2026-09-27T10:30:53.930Z Monitoring hand-off started early, in parallel with the P8.3 reconciliation, because it doesn't depend on the apex. wf_75a8c2d7-a98: implementer (opus/medium) adds .github/workflows/uptime.yml per SPEC-06 §3 and rewrites CUTOVER-RUNBOOK.md as the rendered post-cutover runbook (its 16 template placeholders were never rendered, because the owner cut over before P6.5; this also covers G6 6.6), then a reviewer (opus/high) checks both. The repo is public, so a 15-minute uptime schedule costs no Actions minutes. mig-p8-postcutover.js now passes a.note and a.reviewNote to the monitoring agents."
+      "evidence": [
+        "docs/migration/evidence/P8.4-monitoring.json",
+        "docs/migration/evidence/P8.4-monitoring-review.json"
       ],
-      "startedAt": "2026-09-27T10:30:53.929Z"
+      "notes": [
+        "2026-09-27T10:30:53.930Z Monitoring hand-off started early, in parallel with the P8.3 reconciliation, because it doesn't depend on the apex. wf_75a8c2d7-a98: implementer (opus/medium) adds .github/workflows/uptime.yml per SPEC-06 §3 and rewrites CUTOVER-RUNBOOK.md as the rendered post-cutover runbook (its 16 template placeholders were never rendered, because the owner cut over before P6.5; this also covers G6 6.6), then a reviewer (opus/high) checks both. The repo is public, so a 15-minute uptime schedule costs no Actions minutes. mig-p8-postcutover.js now passes a.note and a.reviewNote to the monitoring agents.",
+        "2026-09-27T10:49:24.259Z Monitoring hand-off done. The uptime workflow (.github/workflows/uptime.yml) checks /, /blog, /demo, /sitemap.xml, /robots.txt, /api/blog and the newest post every 15 min at :04/:19/:34/:49, with one retry and content markers. It has read-only permissions, no PR or push triggers and no third-party actions; an alert is sent only if the owner adds ALERT_WEBHOOK_URL. It runs only after the merge to main. Local proof: 7/7 pass against live www (implementer and reviewer); negative cases fail loudly; the alert payload was tested on 127.0.0.1 only. CUTOVER-RUNBOOK.md is now the rendered post-cutover runbook with 0 placeholders: status table, the apex (B-APEX) steps, rollback with the Replit 404 caveat, and a monitoring section. This also satisfies G6 6.6 after the fact. Round 2 (the orchestrator's own read) raised timeout-minutes from 5 to 10, because the worst case is 335 s, and fixed two runbook wordings. Both rounds were approved with 0 blocking. Final check-in schedule: hourly until 2026-09-28T09:00Z, then every 3 h until G8b (earliest 2026-09-30T09:00Z)."
+      ],
+      "startedAt": "2026-09-27T10:30:53.929Z",
+      "completedAt": "2026-09-27T10:49:24.258Z"
     },
     {
       "id": "P9.1",
