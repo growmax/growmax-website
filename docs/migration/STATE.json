@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": null,
-  "updatedAt": "2026-09-27T04:12:14.629Z",
+  "updatedAt": "2026-09-27T04:49:54.764Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -342,7 +342,8 @@
       "A3 (P5.3) plan changes to write into the specs: SPEC-04 §4 A-side build-time staleness class; §3/§9 raw-body retention; §6 F9 real-browser corroboration as standing (P6.2, P8.2); §7 normalized failed-request key; P8.2 staleness note; SPEC-03 P6.4 verifier records the schema-diff hash and that the real-data self-test ran. FINAL-REPORT owner tasks: revalidate / and the sitemap and fail the build on DB errors; _system not copied; sslmode=verify-full explicitly in the Neon URL; the analytics beacon aborts are a container-network artefact",
       "A2 agenda (P6.1 review, non-blocking): H2 now revalidates /sitemap.xml and /llms*.txt, whose generators swallow DB errors (sitemap.ts:7-15, llms*.ts:9-11) and return an empty post list; a DB failure during an admin-triggered regeneration would cache a sitemap without blog posts until the next edit or deploy. Options: accept, or apply H1-style error semantics to those 3 routes (small change, needs review)",
       "A2 agenda (P6.1 review, pre-existing): lib/db.ts Pool has no error listener, so a Neon compute suspend terminating idle clients (57P01) raises an uncaughtException that can take down a Fluid instance; also no statement timeout. One-line pool.on(\"error\") fix recommended before or soon after cutover",
-      "Owner notes (P6.1): blog_redirects rows store full paths (/blog/old) while the middleware, /api/blog-redirects and H1 look up bare slugs, so no redirect ever fires (and a match would double /blog/); unpublished posts stay reachable by slug; post titles render with a doubled suffix (| Growmax Intelligence | Growmax)"
+      "Owner notes (P6.1): blog_redirects rows store full paths (/blog/old) while the middleware, /api/blog-redirects and H1 look up bare slugs, so no redirect ever fires (and a match would double /blog/); unpublished posts stay reachable by slug; post titles render with a doubled suffix (| Growmax Intelligence | Growmax)",
+      "Security hygiene: never attach x-vercel-protection-bypass via Playwright extraHTTPHeaders or any other all-requests mechanism; only origin-scoped (context.route by origin, or fetch to the base URL). The P5.2 probe leak led to a bypass rotation (2026-09-27)"
     ],
     "finalReportNotes": [
       "Pre-existing: BlogPostClient fetches the full /api/blog (2.27 MB, ~13 KB/post) on every blog post view; the Vercel function body cap is 4.5 MB (~340 posts). Owner fix: fetch summaries only (A1 C10)",
