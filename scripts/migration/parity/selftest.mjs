@@ -39,6 +39,7 @@ import {
   sha256Text,
   normalizeText,
   normalizeHtmlNoise,
+  mergeLinkHeaderAssetRefs,
 } from './lib/extract.mjs'
 import { normalizeLocation, buildResolveDispatcher } from './lib/fetcher.mjs'
 import {
@@ -186,7 +187,11 @@ function rebuildHtmlEntryFromRaw(entry, rawHtml, pageUrl) {
   entry.visibleTextHash = extracted.visibleTextHash
   entry.internalLinks = extracted.internalLinks
   entry.images = extracted.images
-  entry.assetRefs = extracted.assetRefs
+  // The raw .bin holds only the body, not the response's `Link` header: re-merge the
+  // header-derived refs capture.mjs recorded (linkHeaderRefs) through the same merge, so a
+  // mutated body of a dynamically rendered page isn't "detected" merely by losing them.
+  const replayedHeader = (entry.linkHeaderRefs || []).map((r) => `<${r}>; rel=preload`).join(', ')
+  entry.assetRefs = mergeLinkHeaderAssetRefs(extracted.assetRefs, replayedHeader, pageUrl).assetRefs
 }
 
 /**
@@ -860,6 +865,43 @@ function reachabilityFloor(manifest) {
  *  22's autoSelectFamily calls the custom lookup with `{all:true}` and expects an array back
  *  — the un-fixed lookup always called back with a bare (ip, family), which made every
  *  pinned request fail with "Invalid IP address: undefined". */
+/** Every HTML entry carries a linkHeaderRefs array; at least one page (a dynamic render, e.g.
+ *  a Replit blog post) actually sent preloads in a `Link` header; each such ref is in that
+ *  page's assetRefs (compared with `dpl` stripped) and was fetched by captureAssets with a 2xx. */
+function liveLinkHeaderCheck(manifest) {
+  const stripDpl = (r) => {
+    const q = r.indexOf('?')
+    if (q === -1) return r
+    const params = new URLSearchParams(r.slice(q + 1))
+    params.delete('dpl')
+    const rest = params.toString()
+    return rest ? `${r.slice(0, q)}?${rest}` : r.slice(0, q)
+  }
+  const html = manifest.entries.filter((e) => Array.isArray(e.assetRefs))
+  const missingField = html.filter((e) => !Array.isArray(e.linkHeaderRefs)).map((e) => e.url)
+  const withHeader = html.filter((e) => (e.linkHeaderRefs || []).length > 0)
+  const problems = []
+  for (const e of withHeader) {
+    const refs = new Set(e.assetRefs.map(stripDpl))
+    for (const r of e.linkHeaderRefs) {
+      if (!refs.has(stripDpl(r))) problems.push({ url: e.url, notInAssetRefs: r })
+      const a = manifest.assets?.[r]
+      if (!a || !(a.status >= 200 && a.status < 300)) problems.push({ url: e.url, notFetched2xx: r, asset: a || null })
+    }
+  }
+  const pass = missingField.length === 0 && withHeader.length > 0 && problems.length === 0
+  return {
+    pass,
+    detail: {
+      htmlEntries: html.length,
+      missingLinkHeaderRefsField: missingField.slice(0, 10),
+      pagesWithHeaderPreloads: withHeader.length,
+      sample: withHeader[0] ? { url: withHeader[0].url, linkHeaderRefs: withHeader[0].linkHeaderRefs } : null,
+      problems: problems.slice(0, 20),
+    },
+  }
+}
+
 async function testResolveDispatcher() {
   const http = await import('node:http')
   const server = http.createServer((_req, res) => {
@@ -1375,6 +1417,12 @@ async function main() {
   console.log('[selftest] checking sitemap reachability floor ...')
   const reachability = reachabilityFloor(manifestA)
   checks.push({ name: 'reachability-floor-sitemap', pass: reachability.pass, detail: reachability.detail })
+
+  // --- Check 2b2: Link-header preloads on the live capture (SPEC-04 §3, 2026-09-27). ---
+  // The offline cases are in selftest-link-header.mjs; this confirms the real capture path
+  // merged a live dynamic page's `Link` header into assetRefs and fetched those refs.
+  const linkHeader = liveLinkHeaderCheck(manifestA)
+  checks.push({ name: 'live-link-header-preloads', pass: linkHeader.pass, detail: linkHeader.detail })
 
   // --- Check 2c: --resolve pinned-DNS dispatcher against a local server (per review). ---
   console.log('[selftest] testing --resolve pinned dispatcher against a local server ...')

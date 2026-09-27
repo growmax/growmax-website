@@ -198,14 +198,8 @@ export function extractHtml(rawHtml, pageUrl) {
   const rawRoot = parseHtml(rawHtml, { comment: false })
   const assetRefs = new Set()
   const addAssetRef = (raw) => {
-    if (!raw) return
-    try {
-      const u = new URL(raw, pageUrl)
-      if (!isSameSite(u, pageUrl)) return
-      assetRefs.add(u.pathname + (u.search || ''))
-    } catch {
-      // relative/invalid ref we couldn't resolve; ignore
-    }
+    const ref = sameSiteAssetRef(raw, pageUrl)
+    if (ref !== null) assetRefs.add(ref)
   }
   const addSrcset = (srcset) => {
     if (!srcset) return
@@ -258,6 +252,223 @@ export function extractHtml(rawHtml, pageUrl) {
     internalLinks: [...internalLinks].sort(),
     images: [...images].sort(),
     assetRefs: [...assetRefs].sort(),
+  }
+}
+
+/**
+ * The same-site filter + path+search normalization every assetRef goes through: resolve `raw`
+ * against the page URL, keep it only when isSameSite() says so, and return it as
+ * pathname + search (what captureAssets later fetches from the capture base). Returns null for
+ * an empty, unresolvable or cross-site ref. Shared by the HTML elements above and the `Link`
+ * response header below (SPEC-04 §3 "Link header preloads"), so both forms of the same hint
+ * are filtered and normalized identically.
+ */
+export function sameSiteAssetRef(raw, pageUrl) {
+  if (!raw) return null
+  try {
+    const u = new URL(raw, pageUrl)
+    if (!isSameSite(u, pageUrl)) return null
+    return u.pathname + (u.search || '')
+  } catch {
+    // relative/invalid ref we couldn't resolve; ignore
+    return null
+  }
+}
+
+// --- SPEC-04 §3 addendum 2026-09-27 (P6.2): `Link` response-header preloads. ---
+//
+// Next.js sends a DYNAMIC render's preload hints (root-layout fonts, route CSS) as an HTTP
+// `Link` header, but inlines the same hints as <link rel="preload"> elements in PRERENDERED
+// (static/ISR) HTML. The browser acts on both forms the same way, so an assetRefs set built
+// from HTML elements alone reports a difference no visitor can see whenever one side renders
+// a route dynamically and the other prerenders it (Replit's dynamic blog posts vs the ISR
+// posts on Vercel after SPEC-02 H1).
+
+const LINK_TOKEN_CHAR_RE = /[!#$%&'*+\-.^_`|~0-9A-Za-z]/
+const LINK_PRELOAD_RELS = new Set(['preload', 'modulepreload'])
+
+function isLinkOws(ch) {
+  return ch === ' ' || ch === '\t'
+}
+
+/** From index `i` (inside a malformed link-value), skip to just past the next top-level comma,
+ *  i.e. one not inside <...> or a quoted-string, so parsing can resume at the next value. */
+function skipToNextLinkValue(value, i) {
+  let inAngle = false
+  let inQuote = false
+  while (i < value.length) {
+    const ch = value[i]
+    if (inQuote) {
+      if (ch === '\\') i++
+      else if (ch === '"') inQuote = false
+    } else if (inAngle) {
+      if (ch === '>') inAngle = false
+    } else if (ch === '"') inQuote = true
+    else if (ch === '<') inAngle = true
+    else if (ch === ',') return i + 1
+    i++
+  }
+  return value.length
+}
+
+/**
+ * Parse an HTTP `Link` header field value (RFC 8288 §3) into `[{ target, params }]`, where
+ * `target` is the raw URI-Reference between `<` and `>` and `params` maps each lower-cased
+ * parameter name to its (unquoted, unescaped) value; only a parameter's FIRST occurrence
+ * counts (RFC 8288 §3.3 for `rel`). Several header lines arrive joined with ", " (undici's
+ * Headers#get), so link-values are split only on commas outside <...> and outside
+ * quoted-strings. A malformed link-value (no leading `<`, no closing `>`, an unterminated
+ * quoted-string, junk between parameters) is dropped on its own; parsing resumes at the next
+ * top-level comma where one can be found. Never throws: a non-string or unparseable input
+ * yields [].
+ */
+export function parseLinkHeader(value) {
+  const out = []
+  if (typeof value !== 'string') return out
+  try {
+    const n = value.length
+    let i = 0
+    while (i < n) {
+      while (i < n && (isLinkOws(value[i]) || value[i] === ',')) i++
+      if (i >= n) break
+      if (value[i] !== '<') {
+        i = skipToNextLinkValue(value, i)
+        continue
+      }
+      const close = value.indexOf('>', i + 1)
+      if (close === -1) break // unterminated URI-Reference swallows the rest of the field
+      const target = value.slice(i + 1, close).trim()
+      i = close + 1
+      const params = {}
+      let valid = true
+      while (true) {
+        while (i < n && isLinkOws(value[i])) i++
+        if (i >= n) break
+        if (value[i] === ',') {
+          i++
+          break
+        }
+        if (value[i] !== ';') {
+          valid = false
+          i = skipToNextLinkValue(value, i)
+          break
+        }
+        i++
+        while (i < n && isLinkOws(value[i])) i++
+        let name = ''
+        while (i < n && LINK_TOKEN_CHAR_RE.test(value[i])) name += value[i++]
+        if (!name) {
+          if (i >= n || value[i] === ';' || value[i] === ',') continue // empty ";;" parameter
+          valid = false
+          i = skipToNextLinkValue(value, i)
+          break
+        }
+        while (i < n && isLinkOws(value[i])) i++
+        let paramValue = ''
+        if (value[i] === '=') {
+          i++
+          while (i < n && isLinkOws(value[i])) i++
+          if (value[i] === '"') {
+            i++
+            let closed = false
+            while (i < n) {
+              const ch = value[i]
+              if (ch === '\\' && i + 1 < n) {
+                paramValue += value[i + 1]
+                i += 2
+                continue
+              }
+              if (ch === '"') {
+                closed = true
+                i++
+                break
+              }
+              paramValue += ch
+              i++
+            }
+            if (!closed) {
+              valid = false
+              break
+            }
+          } else {
+            // Unquoted: RFC 8288 wants a token, but real servers also send e.g. type=font/woff2
+            // unquoted; accept anything up to the next ';', ',' or whitespace (as browsers do).
+            while (i < n && value[i] !== ';' && value[i] !== ',' && !isLinkOws(value[i])) paramValue += value[i++]
+          }
+        }
+        const key = name.toLowerCase()
+        if (!Object.prototype.hasOwnProperty.call(params, key)) params[key] = paramValue
+      }
+      if (valid) out.push({ target, params })
+    }
+  } catch {
+    return []
+  }
+  return out
+}
+
+/** The `dpl` query parameter stripped, for de-duplicating a header target against the page's
+ *  HTML-derived refs only (same rule as compare.mjs's stripDplQueryParam; the ref itself is
+ *  still recorded and fetched raw). */
+function stripDplForDedup(ref) {
+  const qIndex = ref.indexOf('?')
+  if (qIndex === -1) return ref
+  const params = new URLSearchParams(ref.slice(qIndex + 1))
+  if (!params.has('dpl')) return ref
+  params.delete('dpl')
+  const rest = params.toString()
+  return rest ? `${ref.slice(0, qIndex)}?${rest}` : ref.slice(0, qIndex)
+}
+
+/**
+ * Every same-site asset a `Link` header tells the browser to preload: each link-value whose
+ * `rel` (case-insensitive, possibly quoted, space-separated tokens) includes `preload` or
+ * `modulepreload`, resolved against the page URL through sameSiteAssetRef() (the HTML refs'
+ * filter and path+search form). Other rels (preconnect, dns-prefetch, stylesheet, ...), an
+ * empty `<>` target, third-party targets and malformed input add nothing. Distinct refs,
+ * de-duplicated with `dpl` stripped, in header order. Never throws.
+ */
+export function linkHeaderPreloadRefs(linkHeaderValue, pageUrl) {
+  const refs = []
+  const seen = new Set()
+  for (const { target, params } of parseLinkHeader(linkHeaderValue)) {
+    const rel = typeof params.rel === 'string' ? params.rel : ''
+    const tokens = rel.toLowerCase().split(/[ \t]+/).filter(Boolean)
+    if (!tokens.some((t) => LINK_PRELOAD_RELS.has(t))) continue
+    if (!target) continue
+    const ref = sameSiteAssetRef(target, pageUrl)
+    if (ref === null) continue
+    const key = stripDplForDedup(ref)
+    if (seen.has(key)) continue
+    seen.add(key)
+    refs.push(ref)
+  }
+  return refs
+}
+
+/**
+ * Merge a response's `Link` header preloads into a page's HTML-derived `assetRefs` (what
+ * capture.mjs records): a header ref is added only when no existing ref equals it with `dpl`
+ * stripped on both, so one asset never counts twice. Returns the merged, sorted `assetRefs`
+ * plus `linkHeaderRefs` (every same-site preload ref the header carried, sorted, whether or
+ * not it was already in the HTML — diagnostics only, compare.mjs never reads it). Never
+ * throws: on any unexpected error the HTML refs are returned unchanged.
+ */
+export function mergeLinkHeaderAssetRefs(assetRefs, linkHeaderValue, pageUrl) {
+  const base = Array.isArray(assetRefs) ? assetRefs : []
+  try {
+    const headerRefs = linkHeaderPreloadRefs(linkHeaderValue, pageUrl)
+    const existing = new Set(base.map(stripDplForDedup))
+    const merged = [...base]
+    for (const ref of headerRefs) {
+      const key = stripDplForDedup(ref)
+      if (existing.has(key)) continue
+      existing.add(key)
+      merged.push(ref)
+    }
+    return { assetRefs: merged.sort(), linkHeaderRefs: [...headerRefs].sort() }
+  } catch {
+    return { assetRefs: [...base].sort(), linkHeaderRefs: [] }
   }
 }
 

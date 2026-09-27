@@ -1,0 +1,68 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T07:29:49Z",
+  "verifier": "migration-verifier (opus/medium)",
+  "scope": "Independent verification of P6.2 attempt 3 round 1 (H5 app/globals.css @source not x4, H6 lib/db.ts withExplicitVerifyFull, parity harness Link-header preload + compare outputs fix). Working tree on fbb9fba plus uncommitted changes.",
+  "checks": [
+    { "name": "1a npm ci skip condition", "expected": "git diff --stat 2f4b4d5 -- package.json package-lock.json empty => npm ci skipped", "actual": "empty diff (0 bytes); npm ci skipped; npm ls exits 0 against the installed tree", "pass": true },
+    { "name": "1b npm run check (tsc)", "expected": "exit 0, tsconfig.tsbuildinfo restored", "actual": "exit 0; tsconfig.tsbuildinfo was modified by tsc and restored with git checkout", "pass": true },
+    { "name": "2 local PG16 load", "expected": "blog_posts+blog_redirects schema+data from blog-tables.dump; other tables schema-only from schema.dump", "actual": "PG16 on 127.0.0.1:54329, DB growmax: blog_posts 171 rows (171 published), blog_redirects 95; demo_requests and newsletter_subscriptions schema-only (tables, sequences, defaults, PK/unique constraints) with 0 rows. Deviation: data dir at /var/tmp/growmax-localpg-p62v instead of .scratch/localpg because .scratch is mode 0700 root and initdb as postgres cannot traverse it; the permissions of .scratch were not changed. Only pg_restore error was the benign 'schema public already exists'.", "pass": true },
+    { "name": "3 npm run build", "expected": "exit 0 with local DATABASE_URL, random SESSION_SECRET, ADMIN_PASSWORD=local-test", "actual": "exit 0; no pg SECURITY WARNING in build output", "pass": true },
+    { "name": "4a indexableRoutes -> 200", "expected": "all 200", "actual": "40/40 200", "pass": true },
+    { "name": "4b 5 random published slugs -> 200", "expected": "200 x5", "actual": "independent-partner-portals-for-industrial-channels, maximizing-growth-through-partner-sales-management-a-comprehensive-guide, empower-your-business-with-advantage-of-b2b-ecommerce, boost-efficiency-in-f-b-fmcg-wholesale-with-a-zoho-integrated-order-booking-sales-app, wholesale-marketing: all 200", "pass": true },
+    { "name": "4c /blog/does-not-exist-xyz", "expected": "404", "actual": "404", "pass": true },
+    { "name": "4d config redirects, first-match", "expected": "308 permanent / 307 temporary with the first-matching destination as Location", "actual": "65 entries (50 gsc + 15 next.config), 58 unique sources (7 later duplicates shadowed); 58/58 correct status and Location", "pass": true },
+    { "name": "4e sitemap.xml URL count", "expected": "40 static + 171 published + 1 fallback ARC AI article (absent from DB) = 212", "actual": "212", "pass": true },
+    { "name": "4f robots.txt, llms.txt, llms-full.txt", "expected": "200", "actual": "200, 200, 200", "pass": true },
+    { "name": "4g /api/blog length", "expected": "172 (171 + fallback)", "actual": "172", "pass": true },
+    { "name": "4h admin", "expected": "login local-test 200 + growmax-admin cookie; /api/admin/posts 200; wrong password 401", "actual": "login 200 with growmax-admin cookie; /api/admin/posts 200 with cookie (401 without); wrong password 401", "pass": true },
+    { "name": "7 cleanup", "expected": "server and PG stopped, local PG dir removed", "actual": "next start stopped, pg_ctl stop done, /var/tmp/growmax-localpg-p62v removed, .scratch/localpg absent, ports 3100/54329 free", "pass": true },
+    { "name": "8 H5 gained tokens vs B CSS new-b05e81efd48e3db7.css", "expected": "0", "actual": "0 (local main CSS .next/static/css/b5162b0c557fcf76.css: 1365 class tokens; B: 1396; second CSS 67ec1cc0bd707d2d.css byte-identical name to B)", "pass": true },
+    { "name": "8 H5 lost tokens unused in raw-a/raw-b bodies", "expected": "no class/className value in any of the 297 bodies per side uses a lost token", "actual": "31 lost tokens; 594 .bin bodies scanned (297 raw-a + 297 raw-b, incl. /api/blog JSON content), 120174 class/className values (plain, JSON-escaped and RSC-escaped forms): 0 hits", "pass": true },
+    { "name": "8 H5 lost tokens unused in tracked files outside excluded paths", "expected": "no class/className value uses a lost token", "actual": "218 tracked text files outside docs/migration, scripts/migration, .claude, CLAUDE.md: 0 class/className hits. Raw substring hits, all non-class: antialiased (app/globals.css:67 inside @apply on body; body rule still sets -webkit-font-smoothing:antialiased in local CSS), collapse (app/globals.css border-collapse: collapse value), ease-out (app/globals.css:101 animation value; attached_assets/logoHref.html inline CSS values), @container (components/ui/field.tsx:49 uses @container/field-group, which is present in both CSS files), shrink (scripts/csv-imported-posts.ts:1337 prose 'grow, shrink, churn')", "pass": true },
+    { "name": "8 H6 parse matrix (10 shapes, fresh node process per case, fake host/credentials, pg-connection-string 2.10.0)", "expected": "parse(normalized).ssl deep-equals parse(original).ssl; normalized emits no warning; uselibpqcompat and application_name=xsslmode=require unchanged", "actual": "10/10 pass (see h6Matrix)", "pass": true },
+    { "name": "B1 selftest.mjs --base https://www.growmax.io (NODE_USE_ENV_PROXY=1, --out scratchpad)", "expected": "exit 0, no FAIL", "actual": "exit 0; 19 PASS incl. live-link-header-preloads, 0 FAIL, 1 DEFERRED (protected-deployment-probe; not run without a bypass secret)", "pass": true },
+    { "name": "B2 selftest-p5.3.mjs", "expected": "exit 0", "actual": "exit 0; 13 PASS, 0 FAIL (it wrote its default output docs/migration/evidence/P5.3-parity-selftest.json, now untracked)", "pass": true },
+    { "name": "B3 selftest-link-header.mjs", "expected": "exit 0", "actual": "exit 0; 15 PASS, 0 FAIL incl. compare-outputs-never-share-a-path and bypass-only-to-base-host-header-refs-fetched", "pass": true },
+    { "name": "B4 live mini-capture without bypass", "expected": "6 URLs each side, 0 fetch errors, no protection-bypass header sent", "actual": "A=https://www.growmax.io 07:28:14Z, B=https://growmax-website.vercel.app 07:28:16Z (done 07:28:18Z); 6/6 each, 0 fetch errors; no --bypass-secret-file passed, fetcher adds x-vercel-protection-bypass only when a secret is given (lib/fetcher.mjs:83) and reads no env var", "pass": true },
+    { "name": "B5 compare outputs fix", "expected": "diff.json and full copy both exist at different paths", "actual": "diff.json and diff.full.json both written in p6.2-fix-mini-20260927T0709Z (content identical: small result, no trimming needed)", "pass": true },
+    { "name": "B6 3 posts assetRefs equal", "expected": "no assetRefs diff for the 3 posts", "actual": "no assetRefs diff on any of the 6 URLs (P6.2 full run had 38 assetRefs diffs); each post 27 refs on both sides, differing only in content hashes/dpl, which compare normalizes", "pass": true },
+    { "name": "B7 post linkHeaderRefs on A", "expected": "2 CSS + 5 fonts per post", "actual": "all 3 posts on A: /_next/static/css/67ec1cc0bd707d2d.css, /_next/static/css/e0e0fae895f3fff8.css, media 26d4368bf94c0ec4, 37786be940ec402b, 98e207f02528a563, d3ebbfd689654d3a, db96af6b531dc71f (-s.p.woff2); B posts []. Also /demo 5 on both sides, / and /blog 0 on both", "pass": true },
+    { "name": "B8 no other new diff field", "expected": "only report-only header/byte diffs, the allowlisted / diffs, and the hashedCssSha256 pin", "actual": "report-only: content-encoding x6, strict-transport-security x6, bytes x6, cache-control x5; allowlisted (A3): / visibleTextHash, / internalLinks; unallowed: <hashed-css-assets> hashedCssSha256 only (failedUnallowed=1, allowlisted=2)", "pass": true },
+    { "name": "C working tree", "expected": "only app/globals.css, lib/db.ts, scripts/migration/parity/**, docs and evidence changed; tsconfig.tsbuildinfo unmodified", "actual": "M app/globals.css, lib/db.ts, scripts/migration/parity/{capture,compare,selftest}.mjs, lib/extract.mjs; ?? scripts/migration/parity/selftest-link-header.mjs, docs/migration/evidence/P6.2-fix-implement-{app,harness}.json, P5.3-parity-selftest.json (from B2), this file; tsconfig.tsbuildinfo clean; STATE.json/LOG.md untouched", "pass": true }
+  ],
+  "knownExpectedFailures": [
+    { "name": "hashedCssSha256 pin", "detail": "A (Replit) main CSS sha256 5cca0cd4e10a0f48c33fe6d6b051e6e6a9897ab979c6b2964909e4d4bbe540f0 vs B (vercel.app, still 2f4b4d5 without H5) 4377f3cf5b68a4bbf15f47105ed6b736531f3943571a923f0d17ead8f78197ab; second bundle b22fd05c... equal. Expected until the H5 build is deployed; the allowlist hashedCssSha256 row matched no URL." }
+  ],
+  "h5LostTokens": ["!bg-transparent","!border-0","!container","!rounded-none","!shadow-none","@container","animate-bounce","animate-out","antialiased","aspect-[4/3]","backdrop-blur","backdrop-filter","bg-amber-50","bg-blue-800","bg-gradient-to-br","bg-indigo-950","border-s","col-12","col-span-2","collapse","duration-500","ease-out","h-screen","isolate","lowercase","resize","rounded-b","self-start","shrink","slide-in-from-left","zoom-out-95"],
+  "h5GainedTokens": [],
+  "h6Matrix": [
+    { "query": "?sslmode=require", "normalized": "?sslmode=verify-full", "ssl": "{}", "deepEqual": true, "normWarnings": 0, "origWarnings": 1, "pass": true },
+    { "query": "?sslmode=require&channel_binding=require", "normalized": "?sslmode=verify-full&channel_binding=require", "ssl": "{}", "deepEqual": true, "normWarnings": 0, "origWarnings": 1, "pass": true },
+    { "query": "?channel_binding=require&sslmode=prefer", "normalized": "?channel_binding=require&sslmode=verify-full", "ssl": "{}", "deepEqual": true, "normWarnings": 0, "origWarnings": 1, "pass": true },
+    { "query": "?sslmode=verify-ca", "normalized": "?sslmode=verify-full", "ssl": "{}", "deepEqual": true, "normWarnings": 0, "origWarnings": 1, "pass": true },
+    { "query": "?sslmode=verify-full", "normalized": "unchanged", "ssl": "{}", "deepEqual": true, "normWarnings": 0, "origWarnings": 0, "pass": true },
+    { "query": "?sslmode=disable", "normalized": "unchanged", "ssl": "false", "deepEqual": true, "normWarnings": 0, "origWarnings": 0, "pass": true },
+    { "query": "?sslmode=no-verify", "normalized": "unchanged", "ssl": "{ rejectUnauthorized: false }", "deepEqual": true, "normWarnings": 0, "origWarnings": 0, "pass": true },
+    { "query": "?uselibpqcompat=true&sslmode=require", "normalized": "unchanged (required)", "ssl": "{ rejectUnauthorized: false }", "deepEqual": true, "normWarnings": 0, "origWarnings": 0, "pass": true },
+    { "query": "(none)", "normalized": "unchanged", "ssl": "undefined", "deepEqual": true, "normWarnings": 0, "origWarnings": 0, "pass": true },
+    { "query": "?application_name=xsslmode=require", "normalized": "unchanged (required)", "ssl": "undefined", "deepEqual": true, "normWarnings": 0, "origWarnings": 0, "pass": true }
+  ],
+  "notes": [
+    "H6 normalizer is the function body extracted verbatim from lib/db.ts; each case ran in two fresh node processes (normalized-first then original in one, original alone in the other) so the once-per-process warning flag could not mask anything.",
+    "A first mini-capture accidentally ran with A=vercel.app and B=www.growmax.io; the allowlist rows are written for A=Replit, so it showed / visibleTextHash and / internalLinks as unallowed. It was moved to p6.2-fix-mini-20260927T0709Z/reversed-orientation/ and is not used. The reported run uses the P6.2 convention (A=www.growmax.io, B=vercel.app)."
+  ],
+  "artifacts": [
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/urls.json",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/A.json",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/B.json",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/raw-a/",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/raw-b/",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/diff.json",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/diff.full.json",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/text-diffs/",
+    "docs/migration/evidence/P5.3-parity-selftest.json"
+  ]
+}

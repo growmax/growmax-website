@@ -24,6 +24,7 @@ import {
   canonicalStringify,
   safeFileName,
   decodeImageDimensions,
+  mergeLinkHeaderAssetRefs,
   CANONICAL_PRODUCTION_HOSTS,
 } from './lib/extract.mjs'
 
@@ -188,7 +189,15 @@ async function captureOne(entry, base, opts) {
       record.visibleTextHash = extracted.visibleTextHash
       record.internalLinks = extracted.internalLinks
       record.images = extracted.images
-      record.assetRefs = extracted.assetRefs
+      // SPEC-04 §3 "Link header preloads" (2026-09-27): a dynamic render sends its preload
+      // hints as a `Link` response header instead of <link rel=preload> elements, so merge
+      // the header's same-site preload/modulepreload targets into assetRefs (deduplicated
+      // against the HTML refs with dpl stripped) and keep the header-derived subset as
+      // linkHeaderRefs for diagnostics. Same in full and compact mode; captureAssets fetches
+      // the merged refs from `base` like any other same-site ref.
+      const merged = mergeLinkHeaderAssetRefs(extracted.assetRefs, res.headers.get('link'), target)
+      record.assetRefs = merged.assetRefs
+      record.linkHeaderRefs = merged.linkHeaderRefs
       if (rawDir) {
         const safeName = safeFileName(entry.url)
         record.rawTextFile = `${safeName}.text.txt`
@@ -278,9 +287,10 @@ async function mapWithConcurrency(items, limit, fn) {
 /**
  * Fetch every unique same-site asset referenced by any captured page (SPEC-04 §3): the
  * `assetRefs` extract.mjs collects (img src/srcset, <source srcset>, link icon/preload/
- * stylesheet), none of which any other part of the harness ever fetches. Records
- * status + contentType for every ref, plus a sha256 for anything that isn't a hashed
- * /_next/static/<build>/... name (those are compared by status only — see compare.mjs).
+ * stylesheet, plus the response's `Link` header preloads), none of which any other part of
+ * the harness ever fetches. Records status + contentType for every ref, plus a sha256 for
+ * anything that isn't a hashed /_next/static/<build>/... name (those are compared by status
+ * only — see compare.mjs).
  * A missing public/ asset, a broken image optimizer (400/500), or a 404'd JS/CSS chunk all
  * surface here instead of passing silently.
  */

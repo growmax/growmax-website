@@ -1,0 +1,53 @@
+{
+  "step": "P6.2",
+  "part": "harness",
+  "attempt": 3,
+  "rung": 3,
+  "checkedAt": "2026-09-27T07:19:43Z",
+  "implementer": "migration-implementer",
+  "spec": "docs/migration/specs/SPEC-04-verification.md \u00a73 addenda 2026-09-27: 'Link header preloads' and 'compare.mjs outputs'",
+  "changedFiles": [
+    "scripts/migration/parity/lib/extract.mjs",
+    "scripts/migration/parity/capture.mjs",
+    "scripts/migration/parity/compare.mjs",
+    "scripts/migration/parity/selftest.mjs",
+    "scripts/migration/parity/selftest-link-header.mjs (new)"
+  ],
+  "summary": {
+    "extract.mjs": "Moved the assetRefs same-site filter + path+search form into an exported sameSiteAssetRef(raw, pageUrl), used by the HTML elements (behavior unchanged) and the new header path. Added parseLinkHeader() (RFC 8288: splits only on commas outside <...> and quoted-strings, so undici's ', '-joined lines work; lower-cased param names, first occurrence wins, quoted-string unescaping; a malformed link-value is dropped alone and parsing resumes at the next top-level comma; never throws). linkHeaderPreloadRefs() keeps entries whose rel tokens (case-insensitive, quoted or not, space-separated) include preload or modulepreload, resolves each target against the page URL through sameSiteAssetRef, skips empty <> targets, and dedups within the header with dpl stripped. mergeLinkHeaderAssetRefs(assetRefs, linkHeader, pageUrl) adds a header ref only when no existing ref matches it with dpl stripped on both, and returns {assetRefs (sorted), linkHeaderRefs}.",
+    "capture.mjs": "The 2xx/4xx text/html branch calls mergeLinkHeaderAssetRefs(extracted.assetRefs, res.headers.get('link'), target) and records merged assetRefs plus linkHeaderRefs. It runs the same way in full and compact mode. linkHeaderRefs holds every distinct same-site preload ref the header carried (sorted), including ones already present in the HTML, and is for diagnostics only. captureAssets did not change: it fetches the merged refs from base with the same bypass rule as before. targetIsBaseHost and base did not change.",
+    "compare.mjs": "This is the outputs fix and nothing else. The new exported diffOutputPaths(out, scratch) sets the full copy to <scratch>/<basename of --out>. When the scratch directory resolves (path.resolve, then realpath for symlinks, after both directories are created) to the directory of --out, the full copy becomes <basename without .json>.full.json instead. main() writes the two copies to these separate paths. Comparison semantics did not change: compareManifests and compareEntry are untouched, and linkHeaderRefs is never read.",
+    "selftest.mjs": "rebuildHtmlEntryFromRaw now replays the entry's recorded linkHeaderRefs through mergeLinkHeaderAssetRefs. Without that, a mutated raw body of a dynamically rendered page would be flagged only because it lost its header refs. A new live check, live-link-header-preloads, confirms three things: every HTML entry has linkHeaderRefs; at least one live page sent header preloads; and each such ref is in assetRefs (compared with dpl stripped) and was fetched with a 2xx.",
+    "selftest-link-header.mjs": "This test makes no network calls. It exercises pure functions, runs capture() end to end with globalThis.fetch replaced by a logging in-memory stub, and runs compare.mjs as a child process on temporary manifests. It has 14 cases covering every item on the task list. 8 deliberate code mutations were run on a scratch copy, and each one is caught by at least one case: no merge, no dpl dedup, split on every comma, exact-match rel, no same-site filter, old outputs path, bypass sent to all hosts, and no within-header dedup."
+  },
+  "liveObservation": "Replit (www.growmax.io), fetched by GET only: blog posts send 'link:' with 5 woff2 fonts (rel=preload; as=\"font\") and 2 CSS files (rel=preload; as=\"style\"). The HTML has the same 2 stylesheets. On the live selftest run, 174 of 218 HTML entries carried header preloads, and all of them were merged and fetched with a 2xx.",
+  "selftests": [
+    {
+      "name": "scripts/migration/parity/selftest-link-header.mjs",
+      "network": "none",
+      "result": "PASS 14/14",
+      "exit": 0
+    },
+    {
+      "name": "scripts/migration/parity/selftest-p5.3.mjs",
+      "network": "none",
+      "result": "PASS 12/12",
+      "exit": 0
+    },
+    {
+      "name": "scripts/migration/parity/selftest.mjs --base https://www.growmax.io (NODE_USE_ENV_PROXY=1, --out to a scratchpad file so committed P1.2 evidence is not overwritten)",
+      "network": "live GET-only to the public Replit site",
+      "result": "overall pass: 19 PASS, 1 DEFERRED (protected-deployment-probe), 0 FAIL, including the new live-link-header-preloads (174 pages)",
+      "exit": 0
+    }
+  ],
+  "scan": "node scripts/migration/state.mjs scan: clean",
+  "notTouched": "app/globals.css and lib/db.ts are modified in the working tree by the parallel app-side fix (P6.2-fix-implement-app.json) and are not part of this change.",
+  "verifierShouldRun": [
+    "cd scripts/migration/parity && node selftest-link-header.mjs",
+    "cd scripts/migration/parity && node selftest-p5.3.mjs --out <scratch>",
+    "cd scripts/migration/parity && NODE_USE_ENV_PROXY=1 node selftest.mjs --base https://www.growmax.io --out <scratch>",
+    "Re-run the P6.2 parity capture of A and B plus compare. The 172 /blog/<slug> assetRefs diffs (B-only font preloads) should disappear. The hashedCssSha256 pin diff is unrelated and still needs its advisor re-pin.",
+    "node scripts/migration/state.mjs scan"
+  ]
+}

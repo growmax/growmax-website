@@ -115,7 +115,7 @@ Everything runs in the container with no external network except the npm registr
 1. `npm ci` and `npm run check` (tsc) both pass.
 2. Local PG16:
    ```bash
-   export PGB=/usr/lib/postgresql/16/bin S=docs/migration/.scratch/localpg
+   export PGB=/usr/lib/postgresql/16/bin S=/var/tmp/growmax-localpg   # not under .scratch: it is mode 0700 root, so the postgres user can't reach it
    install -d -o postgres "$S"
    runuser -u postgres -- $PGB/initdb -D "$S/data" -A trust -U postgres
    runuser -u postgres -- $PGB/pg_ctl -D "$S/data" -o "-p 54329 -k /tmp" -l "$S/log" start
@@ -139,7 +139,7 @@ Everything runs in the container with no external network except the npm registr
    - With the middleware lookup forced to time out (for example an unreachable Neon HTTP URL in middleware only), `/blog/<old_path>` still redirects (308 from the page) and never renders or caches a 404.
    - A killed DB (`pg_ctl stop`) makes an **already cached** `/blog/<slug>` still return 200, never 404.
    - `/api/blog` still returns 200 from cache.
-7. Stop PG and remove `.scratch/localpg`.
+7. Stop PG and remove `$S` (`/var/tmp/growmax-localpg`).
 8. H5 and H6 (P6.2 attempt 3). Write the result to `evidence/P6.2-fix-local-verify.json`.
    - **H5:** after the local `npm run build`, list the class tokens the new main CSS lost and gained compared with `docs/migration/.scratch/p6.2-p6-20260927T0645Z/css/new-b05e81efd48e3db7.css` (the CSS B serves at `2f4b4d5`).
      - Gained must be 0.

@@ -3,6 +3,7 @@
 // Exit code 0 only if failedUnallowed == 0.
 
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { realpathSync } from 'node:fs'
 import path from 'node:path'
 import { createTwoFilesPatch, firstNLines } from './lib/diff.mjs'
 import { sha256Text, normalizeText, safeFileName, CANONICAL_PRODUCTION_HOSTS } from './lib/extract.mjs'
@@ -990,6 +991,35 @@ export async function compareManifests(
   }
 }
 
+function sameDirectory(a, b) {
+  if (a === b) return true
+  try {
+    return realpathSync(a) === realpathSync(b) // e.g. one of them reached through a symlink
+  } catch {
+    return false // a directory that doesn't exist yet can't be the other one
+  }
+}
+
+/**
+ * SPEC-04 §3 "compare.mjs outputs" (2026-09-27): where the full diff.json copy and the trimmed
+ * committed copy go. They never share a path: the full copy is `<scratch>/<basename of --out>`,
+ * except when the scratch directory resolves to the directory of --out, where it becomes
+ * `<basename without .json>.full.json` next to it (previously the trimmed copy silently
+ * overwrote the full one there). "Resolves to" also covers a symlink to the same directory.
+ * Exported for the self-test.
+ */
+export function diffOutputPaths(out, scratchArg) {
+  const committed = path.resolve(out)
+  const scratchDir = path.resolve(scratchArg || path.join(path.dirname(out), '..', '.scratch'))
+  let full = path.join(scratchDir, path.basename(committed))
+  if (sameDirectory(scratchDir, path.dirname(committed))) {
+    const ext = path.extname(committed)
+    const stem = ext.toLowerCase() === '.json' ? path.basename(committed, ext) : path.basename(committed)
+    full = path.join(scratchDir, `${stem}.full.json`)
+  }
+  return { scratchDir, full, committed }
+}
+
 function parseArgs(argv) {
   const out = {}
   for (let i = 0; i < argv.length; i++) {
@@ -1034,7 +1064,12 @@ async function main() {
     }
   }
 
-  const scratchDir = args.scratch || path.join(path.dirname(args.out), '..', '.scratch')
+  // Both directories exist before the paths are decided, so a symlinked --scratch that is
+  // really the --out directory is recognised too.
+  await mkdir(diffOutputPaths(args.out, args.scratch).scratchDir, { recursive: true })
+  await mkdir(path.dirname(path.resolve(args.out)), { recursive: true })
+  const outputs = diffOutputPaths(args.out, args.scratch)
+  const scratchDir = outputs.scratchDir
   const result = await compareManifests(manifestA, manifestB, {
     allowlist,
     rawDirA: args['raw-dir-a'],
@@ -1044,11 +1079,11 @@ async function main() {
 
   // Full copy to .scratch/, committed copy capped at ~200KB by trimming diffs.
   await mkdir(scratchDir, { recursive: true })
-  await writeFile(path.join(scratchDir, path.basename(args.out)), JSON.stringify(result, null, 2))
+  await writeFile(outputs.full, JSON.stringify(result, null, 2))
 
   const committed = { ...result, diffs: result.diffs.slice(0, 200) }
-  await mkdir(path.dirname(args.out), { recursive: true })
-  await writeFile(args.out, JSON.stringify(committed, null, 2))
+  await mkdir(path.dirname(outputs.committed), { recursive: true })
+  await writeFile(outputs.committed, JSON.stringify(committed, null, 2))
 
   console.log(
     `Compared ${result.compared} URLs: ${result.passed ? 'PASS' : 'FAIL'} ` +

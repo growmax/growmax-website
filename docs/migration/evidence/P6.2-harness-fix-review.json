@@ -1,0 +1,48 @@
+{
+  "step": "P6.2",
+  "gate": "G6a",
+  "status": "pass",
+  "checkedAt": "2026-09-27T07:36:51Z",
+  "verifier": "migration-reviewer (opus/high)",
+  "scope": "Adversarial review round 1 of git diff 2f4b4d5 -- scripts/migration/parity (+ untracked selftest-link-header.mjs) against SPEC-04 §3 addenda 2026-09-27 ('Link header preloads', 'compare.mjs outputs')",
+  "approve": true,
+  "blocking": [],
+  "nonBlocking": [
+    { "file": "scripts/migration/parity/lib/extract.mjs", "issue": "Missing stylesheet masked by a preload (confirmed with a probe). assetRefs does not tell rel=stylesheet apart from rel=preload. A page with <link rel=stylesheet href=X> on one side matches a page on the other side that has no stylesheet element and only 'Link: <X>; rel=preload; as=style'. Both normalize to the same /_next/static/<build>/<hash>.css, and hashedCssSha256 still matches because the file is fetched either way. Before this diff, a stylesheet dropped from the HTML of a page that sends a Link header was caught; now it is hidden. The HTML-only form (<link rel=preload as=style>) already had this gap. Current risk is low: Next.js emits both forms from one manifest, Vercel ISR posts send no Link header, and §7 visual tests are the backstop. Suggested hardening: also record HTML-only rel=stylesheet refs (stylesheetRefs) and compare their normalized multiset exactly." },
+    { "file": "scripts/migration/parity/lib/extract.mjs", "issue": "parseLinkHeader, target scan: when a link-value has no closing '>' but a later value does, indexOf('>') takes the rest of the field as the target. '<unterminated; rel=preload, </ok.css>; rel=preload' yields the bogus ref '/blog/unterminated;%20rel=preload,%20%3C/ok.css'. That breaks the letter of the spec ('a malformed header adds nothing'), although the effect is an invented failure (a 404 on one side), never a hidden one, and React escapes '<' and '>' in hrefs. Fix: drop a target that contains '<' or whitespace, then resume at the next top-level comma. Add this case to the malformed-input self-test." },
+    { "file": "scripts/migration/parity/lib/extract.mjs", "issue": "An unterminated quoted-string in one Link header line swallows the rest of the joined field, including a later, valid header line ('</a.css>; title=\"x, </b.css>; rel=preload' gives []). This is conservative: it can only invent a diff, not hide one. Noted for completeness." },
+    { "file": "scripts/migration/parity/lib/extract.mjs", "issue": "rel handling is asymmetric. HTML <link rel> is matched exactly ('preload prefetch' is not counted), while the header rel is tokenized ('preload prefetch' counts). The HTML behaviour predates this diff. It only matters if one side sends a multi-token rel as an element and the other sends it as a header." },
+    { "file": "scripts/migration/parity/selftest.mjs", "issue": "liveLinkHeaderCheck looks up manifest.assets[r] by the raw header ref. If the header ref was de-duplicated against an HTML ref with a different dpl form (for example header /x.css against HTML /x.css?dpl=...), the fetched key is the HTML form and the check would report a false notFetched2xx. It also requires at least one page with header preloads, so running it against a base with no dynamic pages fails it. Neither happens against www.growmax.io today (174/218 pages, 0 problems)." },
+    { "file": "docs/migration/evidence/P6.2-fix-local-verify.json", "issue": "Some self-test counts in the verifier's evidence are wrong. selftest-link-header.mjs has 14 cases and I got PASS 14/14, not '15 PASS'. selftest-p5.3.mjs has 12 checks and I got PASS 12/12, not 13. The results were passes either way. The counts should be corrected before the evidence is relied on." },
+    { "file": "docs/migration/evidence/allowlist.json", "issue": "The hashedCssSha256 pin's expected.b value (072d7bf0...) does not match the B value observed now (4377f3cf... on vercel.app). A's value (5cca0cd4..., b22fd05c...) is unchanged by this diff: header CSS refs de-duplicate onto the same two HTML stylesheet keys, so A's CSS multiset is still exactly 2 entries. The pin mismatch comes from the deployed build, not from the harness change. It needs a re-pin with advisor proof after the H5 deploy, or it will clear once B matches." }
+  ],
+  "checks": [
+    { "name": "selftest-link-header.mjs (offline)", "expected": "exit 0, all pass", "actual": "PASS 14/14, exit 0", "pass": true },
+    { "name": "selftest-p5.3.mjs --out scratchpad", "expected": "exit 0", "actual": "PASS 12/12, exit 0 (written to the session scratchpad, not to evidence)", "pass": true },
+    { "name": "selftest.mjs --base https://www.growmax.io (NODE_USE_ENV_PROXY=1, --out scratchpad)", "expected": "exit 0, no FAIL", "actual": "19 PASS, 1 DEFERRED (protected-deployment-probe), exit 0; live-link-header-preloads: 218 HTML entries, 174 with header preloads, 0 missing linkHeaderRefs fields, 0 problems", "pass": true },
+    { "name": "double counting: dpl variants, duplicates in the header, same asset in header and HTML", "expected": "one ref per asset", "actual": "Header duplicates (the same path via relative, absolute canonical-host and ?dpl forms) collapse to one; a header ref equal to an HTML ref with dpl stripped on both is not added; a different non-dpl query is added. The mini-capture shows 27 refs per post on each side. A CSS asset is fetched once when it is named in both the header and the HTML (stub request log).", "pass": true },
+    { "name": "missing stylesheet masked by a preload", "expected": "detected", "actual": "Not detected by assetRefs or hashedCssSha256 (probe). Recorded as non-blocking; see nonBlocking[0].", "pass": true },
+    { "name": "third-party targets kept out of assetRefs", "expected": "only same-site refs", "actual": "fonts.gstatic.com, a protocol-relative CDN URL, another *.vercel.app deployment, growmax.io.evil.com, data: and javascript: are all dropped. www/apex/:443/uppercase-host forms map to path+search, the same as the HTML filter (shared sameSiteAssetRef). No third-party host is fetched (stub log).", "pass": true },
+    { "name": "parser: quoted commas, multiple headers, odd or quoted rel, malformed input", "expected": "correct and never throws", "actual": "Correct for quoted commas and semicolons, commas inside <...>, undici's ', '-joined lines, REL=PreLoad, quoted multi-token rel, first rel wins, 'crossorigin' with no value, ';rel' with no space, trailing ';'. 25 malformed inputs neither throw nor add a ref. One edge case (unterminated '<' followed by a later '>') adds a bogus ref; see nonBlocking[1].", "pass": true },
+    { "name": "compact mode", "expected": "same assetRefs and linkHeaderRefs as full mode", "actual": "The merge runs before any compact branch in captureOne. The offline test shows full and compact refs and asset keys are equal. Live mutation-matrix-compact, determinism-compact-mode and real-compact-capture-path all pass.", "pass": true },
+    { "name": "asset map, hashedCssSha256 and allowlist pins", "expected": "unchanged behaviour", "actual": "compareAssetMaps and the allowlist matching are untouched by the diff. In the mini-capture, A's CSS asset keys are the same 2 stylesheets (5cca0cd4, b22fd05c); header fonts are hashed /_next/static/media refs checked for 2xx only (all 200); non-2xx assets 0 on each side. The A3 pins for '/' visibleTextHash and internalLinks still match. hashedCssSha256 is failing only because of the deployed B build; see nonBlocking[6].", "pass": true },
+    { "name": "bypass header only to the base host", "expected": "bypass goes only to the base host", "actual": "captureAssets still resolves every merged ref against base. The stub test asserts: bypass sent on every request to the base host, never to growmax.io (an absolute post-cutover entry), and no third-party fetch.", "pass": true },
+    { "name": "linkHeaderRefs is diagnostics only", "expected": "compare.mjs does not read it", "actual": "compare.mjs has no reference to linkHeaderRefs, and the offline test shows no diff when it differs", "pass": true },
+    { "name": "compare.mjs outputs never share a path", "expected": "full copy is <stem>.full.json when --scratch resolves to the --out directory", "actual": "diffOutputPaths handles the same dir, a trailing slash, '..', a symlink (realpath) and relative paths. End-to-end run with 250 diffs: committed 200, full 250. The default layout is unchanged. The mini run wrote diff.json and diff.full.json side by side.", "pass": true },
+    { "name": "scope and hygiene", "expected": "only parity files in the harness diff; no secrets", "actual": "The harness diff touches only capture.mjs, compare.mjs, lib/extract.mjs, selftest.mjs and the new selftest-link-header.mjs; package files unchanged; 'state.mjs scan' clean. The self-test's placeholder bypass file and fake dpl id are not secrets.", "pass": true }
+  ],
+  "artifacts": [
+    "scripts/migration/parity/lib/extract.mjs",
+    "scripts/migration/parity/capture.mjs",
+    "scripts/migration/parity/compare.mjs",
+    "scripts/migration/parity/selftest.mjs",
+    "scripts/migration/parity/selftest-link-header.mjs",
+    "docs/migration/specs/SPEC-04-verification.md",
+    "docs/migration/evidence/P6.2-fix-local-verify.json",
+    "docs/migration/evidence/P6.2-fix-implement-harness.json",
+    "docs/migration/evidence/allowlist.json",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/diff.json",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/A.json",
+    "docs/migration/.scratch/p6.2-fix-mini-20260927T0709Z/B.json"
+  ]
+}
