@@ -208,3 +208,4 @@
 - 2026-09-27T03:22:33.921Z set advisor.A3
 - 2026-09-27T03:22:34.020Z set facts.followUps
 - 2026-09-27T03:22:34.073Z [P5.3] A3 for P5.3 (wf_2eb24807-6b0): GO_WITH_CONDITIONS. Approved all 4 allowlist entries (the / visibleTextHash one gated on a unified text diff, C-A3-2); F9 counts as passed for G5 on this deployment, with the round-3 hardening, an opus review and browser corroboration required before P6.2 (C-A3-4); visual fix accepted with a re-run in which any residual failed request is listed by key and explained (C-A3-5); P4.3 amendment ratified, G4 stands (C-A3-6); G5 only when 5.1-5.5 all pass (C-A3-7); A2 carry-overs recorded (C-A3-8). Wrote 3 of 4 entries to allowlist.json at 2026-09-27T03:22:33Z.
+- 2026-09-27T03:23:47.749Z set facts.runs
