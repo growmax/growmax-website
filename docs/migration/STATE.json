@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "POST_CUTOVER",
   "currentStep": null,
-  "updatedAt": "2026-09-27T10:49:24.259Z",
+  "updatedAt": "2026-09-27T10:54:18.050Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -163,7 +163,7 @@
       "hSha": "dc5405357441870b9315a28a7cbb93a201278453"
     },
     "cutover": {
-      "state": "SWITCHED",
+      "state": "PROPAGATED",
       "detectedAt": "2026-09-27T09:00:37Z",
       "switchedBetween": [
         "2026-09-27T08:50:40Z",
@@ -203,9 +203,13 @@
       },
       "certPath": "to be confirmed in P8.1 (the ACME DNS-01 TXT records were not added; Vercel issues via HTTP-01 once DNS points to it)",
       "propagation": {
-        "consecutiveBothResolversVercel": 1,
-        "lastCheckAt": "2026-09-27T09:49:08Z",
-        "apexOnVercel": false
+        "consecutiveBothResolversVercel": 2,
+        "lastCheckAt": "2026-09-27T10:51:55Z",
+        "apexOnVercel": false,
+        "wwwAnswer": [
+          "216.150.1.1"
+        ],
+        "propagatedAt": "2026-09-27T10:51:55Z"
       }
     },
     "runner": {
@@ -686,9 +690,9 @@
   "sync": {
     "gapStart": 1000000,
     "lastFullRefreshAt": null,
-    "lastDeltaAt": null,
-    "lastSourceRowAt": null,
-    "deltaRuns": 0
+    "lastDeltaAt": "2026-09-27T10:53:32Z",
+    "lastSourceRowAt": "2026-09-25 04:04:36.274945 (source clock; newest row across the 4 tables, before the cutover)",
+    "deltaRuns": 2
   },
   "checkins": {
     "lastCheckAt": null,
