@@ -69,8 +69,8 @@ All the items in SPEC-01 §8, re-read independently by the scout → `P3.5-infra
 ## G6a: Hardening verified (P6.1–P6.2)
 | # | Check | Verifier | Evidence |
 |---|---|---|---|
-| 6a.1 | Diff limited to SPEC-02 H1–H4; reviewer approves | reviewer | `P6.1-review.json` |
-| 6a.2 | Local verification incl. H-only checks (cached post survives a DB stop; admin edit revalidates) | verifier | `P6.1-local-verify.json` |
+| 6a.1 | Diff limited to SPEC-02 H1–H6 (H5 and H6 added at P6.2); reviewer approves | reviewer | `P6.1-review.json`, `P6.2-fix-review.json` |
+| 6a.2 | Local verification incl. H-only checks (cached post survives a DB stop; admin edit revalidates) and SPEC-02 local step 8 (H5, H6) | verifier | `P6.1-local-verify.json`, `P6.2-fix-local-verify.json` |
 | 6a.3 | Deployment `READY` for `facts.git.hSha`; full suite passes again (no F2) | verifier | `P6.2-suite-summary.json` |
 
 ## G6: Ready for DNS (P6.3–P6.6)

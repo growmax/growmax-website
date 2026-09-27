@@ -85,6 +85,27 @@ Must contain these entries (the plan-authoring commit already added them; verify
 - Why: `BlogPostClient` fetches this full list on **every** blog view. Uncached, that's one function invocation, one DB query and a multi-MB payload per view. It's the biggest cost and quota risk on Vercel/Neon.
 - `/api/blog/[slug]` has no client usage; leave it unchanged.
 
+### H5: Keep the migration kit out of the production CSS (`app/globals.css`), added 2026-09-27 at P6.2
+- Tailwind v4 automatic source detection scans every file that isn't gitignored. The committed migration kit (evidence JSON that lists class tokens, specs, workflows) therefore adds unused utilities to the production CSS and changes its hash on almost every migration commit. At P6.2, B's CSS gained 28 tokens that appear only in `docs/migration/evidence/P5.3-*.json`.
+- Directly after `@import "tailwindcss";`, add exactly these lines and nothing else:
+  ```css
+  @source not "../docs/migration";
+  @source not "../scripts/migration";
+  @source not "../.claude";
+  @source not "../CLAUDE.md";
+  ```
+  These are the only paths the migration added outside app code. Exclude nothing else. `attached_assets/`, `scripts/seed-*`, `replit.md` and every other pre-existing file stay scanned exactly as on `main`, because DB-stored blog HTML may rely on classes that only appear there.
+- Effect: the CSS comes only from files that exist on `main` plus the app files the M/H series touch. Committing evidence no longer changes it, and a later merge to `main` builds the same CSS. No class used by any page may disappear; local verification proves this.
+
+### H6: Say `sslmode=verify-full` explicitly (`lib/db.ts`), added 2026-09-27 at P6.2
+- pg 8.17 with pg-connection-string 2.10 treats `sslmode=prefer|require|verify-ca` exactly like `verify-full` (full certificate and hostname verification). It still writes a SECURITY WARNING to stderr once per process, and Vercel logs that line as an error on every cold start. pg 9 will give those modes libpq semantics (`require` = encrypt without verifying), so a future bump would silently downgrade TLS.
+- Build the Pool's connection string from `DATABASE_URL` by rewriting the `sslmode` parameter value `prefer`, `require` or `verify-ca` to `verify-full`.
+  - Match only a parameter that follows `?` or `&` and runs up to the next `&` or the end. Match case-sensitively, as pg does.
+  - Leave the URL untouched when it contains `uselibpqcompat` (the caller chose libpq semantics) or has no such `sslmode`.
+  - Never log the URL.
+- `middleware.ts` uses the Neon HTTP driver, which doesn't use pg-connection-string, so it stays unchanged.
+- Behavior is identical: the parsed `ssl` config is the same, minus the warning. The same holds on Replit.
+
 ---
 
 ## Local verification (P2.2, and again in P6.1): verifier, sonnet/medium
@@ -119,6 +140,23 @@ Everything runs in the container with no external network except the npm registr
    - A killed DB (`pg_ctl stop`) makes an **already cached** `/blog/<slug>` still return 200, never 404.
    - `/api/blog` still returns 200 from cache.
 7. Stop PG and remove `.scratch/localpg`.
+8. H5 and H6 (P6.2 attempt 3). Write the result to `evidence/P6.2-fix-local-verify.json`.
+   - **H5:** after the local `npm run build`, list the class tokens the new main CSS lost and gained compared with `docs/migration/.scratch/p6.2-p6-20260927T0645Z/css/new-b05e81efd48e3db7.css` (the CSS B serves at `2f4b4d5`).
+     - Gained must be 0.
+     - For each lost token, show that no `class`/`className` value uses it:
+       - in the raw HTML bodies of the P6.2 capture (`raw-a` and `raw-b`, all 297 URLs, blog content included);
+       - in any tracked file outside the four excluded paths.
+   - **H6:** use the installed pg-connection-string with fake hosts and credentials only. Run each case in a fresh `node` process so the once-per-process warning flag can't hide anything. For each URL shape, show that `parse(normalized).ssl` deep-equals `parse(original).ssl`, and that the normalized form emits no warning. The shapes are:
+     - `?sslmode=require`
+     - `?sslmode=require&channel_binding=require`
+     - `?channel_binding=require&sslmode=prefer`
+     - `?sslmode=verify-ca`
+     - `?sslmode=verify-full`
+     - `?sslmode=disable`
+     - `?sslmode=no-verify`
+     - `?uselibpqcompat=true&sslmode=require` (must stay unchanged)
+     - no query
+     - `?application_name=xsslmode=require` (must stay unchanged)
 
 ## Review checklist (P2.3 / P6.1): reviewer, opus/high
 
@@ -127,4 +165,6 @@ Everything runs in the container with no external network except the npm registr
 - `after` comes from `next/server`. `revalidatePath` comes from `next/cache`. `attachDatabasePool` is guarded by `process.env.VERCEL`.
 - Error semantics: no path can cache a 404 because of a DB error (H1). Revalidation errors are swallowed (H2).
 - `package-lock.json` is consistent (`npm ci` clean) and there are no unrelated dependency bumps.
+- H5: `app/globals.css` gains exactly the four `@source not` lines, with paths correct relative to `app/`. Nothing else changes.
+- H6: the rewrite follows the H6 rules (parameter boundaries, case, `uselibpqcompat` left alone). The URL is never logged, the `DATABASE_URL` guard and the H3 `connectionTimeoutMillis` are unchanged, and `middleware.ts` is untouched.
 - Verdict JSON: `{blocking: [...], nonBlocking: [...], approve: bool}`. Blocking findings go back to the implementer (max 2 rounds, then the escalation ladder).

@@ -69,6 +69,15 @@ Expect at least 250 URLs. Log the count per source. A shrinking inventory betwee
 - **Binary:** sha256.
 - **Compact mode** (`--compact`; addendum 2026-09-26, A1 C9): same capture path. `/api/blog` is stored as `jsonArrayLength`, a per-slug sha256 of each item's canonical JSON (`jsonBySlugHash`) and the slug multiset. The duplicated canonical strings are dropped. Large text bodies are stored as a hash plus a short preview. Raw bodies still go to `--raw-dir`. Use it for any manifest that must be committed (the P6.5 baseline) and stay under 5 MB.
 - **`/api/blog` size** (A1 C10): every capture records its status, decoded byte size and array length.
+- **`Link` header preloads** (added 2026-09-27 at P6.2). A page's `assetRefs` are every same-site asset the response tells the browser to fetch.
+  - That includes the HTML elements extracted today, plus each `Link` response-header entry (RFC 8288) whose `rel` tokens include `preload` or `modulepreload`.
+  - Parse `rel` case-insensitively; it may be quoted, and it may carry several space-separated values.
+  - Resolve each target against the page URL. Apply the same same-site filter and path+search form as HTML refs.
+  - Deduplicate a header target against the page's existing refs, compared with `dpl` stripped, so one asset never counts twice.
+  - Record the header-derived subset separately as `linkHeaderRefs` for diagnostics.
+  - Other `rel` values (`preconnect`, `dns-prefetch`, …), third-party targets, and a malformed header add nothing and never fail the capture.
+  - Why: Next.js sends a dynamic render's preload hints as a `Link` header (Replit's blog posts: 2 CSS files and 5 fonts), but inlines them as `<link rel="preload">` in prerendered HTML (the ISR posts on Vercel after H1). The browser acts on both the same way, so counting only one form reports a difference no visitor can see.
+- **compare.mjs outputs** (added 2026-09-27 at P6.2): the full `diff.json` copy and the trimmed committed copy never share a path. If `--scratch` resolves to the directory of `--out`, the full copy is written as `<basename>.full.json`.
 
 ## 4. Compare (`compare.mjs`) rules
 
