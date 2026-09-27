@@ -4,7 +4,7 @@
   "branch": "claude/wonderful-edison-823y83",
   "status": "IN_PROGRESS",
   "currentStep": "P6.4",
-  "updatedAt": "2026-09-27T08:50:13.118Z",
+  "updatedAt": "2026-09-27T08:50:43.120Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -467,6 +467,20 @@
         },
         "startedAt": "2026-09-27T08:43:00Z",
         "note": "args.note: record ACME challenge time/expiry, verification[] as returned, public CAA lookup; never change DNS or issue certs; STOP if a domain belongs to another project"
+      },
+      "p64": {
+        "runId": "wf_ecbbbf58-4d1",
+        "scriptPath": ".claude/workflows/mig-p6b-ready.js",
+        "args": {
+          "part": "P6.4",
+          "sha": "0c73af90ab386a49d0f93d1753ee18039cf5b47e",
+          "hSha": "dc5405357441870b9315a28a7cbb93a201278453",
+          "runLabel": "p6-20260927T0850Z",
+          "gapStart": 1000000,
+          "deployMode": "git"
+        },
+        "startedAt": "2026-09-27T08:51:00Z",
+        "note": "args also carry dbPath and paths (see the transcript); for a resume, re-issue byte-identical args"
       }
     },
     "followUps": [
