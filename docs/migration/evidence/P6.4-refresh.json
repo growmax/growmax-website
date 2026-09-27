@@ -1,106 +1,142 @@
 {
   "step": "P6.4",
-  "checkedAt": "2026-09-27T08:55:00Z",
-  "operator": "migration-db-operator",
+  "gate": "G6",
+  "attempt": 2,
   "status": "blocked",
-  "blockedReason": "The destructive restore (runner.mjs pg_restore --confirm-pre-cutover -- --clean --if-exists ... -L filtered TOC into DST_URL_UNPOOLED) was denied by the Claude Code permission system (auto-mode classifier: 'Production Deploy'). Per that denial the operator did not retry through any other path (runner.mjs full-refresh, sync.mjs init-watermarks/gap). The target was NOT modified: no restore, no gap, no watermarks, no _migration schema. Owner/orchestrator action needed: allow this Bash action (or run the restore step under an explicit owner approval), then re-run P6.4.",
+  "checkedAt": "2026-09-27T09:01:09Z",
+  "verifier": "migration-db-operator (opus/high)",
+  "mode": "verified-identical: copy skipped (attempt 1 restore refused by the permission system, and a no-op)",
+  "blockedReason": "Guard (1) failed at 2026-09-27T09:00:37Z: www.growmax.io no longer resolves to the Replit IP 34.111.179.208. dns.google, cloudflare-dns and getaddrinfo all return exactly [216.150.1.1] (A record, TTL 300). Per the task and SPEC-03 §0.5/§4 the operator stopped before any database access: no row-level comparison, no init-watermarks, no gap. A DNS change on www means cutover may have started (the P7 path: facts.cutover.detectedAt should be evaluated by the orchestrator/owner); Neon may now be taking real writes and must be treated as potentially authoritative.",
+  "checks": [
+    {
+      "name": "dns.google A www.growmax.io",
+      "expected": [
+        "34.111.179.208"
+      ],
+      "actual": [
+        "216.150.1.1"
+      ],
+      "pass": false
+    },
+    {
+      "name": "cloudflare-dns A www.growmax.io",
+      "expected": [
+        "34.111.179.208"
+      ],
+      "actual": [
+        "216.150.1.1"
+      ],
+      "pass": false
+    },
+    {
+      "name": "getaddrinfo www.growmax.io",
+      "expected": [
+        "34.111.179.208"
+      ],
+      "actual": [
+        "216.150.1.1"
+      ],
+      "pass": false
+    },
+    {
+      "name": "STATE.status",
+      "expected": "IN_PROGRESS",
+      "actual": "IN_PROGRESS",
+      "pass": true
+    },
+    {
+      "name": "STATE.facts.cutover.detectedAt",
+      "expected": null,
+      "actual": null,
+      "pass": true
+    },
+    {
+      "name": "fresh row-level comparison (4 public tables)",
+      "expected": "identical",
+      "actual": "not run (guard failed)",
+      "pass": null
+    },
+    {
+      "name": "sync.mjs init-watermarks --confirm-pre-cutover --gap-start 1000000",
+      "expected": "guards, gap, verify below gap, watermark init",
+      "actual": "not run (guard failed)",
+      "pass": null
+    },
+    {
+      "name": "sync.mjs gap --gap-start 1000000 re-run is a no-op",
+      "expected": "moved=false for every sequence",
+      "actual": "not run (guard failed)",
+      "pass": null
+    }
+  ],
   "guards": {
     "dns": {
-      "checkedAt": "2026-09-27T08:50:40Z",
-      "dnsGoogle": ["34.111.179.208"],
-      "cloudflareDns": ["34.111.179.208"],
-      "getaddrinfo": ["34.111.179.208"],
+      "checkedAt": "2026-09-27T09:00:37Z",
       "expected": "34.111.179.208",
-      "pass": true
+      "dnsGoogle": [
+        "216.150.1.1"
+      ],
+      "cloudflareDns": [
+        "216.150.1.1"
+      ],
+      "getaddrinfo": [
+        "216.150.1.1"
+      ],
+      "ttl": 300,
+      "apexForContext": {
+        "growmax.io": [
+          "198.185.159.144",
+          "198.49.23.144",
+          "198.49.23.145",
+          "198.185.159.145"
+        ]
+      },
+      "pass": false
     },
     "state": {
       "status": "IN_PROGRESS",
       "cutoverDetectedAt": null,
       "gapStart": 1000000,
       "pass": true
-    },
-    "kitOnlyDiff": {
-      "range": "dc5405357441870b9315a28a7cbb93a201278453..0c73af90ab386a49d0f93d1753ee18039cf5b47e",
-      "pathsChanged": 27,
-      "prefixes": ["docs/migration/", "scripts/migration/", ".claude/"],
-      "nonKitPaths": [],
-      "pass": true
     }
   },
-  "dataLossPreCheck": {
-    "checkedAt": "2026-09-27T08:52:10Z",
-    "method": "fingerprint.mjs --rows on both sides (neon-https, readOnly:true; source SRC_URL<-REPLIT_DATABASE_URL, target DST_URL_UNPOOLED); ids and per-row md5 compared in-process; row contents never printed; raw outputs only in docs/migration/.scratch/",
-    "tables": {
-      "demo_requests": {"srcCount": 32, "dstCount": 32, "srcMd5": "2ecebe76c95bedd033064c1184fa8806", "dstMd5": "2ecebe76c95bedd033064c1184fa8806", "srcMaxId": 32, "dstMaxId": 32, "targetOnlyIds": [], "sourceOnlyIds": [], "hashDiffIds": []},
-      "newsletter_subscriptions": {"srcCount": 0, "dstCount": 0, "srcMd5": "d41d8cd98f00b204e9800998ecf8427e", "dstMd5": "d41d8cd98f00b204e9800998ecf8427e", "srcMaxId": 0, "dstMaxId": 0, "targetOnlyIds": [], "sourceOnlyIds": [], "hashDiffIds": []},
-      "blog_posts": {"srcCount": 171, "dstCount": 171, "srcMd5": "50846b343a582f3a34553a06a1c6bde4", "dstMd5": "50846b343a582f3a34553a06a1c6bde4", "targetOnlyIds": [], "sourceOnlyIds": [], "hashDiffIds": []},
-      "blog_redirects": {"srcCount": 95, "dstCount": 95, "srcMd5": "7585ffeecf6c45de849c7f199312ff3a", "dstMd5": "7585ffeecf6c45de849c7f199312ff3a", "targetOnlyIds": [], "sourceOnlyIds": [], "hashDiffIds": []}
-    },
-    "targetOnlyRowsInDemoOrNewsletter": 0,
-    "pass": true
-  },
-  "targetBeforeRefresh": {
-    "schemas": ["public"],
-    "publicSchemaOwner": "pg_database_owner",
-    "migrationSchemaPresent": false,
+  "rowLevelComparison": null,
+  "initWatermarks": null,
+  "gapRerun": null,
+  "finalSequenceValues": null,
+  "lastKnownTargetState": {
+    "source": "attempt 1 evidence (commit e2084ee), 2026-09-27T08:52Z",
+    "fourTablesIdentical": true,
     "sequencesLastValue": {
       "blog_posts_id_seq": 179,
       "blog_redirects_id_seq": 95,
       "demo_requests_id_seq": 34,
       "newsletter_subscriptions_id_seq": 7
     },
-    "note": "sequences are above the max ids because of the P5 test rows (since deleted); the refresh would reset them from the dump, then the gap would set them to 1000000"
+    "migrationSchemaPresent": false,
+    "note": "no gap exists yet: new target rows would get ids that can collide with source ids (demo_requests next 35, newsletter_subscriptions next 8); no watermarks, so delta refuses to run"
   },
-  "sourceReadOnlyProof": {
-    "srcUrlRoSession": {"default_transaction_read_only": "on", "writeProbe": "ERROR: cannot execute CREATE TABLE in a read-only transaction"},
-    "containerSessions": "lib.mjs connect(readOnly:true)",
-    "noSourceDdlDml": true
+  "attempt1Refusal": {
+    "quoted": "denied by the Claude Code permission system (auto-mode classifier: 'Production Deploy')",
+    "command": "runner.mjs pg_restore --confirm-pre-cutover -- --clean --if-exists ... -L filtered TOC into DST_URL_UNPOOLED",
+    "source": "docs/migration/evidence/P6.4-refresh.json at e2084ee, blockedReason"
   },
-  "completedBeforeBlock": {
-    "sandboxToolchain": "pg_dump/pg_restore/psql 16.15 in growmax-migration-runner",
-    "dump": {
-      "via": "runner.mjs exec -- bash -lc (no target credentials)",
-      "cmd": "pg_dump \"$SRC_URL_RO\" --format=custom --no-owner --no-privileges --schema=public --file=/tmp/p64-src.dump; pg_restore --list > /tmp/p64-src.toc; filter SCHEMA public and COMMENT ON SCHEMA public -> /tmp/p64-src.filtered.toc",
-      "exitCode": 0,
-      "archiveCreatedAt": "2026-09-27 08:53:56 UTC",
-      "bytes": 602154,
-      "sha256": "c74450049b1cda12993ecc3c762163e06bb7f3eea919fa06d9907175263b1eed",
-      "tocEntries": 33,
-      "filteredEntries": 31,
-      "removed": ["SCHEMA - public", "COMMENT - SCHEMA public"],
-      "location": "Sandbox /tmp only (not downloaded, not in git)",
-      "whyFiltered": "SPEC-03 §4 documented remedy, as at P4.2; target public is owned by pg_database_owner, and an unfiltered --clean would drop and recreate the public schema itself"
-    }
-  },
-  "notRun": [
-    "pg_restore --clean --if-exists (denied)",
-    "ANALYZE",
-    "sync.mjs init-watermarks --confirm-pre-cutover --gap-start 1000000 (the real path of full-refresh: guards, gap, verify below gap, watermark init; sync.mjs full-refresh itself refuses without a copyFn)",
-    "sync.mjs gap --gap-start 1000000"
-  ],
-  "counts": null,
-  "finalSequenceValues": null,
   "scriptHashes": {
-    "scripts/migration/db/runner.mjs": "1764d67264c6f07662573f382692e73749fa25f2",
     "scripts/migration/db/sync.mjs": "8ccea0956dff6402af53778962bfbe13c1613022",
     "scripts/migration/db/fingerprint.mjs": "75a4fceace752d952c412668113285736f4883d8"
   },
-  "scratch": [
-    "docs/migration/.scratch/p64-pre-src-rows.json",
-    "docs/migration/.scratch/p64-pre-dst-rows.json",
-    "docs/migration/.scratch/p64-pre-compare.json",
-    "docs/migration/.scratch/p64-pre-dst-catalog.json",
-    "docs/migration/.scratch/p64-versions.json",
-    "docs/migration/.scratch/p64-ro-probe.json",
-    "docs/migration/.scratch/p64-dump.json"
+  "artifacts": [
+    "docs/migration/evidence/P6.4-refresh.json (attempt 1 at commit e2084ee)",
+    "docs/migration/.scratch/p64-pre-compare.json (attempt 1 compare, 08:52Z)"
   ],
   "constraints": {
+    "databaseAccessed": false,
+    "targetModified": false,
     "sourceReadOnly": true,
     "noSecretsPrinted": true,
-    "noSeedImportEnhanceOrDbPush": true,
-    "dumpsOnlyInSandboxTmp": true,
+    "noPii": true,
+    "noRestoreOrDestructiveCommand": true,
     "noStateOrLogEdits": true,
-    "noCommit": true,
-    "targetModified": false
+    "noCommit": true
   }
 }

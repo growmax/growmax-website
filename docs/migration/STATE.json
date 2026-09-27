@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "migration": "growmax-website: Replit -> Vercel (team growmax1) + Neon via Vercel Marketplace",
   "branch": "claude/wonderful-edison-823y83",
-  "status": "IN_PROGRESS",
-  "currentStep": "P6.4",
-  "updatedAt": "2026-09-27T08:59:44.089Z",
+  "status": "POST_CUTOVER",
+  "currentStep": null,
+  "updatedAt": "2026-09-27T09:05:16.515Z",
   "config": {
     "teamSlug": "growmax1",
     "teamId": "team_r7yanNuXwyp3P3jzhnxkDNaD",
@@ -163,8 +163,45 @@
       "hSha": "dc5405357441870b9315a28a7cbb93a201278453"
     },
     "cutover": {
-      "state": null,
-      "detectedAt": null
+      "state": "SWITCHED",
+      "detectedAt": "2026-09-27T09:00:37Z",
+      "switchedBetween": [
+        "2026-09-27T08:50:40Z",
+        "2026-09-27T09:00:37Z"
+      ],
+      "initiatedBy": "owner (DNS change made by the owner directly, before the runbook, A2 and the P6.4 gap; owner confirmed in chat about 09:03Z: website live, redirected to www.growmax.io)",
+      "wwwObserved": {
+        "at": "2026-09-27T09:00:37Z",
+        "dnsGoogle": [
+          "216.150.1.1"
+        ],
+        "cloudflareDns": [
+          "216.150.1.1"
+        ],
+        "getaddrinfo": [
+          "216.150.1.1"
+        ],
+        "ttl": 300
+      },
+      "apexObserved": {
+        "at": "2026-09-27T09:00:37Z",
+        "a": [
+          "198.185.159.144",
+          "198.185.159.145",
+          "198.49.23.144",
+          "198.49.23.145"
+        ],
+        "note": "Squarespace; at 09:02Z https://growmax.io still gave 301 to http://www.growmax.io (the pre-existing insecure hop); the owner may have changed it since"
+      },
+      "firstHttpsCheck": {
+        "at": "2026-09-27T09:02:10Z",
+        "url": "https://www.growmax.io/",
+        "status": 200,
+        "server": "Vercel",
+        "xVercelCache": "HIT",
+        "note": "seen through the container proxy, which validates the upstream certificate; P8.1 verifies the cert independently"
+      },
+      "certPath": "to be confirmed in P8.1 (the ACME DNS-01 TXT records were not added; Vercel issues via HTTP-01 once DNS points to it)"
     },
     "runner": {
       "sandboxName": "growmax-migration-runner",
@@ -943,8 +980,8 @@
       "status": "pending",
       "evidence": [],
       "by": null,
-      "at": null,
-      "note": null
+      "at": "2026-09-27T09:05:16.514Z",
+      "note": "Preempted by the owner-initiated cutover at about 09:00Z. Satisfied: 6.1 (main merge no-op), 6.2 and 6.3 (P6.3 domains, records, ACME), 6.4-data (row-level identical at 08:52Z; the gap is applied post-cutover). Not done: 6.5 (redeploy and quick parity; subsumed by P8.2), 6.5b (fresh baseline; the P6.2 A capture substitutes), 6.6 (runbook), 6.7 (A2 before DNS). To be judged at A4."
     },
     "G8a": {
       "status": "pending",
@@ -1601,7 +1638,7 @@
       ],
       "gate": "G6",
       "workflow": ".claude/workflows/mig-p6b-ready.js",
-      "status": "in_progress",
+      "status": "skipped",
       "attempts": 2,
       "evidence": [
         "docs/migration/evidence/P6.4-refresh.json"
@@ -1609,10 +1646,12 @@
       "notes": [
         "2026-09-27T08:50:13.118Z mig-p6b-ready.js part P6.4. Guards run first: www still resolves to Replit 34.111.179.208, and the kit-only diff hSha..sha is checked inside the workflow. Then the data-loss pre-check (target-only demo_requests/newsletter_subscriptions ids), sync.mjs full-refresh --confirm-pre-cutover (the Replit source is read-only), and the sequence gap at GAP_START=1000000. An independent verification follows (counts, md5, schema-diff --accept-pg-major 18 with empty===true, reviewed hash recorded, sequences == GAP_START). Then a redeploy of the branch HEAD (owner approval of create_deployment) and a quick parity check of the DB-driven URLs, where the CSS pin must hold. No functional writes.",
         "2026-09-27T08:58:09.141Z Attempt 1 (wf_ecbbbf58-4d1) was blocked by the permission system. The auto-mode classifier refused the destructive pg_restore --clean into the production Neon target (reason 'Production Deploy'). The operator did not retry it and tried no other route, and Neon was not changed. Every guard and pre-check had passed: www resolves to 34.111.179.208 on three resolvers, STATE is clean, the diff is kit-only, the source session is read-only, and there are 0 target-only rows. The row-level comparison at 08:52Z (p64-pre-compare.json) shows all four tables IDENTICAL: blog_posts 171/171, blog_redirects 95/95, demo_requests 32/32, newsletter_subscriptions 0/0, with equal table md5 and max ids and no target-only, source-only or hash-diff ids. So the refused restore would have been a no-op for data, and the P5 test rows are already gone.",
-        "2026-09-27T08:58:09.247Z Attempt 2: non-destructive path (verified-identical; copy skipped), then init-watermarks gap/verify/init, independent verification, redeploy of 0c73af9 (owner approval) and quick parity."
+        "2026-09-27T08:58:09.247Z Attempt 2: non-destructive path (verified-identical; copy skipped), then init-watermarks gap/verify/init, independent verification, redeploy of 0c73af9 (owner approval) and quick parity.",
+        "2026-09-27T09:05:04.985Z Preempted by the owner-initiated DNS cutover (about 08:55-09:00Z). Data was proven identical at 08:52Z (P6.4 attempt 1). The destructive copy was refused and not needed. The gap is applied post-cutover under P8.0. Watermarks follow a post-cutover plan (init-watermarks is a pre-cutover mode). The redeploy is unnecessary because data is unchanged since the dc54053 build. Quick parity is subsumed by P8.2."
       ],
       "startedAt": "2026-09-27T08:58:09.247Z",
-      "lastFailureAt": "2026-09-27T08:58:09.141Z"
+      "lastFailureAt": "2026-09-27T08:58:09.141Z",
+      "completedAt": "2026-09-27T09:05:04.984Z"
     },
     {
       "id": "P6.5",
@@ -1623,10 +1662,13 @@
       ],
       "gate": "G6",
       "workflow": ".claude/workflows/mig-advisor.js",
-      "status": "pending",
+      "status": "skipped",
       "attempts": 0,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T09:05:05.037Z Preempted by the owner's cutover. The baseline can no longer be captured through DNS. Substitute baseline for P8.2: the P6.2 attempt-3 live-Replit capture (.scratch/p6-20260927T0803Z/manifest-a.json and raw-a, captured 08:04-08:05Z through DNS with harness 2565667, stylesheetRefs present), plus Replit pinned by IP from the Sandbox while it is still up. The runbook was never rendered because the owner changed DNS directly. A2 (go/no-go) did not happen before DNS; A4 reviews post-cutover."
+      ],
+      "completedAt": "2026-09-27T09:05:05.037Z"
     },
     {
       "id": "P6.6",
@@ -1637,10 +1679,13 @@
       ],
       "gate": "G6",
       "workflow": null,
-      "status": "pending",
+      "status": "skipped",
       "attempts": 0,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T09:05:05.093Z Preempted: the owner acted on DNS before the READY-FOR-DNS notification."
+      ],
+      "completedAt": "2026-09-27T09:05:05.092Z"
     },
     {
       "id": "P7.1",
@@ -1651,10 +1696,13 @@
       ],
       "gate": null,
       "workflow": ".claude/workflows/mig-sync-delta.js",
-      "status": "pending",
+      "status": "done",
       "attempts": 0,
       "evidence": [],
-      "notes": []
+      "notes": [
+        "2026-09-27T09:05:05.143Z SWITCHED detected at 09:00:37Z (www A = 216.150.1.1 on dns.google, cloudflare-dns and getaddrinfo), owner-confirmed. No pre-cutover check-ins ran. The DNS-01 TXT path was not used."
+      ],
+      "completedAt": "2026-09-27T09:05:05.143Z"
     },
     {
       "id": "P8.1",
