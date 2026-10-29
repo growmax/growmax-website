@@ -11,11 +11,19 @@ interface DropdownItem {
   label: string
   href?: string
   type?: 'link' | 'section'
+  // A path served by another app behind this domain (the /docs proxy): a plain <a>, because
+  // next/link would try to load it as a page of this site.
+  native?: boolean
 }
 interface NavDropdown {
   label: string
-  items: DropdownItem[]
+  // One column, or several side by side on desktop (flattened in order on mobile).
+  items?: DropdownItem[]
+  columns?: DropdownItem[][]
 }
+
+const itemsOf = (dropdown: NavDropdown) => dropdown.items ?? dropdown.columns?.flat() ?? []
+const slug = (label: string) => label.toLowerCase().replace(/\s+/g, '-')
 
 const navDropdowns: NavDropdown[] = [
   {
@@ -57,28 +65,49 @@ const navDropdowns: NavDropdown[] = [
     ],
   },
   {
-    label: 'Insights for B2B',
-    items: [
-      { label: 'Content', type: 'section' },
-      { label: 'All Articles', href: '/blog' },
-      { label: 'Spare Parts Guide', href: '/solutions/spare-parts-ecommerce' },
-      { label: 'Comparisons', type: 'section' },
-      { label: 'Enterprise vs Corevist & SAP', href: '/revenue-platform/compare' },
-      { label: 'vs Sana Commerce', href: '/comparisons/sana-commerce-alternatives' },
-      { label: 'vs SAP Commerce Cloud', href: '/comparisons/sap-commerce-cloud-alternatives' },
-      { label: 'vs Salesforce Commerce', href: '/comparisons/salesforce-commerce-alternatives' },
-      { label: 'vs Shopify Plus B2B', href: '/comparisons/shopify-plus-b2b-alternatives' },
-      { label: 'vs Magento B2B', href: '/comparisons/magento-b2b-alternatives' },
-      { label: 'vs BigCommerce B2B', href: '/comparisons/bigcommerce-b2b-alternatives' },
-      { label: 'vs OroCommerce', href: '/comparisons/orocommerce-alternatives' },
-      { label: 'vs Dynamics 365 Commerce', href: '/comparisons/dynamics-365-commerce-alternatives' },
-      { label: 'vs WooCommerce B2B', href: '/comparisons/woocommerce-b2b-alternatives' },
-      { label: 'vs Zoho Commerce', href: '/comparisons/zoho-commerce-alternatives' },
-      { label: 'vs Oracle Commerce', href: '/comparisons/oracle-commerce-alternatives' },
-      { label: 'vs NetSuite SuiteCommerce', href: '/comparisons/netsuite-suitecommerce-alternatives' },
+    label: 'Resources',
+    columns: [
+      [
+        { label: 'Documentation', type: 'section' },
+        { label: 'Product Docs', href: '/docs/', native: true },
+        { label: 'Developer Docs & API', href: '/docs/developers/', native: true },
+        { label: 'Insights', type: 'section' },
+        { label: 'All Articles', href: '/blog' },
+        { label: 'Spare Parts Guide', href: '/solutions/spare-parts-ecommerce' },
+        { label: 'Write for Us', href: '/write-for-us' },
+        { label: 'Company', type: 'section' },
+        { label: 'About Us', href: '/company/about' },
+        { label: 'Book a Demo', href: '/demo' },
+      ],
+      [
+        { label: 'Comparisons', type: 'section' },
+        { label: 'Enterprise vs Corevist & SAP', href: '/revenue-platform/compare' },
+        { label: 'vs Sana Commerce', href: '/comparisons/sana-commerce-alternatives' },
+        { label: 'vs SAP Commerce Cloud', href: '/comparisons/sap-commerce-cloud-alternatives' },
+        { label: 'vs Salesforce Commerce', href: '/comparisons/salesforce-commerce-alternatives' },
+        { label: 'vs Shopify Plus B2B', href: '/comparisons/shopify-plus-b2b-alternatives' },
+        { label: 'vs Magento B2B', href: '/comparisons/magento-b2b-alternatives' },
+        { label: 'vs BigCommerce B2B', href: '/comparisons/bigcommerce-b2b-alternatives' },
+        { label: 'vs OroCommerce', href: '/comparisons/orocommerce-alternatives' },
+        { label: 'vs Dynamics 365 Commerce', href: '/comparisons/dynamics-365-commerce-alternatives' },
+        { label: 'vs WooCommerce B2B', href: '/comparisons/woocommerce-b2b-alternatives' },
+        { label: 'vs Zoho Commerce', href: '/comparisons/zoho-commerce-alternatives' },
+        { label: 'vs Oracle Commerce', href: '/comparisons/oracle-commerce-alternatives' },
+        { label: 'vs NetSuite SuiteCommerce', href: '/comparisons/netsuite-suitecommerce-alternatives' },
+      ],
     ],
   },
 ]
+
+function ItemLink({ item, className, testId, onSelect }: { item: DropdownItem; className: string; testId: string; onSelect: () => void }) {
+  if (item.native) return <a href={item.href} className={className} onClick={onSelect} data-testid={testId}>{item.label}</a>
+  return <Link href={item.href!} className={className} onClick={onSelect} data-testid={testId}>{item.label}</Link>
+}
+
+const onItemSelected = (dropdown: NavDropdown, item: DropdownItem, device: 'desktop' | 'mobile') => {
+  if (dropdown.label === 'Minori AI') trackEvent('minori_nav_selected', { item: item.label.toLowerCase().replace(/\s+/g, '_'), device })
+  if (item.href === '/demo') trackEvent('demo_cta_clicked', { location: `nav_resources_${device}` })
+}
 
 function DesktopDropdown({ dropdown }: { dropdown: NavDropdown }) {
   const [open, setOpen] = useState(false)
@@ -89,22 +118,24 @@ function DesktopDropdown({ dropdown }: { dropdown: NavDropdown }) {
   useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }, [])
 
   return (
-    <div className="relative flex items-stretch" onMouseEnter={handleEnter} onMouseLeave={handleLeave} data-testid={`nav-dropdown-${dropdown.label.toLowerCase().replace(/\s+/g, '-')}`}>
-      <button className="flex items-center gap-1 px-6 border-r border-growmax-gray hover:bg-growmax-black hover:text-white transition-colors font-mono text-sm uppercase tracking-widest" onClick={() => setOpen(!open)} data-testid={`nav-trigger-${dropdown.label.toLowerCase().replace(/\s+/g, '-')}`}>
+    <div className="relative flex items-stretch" onMouseEnter={handleEnter} onMouseLeave={handleLeave} data-testid={`nav-dropdown-${slug(dropdown.label)}`}>
+      <button className="flex items-center gap-1 px-6 border-r border-growmax-gray hover:bg-growmax-black hover:text-white transition-colors font-mono text-sm uppercase tracking-widest" onClick={() => setOpen(!open)} data-testid={`nav-trigger-${slug(dropdown.label)}`}>
         {dropdown.label}
         <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div className="absolute top-full left-0 min-w-[280px] bg-white border-2 border-growmax-black z-50 max-h-[70vh] overflow-y-auto">
-          {dropdown.items.map((item, i) =>
-            item.type === 'section' ? (
-              <div key={`section-${i}`} className="px-6 py-2 font-mono text-[10px] uppercase tracking-widest text-growmax-red bg-gray-50 border-b border-growmax-gray">{item.label}</div>
-            ) : (
-              <Link key={item.href} href={item.href!} className="block px-6 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors" onClick={() => { if (dropdown.label === 'Minori AI') trackEvent('minori_nav_selected', { item: item.label.toLowerCase().replace(/\s+/g, '_'), device: 'desktop' }); setOpen(false) }} data-testid={`nav-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
-                {item.label}
-              </Link>
-            )
-          )}
+        <div className={`absolute top-full ${dropdown.columns ? 'right-0 grid grid-cols-2 w-[640px]' : 'left-0 min-w-[280px]'} bg-white border-2 border-growmax-black z-50 max-h-[70vh] overflow-y-auto`}>
+          {(dropdown.columns ?? [itemsOf(dropdown)]).map((column, c) => (
+            <div key={c} className={c > 0 ? 'border-l border-growmax-gray' : undefined}>
+              {column.map((item, i) =>
+                item.type === 'section' ? (
+                  <div key={`section-${i}`} className="px-6 py-2 font-mono text-[10px] uppercase tracking-widest text-growmax-red bg-gray-50 border-b border-growmax-gray">{item.label}</div>
+                ) : (
+                  <ItemLink key={item.href} item={item} className="block px-6 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors" onSelect={() => { onItemSelected(dropdown, item, 'desktop'); setOpen(false) }} testId={`nav-link-${slug(item.label)}`} />
+                )
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -125,24 +156,23 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
       <div className="overflow-y-auto max-h-[calc(100vh-4rem)]">
         {navDropdowns.map(dropdown => (
           <div key={dropdown.label} className="border-b border-growmax-gray">
-            <button onClick={() => toggleSection(dropdown.label)} className="flex items-center justify-between w-full px-6 py-4 font-mono text-sm uppercase tracking-widest hover:bg-growmax-black hover:text-white transition-colors" data-testid={`mobile-section-${dropdown.label.toLowerCase().replace(/\s+/g, '-')}`}>
+            <button onClick={() => toggleSection(dropdown.label)} className="flex items-center justify-between w-full px-6 py-4 font-mono text-sm uppercase tracking-widest hover:bg-growmax-black hover:text-white transition-colors" data-testid={`mobile-section-${slug(dropdown.label)}`}>
               {dropdown.label}
               <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${expandedSections.has(dropdown.label) ? 'rotate-180' : ''}`} />
             </button>
             {expandedSections.has(dropdown.label) && (
               <div className="bg-gray-50 border-t border-growmax-gray">
-                {dropdown.items.map((item, i) =>
+                {itemsOf(dropdown).map((item, i) =>
                   item.type === 'section' ? (
                     <div key={`section-${i}`} className="px-10 py-2 font-mono text-[10px] uppercase tracking-widest text-growmax-red bg-gray-100 border-b border-growmax-gray">{item.label}</div>
                   ) : (
-                    <Link key={item.href} href={item.href!} className="block px-10 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors" onClick={() => { if (dropdown.label === 'Minori AI') trackEvent('minori_nav_selected', { item: item.label.toLowerCase().replace(/\s+/g, '_'), device: 'mobile' }); onClose() }} data-testid={`mobile-link-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>{item.label}</Link>
+                    <ItemLink key={item.href} item={item} className="block px-10 py-3 font-mono text-xs uppercase tracking-widest border-b border-growmax-gray last:border-b-0 hover:bg-growmax-black hover:text-white transition-colors" onSelect={() => { onItemSelected(dropdown, item, 'mobile'); onClose() }} testId={`mobile-link-${slug(item.label)}`} />
                   )
                 )}
               </div>
             )}
           </div>
         ))}
-        <div className="border-b border-growmax-gray"><Link href="/company/about" className="block px-6 py-4 font-mono text-sm uppercase tracking-widest hover:bg-growmax-black hover:text-white transition-colors" onClick={onClose} data-testid="mobile-link-about-us">About Us</Link></div>
         <div className="p-6"><Link href="/demo" className="block w-full text-center px-8 py-4 bg-growmax-red text-white font-mono text-sm uppercase tracking-widest font-bold hover:bg-growmax-black transition-colors border-2 border-growmax-black" onClick={() => { trackEvent('demo_cta_clicked', { location: 'navbar_mobile' }); onClose() }} data-testid="mobile-link-demo">Book a Demo</Link></div>
       </div>
     </div>
@@ -164,7 +194,6 @@ export default function Navbar() {
           </Link>
           <div className="hidden lg:flex flex-1 items-stretch">
             {navDropdowns.map(dropdown => <DesktopDropdown key={dropdown.label} dropdown={dropdown} />)}
-            <Link href="/company/about" className="flex items-center px-6 border-r border-growmax-gray hover:bg-growmax-black hover:text-white transition-colors" data-testid="nav-link-about-us">About Us</Link>
           </div>
           <div className="flex-1 lg:flex-none flex justify-end">
             <button className="flex lg:hidden items-center justify-center w-16 border-l border-growmax-gray hover:bg-growmax-black hover:text-white transition-colors" onClick={() => setMobileOpen(true)} data-testid="mobile-menu-open"><Menu className="h-5 w-5" /></button>
