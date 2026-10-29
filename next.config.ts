@@ -2,6 +2,10 @@ import type { NextConfig } from 'next'
 import { gscIndexingRedirects } from './gsc-indexing-redirects'
 
 const nextConfig: NextConfig = {
+  // The docs proxied at /docs (middleware.ts) use trailing-slash URLs while this site does not.
+  // Next's automatic redirect would strip the docs' slash and loop with the docs origin, so it is
+  // off here and middleware.ts performs the same no-trailing-slash redirect for every other path.
+  skipTrailingSlashRedirect: true,
   async redirects() {
     return [
       // GSC indexing fixes 2026-09-21: 50 permanent redirects for Soft 404 / dead URLs
@@ -19,6 +23,14 @@ const nextConfig: NextConfig = {
       { source: '/arc/ai/claude-commerce-agents', destination: '/minori-ai/commerce-agents', permanent: true },
       { source: '/arc/ai/connect', destination: '/minori-ai/connect', permanent: true },
       { source: '/arc/ai/minori', destination: '/minori-ai/how-it-works', permanent: true },
+      // Help and developer entry points → the product docs at /docs (proxied from the ARC docs site)
+      { source: '/help', destination: '/docs/', permanent: true },
+      { source: '/help-center', destination: '/docs/', permanent: true },
+      { source: '/support/docs', destination: '/docs/', permanent: true },
+      { source: '/developers', destination: '/docs/developers/', permanent: true },
+      { source: '/api-docs', destination: '/docs/api/graphql/', permanent: true },
+      { source: '/api-reference', destination: '/docs/api/graphql/', permanent: true },
+      { source: '/changelog', destination: '/docs/developers/api-changelog/', permanent: true },
       // Revenue platform sub-feature pages → main product page
       { source: '/revenue-platform/dealer-portals', destination: '/revenue-platform', permanent: false },
       { source: '/revenue-platform/partner-commerce', destination: '/revenue-platform', permanent: false },
