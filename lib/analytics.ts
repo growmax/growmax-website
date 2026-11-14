@@ -1,3 +1,5 @@
+import { track } from '@vercel/analytics'
+
 type AnalyticsData = Record<string, string | number | boolean>
 
 declare global {
@@ -18,5 +20,13 @@ export function trackEvent(name: string, data?: AnalyticsData): void {
     window.dataLayer.push({ event: name, ...data })
   } catch {
     // Analytics must never interfere with the user experience.
+  }
+
+  try {
+    // Vercel Web Analytics custom events (shown under Events, filterable by referrer such as
+    // chatgpt.com or perplexity.ai, so AI-referred conversions can be compared with search).
+    track(name, data)
+  } catch {
+    // Same rule: never break the page for analytics.
   }
 }

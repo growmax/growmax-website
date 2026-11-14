@@ -20,8 +20,21 @@ function proxyDocs(request: NextRequest) {
   return NextResponse.rewrite(target, { request: { headers } })
 }
 
+// AI crawlers and AI assistants fetching pages on a user's behalf. Vercel Web Analytics ignores
+// bots, so these hits are written to the runtime logs instead: filter Logs for "ai_crawler" to see
+// which assistants read which pages (the *-User / -SearchBot agents mean a live answer or citation).
+const AI_BOT_PATTERN =
+  /(OAI-SearchBot|ChatGPT-User|GPTBot|Claude-SearchBot|Claude-User|ClaudeBot|anthropic-ai|PerplexityBot|Perplexity-User|Google-Extended|GoogleOther|Applebot-Extended|Amazonbot|meta-externalagent|meta-externalfetcher|MistralAI-User|DuckAssistBot|CCBot|Bytespider|cohere-ai|YouBot)/i
+
+function logAiCrawler(request: NextRequest, pathname: string) {
+  const match = request.headers.get('user-agent')?.match(AI_BOT_PATTERN)
+  if (!match) return
+  console.log(JSON.stringify({ event: 'ai_crawler', bot: match[1], path: pathname }))
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  logAiCrawler(request, pathname)
 
   const isDocs = pathname === '/docs' || pathname.startsWith('/docs/')
   if (DOCS_ORIGIN && isDocs) {

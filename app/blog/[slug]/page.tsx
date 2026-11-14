@@ -47,7 +47,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     if (redirect) permanentRedirect(`/blog/${redirect.newPath}`)
     notFound()
   }
-  const schema = JSON.stringify(articleSchema({ title: post.title, description: post.excerpt, slug: post.slug, date: post.date, author: post.author }))
+  const schema = JSON.stringify(articleSchema({ title: post.title, description: post.excerpt, slug: post.slug, date: post.date, author: post.author, createdAt: post.createdAt, updatedAt: post.updatedAt }))
   const postData = { ...post, relatedSlugs: post.relatedSlugs ?? [] }
   return <QueryProvider><BlogPostClient slug={slug} post={postData} schema={schema} /></QueryProvider>
 }
