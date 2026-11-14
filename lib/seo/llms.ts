@@ -1,5 +1,6 @@
 import type { BlogPost } from '@/lib/schema'
 import { BASE_URL, indexableRoutes } from '@/lib/seo/indexableRoutes'
+import type { DocsIndex, DocsPage } from '@/lib/seo/docs'
 
 const coreDescriptions: Record<string, string> = {
   '/': 'B2B commerce software for manufacturers and distributors.',
@@ -57,7 +58,40 @@ function routeLine(path: string) {
   return `- [${titleFromPath(path)}](${BASE_URL}${path}): ${descriptionForPath(path)}`
 }
 
-export function buildLlmsTxt(posts: BlogPost[]) {
+function docsLine(page: DocsPage) {
+  return `- [${cleanText(page.title)}](${BASE_URL}${page.path})${page.description ? `: ${cleanText(page.description)}` : ''}`
+}
+
+function docsLines(docs?: DocsIndex | null) {
+  const overview = [
+    '## Product documentation',
+    '',
+    'Growmax ARC is the B2B commerce and revenue operations product. Its help center explains how manufacturers and distributors run quote-to-cash, customer portals, catalog and pricing, purchasing and inventory on it.',
+    '',
+    `- [Growmax ARC documentation](${BASE_URL}/docs/): Help center home.`,
+    `- [Developer docs](${BASE_URL}/docs/developers/): GraphQL and REST APIs, MCP server for AI assistants, webhooks and app development.`,
+    `- [GraphQL API reference](${BASE_URL}/docs/api/graphql/): Every query, mutation and type.`,
+    `- [REST API reference](${BASE_URL}/docs/api/rest/): Service REST endpoints.`,
+    `- [Docs sitemap](${BASE_URL}/docs/sitemap.xml)`,
+    '',
+  ]
+  if (!docs) return overview
+  return [
+    ...overview,
+    ...docs.guides.flatMap(section => [
+      `### ${section.label}`,
+      '',
+      ...(section.description ? [`${section.description} Overview: ${BASE_URL}/docs/${section.key}/`, ''] : []),
+      ...section.pages.map(page => docsLine(page)),
+      '',
+    ]),
+    ...(docs.developers.length
+      ? ['## Developer documentation', '', ...docs.developers.map(page => docsLine(page)), '']
+      : []),
+  ]
+}
+
+export function buildLlmsTxt(posts: BlogPost[], docs?: DocsIndex | null) {
   const core = indexableRoutes.filter(route => !route.url.startsWith('/comparisons/') && !route.url.startsWith('/industries/'))
   const comparisons = indexableRoutes.filter(route => route.url.startsWith('/comparisons/'))
   const industries = indexableRoutes.filter(route => route.url.startsWith('/industries/'))
@@ -75,12 +109,7 @@ export function buildLlmsTxt(posts: BlogPost[]) {
     '## Main pages',
     ...core.map(route => routeLine(route.url)),
     '',
-    '## Product documentation',
-    `- [Growmax ARC documentation](${BASE_URL}/docs/): Help Center for running quote-to-cash, purchasing and inventory on Growmax ARC.`,
-    `- [Developer docs](${BASE_URL}/docs/developers/): GraphQL and Service REST APIs, MCP server, webhooks.`,
-    `- [GraphQL API reference](${BASE_URL}/docs/api/graphql/): Every query, mutation and type.`,
-    `- [Docs sitemap](${BASE_URL}/docs/sitemap.xml)`,
-    '',
+    ...docsLines(docs),
     '## Industry pages',
     ...industries.map(route => routeLine(route.url)),
     '',
@@ -95,10 +124,13 @@ export function buildLlmsTxt(posts: BlogPost[]) {
   ].join('\n')
 }
 
-export function buildLlmsFullTxt(posts: BlogPost[]) {
+export function buildLlmsFullTxt(posts: BlogPost[], docs?: DocsIndex | null) {
   const uniquePosts = [...new Map(posts.map(post => [post.slug, post])).values()]
   return [
-    buildLlmsTxt(uniquePosts),
+    buildLlmsTxt(uniquePosts, docs),
+    ...(docs?.restEndpoints.length
+      ? ['## REST API endpoints', '', ...docs.restEndpoints.map(page => docsLine(page)), '']
+      : []),
     '## Expanded blog content',
     '',
     ...uniquePosts.flatMap(post => [

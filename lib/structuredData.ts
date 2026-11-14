@@ -13,16 +13,35 @@ export function organizationSchema() {
   };
 }
 
-export function articleSchema({ title, description, slug, date, author }: { title: string; description: string; slug: string; date: string; author: string }) {
+// Search engines and AI answer engines only read ISO 8601 dates; posts store a display date
+// ("Sep 5, 2025"), so it is parsed here, falling back to the row's created_at.
+function toIsoDate(value: string | Date | null | undefined): string | undefined {
+  if (!value) return undefined;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? undefined : value.toISOString();
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return undefined;
+  // A display date carries no time zone; keep it a plain calendar date so it never shifts a day.
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+export function articleSchema({ title, description, slug, date, author, createdAt, updatedAt }: { title: string; description: string; slug: string; date: string; author: string; createdAt?: string | Date | null; updatedAt?: string | Date | null }) {
+  const url = `${BASE_URL}/blog/${slug}`;
+  const datePublished = toIsoDate(date) ?? toIsoDate(createdAt);
+  const modified = toIsoDate(updatedAt);
+  const dateModified = modified && (!datePublished || modified > datePublished) ? modified : datePublished;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: title,
     description,
-    url: `${BASE_URL}/blog/${slug}`,
-    datePublished: date,
+    url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    image: `${BASE_URL}/opengraph.jpg`,
+    ...(datePublished ? { datePublished } : {}),
+    ...(dateModified ? { dateModified } : {}),
     author: { "@type": "Person", name: author },
-    publisher: { "@type": "Organization", name: "Growmax", logo: { "@type": "ImageObject", url: `${BASE_URL}/logo.png` } },
+    publisher: { "@type": "Organization", name: "Growmax", url: BASE_URL, logo: { "@type": "ImageObject", url: `${BASE_URL}/icon-512.png` } },
   };
 }
 
@@ -48,7 +67,7 @@ export function softwareApplicationSchema({ name, description, path, operatingSy
     applicationCategory: category,
     operatingSystem,
     ...(offers ? { offers: { "@type": "Offer", price: offers.price, priceCurrency: offers.priceCurrency, ...(offers.billingPeriod ? { billingPeriod: offers.billingPeriod } : {}) } } : {}),
-    publisher: { "@type": "Organization", name: "Growmax", logo: { "@type": "ImageObject", url: `${BASE_URL}/logo.png` } },
+    publisher: { "@type": "Organization", name: "Growmax", logo: { "@type": "ImageObject", url: `${BASE_URL}/icon-512.png` } },
   };
 }
 
